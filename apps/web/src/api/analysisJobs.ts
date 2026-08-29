@@ -41,6 +41,8 @@ export type ZoneDecisionStub = {
   zone_id: string;
   ranked?: boolean;
   probability?: ProbabilityStub | null;
+  thermal_ordering_permitted?: boolean;
+  q_A?: number | null;
 };
 
 export type AnalysisResultStub = {

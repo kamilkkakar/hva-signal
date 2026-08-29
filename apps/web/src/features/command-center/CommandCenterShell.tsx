@@ -10,6 +10,8 @@ import { SourceTape } from "./SourceTape";
 
 export function CommandCenterShell() {
   const snapshot = useJobStore((state) => state.snapshot);
+  const lastRequest = useJobStore((state) => state.lastRequest);
+  const submitting = useJobStore((state) => state.submitting);
   const polling = useJobStore((state) => state.polling);
   const jobId = useJobStore((state) => state.jobId);
   const poll = useJobStore((state) => state.poll);
@@ -45,7 +47,16 @@ export function CommandCenterShell() {
       </header>
       <div className="shell-grid">
         <QueryRail />
-        <MapStage layer={layer} ranking={ranking} />
+        <MapStage
+          layer={layer}
+          ranking={ranking}
+          areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? null}
+          resultAreaId={snapshot?.request?.area_id ?? null}
+          jobId={jobId}
+          jobStatus={snapshot?.status ?? null}
+          result={snapshot?.result ?? null}
+          submitting={submitting}
+        />
         <DecisionRail ranking={ranking} />
       </div>
       <TimelineBar />

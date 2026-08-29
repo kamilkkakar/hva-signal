@@ -7,6 +7,7 @@ import {
   stallCopy,
 } from "@/utils/evidencePresentation";
 import { jobProgressLabel } from "@/utils/jobPolling";
+import { BACKEND_ORDERING_COPY } from "@/utils/mapPresentation";
 import type { RankingPresentation } from "@/utils/mapLayer";
 
 type DecisionRailProps = {
@@ -48,7 +49,7 @@ export function DecisionRail({ ranking }: DecisionRailProps) {
       <p className="decision-copy">
         {ranking.state === "INSUFFICIENT_EVIDENCE"
           ? "No zone ranking is shown until an analysis job completes with enough thermal evidence. Missing data is not treated as safe."
-          : "Analysis returned ranked zones. Geometry and decision cards are not wired yet, so no choropleth is drawn."}
+          : BACKEND_ORDERING_COPY}
       </p>
 
       <section className="evidence-detail">

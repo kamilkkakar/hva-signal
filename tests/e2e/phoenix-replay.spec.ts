@@ -111,6 +111,20 @@ test.describe("Phoenix AOI-local replay demo path", () => {
         page.getByTestId("decision8-suppression-reason"),
       ).toBeVisible();
       await expect(page.getByTestId("source-banner")).not.toContainText("LIVE");
+
+      const map = page.getByTestId("map-stage");
+      await expect(map).toHaveAttribute("data-map-state", "insufficient", {
+        timeout: 30_000,
+      });
+      await expect(map).toHaveAttribute("data-geometry-feature-count", "25");
+      await expect(map).toHaveAttribute("data-ranked-feature-count", "0");
+      await expect(map).toHaveAttribute("data-map-source-count", "25");
+      await expect(page.getByTestId("map-layer-label")).toContainText(
+        "CONTEXTUAL PREPAREDNESS PRIORITY — THERMAL DIFFERENTIATION UNAVAILABLE",
+      );
+      await expect(page.locator("body")).not.toContainText(
+        "Geometry and decision cards are not wired yet",
+      );
     });
   });
 
@@ -162,6 +176,20 @@ test.describe("Phoenix AOI-local replay demo path", () => {
       );
       await expect(panel).not.toContainText("25 / 93");
       await expect(panel).not.toContainText("safe");
+
+      const map = page.getByTestId("map-stage");
+      await expect(map).toHaveAttribute("data-map-state", "sufficient", {
+        timeout: 30_000,
+      });
+      await expect(map).toHaveAttribute("data-geometry-feature-count", "25");
+      await expect(map).toHaveAttribute("data-ranked-feature-count", "25");
+      await expect(map).toHaveAttribute("data-map-source-count", "25");
+      await expect(page.locator("body")).toContainText(
+        "Fill intensity reflects backend-authorized thermal ordering",
+      );
+      await expect(page.locator("body")).not.toContainText(
+        "Geometry and decision cards are not wired yet",
+      );
     });
   });
 });
