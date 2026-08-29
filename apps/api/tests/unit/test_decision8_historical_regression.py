@@ -27,9 +27,8 @@ OBS_PATH = (
     / "observations.jsonl"
 )
 ORACLE_CSV = (
-    HACKATHON_ROOT
-    / "workforce"
-    / "gate0"
+    Path(__file__).resolve().parents[1]
+    / "fixtures"
     / "decision8"
     / "decision8_policy_impact_by_timestamp.csv"
 )

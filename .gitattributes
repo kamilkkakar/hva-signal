@@ -2,3 +2,4 @@
 # Do not apply CRLF/LF conversion or ident/filter rewriting.
 data/demo/phoenix/area_config.json -text
 data/phoenix/reference/observations.jsonl -text
+apps/api/tests/fixtures/decision8/decision8_policy_impact_by_timestamp.csv -text
