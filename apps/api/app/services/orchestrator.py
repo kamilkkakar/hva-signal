@@ -10,7 +10,10 @@ from typing import Any
 from uuid import uuid4
 
 from app.core.area_config import AreaConfig
-from app.core.area_registry import resolve_area_package
+from app.core.area_registry import (
+    AreaRegistryError,
+    resolve_ready_area_package,
+)
 from app.core.jobs import job_store
 from app.core.phoenix_v1_area_config import (
     CANONICAL_REFERENCE_RELATIVE_PATH,
@@ -33,6 +36,7 @@ from app.domain.enums import (
     UpstreamTimeSemantics,
 )
 from app.domain.phoenix_v1 import (
+    FROZEN_AREA_CONFIG_SHA256,
     INPUT_QUANTITY,
     METRIC_TOP3_BOTTOM3,
     REFERENCE_HOUR_LOCAL,
@@ -402,14 +406,20 @@ def run_replay_analysis(
         raise ValueError(
             "LIVE FortyGuard fetch is not invoked while Gate 0 is open; use replay."
         )
-    resolve_area_package(request.area_id)
+    resolved = resolve_ready_area_package(request.area_id)
 
     quality_flags: list[str] = []
     if not _analysis_time_is_aoi_local(request.analysis_time):
         quality_flags.append(ANALYSIS_TIME_NOT_AOI_LOCAL)
 
     _emit(status_callback, JobStatus.LOADING_CONTEXT)
-    config = load_frozen_phoenix_v1_area_config()
+    if resolved.manifest.area_id == PHOENIX_DEMO_AREA_ID:
+        config = load_frozen_phoenix_v1_area_config()
+        if resolved.manifest.area_config_sha256 != FROZEN_AREA_CONFIG_SHA256:
+            raise AreaRegistryError("Phoenix package AreaConfig SHA-256 mismatch")
+    else:
+        config = resolved.config
+    package_reference_path = reference_source_path or resolved.reference_path
     target_date = _phoenix_v1_target_date(request)
     if target_date is not None:
         return _run_phoenix_v1_historical(
@@ -419,7 +429,7 @@ def run_replay_analysis(
             quality_flags=quality_flags,
             status_callback=status_callback,
             target_date=target_date,
-            reference_source_path=reference_source_path,
+            reference_source_path=package_reference_path,
             target_observations=target_observations,
             data_status=(
                 DataStatus.LIVE

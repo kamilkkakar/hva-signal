@@ -109,6 +109,17 @@ class AreaGeometryBytes:
     body: bytes
 
 
+@dataclass(frozen=True)
+class ResolvedReadyPackage:
+    """Verified READY-area artifacts. Integrity only — not an analytical decision."""
+
+    manifest: AreaPackageManifest
+    config: AreaConfig
+    area_config_path: Path
+    reference_path: Path
+    geometry_path: Path
+
+
 class SupportedAreaSummary(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -131,7 +142,15 @@ def load_area_registry(*, root: Path | None = None) -> AreaRegistry:
         raise AreaRegistryError(f"invalid registry: {exc}") from exc
 
 
-def resolve_area_package(area_id: str, *, root: Path | None = None) -> AreaPackageManifest:
+def resolve_ready_area_package(
+    area_id: str, *, root: Path | None = None
+) -> ResolvedReadyPackage:
+    """Resolve a READY package and keep the verified artifact paths.
+
+    Does not replace the Phoenix frozen AreaConfig loader. Callers that analyze
+    phoenix-demo must still run load_frozen_phoenix_v1_area_config as a
+    defense-in-depth guard.
+    """
     repo = Path(root) if root is not None else hackathon_root()
     registry = load_area_registry(root=repo)
     entry = next((item for item in registry.areas if item.area_id == area_id), None)
@@ -180,7 +199,17 @@ def resolve_area_package(area_id: str, *, root: Path | None = None) -> AreaPacka
         config=loaded,
         reference_path=reference_path,
     )
-    return manifest
+    return ResolvedReadyPackage(
+        manifest=manifest,
+        config=loaded,
+        area_config_path=config_path,
+        reference_path=reference_path,
+        geometry_path=geometry_path,
+    )
+
+
+def resolve_area_package(area_id: str, *, root: Path | None = None) -> AreaPackageManifest:
+    return resolve_ready_area_package(area_id, root=root).manifest
 
 
 def _reference_zone_ids(path: Path) -> set[str]:
