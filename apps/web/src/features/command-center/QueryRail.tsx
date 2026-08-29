@@ -2,19 +2,11 @@ import { useState, type FormEvent } from "react";
 import type { DataMode } from "@/types";
 import { GRANULARITIES } from "@/api/analysisJobs";
 import { useJobStore } from "@/stores/jobStore";
-
-function toDatetimeLocalValue(date: Date): string {
-  const pad = (value: number) => String(value).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-
-function localInputToIso(value: string): string {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    throw new Error("Analysis time is invalid.");
-  }
-  return parsed.toISOString();
-}
+import {
+  PHOENIX_DEMO_DEFAULT_DATETIME_LOCAL,
+  phoenixAoiLocalAnalysisTime,
+  phoenixAoiLocalDatetimeLocalValue,
+} from "@/utils/phoenixAoiLocalTime";
 
 export function QueryRail() {
   const submit = useJobStore((state) => state.submit);
@@ -22,12 +14,12 @@ export function QueryRail() {
   const error = useJobStore((state) => state.error);
 
   const [areaId, setAreaId] = useState("phoenix-demo");
-  const [analysisTime, setAnalysisTime] = useState(() =>
-    toDatetimeLocalValue(new Date()),
+  const [analysisTime, setAnalysisTime] = useState(
+    PHOENIX_DEMO_DEFAULT_DATETIME_LOCAL,
   );
   const [analysisMode, setAnalysisMode] = useState<
     "operational" | "retrospective"
-  >("operational");
+  >("retrospective");
   const [horizonHours, setHorizonHours] = useState(12);
   const [granularity, setGranularity] = useState<(typeof GRANULARITIES)[number]>(
     100,
@@ -41,7 +33,7 @@ export function QueryRail() {
     try {
       await submit({
         area_id: areaId,
-        analysis_time: localInputToIso(analysisTime),
+        analysis_time: phoenixAoiLocalAnalysisTime(analysisTime),
         analysis_mode: analysisMode,
         horizon_hours: horizonHours,
         granularity_m: granularity,
@@ -76,10 +68,21 @@ export function QueryRail() {
             type="datetime-local"
             name="analysis_time"
             value={analysisTime}
-            onChange={(event) => setAnalysisTime(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              try {
+                setAnalysisTime(phoenixAoiLocalDatetimeLocalValue(value));
+              } catch {
+                setAnalysisTime(value);
+              }
+            }}
             required
           />
         </label>
+        <p className="copilot-note">
+          Phoenix 03:00 AOI-local historical replay. Not live. Not the 2025
+          paid target.
+        </p>
         <label>
           Mode
           <select

@@ -258,6 +258,56 @@ describe("decision8EvidencePanel", () => {
     expect(panel?.tailGroupSize).toBe("3 / 25 per tail");
     expect(panel?.referenceQuality).toBe("FULL_REFERENCE");
     expect(panel?.reason).not.toBeNull();
+    expect(panel?.floorDisplay).toBe("0.10 q_A units");
+    expect(panel?.floorDisplay).not.toMatch(/%|probability|confidence|°C|10%/i);
+  });
+
+  it("exposes Decision 8 provenance when differentiation is sufficient", () => {
+    const panel = decision8EvidencePanel({
+      versions: {
+        area_config_version: "PHX_AREA_CONFIG_V1",
+        zone_geometry_version:
+          "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f",
+        hazard_spread_policy_version:
+          "PHX_NORMALIZED_HAZARD_SPREAD_V1_TOP3_BOTTOM3_QA_FLOOR_0P10",
+      },
+      reference_quality: "FULL_REFERENCE",
+      thermal_differentiation_state: "SUFFICIENT",
+      hazard_spread: {
+        policy_version:
+          "PHX_NORMALIZED_HAZARD_SPREAD_V1_TOP3_BOTTOM3_QA_FLOOR_0P10",
+        reference_version:
+          "PHX_ZTSI_REF_V1__US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f__ANCHOR_2025-07-15__S2_PM15_CALENDAR_DAYS__YEARS_2022_2023_2024__HOUR_0300_LOCAL__GRANULARITY_100M",
+        zone_geometry_version:
+          "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f",
+        input_quantity: "q_A",
+        metric: "TOP3_BOTTOM3_MEAN_DIFFERENCE",
+        top_group_size: 3,
+        bottom_group_size: 3,
+        floor: 0.1,
+        comparison_operator: ">=",
+        observed_spread: 0.1354838709677419,
+        differentiation_state: "SUFFICIENT",
+        reference_quality: "FULL_REFERENCE",
+        suppression_reason: null,
+        historical_years: [2022, 2023, 2024],
+        reference_hour: "03:00",
+      },
+    });
+    expect(panel).not.toBeNull();
+    expect(panel?.observedSpread).toBeCloseTo(0.1354838709677419, 12);
+    expect(panel?.policyVersion).toBe(
+      "PHX_NORMALIZED_HAZARD_SPREAD_V1_TOP3_BOTTOM3_QA_FLOOR_0P10",
+    );
+    expect(panel?.referenceVersion).toContain("PHX_ZTSI_REF_V1");
+    expect(panel?.zoneGeometryVersion).toBe(
+      "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f",
+    );
+    expect(panel?.floorDisplay).toBe("0.10 q_A units");
+    expect(panel?.result).toBe("SUFFICIENT");
+    expect(JSON.stringify(panel)).not.toMatch(
+      /\bsafe\b|\bcool\b|not hot|\bbenign\b|heat severity|probability|25\s*\/\s*93/i,
+    );
   });
 });
 

@@ -37,7 +37,7 @@ export default defineConfig({
           cwd: "./apps/api",
           url: `${apiBase}/health`,
           reuseExistingServer: true,
-          env: { DATA_MODE: "replay" },
+          env: { DATA_MODE: "replay", CACHE_DIR: ".cache/empty-replay" },
         },
         {
           command: "npm run preview -- --host 127.0.0.1 --port 4173",

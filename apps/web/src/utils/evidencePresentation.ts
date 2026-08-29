@@ -111,6 +111,7 @@ export type Decision8EvidencePanel = {
   title: string;
   observedSpread: number | null;
   requiredSpread: number | null;
+  floorDisplay: string | null;
   statistic: string;
   tailGroupSize: string;
   areaConfigVersion: string | null;
@@ -124,6 +125,13 @@ export type Decision8EvidencePanel = {
   reason: string | null;
 };
 
+function formatQaFloorUnits(floor: number | null | undefined): string | null {
+  if (floor == null || Number.isNaN(Number(floor))) {
+    return null;
+  }
+  return `${Number(floor).toFixed(2)} q_A units`;
+}
+
 export function decision8EvidencePanel(
   result: AnalysisResultStub | null | undefined,
 ): Decision8EvidencePanel | null {
@@ -131,14 +139,19 @@ export function decision8EvidencePanel(
   if (!spread) {
     return null;
   }
-  if (spread.differentiation_state !== "INSUFFICIENT") {
+  const state = spread.differentiation_state;
+  if (state !== "INSUFFICIENT" && state !== "SUFFICIENT") {
     return null;
   }
   const top = spread.top_group_size ?? 3;
+  const insufficient = state === "INSUFFICIENT";
   return {
-    title: "THERMAL ORDERING NOT SUPPORTED",
+    title: insufficient
+      ? "THERMAL ORDERING NOT SUPPORTED"
+      : "THERMAL SPATIAL DIFFERENTIATION SUFFICIENT",
     observedSpread: spread.observed_spread ?? null,
     requiredSpread: spread.floor ?? 0.1,
+    floorDisplay: formatQaFloorUnits(spread.floor ?? 0.1),
     statistic: spread.metric ?? "TOP3_BOTTOM3_MEAN_DIFFERENCE",
     tailGroupSize: `${top} / 25 per tail`,
     areaConfigVersion: result.versions?.area_config_version ?? null,
@@ -148,7 +161,9 @@ export function decision8EvidencePanel(
     historicalYears: spread.historical_years ?? null,
     referenceHour: spread.reference_hour ?? null,
     referenceQuality: spread.reference_quality ?? "",
-    result: "THERMAL_SPATIAL_DIFFERENTIATION_INSUFFICIENT",
+    result: insufficient
+      ? "THERMAL_SPATIAL_DIFFERENTIATION_INSUFFICIENT"
+      : "SUFFICIENT",
     reason: spread.suppression_reason ?? null,
   };
 }

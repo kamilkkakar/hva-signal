@@ -67,13 +67,23 @@ export function DecisionRail({ ranking }: DecisionRailProps) {
             data-testid="decision8-evidence-panel"
           >
             <p>{decision8Panel.title}</p>
-            <p>Observed normalized spread: {decision8Panel.observedSpread}</p>
-            <p>Required normalized spread: {decision8Panel.requiredSpread}</p>
+            <p data-testid="decision8-observed-s">
+              Observed normalized spread S: {decision8Panel.observedSpread}
+            </p>
+            <p data-testid="decision8-policy-floor">
+              Decision 8 policy floor: {decision8Panel.floorDisplay}
+            </p>
             <p>Statistic: {decision8Panel.statistic}</p>
             <p>Tail group size: {decision8Panel.tailGroupSize}</p>
-            <p>Decision 8 policy: {decision8Panel.policyVersion}</p>
-            <p>Decision 1B reference: {decision8Panel.referenceVersion}</p>
-            <p>Zone geometry: {decision8Panel.zoneGeometryVersion}</p>
+            <p data-testid="decision8-policy-version">
+              Decision 8 policy: {decision8Panel.policyVersion}
+            </p>
+            <p data-testid="decision8-reference-version">
+              Decision 1B reference: {decision8Panel.referenceVersion}
+            </p>
+            <p data-testid="decision8-zone-geometry">
+              Zone geometry: {decision8Panel.zoneGeometryVersion}
+            </p>
             <p>
               Historical years / hour:{" "}
               {decision8Panel.historicalYears?.join(", ") ?? "unavailable"} /{" "}
@@ -82,7 +92,9 @@ export function DecisionRail({ ranking }: DecisionRailProps) {
             <p>Reference quality: {decision8Panel.referenceQuality}</p>
             <p>Result: {decision8Panel.result}</p>
             {decision8Panel.reason && (
-              <p>Reason thermal ranking was suppressed: {decision8Panel.reason}</p>
+              <p data-testid="decision8-suppression-reason">
+                Reason thermal ranking was suppressed: {decision8Panel.reason}
+              </p>
             )}
           </section>
         )}
