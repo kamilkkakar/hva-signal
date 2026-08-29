@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
@@ -84,18 +85,28 @@ class AreaRegistry(BaseModel):
 class AreaPackageManifest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["AREA_PACKAGE_MANIFEST_V1"]
+    schema_version: Literal["AREA_PACKAGE_MANIFEST_V2"]
     area_id: str = Field(min_length=1)
     supported: bool
     area_config_path: str
     area_config_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     reference_path: str
     reference_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    geometry_path: str
+    geometry_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
 
-    @field_validator("area_config_path", "reference_path")
+    @field_validator("area_config_path", "reference_path", "geometry_path")
     @classmethod
     def _artifact_paths_are_relative(cls, value: str) -> str:
         return _safe_relative_path(value)
+
+
+@dataclass(frozen=True)
+class AreaGeometryBytes:
+    area_id: str
+    zone_geometry_version: str
+    sha256: str
+    body: bytes
 
 
 class SupportedAreaSummary(BaseModel):
@@ -159,7 +170,108 @@ def resolve_area_package(area_id: str, *, root: Path | None = None) -> AreaPacka
             f"AreaConfig area_id={loaded.area_id!r} does not match "
             f"manifest area_id={manifest.area_id!r}"
         )
+    geometry_path = _tracked_file(repo, manifest.geometry_path, label="geometry")
+    geometry_raw = geometry_path.read_bytes()
+    geometry_digest = hashlib.sha256(geometry_raw).hexdigest()
+    if geometry_digest != manifest.geometry_sha256:
+        raise AreaRegistryError("geometry SHA-256 mismatch")
+    _validate_geometry_artifact(
+        geometry_raw,
+        config=loaded,
+        reference_path=reference_path,
+    )
     return manifest
+
+
+def _reference_zone_ids(path: Path) -> set[str]:
+    ids: set[str] = set()
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError as exc:
+        raise AreaRegistryError("reference is missing") from exc
+    for line in lines:
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise AreaRegistryError("invalid reference") from exc
+        if "geoid" not in row:
+            raise AreaRegistryError("geometry/reference zone-ID mismatch")
+        ids.add(str(row["geoid"]))
+    return ids
+
+
+def _matching_geometry_zone_ids(
+    features: list[object],
+    reference_ids: set[str],
+) -> list[str]:
+    if not features:
+        raise AreaRegistryError("invalid GeoJSON")
+    first = features[0]
+    if not isinstance(first, dict) or not isinstance(first.get("properties"), dict):
+        raise AreaRegistryError("invalid GeoJSON")
+    matches: list[list[str]] = []
+    for key in first["properties"]:
+        values: list[str] = []
+        complete = True
+        for feature in features:
+            if not isinstance(feature, dict) or not isinstance(feature.get("properties"), dict):
+                complete = False
+                break
+            props = feature["properties"]
+            if key not in props:
+                complete = False
+                break
+            values.append(str(props[key]))
+        if complete and set(values) == reference_ids:
+            matches.append(values)
+    if len(matches) != 1:
+        raise AreaRegistryError("geometry/reference zone-ID mismatch")
+    values = matches[0]
+    if len(values) != len(set(values)):
+        raise AreaRegistryError("duplicate geometry zone IDs")
+    return values
+
+
+def _validate_geometry_artifact(
+    raw: bytes,
+    *,
+    config: AreaConfig,
+    reference_path: Path,
+) -> None:
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise AreaRegistryError("invalid GeoJSON") from exc
+    if not isinstance(payload, dict) or payload.get("type") != "FeatureCollection":
+        raise AreaRegistryError("invalid GeoJSON")
+    features = payload.get("features")
+    if not isinstance(features, list):
+        raise AreaRegistryError("invalid GeoJSON")
+    if len(features) != config.expected_zone_count:
+        raise AreaRegistryError(
+            f"geometry feature count {len(features)} != expected {config.expected_zone_count}"
+        )
+    _matching_geometry_zone_ids(features, _reference_zone_ids(reference_path))
+
+
+def load_verified_area_geometry(
+    area_id: str,
+    *,
+    root: Path | None = None,
+) -> AreaGeometryBytes:
+    repo = Path(root) if root is not None else hackathon_root()
+    manifest = resolve_area_package(area_id, root=repo)
+    geometry_path = _tracked_file(repo, manifest.geometry_path, label="geometry")
+    config_path = _tracked_file(repo, manifest.area_config_path, label="AreaConfig")
+    config = AreaConfig.model_validate(json.loads(config_path.read_text(encoding="utf-8")))
+    return AreaGeometryBytes(
+        area_id=manifest.area_id,
+        zone_geometry_version=config.zone_geometry_version,
+        sha256=manifest.geometry_sha256,
+        body=geometry_path.read_bytes(),
+    )
 
 
 def list_supported_area_ids(*, root: Path | None = None) -> list[str]:

@@ -21,15 +21,18 @@ from app.domain.requests import AnalysisRequest
 FROZEN_REFERENCE_SHA256 = (
     "8de5db71fe24118cf5b66e3bee394398fd142516ad2590c46e617e0c0b83408c"
 )
+FROZEN_GEOMETRY_SHA256 = (
+    "3f16870fc801da5052b03e0f09c172feb4a1e0d6736452d22ffd6f09bb4e11f0"
+)
 MANIFEST_RELATIVE = Path("data") / "areas" / "phoenix-demo" / "manifest.json"
 REGISTRY_RELATIVE = Path("data") / "areas" / "registry.json"
-GEOMETRY_FIELD_NAMES = {
-    "geometry_path",
-    "geometry_sha256",
+GEOMETRY_RELATIVE = Path("data") / "areas" / "phoenix-demo" / "geometry.geojson"
+FORBIDDEN_GEOMETRY_FIELDS = {
     "geometry_url",
     "geometry_endpoint",
     "geometry_available",
     "geometry_status",
+    "zone_geometry_version",
 }
 
 
@@ -67,10 +70,26 @@ def _write_manifest(root: Path, payload: dict, *, area_id: str = "phoenix-demo")
 
 def _seed_frozen_aliases(tmp_path: Path) -> None:
     src_root = hackathon_root()
-    for rel in (CANDIDATE_RELATIVE_PATH, CANONICAL_REFERENCE_RELATIVE_PATH):
+    for rel in (CANDIDATE_RELATIVE_PATH, CANONICAL_REFERENCE_RELATIVE_PATH, GEOMETRY_RELATIVE):
         dest = tmp_path / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes((src_root / rel).read_bytes())
+
+
+def _v2_manifest(**overrides: object) -> dict:
+    payload: dict[str, object] = {
+        "schema_version": "AREA_PACKAGE_MANIFEST_V2",
+        "area_id": AREA_ID,
+        "supported": True,
+        "area_config_path": CANDIDATE_RELATIVE_PATH.as_posix(),
+        "area_config_sha256": FROZEN_AREA_CONFIG_SHA256,
+        "reference_path": CANONICAL_REFERENCE_RELATIVE_PATH.as_posix(),
+        "reference_sha256": FROZEN_REFERENCE_SHA256,
+        "geometry_path": GEOMETRY_RELATIVE.as_posix(),
+        "geometry_sha256": FROZEN_GEOMETRY_SHA256,
+    }
+    payload.update(overrides)
+    return payload
 
 
 def test_production_registry_loads_exactly_one_supported_phoenix_area() -> None:
@@ -88,23 +107,29 @@ def test_production_registry_loads_exactly_one_supported_phoenix_area() -> None:
     assert isinstance(package, AreaPackageManifest)
     assert package.area_id == AREA_ID
     assert package.supported is True
-    assert package.schema_version == "AREA_PACKAGE_MANIFEST_V1"
+    assert package.schema_version == "AREA_PACKAGE_MANIFEST_V2"
     assert package.area_config_path == CANDIDATE_RELATIVE_PATH.as_posix()
     assert package.reference_path == CANONICAL_REFERENCE_RELATIVE_PATH.as_posix()
+    assert package.geometry_path == GEOMETRY_RELATIVE.as_posix()
     assert package.area_config_sha256 == FROZEN_AREA_CONFIG_SHA256
     assert package.reference_sha256 == FROZEN_REFERENCE_SHA256
+    assert package.geometry_sha256 == FROZEN_GEOMETRY_SHA256
 
 
-def test_manifest_v1_has_no_geometry_fields() -> None:
+def test_manifest_v2_requires_geometry_artifact_fields_only() -> None:
     from app.core.area_registry import AreaPackageManifest, resolve_area_package
 
     fields = set(AreaPackageManifest.model_fields)
-    assert fields.isdisjoint(GEOMETRY_FIELD_NAMES)
-    assert "zone_geometry_version" not in fields
+    assert "geometry_path" in fields
+    assert "geometry_sha256" in fields
+    assert fields.isdisjoint(FORBIDDEN_GEOMETRY_FIELDS)
     package = resolve_area_package(AREA_ID)
     dumped = package.model_dump()
-    assert set(dumped).isdisjoint(GEOMETRY_FIELD_NAMES)
-    assert "zone_geometry_version" not in dumped
+    assert dumped["geometry_path"] == GEOMETRY_RELATIVE.as_posix()
+    assert dumped["geometry_sha256"] == FROZEN_GEOMETRY_SHA256
+    assert set(dumped).isdisjoint(FORBIDDEN_GEOMETRY_FIELDS)
+    assert dumped["geometry_path"] is not None
+    assert dumped["geometry_sha256"] is not None
 
 
 def test_manifest_hashes_match_frozen_bytes() -> None:
@@ -114,8 +139,11 @@ def test_manifest_hashes_match_frozen_bytes() -> None:
     package = resolve_area_package(AREA_ID)
     config_bytes = (root / package.area_config_path).read_bytes()
     ref_bytes = (root / package.reference_path).read_bytes()
+    geometry_bytes = (root / package.geometry_path).read_bytes()
     assert hashlib.sha256(config_bytes).hexdigest() == package.area_config_sha256
     assert hashlib.sha256(ref_bytes).hexdigest() == package.reference_sha256
+    assert hashlib.sha256(geometry_bytes).hexdigest() == package.geometry_sha256
+    assert package.geometry_sha256 == FROZEN_GEOMETRY_SHA256
     config = load_frozen_phoenix_v1_area_config()
     assert config.area_id == package.area_id
     assert config.zone_geometry_version == ZONE_GEOMETRY_VERSION
@@ -159,15 +187,11 @@ def test_hash_mismatch_area_config_fails_closed(tmp_path: Path) -> None:
     )
     _write_manifest(
         tmp_path,
-        {
-            "schema_version": "AREA_PACKAGE_MANIFEST_V1",
-            "area_id": AREA_ID,
-            "supported": True,
-            "area_config_path": config_rel,
-            "area_config_sha256": "0" * 64,
-            "reference_path": ref_rel,
-            "reference_sha256": FROZEN_REFERENCE_SHA256,
-        },
+        _v2_manifest(
+            area_config_path=config_rel,
+            area_config_sha256="0" * 64,
+            reference_path=ref_rel,
+        ),
     )
     with pytest.raises(AreaRegistryError, match="AreaConfig"):
         resolve_area_package(AREA_ID, root=tmp_path)
@@ -187,15 +211,7 @@ def test_hash_mismatch_reference_fails_closed(tmp_path: Path) -> None:
     )
     _write_manifest(
         tmp_path,
-        {
-            "schema_version": "AREA_PACKAGE_MANIFEST_V1",
-            "area_id": AREA_ID,
-            "supported": True,
-            "area_config_path": CANDIDATE_RELATIVE_PATH.as_posix(),
-            "area_config_sha256": FROZEN_AREA_CONFIG_SHA256,
-            "reference_path": CANONICAL_REFERENCE_RELATIVE_PATH.as_posix(),
-            "reference_sha256": "1" * 64,
-        },
+        _v2_manifest(reference_sha256="1" * 64),
     )
     with pytest.raises(AreaRegistryError, match="reference"):
         resolve_area_package(AREA_ID, root=tmp_path)
@@ -225,15 +241,7 @@ def test_registry_manifest_area_id_mismatch_is_rejected(tmp_path: Path) -> None:
     )
     _write_manifest(
         tmp_path,
-        {
-            "schema_version": "AREA_PACKAGE_MANIFEST_V1",
-            "area_id": "other",
-            "supported": True,
-            "area_config_path": CANDIDATE_RELATIVE_PATH.as_posix(),
-            "area_config_sha256": FROZEN_AREA_CONFIG_SHA256,
-            "reference_path": CANONICAL_REFERENCE_RELATIVE_PATH.as_posix(),
-            "reference_sha256": FROZEN_REFERENCE_SHA256,
-        },
+        _v2_manifest(area_id="other"),
         area_id="other",
     )
     with pytest.raises(AreaRegistryError, match="area_id"):
