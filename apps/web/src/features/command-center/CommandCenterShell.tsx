@@ -33,6 +33,7 @@ export function CommandCenterShell() {
     status: snapshot?.status ?? null,
     thermalSource: snapshot?.result?.thermal_source,
     dataStatus: snapshot?.result?.data_status,
+    dataMode: lastRequest?.data_mode ?? snapshot?.request?.data_mode,
   });
 
   return (

@@ -110,6 +110,10 @@ test.describe("Phoenix AOI-local replay demo path", () => {
       await expect(
         page.getByTestId("decision8-suppression-reason"),
       ).toBeVisible();
+      await expect(page.getByTestId("source-banner")).toContainText("REPLAY");
+      await expect(page.getByTestId("source-banner")).not.toContainText(
+        "FORTYGUARD CACHED",
+      );
       await expect(page.getByTestId("source-banner")).not.toContainText("LIVE");
 
       const map = page.getByTestId("map-stage");
@@ -176,6 +180,10 @@ test.describe("Phoenix AOI-local replay demo path", () => {
       );
       await expect(panel).not.toContainText("25 / 93");
       await expect(panel).not.toContainText("safe");
+      await expect(page.getByTestId("source-banner")).toContainText("REPLAY");
+      await expect(page.getByTestId("source-banner")).not.toContainText(
+        "FORTYGUARD CACHED",
+      );
 
       const map = page.getByTestId("map-stage");
       await expect(map).toHaveAttribute("data-map-state", "sufficient", {

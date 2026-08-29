@@ -1,4 +1,4 @@
-import type { JobStatus, ThermalDataSource } from "@/types";
+import type { DataMode, JobStatus, ThermalDataSource } from "@/types";
 
 export type SourceBannerLabel =
   | "FORTYGUARD LIVE"
@@ -19,6 +19,7 @@ export function sourceBannerLabel(input: {
   status: JobStatus | null;
   thermalSource?: ThermalDataSource | null;
   dataStatus?: string | null;
+  dataMode?: DataMode | null;
 }): SourceBannerLabel {
   if (input.status === "partial" || input.dataStatus === "partial") {
     return "PARTIAL";
@@ -28,6 +29,9 @@ export function sourceBannerLabel(input: {
   }
   if (input.dataStatus === "live" || input.thermalSource === "fortyguard_live") {
     return "FORTYGUARD LIVE";
+  }
+  if (input.dataMode === "replay") {
+    return "REPLAY";
   }
   if (input.dataStatus === "cached" || input.thermalSource === "fortyguard_cached") {
     return "FORTYGUARD CACHED";
