@@ -10,6 +10,7 @@ COPY apps/api/app ./app
 COPY apps/api/tests/fixtures ./tests/fixtures
 COPY data/demo/phoenix /hackathon/data/demo/phoenix
 COPY data/phoenix/reference /hackathon/data/phoenix/reference
+COPY data/areas /hackathon/data/areas
 RUN pip install --no-cache-dir .
 
 COPY apps/api/docker-entrypoint.sh /docker-entrypoint.sh
