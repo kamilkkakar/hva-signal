@@ -1,0 +1,22 @@
+from functools import lru_cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    app_env: str = "development"
+    data_mode: str = "replay"
+    log_level: str = "info"
+    fortyguard_api_key: str = ""
+    fortyguard_base_url: str = "https://api.fortyguard.com"
+    api_public_url: str = "http://localhost:8000"
+    web_public_url: str = "http://localhost:5173"
+    allowed_origins: str = "http://localhost:5173"
+    cache_dir: str = ".cache/fortyguard"
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()

@@ -1,0 +1,69 @@
+# Render Blueprint — HVA-Signal (3K Labs) always-on judges demo (Starter compute, not Free).
+#
+# HUMAN ACTION REQUIRED: applying this file creates billable Render web services.
+# Do not apply without owner authorization and a payment method on the workspace.
+# Free instances spin down after 15 minutes idle and cannot receive private-network
+# requests; they are not an acceptable primary judges URL.
+#
+# DATA_MODE is replay. Do not add initialDeployHook, cron, or health probes that
+# POST /v1/heatmap or otherwise submit paid FortyGuard work.
+#
+# Default Blueprint path: infra/render.yaml (also mirrored at repo-root render.yaml).
+
+services:
+  - type: web
+    name: urban-thermal-api
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATA_MODE
+        value: replay
+      - key: LOG_LEVEL
+        value: info
+      - key: CACHE_DIR
+        value: /tmp/fortyguard-cache
+      - key: FORTYGUARD_API_KEY
+        sync: false
+      - key: FORTYGUARD_BASE_URL
+        value: https://api.fortyguard.com
+      - key: API_PUBLIC_URL
+        fromService:
+          name: urban-thermal-api
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: WEB_PUBLIC_URL
+        fromService:
+          name: urban-thermal-web
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: ALLOWED_ORIGINS
+        fromService:
+          name: urban-thermal-web
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+
+  - type: web
+    name: urban-thermal-web
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./apps/web/Dockerfile
+    dockerContext: ./apps/web
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: API_UPSTREAM
+        fromService:
+          name: urban-thermal-api
+          type: web
+          property: hostport
+      - key: WEB_PUBLIC_URL
+        fromService:
+          name: urban-thermal-web
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL

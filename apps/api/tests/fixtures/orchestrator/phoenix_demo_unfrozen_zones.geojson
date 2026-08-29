@@ -1,0 +1,62 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "phoenix_demo_west",
+        "name": "Unfrozen Phoenix demo west (not a Gate 0 freeze)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-112.079, 33.444],
+            [-112.0744, 33.444],
+            [-112.0744, 33.453],
+            [-112.079, 33.453],
+            [-112.079, 33.444]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "phoenix_demo_east",
+        "name": "Unfrozen Phoenix demo east (not a Gate 0 freeze)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-112.0744, 33.444],
+            [-112.069, 33.444],
+            [-112.069, 33.453],
+            [-112.0744, 33.453],
+            [-112.0744, 33.444]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "phoenix_demo_empty",
+        "name": "Unfrozen Phoenix demo empty (no tiles; missing is not safe)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-112.06, 33.46],
+            [-112.05, 33.46],
+            [-112.05, 33.47],
+            [-112.06, 33.47],
+            [-112.06, 33.46]
+          ]
+        ]
+      }
+    }
+  ]
+}

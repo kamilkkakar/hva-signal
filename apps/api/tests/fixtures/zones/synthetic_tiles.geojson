@@ -1,0 +1,81 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "tile_id": "tile_a1",
+        "average_temperature": 30.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [0.5, 0.5],
+            [1.5, 0.5],
+            [1.5, 1.5],
+            [0.5, 1.5],
+            [0.5, 0.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "tile_id": "tile_a2",
+        "average_temperature": 34.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [1.0, 1.0],
+            [1.8, 1.0],
+            [1.8, 1.8],
+            [1.0, 1.8],
+            [1.0, 1.0]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "tile_id": "tile_b1",
+        "average_temperature": 40.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [2.5, 0.5],
+            [3.5, 0.5],
+            [3.5, 1.5],
+            [2.5, 1.5],
+            [2.5, 0.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "tile_id": "tile_outside",
+        "average_temperature": 99.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [5.0, 5.0],
+            [6.0, 5.0],
+            [6.0, 6.0],
+            [5.0, 6.0],
+            [5.0, 5.0]
+          ]
+        ]
+      }
+    }
+  ]
+}

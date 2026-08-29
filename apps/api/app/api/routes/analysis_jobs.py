@@ -1,0 +1,44 @@
+from typing import Any
+
+from fastapi import APIRouter, BackgroundTasks, status
+
+from app.core.jobs import job_store, process_analysis_job
+from app.domain import AnalysisRequest
+
+router = APIRouter()
+
+
+def _job_payload(job: Any) -> dict[str, Any]:
+    return {
+        "job_id": job.job_id,
+        "status": job.status,
+        "request": job.request,
+        "created_at": job.created_at.isoformat(),
+        "recoverable": job.recoverable,
+        "message": job.message,
+        "result": job.result,
+    }
+
+
+@router.post("/analysis/jobs", status_code=status.HTTP_202_ACCEPTED)
+def create_analysis_job(
+    payload: AnalysisRequest,
+    background_tasks: BackgroundTasks,
+) -> dict[str, Any]:
+    job = job_store.create(payload.model_dump(mode="json"))
+    snapshot = _job_payload(job)
+    background_tasks.add_task(process_analysis_job, job.job_id)
+    return snapshot
+
+
+@router.get("/analysis/jobs/{job_id}")
+def get_analysis_job(job_id: str) -> dict[str, Any]:
+    job = job_store.get(job_id)
+    if job is None:
+        return {
+            "job_id": job_id,
+            "status": "unknown_job",
+            "recoverable": True,
+            "message": "The analysis job is no longer present on this runtime.",
+        }
+    return _job_payload(job)

@@ -1,0 +1,47 @@
+"""Evidence DAG for the replay vertical slice: request → fixture → adapter → aggregation."""
+
+from __future__ import annotations
+
+HOURLY_TCM_FINGERPRINT = (
+    "e69dce24b358bb0f80a622e7b38a315b477f9a524c7846811ec8c5eb9ed8c367"
+)
+
+
+def _graph():
+    from app.services.evidence_builder import build_replay_evidence_graph
+
+    return build_replay_evidence_graph(
+        area_id="phoenix-demo",
+        fixture_label="heatmap_tcm_hourly_1500.json",
+        fixture_fingerprint=HOURLY_TCM_FINGERPRINT,
+        adapter_version="fortyguard-adapter-0.1.0",
+        zone_ids=["phoenix_demo_west", "phoenix_demo_east"],
+    )
+
+
+def test_replay_graph_includes_request_fixture_adapter_and_aggregation_nodes() -> None:
+    graph = _graph()
+    types = {node.type for node in graph.nodes}
+    assert "request" in types
+    assert "replay_fixture" in types
+    assert "adapter" in types
+    assert "aggregation" in types
+    assert graph.nodes, "Evidence graph must have real nodes, not an empty placeholder"
+
+
+def test_replay_graph_connects_nodes_with_edges() -> None:
+    graph = _graph()
+    node_ids = {node.id for node in graph.nodes}
+    assert graph.edges, "Evidence graph must have real edges"
+    for edge in graph.edges:
+        assert edge.from_id in node_ids
+        assert edge.to_id in node_ids
+        assert edge.relation
+
+
+def test_replay_fixture_node_records_committed_hourly_fingerprint() -> None:
+    graph = _graph()
+    fixture_nodes = [node for node in graph.nodes if node.type == "replay_fixture"]
+    assert fixture_nodes
+    assert fixture_nodes[0].metadata.get("fingerprint") == HOURLY_TCM_FINGERPRINT
+    assert "heatmap_tcm_hourly_1500" in str(fixture_nodes[0].metadata.get("label") or fixture_nodes[0].label)

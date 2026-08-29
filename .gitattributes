@@ -1,0 +1,4 @@
+# Preserve exact bytes of frozen Phoenix v1 runtime artifacts.
+# Do not apply CRLF/LF conversion or ident/filter rewriting.
+data/demo/phoenix/area_config.json -text
+data/phoenix/reference/observations.jsonl -text

@@ -1,0 +1,251 @@
+{
+  "meta": {
+    "sanitized": true,
+    "source_cache": "v1_heatmap__dbb3d3d6fdd918d24190.json",
+    "label": "probe_hourly_1500",
+    "temperature_unit": "celsius",
+    "adapter_version": "fortyguard-adapter-0.1.0",
+    "endpoint": "/v1/heatmap",
+    "request": {
+      "polygon_aoi": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -112.07831888657297,
+              33.4447963963964
+            ],
+            [
+              -112.06968111342702,
+              33.4447963963964
+            ],
+            [
+              -112.06968111342702,
+              33.4520036036036
+            ],
+            [
+              -112.07831888657297,
+              33.4520036036036
+            ],
+            [
+              -112.07831888657297,
+              33.4447963963964
+            ]
+          ]
+        ]
+      },
+      "start_date": "2024-07-15",
+      "start_time": "15:00",
+      "end_time": null,
+      "end_date": null,
+      "filter_type": 1,
+      "granularity": 100,
+      "analytic_type": "tcm",
+      "temporal_mode": "single_hour",
+      "threshold": null,
+      "direction": null
+    },
+    "fingerprint": "e69dce24b358bb0f80a622e7b38a315b477f9a524c7846811ec8c5eb9ed8c367"
+  },
+  "activity_id": "sanitized-replay",
+  "result": {
+    "map_data": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "id": "0",
+          "type": "Feature",
+          "properties": {
+            "tile_id": 0,
+            "average_temperature": 40.15,
+            "min_temperature": 40.15,
+            "max_temperature": 40.15
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  -112.07754454301283,
+                  33.44447034550224
+                ],
+                [
+                  -112.07649201348598,
+                  33.44447948784164
+                ],
+                [
+                  -112.07650351656964,
+                  33.445410658823334
+                ],
+                [
+                  -112.07755605733821,
+                  33.44540151616267
+                ],
+                [
+                  -112.07754454301283,
+                  33.44447034550224
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "id": "1",
+          "type": "Feature",
+          "properties": {
+            "tile_id": 1,
+            "average_temperature": 40.1489,
+            "min_temperature": 40.1489,
+            "max_temperature": 40.1489
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  -112.07649201348598,
+                  33.44447948784164
+                ],
+                [
+                  -112.07543948348426,
+                  33.4444886212498
+                ],
+                [
+                  -112.07545097532618,
+                  33.44541979255245
+                ],
+                [
+                  -112.07650351656964,
+                  33.445410658823334
+                ],
+                [
+                  -112.07649201348598,
+                  33.44447948784164
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "id": "2",
+          "type": "Feature",
+          "properties": {
+            "tile_id": 2,
+            "average_temperature": 40.1477,
+            "min_temperature": 40.1477,
+            "max_temperature": 40.1477
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  -112.07543948348426,
+                  33.4444886212498
+                ],
+                [
+                  -112.07438695300816,
+                  33.44449774572672
+                ],
+                [
+                  -112.07439843360831,
+                  33.44542891734999
+                ],
+                [
+                  -112.07545097532618,
+                  33.44541979255245
+                ],
+                [
+                  -112.07543948348426,
+                  33.4444886212498
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "id": "3",
+          "type": "Feature",
+          "properties": {
+            "tile_id": 3,
+            "average_temperature": 40.1465,
+            "min_temperature": 40.1465,
+            "max_temperature": 40.1465
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  -112.07438695300816,
+                  33.44449774572672
+                ],
+                [
+                  -112.07333442205812,
+                  33.444506861272366
+                ],
+                [
+                  -112.07334589141648,
+                  33.44543803321597
+                ],
+                [
+                  -112.07439843360831,
+                  33.44542891734999
+                ],
+                [
+                  -112.07438695300816,
+                  33.44449774572672
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "id": "4",
+          "type": "Feature",
+          "properties": {
+            "tile_id": 4,
+            "average_temperature": 40.1453,
+            "min_temperature": 40.1453,
+            "max_temperature": 40.1453
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  -112.07333442205812,
+                  33.444506861272366
+                ],
+                [
+                  -112.07228189063463,
+                  33.44451596788676
+                ],
+                [
+                  -112.07229334875117,
+                  33.44544714015036
+                ],
+                [
+                  -112.07334589141648,
+                  33.44543803321597
+                ],
+                [
+                  -112.07333442205812,
+                  33.444506861272366
+                ]
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "stats_data": {
+      "temperature_stats": {
+        "minimum": 40.142,
+        "maximum": 40.1544,
+        "mean": 40.147644262295074,
+        "standard_deviation": 0.0033397866493815073
+      }
+    }
+  }
+}

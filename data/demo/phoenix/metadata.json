@@ -1,0 +1,8 @@
+{
+  "area_id": "phoenix-demo",
+  "area_config_version": "PHX_AREA_CONFIG_V1",
+  "gate0_status": "frozen",
+  "area_config_path": "data/demo/phoenix/area_config.json",
+  "area_config_sha256": "df00333a4df900a9762b7be975ed0c36b6e1749c953e9fb4690d9f6e4e02a60a",
+  "notes": "Canonical Phoenix v1 AreaConfig is data/demo/phoenix/area_config.json. HUMAN-FROZEN. Decision 9 CLOSED. This metadata file is not AreaConfig. Gate 0 remains NOT READY TO CLOSE."
+}

@@ -1,0 +1,90 @@
+"""Shared domain contracts. Agent A owns this package."""
+
+from app.domain.aggregation import ThermalAggregationSpec, default_thermal_aggregation_spec
+from app.domain.enums import (
+    AnalysisMode,
+    DataMode,
+    DataStatus,
+    HeatmapTemporalMode,
+    JobStatus,
+    ReferenceFrame,
+    ResultStatus,
+    SystemLimitationCode,
+    ThermalDataSource,
+    ThermalStatistic,
+    TileAssignmentMethod,
+    UpstreamTimeSemantics,
+    ZoneAggregationStatistic,
+)
+from app.domain.evidence import EvidenceEdge, EvidenceGraph, EvidenceNode
+from app.domain.features import ZoneFeatureVector
+from app.domain.interventions import InterventionDefinition
+from app.domain.normalization import NormalizedFeature
+from app.domain.phoenix_v1 import (
+    DECISION8_POLICY_VERSION,
+    REFERENCE_VERSION,
+    ZONE_GEOMETRY_VERSION,
+    decision8_policy_fixture,
+)
+from app.domain.policies import (
+    ConfidencePolicy,
+    CoveragePolicy,
+    HazardSpreadPolicy,
+    HistoricalReferenceSpec,
+    ModuleFlags,
+)
+from app.domain.requests import AnalysisRequest, ScenarioRequest
+from app.domain.results import (
+    AnalysisResult,
+    Confidence,
+    EngineResult,
+    HazardSpreadProvenance,
+    PortfolioRecommendation,
+    ZoneDecisionResult,
+)
+from app.domain.thermal import ThermalObservation, ZoneThermalSeries
+from app.domain.versions import AnalysisVersions
+from app.domain.zones import AnalysisZone, GeoJSONGeometry, UpstreamPartition
+
+__all__ = [
+    "AnalysisMode",
+    "AnalysisRequest",
+    "AnalysisResult",
+    "AnalysisVersions",
+    "AnalysisZone",
+    "Confidence",
+    "ConfidencePolicy",
+    "CoveragePolicy",
+    "DataMode",
+    "DataStatus",
+    "EngineResult",
+    "EvidenceEdge",
+    "EvidenceGraph",
+    "EvidenceNode",
+    "GeoJSONGeometry",
+    "HazardSpreadPolicy",
+    "HazardSpreadProvenance",
+    "HeatmapTemporalMode",
+    "HistoricalReferenceSpec",
+    "InterventionDefinition",
+    "JobStatus",
+    "ModuleFlags",
+    "NormalizedFeature",
+    "PortfolioRecommendation",
+    "ReferenceFrame",
+    "ResultStatus",
+    "ScenarioRequest",
+    "SystemLimitationCode",
+    "ThermalAggregationSpec",
+    "ThermalDataSource",
+    "ThermalObservation",
+    "ThermalStatistic",
+    "TileAssignmentMethod",
+    "UpstreamPartition",
+    "UpstreamTimeSemantics",
+    "ZoneAggregationStatistic",
+    "ZoneDecisionResult",
+    "ZoneFeatureVector",
+    "ZoneThermalSeries",
+    "default_thermal_aggregation_spec",
+]

@@ -1,0 +1,64 @@
+{
+  "_comment": "HUMAN-FROZEN. Decision 9 CLOSED. gate0_status=frozen. PHX_AREA_CONFIG_V1. No semantic AreaConfig values changed during freeze.",
+  "candidate_status": "HUMAN-FROZEN",
+  "area_id": "phoenix-demo",
+  "version": "PHX_AREA_CONFIG_V1",
+  "zone_definition_version": "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ",
+  "zone_type": "census_tract",
+  "zone_source": "U.S. Census Bureau 2025 TIGER/Line Census Tracts, Arizona (tl_2025_04_tract.zip, FIPS 04)",
+  "zone_geometry_version": "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f",
+  "expected_zone_count": 25,
+  "granularity_m": 100,
+  "partition_strategy": "single_aoi",
+  "partition_policy_version": "PHX_PARTITION_POLICY_V1_SINGLE_AOI",
+  "thermal_aggregation": {
+    "version": "PHX_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN",
+    "assignment_method": "centroid_within",
+    "statistic": "mean",
+    "minimum_coverage_ratio": null,
+    "zero_tile_behavior": "insufficient_evidence",
+    "boundary_behavior": "centroid_within_zone",
+    "notes": [
+      "Applies to raw TCM °C before q_A.",
+      "Arithmetic mean of valid assigned tile temperatures; missing temperatures omitted, never coerced to zero."
+    ]
+  },
+  "default_hazard_reference_frame": "historical",
+  "historical_reference_window": {
+    "version": "PHX_ZTSI_REF_V1__US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f__ANCHOR_2025-07-15__S2_PM15_CALENDAR_DAYS__YEARS_2022_2023_2024__HOUR_0300_LOCAL__GRANULARITY_100M",
+    "percentile": null,
+    "seasonal_window": "06-30 through 07-30 inclusive",
+    "statistic": "YEAR_BALANCED_OWN_TRACT_MIDRANK_ECDF"
+  },
+  "coverage_policy": {
+    "version": "PHX_COVERAGE_POLICY_V1_ZERO_TILE_FAIL_CLOSED_NO_RATIO_FLOOR",
+    "minimum_coverage_ratio": null
+  },
+  "confidence_policy": {
+    "status": "INACTIVE",
+    "version": null,
+    "band_cutoffs": null
+  },
+  "hazard_spread_policy": {
+    "version": "PHX_NORMALIZED_HAZARD_SPREAD_V1_TOP3_BOTTOM3_QA_FLOOR_0P10",
+    "metric": "TOP3_BOTTOM3_MEAN_DIFFERENCE",
+    "minimum_useful_spread": 0.1,
+    "behavior_below_floor": "surface_system_limitation",
+    "input_quantity": "q_A",
+    "top_group_size": 3,
+    "bottom_group_size": 3,
+    "comparison_operator": ">=",
+    "reference_version": "PHX_ZTSI_REF_V1__US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f__ANCHOR_2025-07-15__S2_PM15_CALENDAR_DAYS__YEARS_2022_2023_2024__HOUR_0300_LOCAL__GRANULARITY_100M",
+    "zone_geometry_version": "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f",
+    "expected_zone_count": 25
+  },
+  "intervention_catalog_version": null,
+  "intervention_cost_profile": null,
+  "intervention_lead_time_profile": null,
+  "module_flags": {
+    "intervention_evidence": false,
+    "human_thermal_burden": false,
+    "overnight_recovery": false
+  },
+  "gate0_status": "frozen"
+}
