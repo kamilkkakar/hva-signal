@@ -1,4 +1,4 @@
-# Compose HVA-Signal production images (local). Public always-on hosting is Render Starter — see infra/DEPLOY.md.
+# Compose HVA-Signal production images (local). Public validation hosting is Render Free — see infra/DEPLOY.md.
 services:
   api:
     build:

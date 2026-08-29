@@ -1,12 +1,8 @@
-# Render Blueprint — HVA-Signal (3K Labs) always-on judges demo (Starter compute, not Free).
+# Render Blueprint — HVA-Signal (3K Labs) Free-tier public validation.
 #
-# HUMAN ACTION REQUIRED: applying this file creates billable Render web services.
-# Do not apply without owner authorization and a payment method on the workspace.
-# Free instances spin down after 15 minutes idle and cannot receive private-network
-# requests; they are not an acceptable primary judges URL.
-#
-# DATA_MODE is replay. Do not add initialDeployHook, cron, or health probes that
-# POST /v1/heatmap or otherwise submit paid FortyGuard work.
+# Free services sleep when idle and cannot use private-network hostport.
+# This is validation infrastructure, not the judged-demo plan.
+# Leave FORTYGUARD_API_KEY empty. DATA_MODE is replay.
 #
 # Canonical copy also lives at infra/render.yaml.
 
@@ -14,7 +10,7 @@ services:
   - type: web
     name: urban-thermal-api
     runtime: docker
-    plan: starter
+    plan: free
     dockerfilePath: ./apps/api/Dockerfile
     dockerContext: .
     healthCheckPath: /health
@@ -50,7 +46,7 @@ services:
   - type: web
     name: urban-thermal-web
     runtime: docker
-    plan: starter
+    plan: free
     dockerfilePath: ./apps/web/Dockerfile
     dockerContext: ./apps/web
     healthCheckPath: /
@@ -61,7 +57,7 @@ services:
         fromService:
           name: urban-thermal-api
           type: web
-          property: hostport
+          envVarKey: RENDER_EXTERNAL_URL
       - key: WEB_PUBLIC_URL
         fromService:
           name: urban-thermal-web
