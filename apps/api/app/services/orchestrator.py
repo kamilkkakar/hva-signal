@@ -10,6 +10,7 @@ from typing import Any
 from uuid import uuid4
 
 from app.core.area_config import AreaConfig
+from app.core.area_registry import resolve_area_package
 from app.core.jobs import job_store
 from app.core.phoenix_v1_area_config import (
     CANONICAL_REFERENCE_RELATIVE_PATH,
@@ -401,10 +402,7 @@ def run_replay_analysis(
         raise ValueError(
             "LIVE FortyGuard fetch is not invoked while Gate 0 is open; use replay."
         )
-    if request.area_id != PHOENIX_DEMO_AREA_ID:
-        raise ValueError(
-            f"No replay fixture mapping for area_id={request.area_id!r}."
-        )
+    resolve_area_package(request.area_id)
 
     quality_flags: list[str] = []
     if not _analysis_time_is_aoi_local(request.analysis_time):

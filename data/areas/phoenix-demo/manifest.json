@@ -1,0 +1,9 @@
+{
+  "schema_version": "AREA_PACKAGE_MANIFEST_V1",
+  "area_id": "phoenix-demo",
+  "supported": true,
+  "area_config_path": "data/demo/phoenix/area_config.json",
+  "area_config_sha256": "df00333a4df900a9762b7be975ed0c36b6e1749c953e9fb4690d9f6e4e02a60a",
+  "reference_path": "data/phoenix/reference/observations.jsonl",
+  "reference_sha256": "8de5db71fe24118cf5b66e3bee394398fd142516ad2590c46e617e0c0b83408c"
+}
