@@ -1,8 +1,9 @@
-"""Local file-backed job store. J2 only. Not production-durable.
+"""Local file-backed job store. J2 adapter. LIVE-B owns schema evolution.
 
 Render Free filesystems are ephemeral. Multi-instance deploy does not share
-this file. A RUNNING row after process restart is INTERRUPTED and is never
-auto-retried (no vendor resubmit).
+this file. Restart recovery uses LIVE-A hooks: vendor identity
+(activity_id / reservation_id) is preserved; jobs without vendor identity
+keep the J2 interrupt (FAILED, never auto-retried).
 """
 
 from __future__ import annotations
@@ -13,16 +14,24 @@ from datetime import datetime, timezone
 from pathlib import Path
 from threading import Lock
 from typing import Any
-from uuid import uuid4
 
 from app.core.job_store import (
+    INTERRUPT_MESSAGE,
     AnalysisJob,
-    JobStoreError,
+    _TERMINAL,
     _assert_status_transition,
     _guard_section_progress,
-    _TERMINAL,
+    _new_job,
+    analysis_job_from_payload,
+    analysis_job_to_payload,
+    apply_persist_activity_id,
+    apply_persist_fingerprint,
+    apply_persist_reservation_id,
+    apply_replace_durability,
+    apply_restart_recovery,
 )
 from app.domain.enums import JobStatus
+from app.domain.job_durability import DurableJobContract
 from app.domain.job_lifecycle import ExecutionState, TwoSignalJobState
 
 _SCHEMA = """
@@ -33,61 +42,25 @@ CREATE TABLE IF NOT EXISTS analysis_jobs (
 );
 """
 
-_INTERRUPT_MESSAGE = (
-    "Job interrupted by process restart. Execution was not recovered "
-    "and will not be retried automatically."
-)
-
-
-def _now() -> datetime:
-    return datetime.now(timezone.utc)
+# Existing tests import this name. Same text as INTERRUPT_MESSAGE.
+_INTERRUPT_MESSAGE = INTERRUPT_MESSAGE
 
 
 def _job_to_payload(job: AnalysisJob) -> dict[str, Any]:
-    return {
-        "job_id": job.job_id,
-        "status": job.status.value,
-        "request": job.request,
-        "created_at": job.created_at.isoformat(),
-        "updated_at": job.updated_at.isoformat() if job.updated_at else None,
-        "recoverable": job.recoverable,
-        "message": job.message,
-        "progress_notes": list(job.progress_notes),
-        "result": job.result,
-        "dedupe_key": job.dedupe_key,
-        "execution_state": job.execution_state.value,
-        "revision": job.revision,
-        "two_signal": job.two_signal.model_dump(mode="json") if job.two_signal else None,
-    }
+    """LIVE-B hook: shared J3 document, including durability fields."""
+    return analysis_job_to_payload(job)
 
 
 def _job_from_payload(payload: dict[str, Any]) -> AnalysisJob:
-    two = payload.get("two_signal")
-    return AnalysisJob(
-        job_id=payload["job_id"],
-        status=JobStatus(payload["status"]),
-        request=payload["request"],
-        created_at=datetime.fromisoformat(payload["created_at"]),
-        updated_at=(
-            datetime.fromisoformat(payload["updated_at"])
-            if payload.get("updated_at")
-            else None
-        ),
-        recoverable=bool(payload.get("recoverable")),
-        message=payload.get("message"),
-        progress_notes=list(payload.get("progress_notes") or []),
-        result=payload.get("result"),
-        dedupe_key=payload.get("dedupe_key"),
-        execution_state=ExecutionState(payload.get("execution_state") or "NOT_STARTED"),
-        revision=int(payload.get("revision") or 0),
-        two_signal=TwoSignalJobState.model_validate(two) if two else None,
-    )
+    """LIVE-B hook: accepts pre-J3 rows (durability missing)."""
+    return analysis_job_from_payload(payload)
 
 
 class SQLiteJobStore:
     """J2 local file-backed persistence. Off by default. Not production-durable."""
 
     durability_level = "J2"
+    implements_durability_contract = True
 
     def __init__(self, path: str | Path) -> None:
         self._path = Path(path)
@@ -100,23 +73,14 @@ class SQLiteJobStore:
         self._interrupt_orphans()
 
     def _interrupt_orphans(self) -> None:
-        """STATE persisted != EXECUTION persisted. Never auto-retry vendor work."""
+        """Restart hook. Preserve activity_id/reservation. Never auto-resubmit."""
         rows = self._conn.execute("SELECT job_id, payload FROM analysis_jobs").fetchall()
-        for job_id, raw in rows:
-            payload = json.loads(raw)
-            status = payload.get("status")
-            if status in {item.value for item in _TERMINAL}:
+        for _job_id, raw in rows:
+            job = _job_from_payload(json.loads(raw))
+            if job.status in _TERMINAL:
                 continue
-            payload["status"] = JobStatus.FAILED.value
-            payload["execution_state"] = ExecutionState.INTERRUPTED.value
-            payload["recoverable"] = True
-            payload["message"] = _INTERRUPT_MESSAGE
-            payload["revision"] = int(payload.get("revision") or 0) + 1
-            payload["updated_at"] = _now().isoformat()
-            self._conn.execute(
-                "UPDATE analysis_jobs SET payload = ? WHERE job_id = ?",
-                (json.dumps(payload), job_id),
-            )
+            apply_restart_recovery(job)
+            self._put(job)
         self._conn.commit()
 
     def _put(self, job: AnalysisJob) -> None:
@@ -139,17 +103,7 @@ class SQLiteJobStore:
         *,
         dedupe_key: str | None = None,
     ) -> AnalysisJob:
-        job = AnalysisJob(
-            job_id=f"job_{uuid4().hex[:12]}",
-            status=JobStatus.QUEUED,
-            request=request,
-            created_at=_now(),
-            updated_at=_now(),
-            message="Job queued.",
-            result=None,
-            dedupe_key=dedupe_key,
-            execution_state=ExecutionState.NOT_STARTED,
-        )
+        job = _new_job(request, dedupe_key=dedupe_key)
         with self._lock:
             self._put(job)
         return job
@@ -173,6 +127,27 @@ class SQLiteJobStore:
         if row is None:
             return None
         return _job_from_payload(json.loads(row[0]))
+
+    def find_by_fingerprint(self, fingerprint: str) -> AnalysisJob | None:
+        by_key = self.find_by_dedupe_key(fingerprint)
+        if by_key is not None:
+            return by_key
+        for job in self._iter_jobs():
+            if job.durability and job.durability.fingerprint == fingerprint:
+                return job
+        return None
+
+    def find_by_activity_id(self, activity_id: str) -> AnalysisJob | None:
+        for job in self._iter_jobs():
+            if job.durability and job.durability.activity_id == activity_id:
+                return job
+        return None
+
+    def find_by_reservation_id(self, reservation_id: str) -> AnalysisJob | None:
+        for job in self._iter_jobs():
+            if job.durability and job.durability.reservation_id == reservation_id:
+                return job
+        return None
 
     def create_or_join(
         self,
@@ -209,7 +184,7 @@ class SQLiteJobStore:
         def _apply(job: AnalysisJob) -> None:
             _assert_status_transition(job.status, status)
             job.status = status
-            job.updated_at = _now()
+            job.updated_at = datetime.now(timezone.utc)
             job.revision += 1
             if message is not None:
                 job.message = message
@@ -236,7 +211,7 @@ class SQLiteJobStore:
             _assert_status_transition(job.status, status)
             job.result = result
             job.status = status
-            job.updated_at = _now()
+            job.updated_at = datetime.now(timezone.utc)
             job.revision += 1
             job.execution_state = ExecutionState.FINISHED
             if message is not None:
@@ -250,10 +225,24 @@ class SQLiteJobStore:
             if job.two_signal is not None:
                 _guard_section_progress(job.two_signal, state)
             job.two_signal = state
-            job.updated_at = _now()
+            job.updated_at = datetime.now(timezone.utc)
             job.revision += 1
 
         self._mutate(job_id, _apply)
+
+    def replace_durability(self, job_id: str, durability: DurableJobContract) -> None:
+        self._mutate(job_id, lambda job: apply_replace_durability(job, durability))
+
+    def persist_fingerprint(self, job_id: str, fingerprint: str) -> None:
+        self._mutate(job_id, lambda job: apply_persist_fingerprint(job, fingerprint))
+
+    def persist_activity_id(self, job_id: str, activity_id: str) -> None:
+        self._mutate(job_id, lambda job: apply_persist_activity_id(job, activity_id))
+
+    def persist_reservation_id(self, job_id: str, reservation_id: str) -> None:
+        self._mutate(
+            job_id, lambda job: apply_persist_reservation_id(job, reservation_id)
+        )
 
     def mark_interrupted(self, job_id: str, *, message: str) -> None:
         def _apply(job: AnalysisJob) -> None:
@@ -263,18 +252,42 @@ class SQLiteJobStore:
             job.execution_state = ExecutionState.INTERRUPTED
             job.recoverable = True
             job.message = message
-            job.updated_at = _now()
+            job.updated_at = datetime.now(timezone.utc)
             job.revision += 1
 
         self._mutate(job_id, _apply)
 
-    def list_in_flight(self) -> list[AnalysisJob]:
+    def recover_after_restart(self) -> list[AnalysisJob]:
+        recovered: list[AnalysisJob] = []
         with self._lock:
             rows = self._conn.execute("SELECT payload FROM analysis_jobs").fetchall()
-        jobs = [_job_from_payload(json.loads(row[0])) for row in rows]
-        return [job for job in jobs if job.status not in _TERMINAL]
+            for row in rows:
+                job = _job_from_payload(json.loads(row[0]))
+                apply_restart_recovery(job)
+                self._put(job)
+                recovered.append(job)
+        return recovered
+
+    def export_jobs(self) -> list[dict[str, Any]]:
+        with self._lock:
+            rows = self._conn.execute("SELECT payload FROM analysis_jobs").fetchall()
+        return [json.loads(row[0]) for row in rows]
+
+    def import_jobs(self, records: list[dict[str, Any]]) -> None:
+        with self._lock:
+            self._conn.execute("DELETE FROM analysis_jobs")
+            for record in records:
+                self._put(_job_from_payload(record))
+
+    def list_in_flight(self) -> list[AnalysisJob]:
+        return [job for job in self._iter_jobs() if job.status not in _TERMINAL]
 
     def reset(self) -> None:
         with self._lock:
             self._conn.execute("DELETE FROM analysis_jobs")
             self._conn.commit()
+
+    def _iter_jobs(self) -> list[AnalysisJob]:
+        with self._lock:
+            rows = self._conn.execute("SELECT payload FROM analysis_jobs").fetchall()
+        return [_job_from_payload(json.loads(row[0])) for row in rows]
