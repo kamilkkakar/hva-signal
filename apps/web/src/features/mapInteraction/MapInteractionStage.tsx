@@ -2,9 +2,10 @@ import { useEffect, useReducer, useRef } from "react";
 import maplibregl, { type GeoJSONSource } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./mapInteraction.css";
+import { allHatchImages, signalAFillPaint, signalAHatchPaint } from "@/features/mapEncoding";
 import { featureCollectionBounds } from "./bounds";
 import { mapInteractionIsEnabled } from "./flags";
-import { highlightFillPaint, highlightLinePaint } from "./highlight";
+import { highlightFillPaint, highlightHatchPaint, highlightLinePaint } from "./highlight";
 import { MapInteractionChrome } from "./MapInteractionChrome";
 import {
   INTERACTION_PAPER,
@@ -15,6 +16,7 @@ import type { InteractionCatalog, InteractionEvent, InteractionState } from "./t
 
 const SOURCE_ID = "hva-map-interaction-zones";
 const FILL_LAYER_ID = "hva-map-interaction-fill";
+const HATCH_LAYER_ID = "hva-map-interaction-hatch";
 const LINE_LAYER_ID = "hva-map-interaction-line";
 const EMPTY_COLLECTION = {
   type: "FeatureCollection" as const,
@@ -27,6 +29,19 @@ export type MapInteractionStageProps = {
   onSelectedIdChange?: (geoid: string | null) => void;
 };
 
+function ensureHatchImages(map: maplibregl.Map): void {
+  for (const image of allHatchImages()) {
+    if (map.hasImage(image.id)) {
+      continue;
+    }
+    map.addImage(image.id, {
+      width: image.width,
+      height: image.height,
+      data: image.data,
+    });
+  }
+}
+
 function ensureLayers(map: maplibregl.Map): GeoJSONSource | null {
   if (!map.isStyleLoaded()) {
     return null;
@@ -38,14 +53,28 @@ function ensureLayers(map: maplibregl.Map): GeoJSONSource | null {
       promoteId: "GEOID",
     });
   }
+  ensureHatchImages(map);
+  const idleFill = signalAFillPaint({ authorized: false, maxOrder: 1 });
+  const idleHatch = signalAHatchPaint({ authorized: false, maxOrder: 1 });
   if (!map.getLayer(FILL_LAYER_ID)) {
     map.addLayer({
       id: FILL_LAYER_ID,
       type: "fill",
       source: SOURCE_ID,
       paint: {
-        "fill-color": "#9aa392",
-        "fill-opacity": 0,
+        "fill-color": idleFill["fill-color"] as string,
+        "fill-opacity": idleFill["fill-opacity"],
+      },
+    });
+  }
+  if (!map.getLayer(HATCH_LAYER_ID)) {
+    map.addLayer({
+      id: HATCH_LAYER_ID,
+      type: "fill",
+      source: SOURCE_ID,
+      paint: {
+        "fill-pattern": idleHatch["fill-pattern"] as string,
+        "fill-opacity": idleHatch["fill-opacity"],
       },
     });
   }
@@ -76,9 +105,14 @@ function applyCatalog(
   const payload = canvasAllowed && catalog ? catalog.collection : EMPTY_COLLECTION;
   source.setData(payload as GeoJSON.FeatureCollection);
   const fill = highlightFillPaint(catalog, state);
+  const hatch = highlightHatchPaint(catalog, state);
   const line = highlightLinePaint(catalog, state);
   map.setPaintProperty(FILL_LAYER_ID, "fill-color", fill["fill-color"]);
   map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", fill["fill-opacity"]);
+  if (map.getLayer(HATCH_LAYER_ID)) {
+    map.setPaintProperty(HATCH_LAYER_ID, "fill-pattern", hatch["fill-pattern"]);
+    map.setPaintProperty(HATCH_LAYER_ID, "fill-opacity", hatch["fill-opacity"]);
+  }
   map.setPaintProperty(LINE_LAYER_ID, "line-color", line["line-color"]);
   map.setPaintProperty(LINE_LAYER_ID, "line-width", line["line-width"]);
   if (canvasAllowed && catalog) {
@@ -198,6 +232,9 @@ export function MapInteractionStage({
     map.on("mousemove", FILL_LAYER_ID, onMove);
     map.on("mouseleave", FILL_LAYER_ID, onLeave);
     map.on("click", FILL_LAYER_ID, onClick);
+    map.on("mousemove", HATCH_LAYER_ID, onMove);
+    map.on("mouseleave", HATCH_LAYER_ID, onLeave);
+    map.on("click", HATCH_LAYER_ID, onClick);
     mapRef.current = map;
     const observer = new ResizeObserver(() => {
       map.resize();
@@ -254,6 +291,8 @@ export function MapInteractionStage({
         catalog?.kind === "historical_ordering" && catalog.fill_authorized ? "true" : "false"
       }
       data-canvas-allowed={view.canvasAllowed ? "true" : "false"}
+      data-hatch-layer="hva-map-interaction-hatch"
+      data-position-legend={view.positionLegendMode ?? "none"}
       data-decorative="false"
     >
       {!gatedOn ? (

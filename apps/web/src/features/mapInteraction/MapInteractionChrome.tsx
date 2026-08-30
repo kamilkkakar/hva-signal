@@ -1,3 +1,4 @@
+import { HistoricalPositionLegend } from "@/features/mapEncoding";
 import {
   CLEAR_LAYER_LABEL,
   CLEAR_SELECTION_LABEL,
@@ -71,23 +72,28 @@ export function MapInteractionChrome({ view, dispatch }: MapInteractionChromePro
 
       <section className="mapi-legend" aria-label="Map legend" data-testid="map-interaction-legend">
         <h3>Legend</h3>
-        <ul>
-          {view.legend.map((item) => (
-            <li key={item.id}>
-              <span
-                className="mapi-swatch"
-                data-empty={item.swatch ? "false" : "true"}
-                style={item.swatch ? { background: item.swatch } : undefined}
-                aria-hidden="true"
-              />
-              <span>
-                <strong>{item.label}</strong>
-                {" — "}
-                {item.meaning}
-              </span>
-            </li>
-          ))}
-        </ul>
+        {view.positionLegendMode === "sufficient" ||
+        view.positionLegendMode === "insufficient" ? (
+          <HistoricalPositionLegend mode={view.positionLegendMode} />
+        ) : (
+          <ul>
+            {view.legend.map((item) => (
+              <li key={item.id}>
+                <span
+                  className="mapi-swatch"
+                  data-empty={item.swatch ? "false" : "true"}
+                  style={item.swatch ? { background: item.swatch } : undefined}
+                  aria-hidden="true"
+                />
+                <span>
+                  <strong>{item.label}</strong>
+                  {" — "}
+                  {item.meaning}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section

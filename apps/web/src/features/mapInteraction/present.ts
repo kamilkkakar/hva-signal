@@ -1,3 +1,4 @@
+import { legendModeFromInteraction } from "@/features/mapEncoding";
 import { canvasAllowed, catalogHasGeometry } from "./catalog";
 import { detailFromState, hoverFromState } from "./detail";
 import { mapInteractionIsEnabled } from "./flags";
@@ -61,6 +62,7 @@ export function presentMapInteraction(input: {
       canvasAllowed: false,
       layerTitle: LAYER_TITLES.none,
       meaningCopy: "Map interaction chrome is gated. The production Phoenix A map is unchanged.",
+      positionLegendMode: null,
       legend: [],
       hover: null,
       detail: null,
@@ -97,6 +99,11 @@ export function presentMapInteraction(input: {
         : !state.layerActive
           ? LAYER_CLEARED_COPY
           : (catalog?.meaning ?? EMPTY_CATALOG_COPY),
+    positionLegendMode: legendModeFromInteraction({
+      kind: catalog?.kind,
+      fillAuthorized: Boolean(catalog?.fill_authorized),
+      layerActive: state.layerActive,
+    }),
     legend: legendFromCatalog(catalog, state.layerActive),
     hover,
     detail,

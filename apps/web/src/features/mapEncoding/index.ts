@@ -26,10 +26,12 @@ export {
   signalAColorStops,
   signalAHatchSteps,
 } from "./paint";
+export type { SignalAHatchPaint, SignalAFillPaint, SignalALinePaint } from "./paint";
 export { hatchImage, allHatchImages, hatchImageId } from "./hatch";
 export {
   historicalPositionLegend,
   legendModeFromMap,
+  legendModeFromInteraction,
 } from "./legend";
 export type { LegendMode, HistoricalPositionLegendView } from "./legend";
 export { HistoricalPositionLegend } from "./HistoricalPositionLegend";
