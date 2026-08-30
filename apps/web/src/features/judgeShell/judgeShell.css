@@ -1,0 +1,239 @@
+.judge-shell {
+  min-height: 100%;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--ops-wall);
+  overflow-x: hidden;
+}
+
+.judge-shell > * {
+  min-width: 0;
+}
+
+.judge-hero,
+.judge-context,
+.judge-happening,
+.judge-thermal,
+.judge-zone,
+.judge-supports,
+.judge-capability,
+.judge-provenance,
+.judge-run {
+  padding: 0.85rem 1.15rem;
+  background: var(--panel);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.judge-hero {
+  border-bottom: 3px solid var(--filament);
+}
+
+.judge-hero-line {
+  margin: 0.7rem 0 0;
+  max-width: 40rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2vw, 1.55rem);
+  letter-spacing: 0.03em;
+  text-transform: none;
+  line-height: 1.2;
+}
+
+.judge-hero-support,
+.judge-hero-honesty,
+.judge-hero-tagline,
+.judge-happening-line,
+.judge-card-question,
+.judge-card-fact,
+.judge-supports-context,
+.judge-run-lock,
+.judge-cap-status {
+  margin: 0.4rem 0 0;
+  max-width: 46rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.judge-hero-tagline {
+  font-style: italic;
+}
+
+.judge-context {
+  border-bottom: 1px solid var(--carbon);
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+}
+
+.judge-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.judge-chips li {
+  padding: 0.22rem 0.5rem;
+  background: var(--tape);
+  color: var(--plotter);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+
+.judge-happening {
+  border-bottom: 1px solid var(--rule);
+}
+
+.judge-stamp {
+  display: inline-block;
+  margin: 0.35rem 0 0;
+  padding: 0.35rem 0.5rem;
+  border: 2px solid var(--stamp);
+  color: var(--stamp);
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.judge-stamp-sm {
+  font-size: 0.85rem;
+}
+
+.judge-recovery {
+  margin: 0.65rem 0 0;
+}
+
+.judge-map {
+  min-width: 0;
+  min-height: 28rem;
+  position: relative;
+}
+
+.judge-map .map-stage {
+  min-height: 28rem;
+  height: 28rem;
+}
+
+.judge-thermal,
+.judge-supports,
+.judge-capability-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.85rem 1.15rem;
+}
+
+.judge-capability-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.judge-card,
+.judge-supports > div,
+.judge-capability-grid > div {
+  min-width: 0;
+}
+
+.judge-card h2,
+.judge-capability h2 {
+  font-size: 1.15rem;
+}
+
+.judge-supports {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.judge-supports-context {
+  grid-column: 1 / -1;
+}
+
+.judge-supports ul,
+.judge-capability ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.judge-capability ul li,
+.judge-supports ul li {
+  margin: 0.2rem 0;
+}
+
+.judge-cap-status {
+  display: block;
+  margin-top: 0.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.judge-provenance-l2 {
+  margin-top: 0.65rem;
+}
+
+.judge-provenance-l2 summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.judge-run {
+  border-top: 3px solid var(--carbon);
+}
+
+.judge-run-clicks,
+.judge-run-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: end;
+  margin-top: 0.55rem;
+}
+
+.judge-run-form label {
+  display: grid;
+  gap: 0.18rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  color: var(--muted);
+}
+
+.judge-run-form input {
+  border: 1px solid var(--rule);
+  background: #e7eadc;
+  padding: 0.35rem 0.45rem;
+}
+
+.judge-run-secondary {
+  background: transparent;
+  color: var(--carbon);
+  border: 2px solid var(--carbon);
+}
+
+@media (max-width: 900px) {
+  .judge-thermal,
+  .judge-supports,
+  .judge-capability-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .judge-map,
+  .judge-map .map-stage {
+    min-height: 20rem;
+    height: 20rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .judge-shell * {
+    animation: none;
+  }
+}
