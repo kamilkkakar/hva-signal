@@ -144,6 +144,11 @@ class InMemoryDemoAllowanceLedger:
         with self._lock:
             return self._reservations.get(reservation_id)
 
+    def has_active_reservation(self, request_fingerprint: str) -> bool:
+        """Join peek. LIVE-K uses this so duplicate reserve does not consume a slot."""
+        with self._lock:
+            return request_fingerprint in self._active_by_fingerprint
+
     def _try_reserve_unlocked(
         self,
         identity: DemoRequestIdentity,

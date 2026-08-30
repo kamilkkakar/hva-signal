@@ -19,6 +19,7 @@ from app.services.demo_allowance_ledger import (
     InMemoryDemoAllowanceLedger,
     policy_blocks_spend,
 )
+from app.services.live_resource_guards import LiveResourceGuards
 from app.services.spend_gate import ExecutionGateResult
 
 
@@ -45,6 +46,7 @@ def resolve_hosted_demo_path(
     identity: DemoRequestIdentity,
     planned_units: int,
     now: datetime,
+    resource_guards: LiveResourceGuards | None = None,
 ) -> HostedDemoResolution:
     """Replay/cache/join never touch the demo ledger."""
     if not snapshot_capable:
@@ -71,6 +73,14 @@ def resolve_hosted_demo_path(
     blocked = policy_blocks_spend(ledger.policy, now=now)
     if blocked is not None:
         return HostedDemoResolution(code=blocked)
+
+    if resource_guards is not None:
+        join_existing = ledger.has_active_reservation(identity.request_fingerprint)
+        admission = resource_guards.admit_reserve(join_existing=join_existing)
+        if not admission.proceed:
+            return HostedDemoResolution(
+                code=DemoAllowanceDecisionCode.LIVE_ACQUISITION_UNAVAILABLE
+            )
 
     decision = ledger.try_reserve(identity, planned_units=planned_units, now=now)
     return HostedDemoResolution(code=decision.code, decision=decision)
