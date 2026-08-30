@@ -45,3 +45,28 @@ def test_replay_fixture_node_records_committed_hourly_fingerprint() -> None:
     assert fixture_nodes
     assert fixture_nodes[0].metadata.get("fingerprint") == HOURLY_TCM_FINGERPRINT
     assert "heatmap_tcm_hourly_1500" in str(fixture_nodes[0].metadata.get("label") or fixture_nodes[0].label)
+
+
+def test_signal_b_graph_has_no_decision1b_or_decision8_nodes() -> None:
+    from app.services.evidence_builder import build_selected_time_snapshot_evidence_graph
+
+    graph = build_selected_time_snapshot_evidence_graph(
+        area_id="candidate-area",
+        geometry_version="GEO_V1",
+        timezone="America/Phoenix",
+        target_timestamp="2024-07-15T15:00:00",
+        source_type="fortyguard_cached",
+        aggregation_spec_version="PHX_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN",
+        zone_ids=[f"geoid-{i:02d}" for i in range(25)],
+        vendor_request_fingerprint="abc",
+        extra_metadata={"data_status": "cached", "cache_state": "hit"},
+    )
+    types = {node.type for node in graph.nodes}
+    ids = {node.id for node in graph.nodes}
+    assert "selected_time_snapshot" in types
+    assert "area_geography" in types
+    assert "decision1b_reference" not in types
+    assert "hazard_spread" not in types
+    assert "decision1b_reference" not in ids
+    assert "decision8_hazard_spread" not in ids
+    assert graph.edges

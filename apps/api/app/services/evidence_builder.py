@@ -7,7 +7,26 @@ from typing import Any
 
 from app.domain.evidence import EvidenceEdge, EvidenceGraph, EvidenceNode
 
-__all__ = ["build_phoenix_v1_evidence_graph", "build_replay_evidence_graph"]
+__all__ = [
+    "build_phoenix_v1_evidence_graph",
+    "build_replay_evidence_graph",
+    "build_selected_time_snapshot_evidence_graph",
+]
+
+_SIGNAL_B_FORBIDDEN_NODE_TYPES = frozenset(
+    {
+        "decision1b_reference",
+        "hazard_spread",
+        "normalized_hazard",
+        "q_a",
+    }
+)
+_SIGNAL_B_FORBIDDEN_NODE_IDS = frozenset(
+    {
+        "decision1b_reference",
+        "decision8_hazard_spread",
+    }
+)
 
 
 def build_replay_evidence_graph(
@@ -186,3 +205,104 @@ def build_phoenix_v1_evidence_graph(
         EvidenceEdge(from_id=aggregation_id, to_id=spread_id, relation="validates_spread"),
     ]
     return EvidenceGraph(nodes=nodes, edges=edges)
+
+
+def build_selected_time_snapshot_evidence_graph(
+    *,
+    area_id: str,
+    geometry_version: str,
+    timezone: str,
+    target_timestamp: str,
+    source_type: str,
+    aggregation_spec_version: str,
+    zone_ids: Sequence[str],
+    vendor_request_fingerprint: str | None = None,
+    extra_metadata: dict[str, Any] | None = None,
+) -> EvidenceGraph:
+    """Signal B DAG: geography → target acquisition → zone absolute values.
+
+    Must never include Decision 1B reference or Decision 8 nodes.
+    """
+    extra = extra_metadata or {}
+    request_id = "analysis_request"
+    geography_id = "area_geography"
+    acquisition_id = "selected_time_acquisition"
+    aggregation_id = "zone_absolute_aggregation"
+    snapshot_id = "selected_time_snapshot"
+
+    nodes = [
+        EvidenceNode(
+            id=request_id,
+            type="request",
+            label="Selected-time snapshot request",
+            source_type="user",
+            metadata={"area_id": area_id, "target_timestamp": target_timestamp},
+        ),
+        EvidenceNode(
+            id=geography_id,
+            type="area_geography",
+            label="Resolved 25-zone geography",
+            source_type="geography",
+            metadata={
+                "area_id": area_id,
+                "geometry_version": geometry_version,
+                "timezone": timezone,
+            },
+        ),
+        EvidenceNode(
+            id=acquisition_id,
+            type="selected_time_acquisition",
+            label="Selected-time thermal target",
+            source_type=source_type,
+            metadata={
+                "target_timestamp": target_timestamp,
+                "fingerprint": vendor_request_fingerprint,
+                **{
+                    key: extra[key]
+                    for key in ("data_status", "cache_state")
+                    if key in extra
+                },
+            },
+        ),
+        EvidenceNode(
+            id=aggregation_id,
+            type="aggregation",
+            label="Tile-to-zone absolute mean",
+            source_type="engine",
+            metadata={
+                "zone_ids": list(zone_ids),
+                "aggregation_spec_version": aggregation_spec_version,
+                "statistic": "centroid_within_mean",
+                "user_facing_resolution": "zone",
+            },
+        ),
+        EvidenceNode(
+            id=snapshot_id,
+            type="selected_time_snapshot",
+            label="Zone-level selected-time thermal snapshot",
+            source_type="engine",
+            metadata={
+                "units": "celsius",
+                "not_q_a": True,
+                "decision8_applies": False,
+            },
+        ),
+    ]
+    edges = [
+        EvidenceEdge(from_id=request_id, to_id=geography_id, relation="resolves"),
+        EvidenceEdge(from_id=geography_id, to_id=acquisition_id, relation="bounds"),
+        EvidenceEdge(
+            from_id=acquisition_id, to_id=aggregation_id, relation="aggregates_to"
+        ),
+        EvidenceEdge(
+            from_id=aggregation_id, to_id=snapshot_id, relation="produces"
+        ),
+    ]
+    graph = EvidenceGraph(nodes=nodes, edges=edges)
+    types = {node.type for node in graph.nodes}
+    ids = {node.id for node in graph.nodes}
+    if types & _SIGNAL_B_FORBIDDEN_NODE_TYPES:
+        raise ValueError("Signal B evidence graph cannot include Signal A nodes")
+    if ids & _SIGNAL_B_FORBIDDEN_NODE_IDS:
+        raise ValueError("Signal B evidence graph cannot include Signal A node ids")
+    return graph

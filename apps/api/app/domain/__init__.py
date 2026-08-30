@@ -42,6 +42,15 @@ from app.domain.results import (
     PortfolioRecommendation,
     ZoneDecisionResult,
 )
+from app.domain.signals import (
+    HistoricalNormalizedSignalState,
+    SelectedTimeSnapshot,
+    SelectedTimeSnapshotZone,
+    SignalAvailability,
+    SignalProvenance,
+    ThermalSignalKind,
+    TwoSignalAvailability,
+)
 from app.domain.thermal import ThermalObservation, ZoneThermalSeries
 from app.domain.versions import AnalysisVersions
 from app.domain.zones import AnalysisZone, GeoJSONGeometry, UpstreamPartition
@@ -65,6 +74,7 @@ __all__ = [
     "HazardSpreadPolicy",
     "HazardSpreadProvenance",
     "HeatmapTemporalMode",
+    "HistoricalNormalizedSignalState",
     "HistoricalReferenceSpec",
     "InterventionDefinition",
     "JobStatus",
@@ -74,12 +84,18 @@ __all__ = [
     "ReferenceFrame",
     "ResultStatus",
     "ScenarioRequest",
+    "SelectedTimeSnapshot",
+    "SelectedTimeSnapshotZone",
+    "SignalAvailability",
+    "SignalProvenance",
     "SystemLimitationCode",
     "ThermalAggregationSpec",
     "ThermalDataSource",
+    "ThermalSignalKind",
     "ThermalObservation",
     "ThermalStatistic",
     "TileAssignmentMethod",
+    "TwoSignalAvailability",
     "UpstreamPartition",
     "UpstreamTimeSemantics",
     "ZoneAggregationStatistic",
