@@ -40,6 +40,7 @@ export type { MapInteractionChromeProps } from "./MapInteractionChrome";
 export type {
   HoverCard,
   InteractionCatalog,
+  InteractionFeature,
   InteractionEvent,
   InteractionState,
   InteractionTableRow,

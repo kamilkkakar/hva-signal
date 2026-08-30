@@ -35,6 +35,7 @@ FROZEN_PUBLIC_OPENAPI_PATHS = {
     "/api/v1/areas/{area_id}/geometry",
     "/api/v1/analysis/jobs",
     "/api/v1/analysis/jobs/{job_id}",
+    "/api/v1/areas/{area_id}/context",
 }
 
 RESOLVER_POLICY_ID = "NATIONAL_PLACE_GEOGRAPHY_V1"

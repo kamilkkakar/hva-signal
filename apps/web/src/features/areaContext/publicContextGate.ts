@@ -1,4 +1,4 @@
-/** Client pair for HVA_PUBLIC_CONTEXT. Default OFF. */
+/** Client pair for HVA_PUBLIC_CONTEXT. RC-v2 default ON. Set 0 to disable. */
 
 export const HVA_PUBLIC_CONTEXT_FLAG = "HVA_PUBLIC_CONTEXT";
 export const VITE_HVA_PUBLIC_CONTEXT_FLAG = "VITE_HVA_PUBLIC_CONTEXT";
@@ -9,7 +9,7 @@ function rawFlag(): string {
   if (vite !== undefined && vite !== "") {
     return String(vite);
   }
-  return "0";
+  return "1";
 }
 
 export function isPublicContextEnabled(raw: string = rawFlag()): boolean {

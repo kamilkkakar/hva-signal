@@ -7,6 +7,12 @@ import { defineConfig, devices } from "@playwright/test";
  * CI still starts :8000 / :4173 itself and leaves webServer undefined.
  */
 const isolated = !process.env.CI;
+if (!process.env.HVA_PUBLIC_CONTEXT) {
+  process.env.HVA_PUBLIC_CONTEXT = "1";
+}
+if (!process.env.VITE_HVA_PUBLIC_CONTEXT) {
+  process.env.VITE_HVA_PUBLIC_CONTEXT = "1";
+}
 const apiPort = process.env.PLAYWRIGHT_API_PORT ?? (isolated ? "18031" : "8000");
 const webPort = process.env.PLAYWRIGHT_WEB_PORT ?? (isolated ? "14191" : "4173");
 const apiBase = isolated
@@ -63,17 +69,19 @@ export default defineConfig({
           env: {
             DATA_MODE: "replay",
             CACHE_DIR: ".cache/empty-replay-q3",
+            HVA_PUBLIC_CONTEXT: process.env.HVA_PUBLIC_CONTEXT ?? "1",
           },
         },
         {
-          command: `npm run preview -- --host 127.0.0.1 --port ${webPort} --strictPort`,
+          command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${webPort} --strictPort`,
           cwd: "./apps/web",
           url: webBase,
           reuseExistingServer: false,
-          timeout: 120_000,
+          timeout: 180_000,
           env: {
             API_BASE_URL: apiBase,
             API_UPSTREAM: apiBase,
+            VITE_HVA_PUBLIC_CONTEXT: process.env.VITE_HVA_PUBLIC_CONTEXT ?? "1",
           },
         },
       ],

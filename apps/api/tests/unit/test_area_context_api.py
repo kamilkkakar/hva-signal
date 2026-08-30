@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from fastapi import APIRouter, FastAPI
 from fastapi.testclient import TestClient
 
@@ -20,6 +22,7 @@ LIVE_OPENAPI_PATHS = {
     "/api/v1/areas/{area_id}/geometry",
     "/api/v1/analysis/jobs",
     "/api/v1/analysis/jobs/{job_id}",
+    "/api/v1/areas/{area_id}/context",
 }
 
 
@@ -31,17 +34,19 @@ def _enabled_app() -> FastAPI:
     return application
 
 
-def test_public_context_defaults_off() -> None:
-    assert public_context_enabled() is False
+def test_public_context_defaults_on() -> None:
+    assert public_context_enabled() is True
 
 
-def test_live_openapi_excludes_context_path() -> None:
+def test_live_openapi_includes_context_path() -> None:
     paths = set((live_app.openapi().get("paths") or {}))
     assert paths == LIVE_OPENAPI_PATHS
-    assert "/api/v1/areas/{area_id}/context" not in paths
+    assert "/api/v1/areas/{area_id}/context" in paths
+    assert len(paths) == 7
 
 
-def test_gated_include_off_adds_nothing() -> None:
+def test_gated_include_off_adds_nothing(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("HVA_PUBLIC_CONTEXT", "0")
     router = APIRouter()
     include_public_context_routes(router)
     assert [getattr(route, "path", "") for route in router.routes] == []

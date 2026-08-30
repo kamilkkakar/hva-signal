@@ -1,7 +1,8 @@
-"""Gated include for unpublished analysis-area context. Default OFF.
+"""Gated include for analysis-area context. RC-v2 default ON.
 
-Live OpenAPI stays the six P1 paths unless HVA_PUBLIC_CONTEXT is an
-explicit truthy value (1/true/yes/on).
+Live OpenAPI includes GET /areas/{area_id}/context unless HVA_PUBLIC_CONTEXT
+is an explicit falsy value (0/false/no/off). Fail-closed: phoenix-demo
+cache only. No acquire. No score.
 """
 
 from __future__ import annotations
@@ -12,8 +13,12 @@ from fastapi import APIRouter
 
 
 def public_context_enabled() -> bool:
-    raw = os.environ.get("HVA_PUBLIC_CONTEXT", "0").strip().lower()
-    return raw in {"1", "true", "yes", "on"}
+    raw = os.environ.get("HVA_PUBLIC_CONTEXT")
+    if raw is not None and raw.strip() != "":
+        return raw.strip().lower() in {"1", "true", "yes", "on"}
+    from app.core.config import get_settings
+
+    return bool(get_settings().hva_public_context)
 
 
 def include_public_context_routes(api_router: APIRouter) -> None:

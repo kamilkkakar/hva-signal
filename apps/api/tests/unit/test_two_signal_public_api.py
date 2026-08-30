@@ -251,6 +251,7 @@ def test_default_app_openapi_excludes_two_signal_and_spend() -> None:
         "/api/v1/areas/{area_id}/geometry",
         "/api/v1/analysis/jobs",
         "/api/v1/analysis/jobs/{job_id}",
+        "/api/v1/areas/{area_id}/context",
     }
     assert "/api/v1/analysis/two-signal-jobs" not in paths
     schemas = schema.get("components", {}).get("schemas", {})

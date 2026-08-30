@@ -30,6 +30,11 @@ async function waitForMapState(page: Page, state: "insufficient") {
 }
 
 async function selectZone(page: Page) {
+  const inventory = page.getByTestId("area-context-inventory");
+  if ((await inventory.count()) > 0 && (await inventory.getAttribute("open")) == null) {
+    await inventory.locator("summary").first().click();
+    await expect(inventory).toHaveAttribute("open", "");
+  }
   const contextList = page.getByTestId("area-context-list");
   const contextButton = contextList.locator("tbody button").first();
   if ((await contextList.count()) > 0 && (await contextButton.count()) > 0) {

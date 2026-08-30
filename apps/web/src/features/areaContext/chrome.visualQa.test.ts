@@ -20,9 +20,9 @@ function firstRead(html: string): string {
 }
 
 describe("V2-N context chrome", () => {
-  it("keeps the public context flag off", () => {
+  it("defaults public context on and can be disabled", () => {
+    expect(isPublicContextEnabled()).toBe(true);
     expect(isPublicContextEnabled("0")).toBe(false);
-    expect(isPublicContextEnabled()).toBe(false);
   });
 
   it("shows Analysis Area N and 4-6 facts, with GEOID only in closed details", () => {
