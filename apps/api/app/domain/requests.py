@@ -6,6 +6,7 @@ from typing import Annotated, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.domain.enums import AnalysisMode, DataMode
+from app.domain.public_safety_fields import CLIENT_CONTROL_FIELD_NAMES
 
 _UNPUBLISHED_SIGNAL_B_FIELDS = frozenset(
     {
@@ -40,6 +41,7 @@ _UNPUBLISHED_SIGNAL_B_FIELDS = frozenset(
         "bypass_limit",
         "allowance_remaining",
     }
+    | CLIENT_CONTROL_FIELD_NAMES
 )
 
 
