@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { MapStage } from "@/features/map/MapStage";
+import { useEffect, useMemo } from "react";
+import { MapStageMount } from "@/features/map/MapStageMount";
 import { TimelineBar } from "@/features/timeline/TimelineBar";
 import { useJobStore } from "@/stores/jobStore";
 import { POLL_INTERVAL_MS } from "@/utils/jobPolling";
@@ -9,6 +9,8 @@ import { AnalysisDetail } from "./AnalysisDetail";
 import { DecisionRail } from "./DecisionRail";
 import { QueryRail } from "./QueryRail";
 import { SourceTape } from "./SourceTape";
+
+const EMPTY_LIMITATIONS: readonly string[] = [];
 
 export function CommandCenterShell() {
   const snapshot = useJobStore((state) => state.snapshot);
@@ -22,15 +24,20 @@ export function CommandCenterShell() {
     if (!polling || !jobId) {
       return;
     }
+    void poll();
     const timer = window.setInterval(() => {
       void poll();
     }, POLL_INTERVAL_MS);
     return () => window.clearInterval(timer);
   }, [jobId, poll, polling]);
 
-  const limitations = snapshot?.result?.system_limitations ?? [];
-  const layer = mapLayerFromLimitations(limitations);
-  const ranking = rankingPresentation(snapshot?.result?.zones);
+  const limitations = snapshot?.result?.system_limitations ?? EMPTY_LIMITATIONS;
+  const zones = snapshot?.result?.zones;
+  const layer = useMemo(
+    () => mapLayerFromLimitations(limitations),
+    [limitations],
+  );
+  const ranking = useMemo(() => rankingPresentation(zones), [zones]);
   const banner = sourceBannerLabel({
     status: snapshot?.status ?? null,
     thermalSource: snapshot?.result?.thermal_source,
@@ -50,7 +57,7 @@ export function CommandCenterShell() {
       </header>
       <div className="shell-grid">
         <QueryRail />
-        <MapStage
+        <MapStageMount
           layer={layer}
           ranking={ranking}
           areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? null}
