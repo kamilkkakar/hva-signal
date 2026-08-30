@@ -1,35 +1,45 @@
+import type { AnalysisJobPayload, AnalysisJobRequest } from "@/api/analysisJobs";
 import { useJobStore } from "@/stores/jobStore";
 import {
   decision8EvidencePanel,
   decisionThermalLimitation,
-  evidenceGraphPresentation,
   probabilityFieldsPresentation,
   stallCopy,
 } from "@/utils/evidencePresentation";
 import { jobProgressLabel } from "@/utils/jobPolling";
 import { BACKEND_ORDERING_COPY } from "@/utils/mapPresentation";
 import type { RankingPresentation } from "@/utils/mapLayer";
+import { CopyableToken } from "./CopyableToken";
 
-type DecisionRailProps = {
+type DecisionRailViewProps = {
   ranking: RankingPresentation;
+  snapshot: AnalysisJobPayload | null;
+  busy: boolean;
+  canResubmit: boolean;
+  stalled: boolean;
+  lastRequest: AnalysisJobRequest | null;
+  onResubmit: () => void;
 };
 
-export function DecisionRail({ ranking }: DecisionRailProps) {
-  const snapshot = useJobStore((state) => state.snapshot);
-  const busy = useJobStore((state) => state.busy);
-  const canResubmit = useJobStore((state) => state.canResubmit);
-  const stalled = useJobStore((state) => state.stalled);
-  const resubmit = useJobStore((state) => state.resubmit);
-  const lastRequest = useJobStore((state) => state.lastRequest);
-
+export function DecisionRailView({
+  ranking,
+  snapshot,
+  busy,
+  canResubmit,
+  stalled,
+  lastRequest,
+  onResubmit,
+}: DecisionRailViewProps) {
   const isUnknown = snapshot?.status === "unknown_job";
-  const graph = evidenceGraphPresentation(snapshot?.result);
-  const probability = probabilityFieldsPresentation(snapshot?.result?.zones);
   const thermalLimitation = decisionThermalLimitation({
     status: snapshot?.status,
     limitations: snapshot?.result?.system_limitations,
   });
   const decision8Panel = decision8EvidencePanel(snapshot?.result);
+  const probability = probabilityFieldsPresentation(snapshot?.result?.zones);
+  const hasLongAnalysis = Boolean(
+    decision8Panel || thermalLimitation || probability || snapshot?.result,
+  );
   const stall = stallCopy({
     stalled,
     status: snapshot?.status,
@@ -51,66 +61,12 @@ export function DecisionRail({ ranking }: DecisionRailProps) {
           ? "No zone ranking is shown until an analysis job completes with enough thermal evidence. Missing data is not treated as safe."
           : BACKEND_ORDERING_COPY}
       </p>
-
-      <section className="evidence-detail">
-        {thermalLimitation && (
-          <p
-            className="decision-limitation"
-            data-testid="decision-thermal-limitation"
-          >
-            {thermalLimitation}
-          </p>
-        )}
-
-        {decision8Panel && (
-          <section
-            className="decision-copy"
-            data-testid="decision8-evidence-panel"
-          >
-            <p>{decision8Panel.title}</p>
-            <p data-testid="decision8-observed-s">
-              Observed normalized spread S: {decision8Panel.observedSpread}
-            </p>
-            <p data-testid="decision8-policy-floor">
-              Decision 8 policy floor: {decision8Panel.floorDisplay}
-            </p>
-            <p>Statistic: {decision8Panel.statistic}</p>
-            <p>Tail group size: {decision8Panel.tailGroupSize}</p>
-            <p data-testid="decision8-policy-version">
-              Decision 8 policy: {decision8Panel.policyVersion}
-            </p>
-            <p data-testid="decision8-reference-version">
-              Decision 1B reference: {decision8Panel.referenceVersion}
-            </p>
-            <p data-testid="decision8-zone-geometry">
-              Zone geometry: {decision8Panel.zoneGeometryVersion}
-            </p>
-            <p>
-              Historical years / hour:{" "}
-              {decision8Panel.historicalYears?.join(", ") ?? "unavailable"} /{" "}
-              {decision8Panel.referenceHour ?? "unavailable"}
-            </p>
-            <p>Reference quality: {decision8Panel.referenceQuality}</p>
-            <p>Result: {decision8Panel.result}</p>
-            {decision8Panel.reason && (
-              <p data-testid="decision8-suppression-reason">
-                Reason thermal ranking was suppressed: {decision8Panel.reason}
-              </p>
-            )}
-          </section>
-        )}
-
-        <p className="evidence-stamp" data-testid="evidence-graph-state">
-          {graph.state}
+      {hasLongAnalysis && (
+        <p className="decision-copy">
+          Full evidence, versions, and suppression notes are in Analysis detail
+          below.
         </p>
-        <p className="decision-copy">{graph.copy}</p>
-
-        {probability && (
-          <p className="decision-copy" data-testid="probability-blocked">
-            {probability.label}
-          </p>
-        )}
-      </section>
+      )}
 
       <section
         className="job-progress"
@@ -125,7 +81,12 @@ export function DecisionRail({ ranking }: DecisionRailProps) {
         </p>
         {snapshot?.job_id && (
           <p className="job-id">
-            <span>ID</span> {snapshot.job_id}
+            <span>ID</span>{" "}
+            <CopyableToken
+              value={snapshot.job_id}
+              aria-label="Copy job ID"
+              testId="job-id"
+            />
           </p>
         )}
         {snapshot?.message && <p className="job-message">{snapshot.message}</p>}
@@ -148,7 +109,7 @@ export function DecisionRail({ ranking }: DecisionRailProps) {
             className="submit-btn"
             data-testid="resubmit-job"
             disabled={!canResubmit || !lastRequest}
-            onClick={() => void resubmit()}
+            onClick={onResubmit}
           >
             Resubmit
           </button>
@@ -161,12 +122,32 @@ export function DecisionRail({ ranking }: DecisionRailProps) {
             type="button"
             className="submit-btn"
             disabled={!canResubmit || !lastRequest}
-            onClick={() => void resubmit()}
+            onClick={onResubmit}
           >
             Resubmit
           </button>
         </section>
       )}
     </aside>
+  );
+}
+
+export function DecisionRail({ ranking }: { ranking: RankingPresentation }) {
+  const snapshot = useJobStore((state) => state.snapshot);
+  const busy = useJobStore((state) => state.busy);
+  const canResubmit = useJobStore((state) => state.canResubmit);
+  const stalled = useJobStore((state) => state.stalled);
+  const resubmit = useJobStore((state) => state.resubmit);
+  const lastRequest = useJobStore((state) => state.lastRequest);
+  return (
+    <DecisionRailView
+      ranking={ranking}
+      snapshot={snapshot}
+      busy={busy}
+      canResubmit={canResubmit}
+      stalled={stalled}
+      lastRequest={lastRequest}
+      onResubmit={() => void resubmit()}
+    />
   );
 }
