@@ -4,17 +4,15 @@ Signal B (selected-time snapshot) needs a resolved 25-zone geography.
 Signal A (historical q_A / Decision 8) needs that geography plus a prepared
 reference package.
 
-This module does not change AreaPackageManifest V2, does not serve geometry
-without a READY reference, and does not call a vendor. It is the typed
-lifecycle that production registry resolution does not yet implement.
-
-Current production: resolve_ready_area_package / GET geometry still require a
-validated reference file. SNAPSHOT_CAPABLE is therefore not a live API state.
+Geometry serving now uses resolve_area_geography and does not open the
+historical reference file. Historical analysis still uses
+resolve_ready_area_package plus the frozen Phoenix AreaConfig guard.
 """
 
 from __future__ import annotations
 
 from enum import StrEnum
+from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -52,6 +50,18 @@ class AreaCapabilityState(BaseModel):
             self.geography == GeographyReadiness.GEOGRAPHY_READY
             and self.reference == ReferenceReadiness.READY
         )
+
+    @property
+    def can_serve_geometry(self) -> bool:
+        return self.geography == GeographyReadiness.GEOGRAPHY_READY
+
+    @property
+    def can_process_snapshot(self) -> bool:
+        return self.snapshot_capable
+
+    @property
+    def can_run_historical_signal(self) -> bool:
+        return self.historical_signal_capable
 
 
 class GeographyIdentity(BaseModel):
@@ -114,5 +124,49 @@ def historical_signal_capable(
 
 
 def current_registry_requires_reference_for_geometry() -> bool:
-    """Production geometry delivery still validates a reference file."""
-    return True
+    """Geometry serving uses the geography resolver and does not open reference."""
+    return False
+
+
+def derive_area_capabilities(
+    area_id: str,
+    *,
+    root: Path | None = None,
+) -> AreaCapabilityState:
+    """Derive geography vs reference capability from stored artifacts."""
+    from app.core.area_registry import (
+        AreaRegistryError,
+        UnsupportedAreaError,
+        resolve_area_geography,
+        resolve_ready_area_package,
+    )
+
+    try:
+        resolve_area_geography(area_id, root=root)
+    except UnsupportedAreaError:
+        return AreaCapabilityState(
+            geography=GeographyReadiness.UNRESOLVED,
+            reference=ReferenceReadiness.NOT_PREPARED,
+        )
+    except AreaRegistryError:
+        return AreaCapabilityState(
+            geography=GeographyReadiness.FAILED,
+            reference=ReferenceReadiness.NOT_PREPARED,
+        )
+
+    try:
+        resolve_ready_area_package(area_id, root=root)
+    except AreaRegistryError as exc:
+        message = str(exc).lower()
+        if "missing" in message:
+            reference = ReferenceReadiness.NOT_PREPARED
+        else:
+            reference = ReferenceReadiness.FAILED
+        return AreaCapabilityState(
+            geography=GeographyReadiness.GEOGRAPHY_READY,
+            reference=reference,
+        )
+    return AreaCapabilityState(
+        geography=GeographyReadiness.GEOGRAPHY_READY,
+        reference=ReferenceReadiness.READY,
+    )

@@ -11,7 +11,21 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from app.core.area_config import AreaConfig
-from app.core.phoenix_v1_area_config import hackathon_root
+from app.core.phoenix_v1_area_config import (
+    hackathon_root,
+    load_frozen_phoenix_v1_area_config,
+)
+
+GEOMETRY_ZONE_ID_PROPERTY = "GEOID"
+PHOENIX_DEMO_AREA_ID = "phoenix-demo"
+PHOENIX_AOI_TIMEZONE = "America/Phoenix"
+PHOENIX_AREA_SELECTION_POLICY_VERSION = "PHX_DEMO_AOI_POLICY_V1"
+
+# Timezone is a geography asset. It is not stored on frozen AreaConfig.
+_AREA_TIMEZONES = {PHOENIX_DEMO_AREA_ID: PHOENIX_AOI_TIMEZONE}
+_AREA_SELECTION_POLICIES = {
+    PHOENIX_DEMO_AREA_ID: PHOENIX_AREA_SELECTION_POLICY_VERSION,
+}
 
 
 class AreaRegistryError(ValueError):
@@ -110,6 +124,21 @@ class AreaGeometryBytes:
 
 
 @dataclass(frozen=True)
+class ResolvedAreaGeography:
+    """Verified geography assets. Does not imply a historical reference exists."""
+
+    manifest: AreaPackageManifest
+    config: AreaConfig
+    area_config_path: Path
+    geometry_path: Path
+    geometry_body: bytes
+    zone_geoids: tuple[str, ...]
+    timezone: str
+    area_selection_policy_version: str
+    zone_id_property: str = GEOMETRY_ZONE_ID_PROPERTY
+
+
+@dataclass(frozen=True)
 class ResolvedReadyPackage:
     """Verified READY-area artifacts. Integrity only — not an analytical decision."""
 
@@ -118,6 +147,7 @@ class ResolvedReadyPackage:
     area_config_path: Path
     reference_path: Path
     geometry_path: Path
+    geography: ResolvedAreaGeography | None = None
 
 
 class SupportedAreaSummary(BaseModel):
@@ -142,16 +172,9 @@ def load_area_registry(*, root: Path | None = None) -> AreaRegistry:
         raise AreaRegistryError(f"invalid registry: {exc}") from exc
 
 
-def resolve_ready_area_package(
-    area_id: str, *, root: Path | None = None
-) -> ResolvedReadyPackage:
-    """Resolve a READY package and keep the verified artifact paths.
-
-    Does not replace the Phoenix frozen AreaConfig loader. Callers that analyze
-    phoenix-demo must still run load_frozen_phoenix_v1_area_config as a
-    defense-in-depth guard.
-    """
-    repo = Path(root) if root is not None else hackathon_root()
+def _load_registered_manifest(
+    area_id: str, *, repo: Path
+) -> tuple[AreaPackageManifest, Path]:
     registry = load_area_registry(root=repo)
     entry = next((item for item in registry.areas if item.area_id == area_id), None)
     if entry is None:
@@ -170,14 +193,16 @@ def resolve_ready_area_package(
         )
     if not manifest.supported:
         raise UnsupportedAreaError(area_id)
+    return manifest, manifest_path
+
+
+def _load_verified_area_config(
+    manifest: AreaPackageManifest, *, repo: Path
+) -> tuple[AreaConfig, Path]:
     config_path = _tracked_file(repo, manifest.area_config_path, label="AreaConfig")
-    reference_path = _tracked_file(repo, manifest.reference_path, label="reference")
     config_digest = hashlib.sha256(config_path.read_bytes()).hexdigest()
     if config_digest != manifest.area_config_sha256:
         raise AreaRegistryError("AreaConfig SHA-256 mismatch")
-    reference_digest = hashlib.sha256(reference_path.read_bytes()).hexdigest()
-    if reference_digest != manifest.reference_sha256:
-        raise AreaRegistryError("reference SHA-256 mismatch")
     try:
         loaded = AreaConfig.model_validate(
             json.loads(config_path.read_text(encoding="utf-8"))
@@ -189,22 +214,108 @@ def resolve_ready_area_package(
             f"AreaConfig area_id={loaded.area_id!r} does not match "
             f"manifest area_id={manifest.area_id!r}"
         )
+    from app.domain.phoenix_v1 import AREA_ID, FROZEN_AREA_CONFIG_SHA256
+
+    if loaded.area_id == AREA_ID and config_digest == FROZEN_AREA_CONFIG_SHA256:
+        frozen = load_frozen_phoenix_v1_area_config()
+        if frozen.area_id != loaded.area_id or frozen.version != loaded.version:
+            raise AreaRegistryError("Phoenix frozen AreaConfig guard mismatch")
+    return loaded, config_path
+
+
+def _geography_zone_ids(
+    raw: bytes,
+    *,
+    expected_zone_count: int,
+    zone_id_property: str = GEOMETRY_ZONE_ID_PROPERTY,
+) -> tuple[str, ...]:
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise AreaRegistryError("invalid GeoJSON") from exc
+    if not isinstance(payload, dict) or payload.get("type") != "FeatureCollection":
+        raise AreaRegistryError("invalid GeoJSON")
+    features = payload.get("features")
+    if not isinstance(features, list):
+        raise AreaRegistryError("invalid GeoJSON")
+    if len(features) != expected_zone_count:
+        raise AreaRegistryError(
+            f"geometry feature count {len(features)} != expected {expected_zone_count}"
+        )
+    ids: list[str] = []
+    for feature in features:
+        if not isinstance(feature, dict) or not isinstance(feature.get("properties"), dict):
+            raise AreaRegistryError("invalid GeoJSON")
+        if zone_id_property not in feature["properties"]:
+            raise AreaRegistryError("invalid GeoJSON")
+        ids.append(str(feature["properties"][zone_id_property]))
+    if len(ids) != len(set(ids)):
+        raise AreaRegistryError("duplicate geometry zone IDs")
+    return tuple(ids)
+
+
+def resolve_area_geography(
+    area_id: str, *, root: Path | None = None
+) -> ResolvedAreaGeography:
+    """Resolve geography assets without opening the historical reference file."""
+    repo = Path(root) if root is not None else hackathon_root()
+    manifest, _manifest_path = _load_registered_manifest(area_id, repo=repo)
+    loaded, config_path = _load_verified_area_config(manifest, repo=repo)
     geometry_path = _tracked_file(repo, manifest.geometry_path, label="geometry")
     geometry_raw = geometry_path.read_bytes()
     geometry_digest = hashlib.sha256(geometry_raw).hexdigest()
     if geometry_digest != manifest.geometry_sha256:
         raise AreaRegistryError("geometry SHA-256 mismatch")
-    _validate_geometry_artifact(
-        geometry_raw,
-        config=loaded,
-        reference_path=reference_path,
+    zone_geoids = _geography_zone_ids(
+        geometry_raw, expected_zone_count=loaded.expected_zone_count
     )
-    return ResolvedReadyPackage(
+    timezone = _AREA_TIMEZONES.get(manifest.area_id)
+    policy = _AREA_SELECTION_POLICIES.get(manifest.area_id)
+    if timezone is None or policy is None:
+        raise AreaRegistryError(
+            f"geography timezone/selection policy is not registered for {manifest.area_id!r}"
+        )
+    return ResolvedAreaGeography(
         manifest=manifest,
         config=loaded,
         area_config_path=config_path,
-        reference_path=reference_path,
         geometry_path=geometry_path,
+        geometry_body=geometry_raw,
+        zone_geoids=zone_geoids,
+        timezone=timezone,
+        area_selection_policy_version=policy,
+    )
+
+
+def resolve_ready_area_package(
+    area_id: str, *, root: Path | None = None
+) -> ResolvedReadyPackage:
+    """Resolve a READY package and keep the verified artifact paths.
+
+    Geography is resolved first. Historical callers still must pass the
+    reference hash, GEOID join, and — for phoenix-demo analysis —
+    load_frozen_phoenix_v1_area_config.
+    """
+    repo = Path(root) if root is not None else hackathon_root()
+    geography = resolve_area_geography(area_id, root=repo)
+    reference_path = _tracked_file(
+        repo, geography.manifest.reference_path, label="reference"
+    )
+    reference_digest = hashlib.sha256(reference_path.read_bytes()).hexdigest()
+    if reference_digest != geography.manifest.reference_sha256:
+        raise AreaRegistryError("reference SHA-256 mismatch")
+    _validate_geometry_artifact(
+        geography.geometry_body,
+        config=geography.config,
+        reference_path=reference_path,
+    )
+    return ResolvedReadyPackage(
+        manifest=geography.manifest,
+        config=geography.config,
+        area_config_path=geography.area_config_path,
+        reference_path=reference_path,
+        geometry_path=geography.geometry_path,
+        geography=geography,
     )
 
 
@@ -290,23 +401,19 @@ def load_verified_area_geometry(
     *,
     root: Path | None = None,
 ) -> AreaGeometryBytes:
-    repo = Path(root) if root is not None else hackathon_root()
-    manifest = resolve_area_package(area_id, root=repo)
-    geometry_path = _tracked_file(repo, manifest.geometry_path, label="geometry")
-    config_path = _tracked_file(repo, manifest.area_config_path, label="AreaConfig")
-    config = AreaConfig.model_validate(json.loads(config_path.read_text(encoding="utf-8")))
+    geography = resolve_area_geography(area_id, root=root)
     return AreaGeometryBytes(
-        area_id=manifest.area_id,
-        zone_geometry_version=config.zone_geometry_version,
-        sha256=manifest.geometry_sha256,
-        body=geometry_path.read_bytes(),
+        area_id=geography.manifest.area_id,
+        zone_geometry_version=geography.config.zone_geometry_version,
+        sha256=geography.manifest.geometry_sha256,
+        body=geography.geometry_body,
     )
 
 
 def list_supported_area_ids(*, root: Path | None = None) -> list[str]:
     registry = load_area_registry(root=root)
     return [
-        resolve_area_package(entry.area_id, root=root).area_id
+        resolve_area_geography(entry.area_id, root=root).manifest.area_id
         for entry in registry.areas
     ]
 
@@ -315,19 +422,15 @@ def list_supported_area_summaries(*, root: Path | None = None) -> list[Supported
     repo = Path(root) if root is not None else hackathon_root()
     summaries: list[SupportedAreaSummary] = []
     for area_id in list_supported_area_ids(root=repo):
-        package = resolve_area_package(area_id, root=repo)
-        config_path = _tracked_file(repo, package.area_config_path, label="AreaConfig")
-        config = AreaConfig.model_validate(
-            json.loads(config_path.read_text(encoding="utf-8"))
-        )
+        geography = resolve_area_geography(area_id, root=repo)
         summaries.append(
             SupportedAreaSummary(
-                area_id=package.area_id,
-                supported=package.supported,
-                expected_zone_count=config.expected_zone_count,
-                area_config_version=config.version,
-                reference_version=config.historical_reference_window.version,
-                zone_geometry_version=config.zone_geometry_version,
+                area_id=geography.manifest.area_id,
+                supported=geography.manifest.supported,
+                expected_zone_count=geography.config.expected_zone_count,
+                area_config_version=geography.config.version,
+                reference_version=geography.config.historical_reference_window.version,
+                zone_geometry_version=geography.config.zone_geometry_version,
             )
         )
     return summaries

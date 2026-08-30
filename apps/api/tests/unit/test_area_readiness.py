@@ -77,8 +77,8 @@ def test_geography_identity_rejects_reference_fields() -> None:
         )
 
 
-def test_production_registry_still_requires_reference_for_geometry() -> None:
-    assert current_registry_requires_reference_for_geometry() is True
+def test_production_registry_serves_geometry_without_requiring_reference_resolver() -> None:
+    assert current_registry_requires_reference_for_geometry() is False
     package = resolve_ready_area_package(AREA_ID)
     assert package.reference_path is not None
     assert package.manifest.reference_sha256

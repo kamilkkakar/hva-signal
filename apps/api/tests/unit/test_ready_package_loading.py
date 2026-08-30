@@ -101,6 +101,15 @@ def test_inner_frozen_phoenix_loader_still_refuses_mutated_hash(
         phoenix_cfg.load_frozen_phoenix_v1_area_config()
 
 
+def test_historical_orchestrator_does_not_use_geography_only_resolver() -> None:
+    from app.services import orchestrator
+
+    source = Path(orchestrator.__file__).read_text(encoding="utf-8")
+    assert "resolve_ready_area_package" in source
+    assert "load_frozen_phoenix_v1_area_config" in source
+    assert "resolve_area_geography(" not in source
+
+
 def test_unknown_area_still_fails_closed() -> None:
     from app.core.area_registry import UnsupportedAreaError
     from app.services.orchestrator import run_replay_analysis
