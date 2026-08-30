@@ -69,8 +69,8 @@ describe("CapabilityExpansion", () => {
     const b = html.match(
       /data-testid="capability-maturity-signal_b">[\s\S]*?<\/p>/,
     );
-    expect(b?.[0]).toContain("INTEGRATION TESTING");
-    expect(b?.[0]).not.toContain("AVAILABLE NOW");
+    expect(b?.[0]).toContain("AVAILABLE NOW — CACHED EVIDENCE");
+    expect(b?.[0]).not.toContain("INTEGRATION TESTING");
     expect(html.toLowerCase()).not.toContain("01 current");
     expect(html).not.toContain("Forecast");
     expect(html).not.toContain("Scenario");

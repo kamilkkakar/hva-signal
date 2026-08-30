@@ -51,8 +51,8 @@ export const SIGNAL_A_FACT_NOT_PREPARED =
   "History is not prepared. Missing is not treated as safe.";
 
 export const SIGNAL_B_QUESTION = "What was each zone’s temperature at a chosen hour?";
-export const SIGNAL_B_STAMP = "NOT ON THIS SURFACE";
-export const SIGNAL_B_FACT = "Selected-hour snapshot is not published here.";
+export const SIGNAL_B_STAMP = "AVAILABLE NOW — CACHED EVIDENCE";
+export const SIGNAL_B_FACT = "Cached 15 Jul 03:00 reading. 25 of 25 zones. Not live.";
 
 export const SELECTED_ZONE_EMPTY = "Click a zone. No zone selected.";
 

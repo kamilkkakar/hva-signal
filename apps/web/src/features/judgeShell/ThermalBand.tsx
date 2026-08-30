@@ -1,7 +1,9 @@
 import type { AnalysisJobPayload, AnalysisResultStub } from "@/api/analysisJobs";
 import type { JobStatus } from "@/types";
 import { SignalAPanel } from "./signalA";
+import { SignalBCachedPanel } from "./signalB/SignalBCachedPanel";
 import { SignalBUnavailableDisclosure } from "./signalB";
+import { PUBLIC_SIGNAL_B } from "./signalB/publicBGate";
 
 type ThermalBandProps = {
   snapshot: AnalysisJobPayload | null;
@@ -24,7 +26,11 @@ export function ThermalBand({
         requested={snapshot != null}
         selectedZoneId={selectedZoneId}
       />
-      <SignalBUnavailableDisclosure />
+      {PUBLIC_SIGNAL_B ? (
+        <SignalBCachedPanel selectedZoneId={selectedZoneId} />
+      ) : (
+        <SignalBUnavailableDisclosure />
+      )}
     </section>
   );
 }

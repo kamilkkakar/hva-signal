@@ -21,7 +21,7 @@ function implementationFiles(): string[] {
 
 describe("map encoding isolation", () => {
   it("does not enable public B, fetch a vendor, or keep the rejected ramp", () => {
-    expect(SIGNAL_B_PUBLIC).toBe(false);
+    expect(SIGNAL_B_PUBLIC).toBe(true);
     const files = implementationFiles();
     expect(files.length).toBeGreaterThan(6);
     for (const path of files) {

@@ -65,7 +65,7 @@ describe("historical position tokens", () => {
   });
 
   it("holds B as neutral numeric and freezes stretch off", () => {
-    expect(SIGNAL_B_PUBLIC).toBe(false);
+    expect(SIGNAL_B_PUBLIC).toBe(true);
     expect(SIGNAL_B_HOLD_ENCODING).toBe("neutral_numeric_hold");
     expect(SIGNAL_B_HOLD_FILL).toBe("#9aa392");
     expect(CURRENT_AOI_AUTOSTRETCH).toBe(false);

@@ -97,7 +97,7 @@ flowchart LR
 
 | Stage | Decision question | Public today |
 |---|---|---|
-| **Observe** | What was the zone-mean field, in °C, at a selected hour? | **No** — Signal B **integration testing**; no genuine snapshot |
+| **Observe** | What was the zone-mean field, in °C, at a selected hour? | **Yes** — Signal B **AVAILABLE NOW — CACHED EVIDENCE** for phoenix-demo 2025-07-15 03:00 |
 | **Contextualize** | How unusual was each zone at 3 a.m. versus its own nights, and is the spread large enough to show an order? | **Yes** — Signal A on `phoenix-demo` replay |
 | **Exposure / persistence** | How does heat accumulate or linger after the peak? | **No** — no HeatDose or AfterHeat number |
 | **Environmental stress** | What is wet-bulb globe temperature once complete inputs exist? | **No** — WBGT blocked |
@@ -140,7 +140,7 @@ HVA-Signal is designed to grow from a spatial thermal-evidence system into a bro
 
 The foundation it is built around can describe the thermal field at a selected time, place nighttime conditions in historical context, and withhold spatial prioritization when the evidence cannot support an order.
 
-**What you can run today** is the historical half of that foundation: the Nighttime Historical Thermal Signal on the frozen `phoenix-demo` window, including the withhold, plus Action as **decision framing** of that same Decision 8 result. The selected-time snapshot is the designed companion question — zone-mean °C at a requested hour — and remains **unpublished** on the public job API (**integration testing**; no genuine snapshot).
+**What you can run today** is the historical half of that foundation plus a dated cached Signal B snapshot: the Nighttime Historical Thermal Signal on the frozen phoenix-demo window, including the withhold, Action as **decision framing**, and Selected-Time Thermal Snapshot as **AVAILABLE NOW — CACHED EVIDENCE** for 2025-07-15 03:00. The public job API remains Signal A only.
 
 The next capability layer extends that foundation from **what is happening** to **how heat develops over time**, **how severe environmental conditions become**, **what may happen next**, and **what decisions the evidence can support**.
 
@@ -161,7 +161,7 @@ flowchart LR
 
 | Stage | Capability | User question | Maturity | Public surface |
 |---|---|---|---|---|
-| Observe | Selected-Time Thermal Snapshot (Signal B) | What was each zone’s average temperature, in °C, at the selected hour? | **Integration testing** | **Disabled.** No genuine 25-zone compatible snapshot. Descriptive °C only if ever published. Not a rank. |
+| Observe | Selected-Time Thermal Snapshot (Signal B) | What was each zone’s average temperature, in °C, at the selected hour? | **AVAILABLE NOW — CACHED EVIDENCE** | **Cached 25/25** phoenix-demo 2025-07-15 03:00 America/Phoenix. Source fortyguard_cached. Not live. Not a rank. |
 | Contextualize | Nighttime Historical Thermal Signal (Signal A) | How unusual was each zone at 3 a.m. versus its own nights, and is the difference large enough to show an order? | **Available now** | **Yes** — `phoenix-demo` replay at 03:00 AOI-local. Not live. |
 | Exposure | HeatDose | How did **environmental** exposure accumulate over a named window? | **Analytical development in progress** | **Not shown.** No number. Not a personal dose. |
 | Persistence | AfterHeat | How does the outdoor field behave after the daytime peak? | **Active development and validation** | **Not shown.** Not overnight recovery. |
@@ -278,7 +278,7 @@ flowchart TD
 
 ## 8. Signal B status
 
-**Selected-Time Thermal Snapshot** — **integration testing**. **Not public.** There is **no genuine snapshot** for the public `phoenix-demo` window.
+**Selected-Time Thermal Snapshot** — **AVAILABLE NOW — CACHED EVIDENCE**. Phoenix-demo 2025-07-15 03:00 America/Phoenix, 25/25 zone means, source ortyguard_cached. **Not live.** Downtown 0/25 TCM fixture remains a negative hold.
 
 **Question:** What was each zone’s average temperature, in °C, at the selected hour?
 
@@ -292,9 +292,9 @@ Rules if it is ever published:
 - A withheld Signal A order does **not** suppress a genuine snapshot. A snapshot does **not** authorize ranking.
 - No combined A+B score.
 
-Public `POST /api/v1/analysis/jobs` is the **legacy Signal A** contract. Unpublished snapshot and spend fields are rejected (**422**). The two-signal sibling route is **not** in the live OpenAPI. Command-center Signal A/B chrome is **not** mounted.
+Public POST /api/v1/analysis/jobs is the **legacy Signal A** contract. Unpublished snapshot and spend fields are rejected (**422**). The two-signal sibling route is **not** in the default OpenAPI. Command-center Signal B chrome shows the cached phoenix-demo snapshot.
 
-There is **no genuine** 25-zone compatible snapshot for `phoenix-demo`. Held hourly tiles do not join the analysis window; the reuse store is empty. A schematic fixture is not product evidence. Flipping a flag is not a product.
+The public phoenix-demo bind is the processed 25/25 cached snapshot (ctivity_id e0244934-0840-4072-bcb6-96cca26a9a20). The downtown hourly TCM fixture stays 0/25. The vendor tile dump is not shipped. A schematic fixture is not product evidence.
 
 ---
 
@@ -554,7 +554,7 @@ Presenter or judge, **replay only**. Source banner must stay **REPLAY**. Do not 
 4. Change the date to **`2022-06-30`** (time stays 03:00). Submit.
 5. Map: **25 ranked fills**. Observed spread about **0.135**. Fills are historical nighttime order, not °C, not harm probability.
 6. Read Action framing on the same nights: 2022-06-30 **supports spatial ordering** (one input, not a deploy order); 2022-07-01 **do not use thermal ranking alone** (withhold is not all-clear). Framing is Decision 8 translate only.
-7. Say the second question out loud if needed: selected-hour °C is descriptive only, **not on this switch**, and has **no genuine snapshot** on this window.
+7. Say the second question out loud: selected-hour °C is descriptive only, **AVAILABLE NOW — CACHED EVIDENCE** for 15 Jul 03:00, 25/25, not live.
 8. Do not demo a national place resolve. Place search is **disabled**. If asked: **L2 timezone** is still open (no shippable offline lon/lat → IANA lookup); a Census Place can later become a versioned 25-zone **analysis window** inside the place; historical Signal A would stay unprepared until a reference package exists; hosted live is **off**.
 
 If a hosted Free URL is asleep, record or judge from local Compose / Vite and say hosting is a human always-on step.
@@ -569,7 +569,7 @@ If a hosted Free URL is asleep, record or judge from local Compose / Vite and sa
 | Accountless command center | **Available now** |
 | Decision 8 rank-or-withhold | **Available now** (Signal A) |
 | Action intelligence | **Available now — decision framing** (Decision 8 translate only) |
-| Public Signal B / selected-time snapshot | **Disabled** (integration testing — **no genuine snapshot**) |
+| Public Signal B / selected-time snapshot | **AVAILABLE NOW — CACHED EVIDENCE** (phoenix-demo 2025-07-15 03:00, 25/25, not live) |
 | Public two-signal job API | **Disabled** |
 | Place search | **Disabled** |
 | Public geography resolve | **Disabled** (**L2 timezone**) |

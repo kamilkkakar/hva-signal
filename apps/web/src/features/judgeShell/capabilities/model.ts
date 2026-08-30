@@ -117,7 +117,7 @@ export const CAPABILITY_ROWS: readonly CapabilityRow[] = [
   },
   {
     id: "signal_b",
-    band: "next_gated",
+    band: "on_this_surface",
     stage: "OBSERVE",
     name: SIGNAL_B_NAME,
     maturity: SIGNAL_B_MATURITY,

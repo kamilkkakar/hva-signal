@@ -14,19 +14,20 @@ import {
 } from "./model";
 
 describe("capability expansion model", () => {
-  it("places A and Action on this surface only", () => {
+  it("places A, cached B, and Action on this surface", () => {
     expect(capabilityRow("signal_a").maturity).toBe(SIGNAL_A_MATURITY);
     expect(capabilityRow("action").maturity).toBe(ACTION_MATURITY);
     expect(capabilityRow("signal_a").band).toBe("on_this_surface");
     expect(capabilityRow("action").band).toBe("on_this_surface");
+    expect(capabilityRow("signal_b").band).toBe("on_this_surface");
     expect(
       CAPABILITY_ROWS.filter((row) => row.band === "on_this_surface").map((row) => row.id),
-    ).toEqual(["signal_a", "action"]);
+    ).toEqual(["signal_a", "action", "signal_b"]);
   });
 
-  it("keeps B in integration testing and search/geo/live disabled", () => {
+  it("promotes B as cached evidence and keeps search/geo/live disabled", () => {
     expect(capabilityRow("signal_b").maturity).toBe(SIGNAL_B_MATURITY);
-    expect(capabilityRow("signal_b").band).toBe("next_gated");
+    expect(capabilityRow("signal_b").maturity).toBe("AVAILABLE NOW — CACHED EVIDENCE");
     expect(capabilityRow("place_search").maturity).toBe("DISABLED");
     expect(capabilityRow("geography_resolve").maturity).toBe("DISABLED");
     expect(capabilityRow("hosted_live").maturity).toBe("DISABLED");

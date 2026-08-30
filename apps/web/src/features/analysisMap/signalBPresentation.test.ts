@@ -30,8 +30,9 @@ describe("V1 locks", () => {
 });
 
 describe("presentSignalBMap", () => {
-  it("stays gated off by default and does not emit a snapshot layer", () => {
+  it("can still be gated off when explicitly disabled", () => {
     const presentation = presentSignalBMap({
+      enabled: false,
       snapshot: afternoonFlatSnapshot(),
       geometry: signalBFixtureGeometry(),
     });

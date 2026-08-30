@@ -52,6 +52,10 @@ from app.schemas.two_signal_public import (
     TwoSignalUnknownJob,
 )
 from app.services.job_identity import historical_request_fingerprint
+from app.services.signal_b_cached_seed import (
+    CACHED_SNAPSHOT_FINGERPRINT,
+    load_phoenix_cached_snapshot,
+)
 from app.services.snapshot_identity import snapshot_request_fingerprint
 
 UNKNOWN_JOB_MESSAGE = "The analysis job is no longer present on this runtime."
@@ -725,6 +729,22 @@ def _legacy_thermal_source(state: TwoSignalJobState) -> str | None:
 
 
 reuse_store = InMemorySelectedTimeReuse()
+
+
+def seed_cached_selected_time(store: SelectedTimeReusePort | None = None) -> str:
+    """Load the processed phoenix-demo 25/25 cached snapshot into reuse."""
+    target = store if store is not None else reuse_store
+    target.put(
+        CACHED_SNAPSHOT_FINGERPRINT,
+        ReuseHit(
+            snapshot=load_phoenix_cached_snapshot(),
+            source="fortyguard_cached",
+        ),
+    )
+    return CACHED_SNAPSHOT_FINGERPRINT
+
+
+seed_cached_selected_time(reuse_store)
 two_signal_job_service = TwoSignalJobService(reuse=reuse_store)
 
 

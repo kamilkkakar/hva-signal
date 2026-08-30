@@ -22,13 +22,13 @@ import {
 } from "./unavailable";
 
 describe("Signal B unavailable contract", () => {
-  it("keeps public snapshot flags off and Public B disabled", () => {
+  it("enables cached Public B and keeps live-demo plus landing request off", () => {
     const env = import.meta.env as Record<string, string | boolean | undefined>;
-    expect(PUBLIC_SIGNAL_B).toBe(false);
+    expect(PUBLIC_SIGNAL_B).toBe(true);
     expect(P1_LANDING_SELECTED_TIME_REQUESTED).toBe(false);
-    expect(defaultSignalFeatureFlags().selectedTimeSnapshotInterface).toBe(false);
+    expect(defaultSignalFeatureFlags().selectedTimeSnapshotInterface).toBe(true);
     expect(defaultSignalFeatureFlags().liveDemoConfirmation).toBe(false);
-    expect(SIGNAL_B_NEUTRAL_MAP_ENABLED).toBe(false);
+    expect(SIGNAL_B_NEUTRAL_MAP_ENABLED).toBe(true);
     expect(env[VITE_SELECTED_TIME_SNAPSHOT_FLAG]).not.toBe("true");
     expect(env[VITE_SELECTED_TIME_SNAPSHOT_FLAG]).not.toBe("1");
     expect(env[VITE_LIVE_DEMO_CONFIRMATION_FLAG]).not.toBe("true");
@@ -85,7 +85,7 @@ describe("Signal B unavailable contract", () => {
       geometry: null,
       availability: "unavailable",
     });
-    expect(presentation.visualState).toBe("gated_off");
+    expect(presentation.visualState).toBe("unavailable");
     expect(presentation.collection.features).toHaveLength(0);
     expect(presentation.validFillCount).toBe(0);
     expect(presentation.tableRows).toEqual([]);

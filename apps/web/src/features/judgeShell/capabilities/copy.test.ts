@@ -36,7 +36,7 @@ describe("capability expansion copy lock", () => {
 
   it("freezes Wave 2 maturity phrases", () => {
     expect(SIGNAL_A_MATURITY).toBe("AVAILABLE NOW");
-    expect(SIGNAL_B_MATURITY).toBe("INTEGRATION TESTING");
+    expect(SIGNAL_B_MATURITY).toBe("AVAILABLE NOW — CACHED EVIDENCE");
     expect(HEATDOSE_MATURITY).toBe("ANALYTICAL DEVELOPMENT");
     expect(AFTERHEAT_MATURITY).toBe("ACTIVE DEVELOPMENT & VALIDATION");
     expect(WBGT_MATURITY).toBe("INTEGRATION PATHWAY / BLOCKED inputs");
@@ -47,8 +47,10 @@ describe("capability expansion copy lock", () => {
     expect(HOSTED_LIVE_MATURITY).toBe("DISABLED");
   });
 
-  it("does not promote B, search, geo, or hosted live to AVAILABLE NOW", () => {
-    expect(SIGNAL_B_MATURITY).not.toContain("AVAILABLE NOW");
+  it("promotes B only as cached evidence and keeps search/geo/live unpublished", () => {
+    expect(SIGNAL_B_MATURITY).toBe("AVAILABLE NOW — CACHED EVIDENCE");
+    expect(SIGNAL_B_MATURITY).not.toMatch(/\bLIVE\b/);
+    expect(SIGNAL_B_MATURITY).not.toContain("CURRENT CONDITIONS");
     expect(PLACE_SEARCH_MATURITY).not.toContain("AVAILABLE NOW");
     expect(GEOGRAPHY_MATURITY).not.toContain("AVAILABLE NOW");
     expect(HOSTED_LIVE_MATURITY).not.toContain("AVAILABLE NOW");

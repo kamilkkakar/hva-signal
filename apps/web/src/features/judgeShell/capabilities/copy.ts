@@ -38,11 +38,11 @@ export const ACTION_SCOPE =
   "Decision 8 translate only. Not an intervention recommendation.";
 
 export const SIGNAL_B_NAME = "Selected-Time Thermal Snapshot" as const;
-export const SIGNAL_B_MATURITY = "INTEGRATION TESTING" as const;
+export const SIGNAL_B_MATURITY = "AVAILABLE NOW — CACHED EVIDENCE" as const;
 export const SIGNAL_B_QUESTION =
   "What was each zone’s average temperature, in °C, at the selected hour?";
 export const SIGNAL_B_SCOPE =
-  "Not on this surface. Code existence is not enablement.";
+  "Phoenix demonstration window, 2025-07-15 03:00 America/Phoenix. Cached evidence. Not live.";
 
 export const PLACE_SEARCH_NAME = "Place search" as const;
 export const PLACE_SEARCH_MATURITY = "DISABLED" as const;
@@ -130,7 +130,7 @@ export const ACTION_RULE =
 export const SIGNAL_B_WHAT =
   "A selected-hour zone temperature snapshot, in °C. Description only. Not unusualness. Not an order.";
 export const SIGNAL_B_RULE =
-  "INTEGRATION TESTING. Not AVAILABLE NOW. No fabricated temperature.";
+  "AVAILABLE NOW — CACHED EVIDENCE. Dated cached snapshot. Not live.";
 
 export const PLACE_SEARCH_WHAT =
   "Type a place name and resolve an analysis window.";

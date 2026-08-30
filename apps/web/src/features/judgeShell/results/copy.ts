@@ -30,12 +30,12 @@ export const STAMP_WORKING = "WORKING";
 export const STAMP_FAILED = "FAILED";
 
 export const SIGNAL_B_KICKER = "Signal B";
-export const SIGNAL_B_TITLE = "Selected-time snapshot";
+export const SIGNAL_B_TITLE = "Selected-Time Thermal Snapshot";
 export const SIGNAL_B_QUESTION =
   "What was each zone's temperature at a chosen hour?";
-export const SIGNAL_B_STAMP = "NOT ON THIS SURFACE";
+export const SIGNAL_B_STAMP = "AVAILABLE NOW — CACHED EVIDENCE";
 export const SIGNAL_B_MESSAGE =
-  "Selected-hour snapshot is not published here.";
+  "Cached 15 Jul 03:00 reading. 25 of 25 zones. Not live.";
 
 export const VALUE_CLOCK_LABEL = "Clock";
 export const VALUE_CLOCK = "03:00";
@@ -43,8 +43,12 @@ export const VALUE_WINDOW_LABEL = "Window";
 export const VALUE_WINDOW = "25-zone";
 export const VALUE_SOURCE_LABEL = "Source";
 export const VALUE_SOURCE = "REPLAY";
-export const VALUE_SURFACE_LABEL = "Surface";
-export const VALUE_SURFACE = "off";
+export const VALUE_SURFACE_LABEL = "Source";
+export const VALUE_SURFACE = "CACHED";
+export const VALUE_B_CLOCK_LABEL = "Requested";
+export const VALUE_B_CLOCK = "15 Jul 03:00";
+export const VALUE_B_COVER_LABEL = "Coverage";
+export const VALUE_B_COVER = "25/25";
 
 export const D8_SUMMARY = "Analysis detail";
 export const D8_METHOD_NOTE =

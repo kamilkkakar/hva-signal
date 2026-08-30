@@ -5,7 +5,8 @@ export type ResultStamp =
   | "ORDER WITHHELD"
   | "HISTORY NOT PREPARED"
   | "FAILED"
-  | "NOT ON THIS SURFACE";
+  | "NOT ON THIS SURFACE"
+  | "AVAILABLE NOW — CACHED EVIDENCE";
 
 export type ResultValue = {
   label: string;

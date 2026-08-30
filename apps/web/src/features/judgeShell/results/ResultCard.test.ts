@@ -43,7 +43,7 @@ describe("ResultColumn 07-01", () => {
     expect(html).toContain('data-testid="result-column"');
     expect(html).toContain('aria-label="Decision panel"');
     expect(html).toContain("ORDER WITHHELD");
-    expect(html).toContain("NOT ON THIS SURFACE");
+    expect(html).toContain("AVAILABLE NOW — CACHED EVIDENCE");
     expect(html).not.toContain('data-testid="decision8-evidence-panel"');
     expect(html).not.toContain(REPLAY_0701_GEOMETRY);
     expect(html).not.toContain(REPLAY_0701_POLICY);

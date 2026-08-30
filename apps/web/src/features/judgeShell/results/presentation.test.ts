@@ -11,11 +11,11 @@ describe("resultCardsFromSnapshot", () => {
       rankingState: "INSUFFICIENT_EVIDENCE",
     });
     expect(view.a.stamp).toBe(STAMP_ORDER_WITHHELD);
-    expect(view.b.stamp).toBe("NOT ON THIS SURFACE");
+    expect(view.b.stamp).toBe("AVAILABLE NOW — CACHED EVIDENCE");
     expect(cardIsDense(view.a)).toBe(true);
     expect(cardIsDense(view.b)).toBe(true);
     expect(view.a.values).toHaveLength(3);
-    expect(view.b.values).toHaveLength(1);
+    expect(view.b.values).toHaveLength(3);
     const face = `${cardFaceText(view.a)} ${cardFaceText(view.b)}`;
     for (const token of FORBIDDEN_CARD_FACE) {
       expect(face.toLowerCase()).not.toContain(token.toLowerCase());

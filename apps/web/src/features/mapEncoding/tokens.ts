@@ -50,7 +50,7 @@ export const LEGEND_LOADING = "Loading the analysis window.";
 export const LEGEND_ERROR = "This map cannot show historical position.";
 export const LEGEND_HATCH_NOTE = "Color is paired with hatch. Color alone is not enough.";
 
-export const SIGNAL_B_PUBLIC = false;
+export const SIGNAL_B_PUBLIC = true;
 export const SIGNAL_B_HOLD_FILL = "#9aa392";
 export const SIGNAL_B_HOLD_LINE = "#10140e";
 export const SIGNAL_B_HOLD_OPACITY = 0.38;

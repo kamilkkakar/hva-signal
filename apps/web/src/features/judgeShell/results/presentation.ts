@@ -29,6 +29,10 @@ import {
   VALUE_CLOCK_LABEL,
   VALUE_SOURCE,
   VALUE_SOURCE_LABEL,
+  VALUE_B_CLOCK,
+  VALUE_B_CLOCK_LABEL,
+  VALUE_B_COVER,
+  VALUE_B_COVER_LABEL,
   VALUE_SURFACE,
   VALUE_SURFACE_LABEL,
   VALUE_WINDOW,
@@ -42,7 +46,11 @@ const A_VALUES = [
   { label: VALUE_SOURCE_LABEL, value: VALUE_SOURCE },
 ] as const;
 
-const B_VALUES = [{ label: VALUE_SURFACE_LABEL, value: VALUE_SURFACE }] as const;
+const B_VALUES = [
+  { label: VALUE_B_CLOCK_LABEL, value: VALUE_B_CLOCK },
+  { label: VALUE_B_COVER_LABEL, value: VALUE_B_COVER },
+  { label: VALUE_SURFACE_LABEL, value: VALUE_SURFACE },
+] as const;
 
 function signalBCard(): ResultCardModel {
   return {
