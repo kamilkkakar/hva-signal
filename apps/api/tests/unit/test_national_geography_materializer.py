@@ -36,7 +36,9 @@ from app.domain.national_geography_package import (
     to_geography_identity,
 )
 from app.domain.phoenix_v1 import AREA_ID
+from app.services.aoi_timezone import TimezoneFailureCode
 from app.domain.signals import SignalAvailability
+from app.services.geography_timezone_gate import GeographyTimezoneError
 from app.services.national_geography_materializer import (
     InMemoryNationalGeographyStore,
     ResolverSuccessInput,
@@ -111,6 +113,7 @@ def _success(
     geoids: tuple[str, ...] | None = None,
     place: CanonicalPlaceIdentity | None = None,
     timezone: str = "America/Chicago",
+    timezone_lookup=None,
     resolver_policy_id: str = NATIONAL_RESOLVER_POLICY_ID,
     census_vintage: str = "2025",
     geometry: dict | None = None,
@@ -123,6 +126,7 @@ def _success(
         zone_geoids=ids,
         geometry=geometry or _geometry(ids),
         timezone=timezone,
+        timezone_lookup=timezone_lookup or (lambda lon, lat: timezone),
         selection_audit=selection_audit or _audit(ids),
         resolver_policy_id=resolver_policy_id,
         census_vintage=census_vintage,
@@ -201,6 +205,7 @@ def test_phoenix_place_materializes_as_distinct_legacy_identity() -> None:
     assert record.area_id != LEGACY_PHOENIX_AREA_ID
     assert record.package.resolver_policy_id == NATIONAL_RESOLVER_POLICY_ID
     assert record.package.resolver_policy_id != "PHX_DEMO_AOI_POLICY_V1"
+    assert record.package.timezone == "America/Phoenix"
     assert record.package.selection_audit.algorithm_id == NATIONAL_ALGORITHM_ID
     assert "PHX_DEMO" not in record.package.zone_geometry_version
 
@@ -389,3 +394,50 @@ def test_materializer_source_stays_vendor_and_phoenix_write_free() -> None:
     assert "load_frozen_phoenix_v1_area_config" not in text
     assert "data/areas/registry.json" in text
     assert "Does not write data/areas/registry.json" in text
+    assert "if phoenix" not in text.lower()
+    assert "if place.canonical_place_geoid == \"0455000\"" not in text
+
+
+def test_missing_timezone_lookup_cannot_become_snapshot_capable() -> None:
+    prior = begin_place_resolved(_place())
+    assert prior.snapshot_capable is False
+    ids = _geoids()
+    with pytest.raises(GeographyTimezoneError) as exc:
+        materialize_national_geography(
+            ResolverSuccessInput(
+                place=_place(),
+                zone_geoids=ids,
+                geometry=_geometry(ids),
+                timezone="America/Chicago",
+                timezone_lookup=None,
+                selection_audit=_audit(ids),
+            )
+        )
+    assert exc.value.code == TimezoneFailureCode.TIMEZONE_NOT_FOUND
+    assert prior.snapshot_capable is False
+
+
+def test_multi_timezone_cannot_become_snapshot_capable() -> None:
+    ids = _geoids()
+
+    def lookup(lon: float, lat: float) -> str | None:
+        return "America/Chicago" if lon < 12.0 else "America/Denver"
+
+    with pytest.raises(GeographyTimezoneError) as exc:
+        materialize_national_geography(_success(timezone_lookup=lookup))
+    assert exc.value.code == TimezoneFailureCode.MULTI_TIMEZONE_AOI
+
+
+def test_single_timezone_ready_is_snapshot_capable() -> None:
+    record = materialize_national_geography(_success(timezone="America/Chicago"))
+    assert record.snapshot_capable is True
+    assert record.package.timezone == "America/Chicago"
+
+
+def test_partial_lookup_miss_cannot_become_snapshot_capable() -> None:
+    def lookup(lon: float, lat: float) -> str | None:
+        return None if lon >= 12.0 else "America/Chicago"
+
+    with pytest.raises(GeographyTimezoneError) as exc:
+        materialize_national_geography(_success(timezone_lookup=lookup))
+    assert exc.value.code == TimezoneFailureCode.TIMEZONE_NOT_FOUND

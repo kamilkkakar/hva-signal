@@ -167,6 +167,38 @@ def test_worker_handoff_must_recheck() -> None:
         )
 
 
+def test_dst_gap_and_fold_are_rejected_without_new_public_code() -> None:
+    with pytest.raises(ValidationError, match="does not exist"):
+        TwoSignalPublicRequest.model_validate(
+            _base(
+                timezone="America/New_York",
+                signals={"selected_time": {"target_timestamp": "2026-03-08T02:00:00"}},
+            )
+        )
+    with pytest.raises(ValidationError, match="ambiguous"):
+        TwoSignalPublicRequest.model_validate(
+            _base(
+                timezone="America/New_York",
+                signals={"selected_time": {"target_timestamp": "2026-11-01T01:00:00"}},
+            )
+        )
+
+
+def test_phoenix_transition_hours_remain_valid() -> None:
+    spring = TwoSignalPublicRequest.model_validate(
+        _base(
+            signals={"selected_time": {"target_timestamp": "2026-03-08T02:00:00"}}
+        )
+    )
+    fall = TwoSignalPublicRequest.model_validate(
+        _base(
+            signals={"selected_time": {"target_timestamp": "2026-11-01T01:00:00"}}
+        )
+    )
+    assert spring.timezone == "America/Phoenix"
+    assert fall.timezone == "America/Phoenix"
+
+
 def test_aware_b_timestamp_rejected() -> None:
     with pytest.raises(ValidationError, match="naive"):
         TwoSignalPublicRequest.model_validate(

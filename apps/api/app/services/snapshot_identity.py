@@ -19,6 +19,14 @@ def require_requested_hour(timestamp: datetime) -> datetime:
     return timestamp
 
 
+def require_dst_safe_requested_hour(timestamp: datetime, timezone: str) -> datetime:
+    """Future Signal B guard. Naive hour plus frozen-candidate DST uniqueness."""
+    from app.services.aoi_timezone import require_unique_aoi_local_hour
+
+    hour = require_requested_hour(timestamp)
+    return require_unique_aoi_local_hour(hour, timezone)
+
+
 def snapshot_request_document(
     *,
     area_id: str,
@@ -32,7 +40,7 @@ def snapshot_request_document(
     temporal_mode: str = "single_hour",
     adapter_version: str | None = None,
 ) -> dict[str, Any]:
-    hour = require_requested_hour(target_timestamp)
+    hour = require_dst_safe_requested_hour(target_timestamp, timezone)
     return {
         "identity_version": SNAPSHOT_IDENTITY_VERSION,
         "area_id": area_id,

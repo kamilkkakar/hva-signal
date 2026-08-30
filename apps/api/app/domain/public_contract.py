@@ -15,7 +15,10 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from app.domain.demo_allowance import AcquisitionPreference
 from app.domain.enums import DataMode
 from app.domain.signals import SignalAvailability, ThermalSignalKind
-from app.services.snapshot_identity import require_requested_hour
+from app.services.snapshot_identity import (
+    require_dst_safe_requested_hour,
+    require_requested_hour,
+)
 
 PUBLIC_JOB_CONTRACT_VERSION = "hva-signal-two-signal-job-v1"
 SPEND_AUTHORIZATION_CONTRACT_VERSION = "hva-signal-spend-authorization-v1"
@@ -119,6 +122,14 @@ class TwoSignalPublicRequest(BaseModel):
     timezone: str = Field(min_length=1)
     granularity_m: Literal[60, 80, 100] = 100
     data_mode: DataMode = DataMode.REPLAY
+
+    @model_validator(mode="after")
+    def _dst_safe_selected_time(self) -> TwoSignalPublicRequest:
+        """Unpublished Signal B request guard. Not a public route or reason code."""
+        selected = self.signals.selected_time
+        if selected is not None:
+            require_dst_safe_requested_hour(selected.target_timestamp, self.timezone)
+        return self
 
 
 class PublicProgress(BaseModel):

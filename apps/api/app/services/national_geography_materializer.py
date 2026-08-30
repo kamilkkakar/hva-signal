@@ -48,6 +48,16 @@ from app.domain.national_geography_package import (
     package_identity_sha256,
     to_geography_identity,
 )
+from app.services.aoi_timezone import (
+    AoiTimezoneResolutionError,
+    TimezoneLookup,
+    assert_client_timezone_matches,
+)
+from app.services.geography_timezone_gate import (
+    GeographyTimezoneError,
+    representative_points_from_geojson,
+    resolve_selected_geography_timezone,
+)
 from app.services.snapshot_processor import SnapshotGeography
 
 _ALLOWED_TRANSITIONS: dict[
@@ -85,6 +95,7 @@ class ResolverSuccessInput:
     census_vintage: str = NATIONAL_CENSUS_VINTAGE
     census_source: str = NATIONAL_CENSUS_SOURCE
     aggregation_spec: ThermalAggregationSpec | None = None
+    timezone_lookup: TimezoneLookup | None = None
 
 
 @dataclass(frozen=True)
@@ -263,6 +274,24 @@ def assemble_national_geography_package(
     canonical_geometry = canonicalize_geography_geojson(success.geometry)
     geom_sha = geometry_sha256_hex(canonical_geometry)
     zone_geoids = tuple(sorted(success.zone_geoids))
+    try:
+        points = representative_points_from_geojson(
+            canonical_geometry, zone_geoids=zone_geoids
+        )
+        resolved_tz = resolve_selected_geography_timezone(
+            points,
+            success.timezone_lookup,
+            zone_ids=zone_geoids,
+        )
+        timezone = assert_client_timezone_matches(
+            success.timezone, resolved_tz.timezone
+        )
+    except AoiTimezoneResolutionError as exc:
+        raise GeographyTimezoneError(exc.code, str(exc)) from exc
+    except GeographyTimezoneError:
+        raise
+    except ValueError as exc:
+        raise NationalGeographyError(str(exc)) from exc
     area_id = build_national_area_id(
         place_geoid=success.place.canonical_place_geoid,
         census_vintage=success.census_vintage,
@@ -308,7 +337,7 @@ def assemble_national_geography_package(
         zone_definition_version=zone_definition_version,
         zone_geometry_version=zone_geometry_version,
         resolver_policy_id=success.resolver_policy_id,
-        timezone=success.timezone,
+        timezone=timezone,
         aggregation_spec=spec,
         expected_zone_count=EXPECTED_ZONE_COUNT,
         zone_id_property="GEOID",

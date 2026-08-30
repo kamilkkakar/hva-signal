@@ -215,6 +215,7 @@ def test_package_model_forbids_reference_fields() -> None:
             zone_geoids=ids,
             geometry={"type": "FeatureCollection", "features": features},
             timezone="America/Chicago",
+            timezone_lookup=lambda lon, lat: "America/Chicago",
             selection_audit=_audit(ids),
         )
     )

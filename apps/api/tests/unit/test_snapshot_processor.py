@@ -167,6 +167,41 @@ def test_geometry_identity_mismatch_fails_closed() -> None:
         )
 
 
+def test_dst_gap_and_fold_are_rejected() -> None:
+    zones = json.loads((FIXTURES / "synthetic_zones.geojson").read_text(encoding="utf-8"))
+    tiles = {"type": "FeatureCollection", "features": []}
+    geo = SnapshotGeography(**{**_geography(zones).__dict__, "timezone": "America/New_York"})
+    with pytest.raises(SnapshotProcessorError, match="does not exist"):
+        process_selected_time_snapshot(
+            geography=geo,
+            tiles_geojson=tiles,
+            target_timestamp=datetime(2026, 3, 8, 2, 0, 0),
+            source=ThermalDataSource.REPLAY,
+            data_status=DataStatus.REPLAY,
+        )
+    with pytest.raises(SnapshotProcessorError, match="ambiguous"):
+        process_selected_time_snapshot(
+            geography=geo,
+            tiles_geojson=tiles,
+            target_timestamp=datetime(2026, 11, 1, 1, 0, 0),
+            source=ThermalDataSource.REPLAY,
+            data_status=DataStatus.REPLAY,
+        )
+
+
+def test_phoenix_transition_hours_are_unique() -> None:
+    zones = json.loads((FIXTURES / "synthetic_zones.geojson").read_text(encoding="utf-8"))
+    tiles = {"type": "FeatureCollection", "features": []}
+    snapshot = process_selected_time_snapshot(
+        geography=_geography(zones),
+        tiles_geojson=tiles,
+        target_timestamp=datetime(2026, 3, 8, 2, 0, 0),
+        source=ThermalDataSource.REPLAY,
+        data_status=DataStatus.REPLAY,
+    )
+    assert snapshot.target_timestamp == datetime(2026, 3, 8, 2, 0, 0)
+
+
 def test_snapshot_processor_has_no_historical_imports() -> None:
     source = Path(
         Path(__file__).resolve().parents[2] / "app" / "services" / "snapshot_processor.py"

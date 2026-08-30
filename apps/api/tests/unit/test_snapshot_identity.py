@@ -62,3 +62,24 @@ def test_reference_readiness_is_not_part_of_the_key() -> None:
 def test_nonzero_minutes_cannot_be_fingerprinted() -> None:
     with pytest.raises(ValueError, match="minutes"):
         _fp(target_timestamp=datetime(2024, 7, 15, 15, 30, 0))
+
+
+def test_dst_gap_and_fold_cannot_be_fingerprinted() -> None:
+    with pytest.raises(ValueError, match="does not exist"):
+        _fp(
+            target_timestamp=datetime(2026, 3, 8, 2, 0, 0),
+            timezone="America/New_York",
+        )
+    with pytest.raises(ValueError, match="ambiguous"):
+        _fp(
+            target_timestamp=datetime(2026, 11, 1, 1, 0, 0),
+            timezone="America/New_York",
+        )
+
+
+def test_phoenix_transition_hours_remain_fingerprintable() -> None:
+    spring = _fp(target_timestamp=datetime(2026, 3, 8, 2, 0, 0))
+    fall = _fp(target_timestamp=datetime(2026, 11, 1, 1, 0, 0))
+    assert len(spring) == 64
+    assert len(fall) == 64
+    assert spring != fall

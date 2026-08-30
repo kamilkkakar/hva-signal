@@ -17,6 +17,17 @@ from shapely.ops import transform as shp_transform
 from shapely.ops import unary_union
 from shapely.validation import make_valid
 
+from app.services.aoi_timezone import (
+    POLICY_VERSION as TIMEZONE_POLICY_VERSION,
+    AoiTimezoneResolutionError,
+    TimezoneFailureCode,
+    TimezoneLookup,
+)
+from app.services.geography_timezone_gate import (
+    GeographyTimezoneError,
+    representative_points_from_geometries,
+    resolve_selected_geography_timezone,
+)
 from app.services.national_tract_selection import (
     ALGORITHM_ID,
     ANALYSIS_CRS,
@@ -101,6 +112,8 @@ CONUS_DC_STATEFP = frozenset(
 REASON_INVALID_PLACE_ID = "INVALID_PLACE_ID"
 REASON_UNSUPPORTED_SCOPE = "UNSUPPORTED_SCOPE"
 REASON_UNSUPPORTED_POLICY = "UNSUPPORTED_POLICY"
+REASON_MULTI_TIMEZONE_AOI = TimezoneFailureCode.MULTI_TIMEZONE_AOI.value
+REASON_TIMEZONE_NOT_FOUND = TimezoneFailureCode.TIMEZONE_NOT_FOUND.value
 
 # GRS80 / EPSG:5070 Albers Equal Area (NAD83 / Conus Albers). I2 analysis CRS.
 _A = 6378137.0
@@ -180,6 +193,7 @@ class ResolverPolicy:
     rook_floor_m: float = ROOK_BOUNDARY_FLOOR_M
     rook_graph: Mapping[str, Sequence[str] | set[str] | frozenset[str]] | None = None
     geometries_are_analysis_crs: bool = False
+    timezone_lookup: TimezoneLookup | None = None
 
 
 @dataclass(frozen=True)
@@ -203,6 +217,7 @@ class PlaceGeographySuccess:
     projection_crs: str
     growth_rule: str
     tie_break_policy_id: str
+    timezone: str
     compactness: float | None = None
     area_m2: float | None = None
     details: dict[str, object] = field(default_factory=dict)
@@ -315,7 +330,7 @@ def resolve_place_geography(
             place_geoid,
             policy,
         )
-    return _success(
+    return _success_with_timezone(
         place_geoid,
         policy,
         outcome,
@@ -341,6 +356,7 @@ def _normalize_policy(resolver_policy: object | None) -> ResolverPolicy:
             "rook_floor_m",
             "rook_graph",
             "geometries_are_analysis_crs",
+            "timezone_lookup",
         }
         kwargs = {key: resolver_policy[key] for key in allowed if key in resolver_policy}
         policy = ResolverPolicy(**kwargs)
@@ -354,6 +370,7 @@ def _normalize_policy(resolver_policy: object | None) -> ResolverPolicy:
             "rook_floor_m",
             "rook_graph",
             "geometries_are_analysis_crs",
+            "timezone_lookup",
         ):
             if hasattr(resolver_policy, key):
                 value = getattr(resolver_policy, key)
@@ -615,6 +632,53 @@ def _fail(
     )
 
 
+def _success_with_timezone(
+    place_geoid: str,
+    policy: ResolverPolicy,
+    outcome: SupportedSelection,
+    tracts: Sequence[TractInput],
+    place_analysis_geom: BaseGeometry | None,
+    place_analysis_intpt: tuple[float, float] | None,
+) -> PlaceGeographyOutcome:
+    geometries = {tract.geoid: tract.geometry for tract in tracts}
+    try:
+        points = representative_points_from_geometries(outcome.geoids, geometries)
+        resolved = resolve_selected_geography_timezone(
+            points,
+            policy.timezone_lookup,
+            zone_ids=outcome.geoids,
+        )
+    except AoiTimezoneResolutionError as exc:
+        return _fail(
+            exc.code.value,
+            str(exc),
+            {
+                "point_timezones": list(exc.point_timezones),
+                "distinct": list(exc.distinct),
+                "timezone_policy_version": TIMEZONE_POLICY_VERSION,
+            },
+            place_geoid,
+            policy,
+        )
+    except GeographyTimezoneError as exc:
+        return _fail(
+            exc.code.value,
+            str(exc),
+            {"timezone_policy_version": TIMEZONE_POLICY_VERSION},
+            place_geoid,
+            policy,
+        )
+    return _success(
+        place_geoid,
+        policy,
+        outcome,
+        tracts,
+        place_analysis_geom,
+        place_analysis_intpt,
+        timezone=resolved.timezone,
+    )
+
+
 def _success(
     place_geoid: str,
     policy: ResolverPolicy,
@@ -622,6 +686,8 @@ def _success(
     tracts: Sequence[TractInput],
     place_analysis_geom: BaseGeometry | None,
     place_analysis_intpt: tuple[float, float] | None,
+    *,
+    timezone: str,
 ) -> PlaceGeographySuccess:
     del place_analysis_geom, place_analysis_intpt
     by_id = {tract.geoid: tract for tract in tracts}
@@ -656,7 +722,12 @@ def _success(
         projection_crs=ANALYSIS_CRS,
         growth_rule=GROWTH_RULE_ID,
         tie_break_policy_id=TIE_BREAK_POLICY_ID,
+        timezone=timezone,
         compactness=polsby_popper(union) if selected_geoms else None,
         area_m2=float(union.area) if selected_geoms else None,
-        details={"target_zone_count": TARGET_ZONE_COUNT},
+        details={
+            "target_zone_count": TARGET_ZONE_COUNT,
+            "timezone": timezone,
+            "timezone_policy_version": TIMEZONE_POLICY_VERSION,
+        },
     )
