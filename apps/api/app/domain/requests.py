@@ -1,11 +1,23 @@
 """Analysis request and scenario stub contracts."""
 
 from datetime import datetime
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.domain.enums import AnalysisMode, DataMode
+
+_UNPUBLISHED_SIGNAL_B_FIELDS = frozenset(
+    {
+        "selected_time_snapshot",
+        "selected_time",
+        "signal_b",
+        "snapshot",
+        "prepare",
+        "prepare_reference",
+        "live_snapshot",
+    }
+)
 
 
 class ScenarioRequest(BaseModel):
@@ -26,3 +38,15 @@ class AnalysisRequest(BaseModel):
     granularity_m: Literal[60, 80, 100]
     data_mode: DataMode = DataMode.AUTO
     scenario: ScenarioRequest | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _reject_unpublished_signal_b(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            hits = _UNPUBLISHED_SIGNAL_B_FIELDS.intersection(data)
+            if hits:
+                raise ValueError(
+                    "unpublished two-signal request fields are not accepted: "
+                    + ", ".join(sorted(hits))
+                )
+        return data
