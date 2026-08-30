@@ -8,7 +8,7 @@
   --stamp: #8f2d1c;
   --rule: #4e5748;
   --tape: #161a14;
-  --muted: #5d6758;
+  --muted: #4e5849;
   --paper-line: rgba(16, 20, 14, 0.14);
   --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
@@ -38,7 +38,7 @@ textarea {
 }
 
 :focus-visible {
-  outline: 2px solid var(--filament);
+  outline: 2px solid var(--carbon);
   outline-offset: 2px;
 }
 
@@ -499,6 +499,10 @@ h2 {
 @media (max-width: 900px) {
   .shell-grid {
     grid-template-columns: 1fr;
+  }
+
+  .map-stage {
+    min-height: 16rem;
   }
 
   .shell-banner,

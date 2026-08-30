@@ -322,7 +322,7 @@ export function MapStage({
   return (
     <main
       className="map-stage"
-      aria-label="Priority map"
+      aria-label="Analysis map"
       data-testid="map-stage"
       data-map-state={presentation.visualState}
       data-geometry-feature-count={String(presentation.outlineCount)}

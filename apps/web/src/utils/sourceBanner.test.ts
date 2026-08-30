@@ -246,7 +246,18 @@ describe("SourceTape replay badge", () => {
     expect(html).toContain("Thermal source:");
     expect(html).toContain("REPLAY");
     expect(html).not.toContain("FORTYGUARD CACHED");
+    expect(html).toContain('aria-label="Replay source"');
+    expect(html).not.toMatch(/aria-label="[^"]*FortyGuard/i);
     expect(html).toMatch(/data-active="true"[^>]*data-segment="replay"/);
     expect(html).toMatch(/data-active="false"[^>]*data-segment="cached"/);
+  });
+
+  it("names first-paint tape Evidence source, not a vendor product", () => {
+    const html = renderToStaticMarkup(
+      createElement(SourceTape, { active: "UNAVAILABLE" }),
+    );
+    expect(html).toContain('aria-label="Evidence source"');
+    expect(html).not.toMatch(/aria-label="[^"]*FortyGuard/i);
+    expect(html).not.toMatch(/aria-label="[^"]*FORTYGUARD/);
   });
 });
