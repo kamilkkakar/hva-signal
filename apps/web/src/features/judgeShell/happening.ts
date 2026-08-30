@@ -1,4 +1,4 @@
-import { PUBLIC_STATUS, publicStatusForRankingState } from "@/features/publicLanguage";
+import { PUBLIC_STATUS } from "@/features/publicLanguage";
 import type { JobStatus } from "@/types";
 import { shouldContinuePolling } from "@/utils/jobPolling";
 import {
@@ -68,7 +68,7 @@ export function happeningView(input: {
   }
   if (rankingState === "READY") {
     return {
-      stamp: publicStatusForRankingState("READY"),
+      stamp: PUBLIC_STATUS.SPATIAL_ORDERING_SUPPORTED,
       line: HAPPENING_ORDER_SHOWN,
       rankingState,
     };
@@ -79,7 +79,7 @@ export function happeningView(input: {
     input.status === "partial"
   ) {
     return {
-      stamp: publicStatusForRankingState("INSUFFICIENT_EVIDENCE"),
+      stamp: PUBLIC_STATUS.SPATIAL_ORDERING_WITHHELD,
       line: HAPPENING_ORDER_WITHHELD,
       rankingState,
     };
