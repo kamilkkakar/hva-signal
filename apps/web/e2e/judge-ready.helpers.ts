@@ -67,6 +67,15 @@ export async function waitForMapState(
   return map;
 }
 
+export async function openZoneIdentifierList(page: Page) {
+  const wrap = page.getByTestId("map-interaction-list-wrap");
+  if ((await wrap.count()) === 0) return;
+  if ((await wrap.getAttribute("open")) == null) {
+    await wrap.locator("summary").first().click();
+  }
+  await expect(wrap).toHaveAttribute("open", "");
+}
+
 export async function openAdvancedDetails(page: Page) {
   const details = page.getByTestId("analysis-detail");
   await expect(details).toBeAttached({ timeout: 45_000 });

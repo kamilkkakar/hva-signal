@@ -5,6 +5,7 @@ import { expect, test } from "@playwright/test";
 import {
   SUFFICIENT_TIME,
   fillAnalysisTime,
+  openZoneIdentifierList,
   submitAnalysis,
   waitForMapState,
 } from "./judge-ready.helpers";
@@ -62,6 +63,7 @@ test.describe("judge-ready map hover/click", () => {
         description:
           "I-MAP fixture GEOIDs are schematic; live Phoenix tracts are not FIX-* cells.",
       });
+      await openZoneIdentifierList(page);
       const liveButton = page
         .getByTestId("map-interaction-list")
         .locator("button")
