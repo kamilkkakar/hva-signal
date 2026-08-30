@@ -21,6 +21,7 @@ type MapBandProps = {
   result: AnalysisResultStub | null;
   submitting: boolean;
   analysisTime?: string | null;
+  onSelectedIdChange?: (geoid: string | null) => void;
 };
 
 function resultIsReady(status: JobStatus | null): boolean {
@@ -97,7 +98,12 @@ export function MapBand(props: MapBandProps) {
         result={props.result}
         submitting={props.submitting}
       />
-      <JudgeMap lane="A" historical={catalog} enabled />
+      <JudgeMap
+        lane="A"
+        historical={catalog}
+        enabled
+        onSelectedIdChange={props.onSelectedIdChange}
+      />
     </section>
   );
 }

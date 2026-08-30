@@ -1,5 +1,10 @@
 import type { AnalysisResultStub } from "@/api/analysisJobs";
 import type { JobStatus } from "@/types";
+import {
+  bindHistoricalPositions,
+  HistoricalPositionStrip,
+  presentHistoricalPosition,
+} from "../charts";
 import { signalAInputFromResult } from "./fromResult";
 import { presentSignalA } from "./presentation";
 import { SigAHistoryLock } from "./SigAHistoryLock";
@@ -20,6 +25,7 @@ export type SignalAPanelProps = {
   requested?: boolean;
   historyPrepared?: boolean;
   zoneId?: string;
+  selectedZoneId?: string | null;
   order?: number;
 };
 
@@ -31,6 +37,7 @@ export function SignalAPanel({
   requested,
   historyPrepared,
   zoneId,
+  selectedZoneId,
   order,
 }: SignalAPanelProps) {
   const view =
@@ -83,6 +90,14 @@ export function SignalAPanel({
             order={order ?? input?.order ?? 0}
           />
         )}
+        <HistoricalPositionStrip
+          view={presentHistoricalPosition(
+            bindHistoricalPositions({
+              result,
+              selectedZoneId: selectedZoneId ?? null,
+            }),
+          )}
+        />
       </div>
       <SigAMethod view={view} />
     </section>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useJobStore } from "@/stores/jobStore";
 import { POLL_INTERVAL_MS } from "@/utils/jobPolling";
 import { mapLayerFromLimitations, rankingPresentation } from "@/utils/mapLayer";
@@ -83,6 +83,11 @@ export function JudgeShell() {
     lastRequest?.analysis_time ?? snapshot?.request?.analysis_time,
   );
   const showRecovery = snapshot?.status === "unknown_job" || stalled;
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSelectedZoneId(null);
+  }, [jobId]);
 
   return (
     <div className="judge-shell" data-testid="judge-shell">
@@ -109,6 +114,7 @@ export function JudgeShell() {
         result={snapshot?.result ?? null}
         submitting={submitting}
         analysisTime={lastRequest?.analysis_time ?? snapshot?.request?.analysis_time}
+        onSelectedIdChange={setSelectedZoneId}
       />
       <ThermalBand
         snapshot={snapshot}
@@ -116,8 +122,12 @@ export function JudgeShell() {
         busy={busy}
         status={snapshot?.status ?? null}
         result={snapshot?.result ?? null}
+        selectedZoneId={selectedZoneId}
       />
-      <SelectedZoneBand />
+      <SelectedZoneBand
+        result={snapshot?.result ?? null}
+        selectedZoneId={selectedZoneId}
+      />
       <SupportsBand status={snapshot?.status ?? null} result={snapshot?.result ?? null} />
       <CapabilityBand />
       <ProvenanceBand snapshot={snapshot} />

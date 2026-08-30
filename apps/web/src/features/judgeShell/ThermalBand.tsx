@@ -11,6 +11,7 @@ type ThermalBandProps = {
   busy: boolean;
   status: JobStatus | null;
   result: AnalysisResultStub | null;
+  selectedZoneId?: string | null;
 };
 
 export function ThermalBand({
@@ -19,6 +20,7 @@ export function ThermalBand({
   busy,
   status,
   result,
+  selectedZoneId = null,
 }: ThermalBandProps) {
   const view = resultCardsFromSnapshot({ snapshot, rankingState, busy });
   return (
@@ -28,6 +30,7 @@ export function ThermalBand({
         status={status}
         result={result}
         requested={snapshot != null}
+        selectedZoneId={selectedZoneId}
       />
       <SignalBUnavailableDisclosure />
     </section>
