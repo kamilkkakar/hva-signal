@@ -1,0 +1,14 @@
+{
+  "kind": "SYNTHETIC_FIXTURE",
+  "sampling_design": "HOURLY_24",
+  "window_id": "DAY:2024-07-15",
+  "timezone": "America/Phoenix",
+  "slots": {
+    "3": 34.1
+  },
+  "expect": {
+    "temporal_coverage_class": "PARTIAL",
+    "interpolated": false,
+    "mean_among_observed_c": 34.1
+  }
+}

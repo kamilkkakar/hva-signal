@@ -1,0 +1,9 @@
+{
+  "kind": "SYNTHETIC_FIXTURE",
+  "window_id": "SEASON:JJA:2024",
+  "present_months": [
+    "2024-06",
+    "2024-08"
+  ],
+  "expect": "INSUFFICIENT"
+}

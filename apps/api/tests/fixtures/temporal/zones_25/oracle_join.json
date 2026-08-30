@@ -1,0 +1,16 @@
+{
+  "kind": "SYNTHETIC_FIXTURE",
+  "full_25": {
+    "valid_zone_count": 25,
+    "missing_zone_ids": []
+  },
+  "sparse_20": {
+    "valid_zone_count": 20
+  },
+  "majority_13": {
+    "valid_zone_count": 13
+  },
+  "zero": {
+    "valid_zone_count": 0
+  }
+}

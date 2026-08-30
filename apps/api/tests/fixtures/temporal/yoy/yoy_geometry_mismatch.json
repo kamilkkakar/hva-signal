@@ -1,0 +1,9 @@
+{
+  "kind": "SYNTHETIC_FIXTURE",
+  "left_geometry": "GEO-A",
+  "right_geometry": "GEO-B",
+  "expect": {
+    "comparability": "INCOMPARABLE",
+    "mean_difference_c": null
+  }
+}
