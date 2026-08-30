@@ -133,6 +133,27 @@
   word-break: break-word;
 }
 
+@media (max-width: 1440px) {
+  .result-story .kicker,
+  .result-story-summary,
+  .result-story-context,
+  .result-story-supports-grid,
+  .result-story-how {
+    display: none;
+  }
+
+  .result-story-stamp {
+    margin: 0.15rem 0 0;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .result-story-headline {
+    margin: 0.25rem 0 0;
+    font-size: 1.2rem;
+  }
+}
+
 @media (max-width: 720px) {
   .result-story-supports-grid {
     grid-template-columns: minmax(0, 1fr);
