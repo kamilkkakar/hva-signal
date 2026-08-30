@@ -52,6 +52,7 @@ def test_compact_view_has_required_fields_not_the_panel() -> None:
     assert selected["geoid"] == SEED
     assert set(selected["mean_by_year"]) == {"2022", "2023", "2024"}
     assert selected["change_2024_vs_2022"] == pytest.approx(1.54, abs=0.05)
+    assert selected["matched_nights"] == 31
     assert selected["matched_nights_warmer"] == 22
     assert selected["matched_nights_cooler"] >= 0
     assert view["analysis_geography"]["median_change_2024_vs_2022"] == pytest.approx(

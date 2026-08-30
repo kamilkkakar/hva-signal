@@ -1,0 +1,115 @@
+.judge-decision {
+  min-width: 0;
+  max-width: 100%;
+  padding: 0.85rem 1.15rem;
+  border-top: 1px solid var(--carbon);
+}
+
+.decision-questions ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+}
+
+.decision-questions button {
+  display: flex;
+  gap: 0.4rem;
+  align-items: baseline;
+  max-width: 22rem;
+  text-align: left;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--carbon);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.decision-questions button[data-active="true"] {
+  outline: 2px solid currentColor;
+}
+
+.decision-q-index {
+  font-variant-numeric: tabular-nums;
+}
+
+.decision-ledger {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.5rem 0.75rem;
+  margin: 0 0 0.85rem;
+}
+
+.decision-ledger div {
+  margin: 0;
+}
+
+.decision-ledger dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.decision-ledger dd {
+  margin: 0.15rem 0 0;
+}
+
+.decision-card {
+  margin: 0 0 0.85rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--carbon);
+}
+
+.decision-card header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.decision-card h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.decision-status,
+.decision-status-line {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.decision-years,
+.decision-instant-list,
+.decision-diffs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  list-style: none;
+  margin: 0.6rem 0;
+  padding: 0;
+}
+
+.decision-disclosure,
+.decision-missing {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+}
+
+.decision-instants-svg {
+  width: min(100%, 36rem);
+  height: auto;
+  margin: 0.5rem 0;
+}
+
+.decision-instants-svg text {
+  font-size: 10px;
+  fill: currentColor;
+}
+
+.decision-gap {
+  font-size: 8px;
+  opacity: 0.7;
+}

@@ -18,6 +18,7 @@ import { SelectedZoneBand } from "./SelectedZoneBand";
 import { contextSourceChip } from "./sourceChip";
 import { SupportsBand } from "./SupportsBand";
 import { ThermalBand } from "./ThermalBand";
+import { DecisionStoriesBand } from "./decision";
 import "./judgeShell.css";
 
 const EMPTY_LIMITATIONS: readonly string[] = [];
@@ -135,16 +136,22 @@ export function JudgeShell() {
         onResubmit={() => void resubmit()}
       />
       <ResultStoryBand snapshot={snapshot} busy={busy} />
-      <ThermalBand
-        snapshot={snapshot}
-        status={snapshot?.status ?? null}
-        result={snapshot?.result ?? null}
-        selectedZoneId={selectedZoneId}
-      />
-      <SelectedZoneBand
-        result={snapshot?.result ?? null}
-        selectedZoneId={selectedZoneId}
-      />
+      <div id="thermal-conditions">
+        <ThermalBand
+          snapshot={snapshot}
+          status={snapshot?.status ?? null}
+          result={snapshot?.result ?? null}
+          selectedZoneId={selectedZoneId}
+        />
+      </div>
+      <div id="own-history">
+        <SelectedZoneBand
+          result={snapshot?.result ?? null}
+          selectedZoneId={selectedZoneId}
+        />
+      </div>
+      <DecisionStoriesBand selectedZoneId={selectedZoneId} />
+      <div id="area-different">
       <AreaContextBand
         areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? "phoenix-demo"}
         selectedZoneId={selectedZoneId}
@@ -153,7 +160,10 @@ export function JudgeShell() {
         onSelectTract={setSelectedZoneId}
         onContextZones={setContextZones}
       />
-      <SupportsBand status={snapshot?.status ?? null} result={snapshot?.result ?? null} />
+      </div>
+      <div id="nearby-support">
+        <SupportsBand status={snapshot?.status ?? null} result={snapshot?.result ?? null} />
+      </div>
       <CapabilityBand />
       <ProvenanceBand snapshot={snapshot} />
     </div>

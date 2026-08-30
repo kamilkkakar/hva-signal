@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     # RC-v2 analysis-area context. Default on. Set HVA_PUBLIC_CONTEXT=0 to disable.
     # Cache-only phoenix-demo. Does not enable hosted live or two-signal HTTP.
     hva_public_context: bool = True
+    # Cache-only temporal stories. Default on. Does not enable hosted live
+    # or FortyGuard HTTP. GET never acquires.
+    hva_public_temporal_stories: bool = True
     # Operator-only caps. Client cannot raise these.
     demo_allowance_max_total_units: int = 0
     demo_allowance_max_units_per_request: int = 1

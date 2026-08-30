@@ -90,6 +90,7 @@ def assemble_matched_nighttime_window_view(
             "geoid": key,
             "mean_by_year": means,
             "change_2024_vs_2022": yoy.delta_c,
+            "matched_nights": paired.n_matched,
             "matched_nights_warmer": paired.n_warmer,
             "matched_nights_cooler": paired.n_cooler,
         },
