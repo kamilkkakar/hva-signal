@@ -38,6 +38,10 @@ def _valid() -> dict:
         "approval",
         "contract_version",
         "authorized_max_units",
+        "approved",
+        "authorize",
+        "skip_approval",
+        "spend_authorized",
     ],
 )
 def test_unpublished_signal_b_fields_are_rejected(field: str) -> None:

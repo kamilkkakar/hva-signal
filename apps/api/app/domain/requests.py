@@ -22,6 +22,13 @@ _UNPUBLISHED_SIGNAL_B_FIELDS = frozenset(
         "approval",
         "contract_version",
         "authorized_max_units",
+        "approved",
+        "authorize",
+        "authorized",
+        "skip_approval",
+        "admin",
+        "operator_override",
+        "spend_authorized",
     }
 )
 
