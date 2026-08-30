@@ -1,4 +1,13 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+async function openAdvancedDetails(page: Page) {
+  const details = page.getByTestId("analysis-detail");
+  await expect(details).toBeAttached({ timeout: 45_000 });
+  if ((await details.getAttribute("open")) == null) {
+    await page.getByTestId("advanced-technical-details").click();
+  }
+  await expect(details).toHaveAttribute("open", "");
+}
 
 const FROZEN_GEOMETRY =
   "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f";
@@ -90,6 +99,7 @@ test.describe("Phoenix AOI-local replay demo path", () => {
       );
       expect(JSON.stringify(job.result)).not.toMatch(/heatmap_tcm_hourly_1500/);
 
+      await openAdvancedDetails(page);
       const panel = page.getByTestId("decision8-evidence-panel");
       await expect(panel).toBeVisible();
       await expect(page.getByTestId("decision8-observed-s")).toContainText(
@@ -124,7 +134,7 @@ test.describe("Phoenix AOI-local replay demo path", () => {
       await expect(map).toHaveAttribute("data-ranked-feature-count", "0");
       await expect(map).toHaveAttribute("data-map-source-count", "25");
       await expect(page.getByTestId("map-layer-label")).toContainText(
-        "Order withheld — night too flat",
+        "Nighttime historical thermal pattern",
       );
       await expect(page.locator("body")).not.toContainText(
         "Geometry and decision cards are not wired yet",
@@ -164,6 +174,7 @@ test.describe("Phoenix AOI-local replay demo path", () => {
         true,
       );
 
+      await openAdvancedDetails(page);
       const panel = page.getByTestId("decision8-evidence-panel");
       await expect(panel).toBeVisible();
       await expect(page.getByTestId("decision8-observed-s")).toContainText(
@@ -192,7 +203,7 @@ test.describe("Phoenix AOI-local replay demo path", () => {
       await expect(map).toHaveAttribute("data-geometry-feature-count", "25");
       await expect(map).toHaveAttribute("data-ranked-feature-count", "25");
       await expect(map).toHaveAttribute("data-map-source-count", "25");
-      await expect(page.locator("body")).toContainText(
+      await expect(page.locator("body")).not.toContainText(
         "Fill intensity reflects backend-authorized thermal ordering",
       );
       await expect(page.locator("body")).not.toContainText(

@@ -7,7 +7,7 @@ test("web shell loads command center", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "HVA-Signal" }),
   ).toBeVisible();
-  await expect(page.getByTestId("source-banner")).toContainText("UNAVAILABLE");
+  await expect(page.getByTestId("source-banner")).toContainText("REPLAY");
 });
 
 test("API /health and /ready respond in replay mode", async ({ request }) => {

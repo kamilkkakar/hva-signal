@@ -119,8 +119,12 @@ export function MapBand(props: MapBandProps) {
       data-map-state={mapState}
       data-ranked-feature-count={String(rankedFillCount(catalog))}
       data-geometry-feature-count={String(catalog?.collection.features.length ?? 0)}
+      data-map-source-count={String(catalog?.collection.features.length ?? 0)}
       data-layer-label={props.layer.label}
     >
+      <p className="judge-sr" data-testid="map-layer-label">
+        {props.layer.label}
+      </p>
       <JudgeMap
         lane="A"
         historical={catalog}

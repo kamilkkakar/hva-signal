@@ -62,7 +62,10 @@ test.describe("judge-ready map hover/click", () => {
         description:
           "I-MAP fixture GEOIDs are schematic; live Phoenix tracts are not FIX-* cells.",
       });
-      const liveButton = table.locator("tbody button").first();
+      const liveButton = page
+        .getByTestId("map-interaction-list")
+        .locator("button")
+        .first();
       await expect(liveButton).toBeVisible();
       await liveButton.click();
       await expect(page.getByTestId("map-interaction-detail")).toHaveAttribute(
