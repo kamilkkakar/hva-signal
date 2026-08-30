@@ -8,7 +8,7 @@ HVA-Signal is an urban heat **decision-support** system. It is not a heat map wi
 
 **Heat** is what is measured. **Vulnerability** is why zone scale matters — it is **not scored** in this build. **Action** is **available now as decision framing**: it translates Decision 8 into authorize or withhold. It is not a treatment plan and not proof that an intervention worked.
 
-This repository is the runnable product, frozen replay evidence, tests, and deploy config. Local research notes and agent coordination live under `workforce/` and are not committed.
+This repository is the runnable product, frozen replay evidence, tests, and deploy config. Local research notes and agent coordination live under `workforce/` and are not committed. A Decision UI 2.0 workforce shell exists at `hackathon/workforce/decision_ui_2` and is **not mounted** into `apps/web`.
 
 ---
 
@@ -47,18 +47,19 @@ Publicly, that happens on **`phoenix-demo`**: an accountless command center and 
 
 `phoenix-demo` is a frozen 25-zone **HVA-Signal analysis geography** under `PHX_DEMO_AOI_POLICY_V1`. It is **not** Phoenix municipal coverage, **not** a heat district, and **not** a national resolve of Census place `0455000`.
 
-A second question — what each zone’s average temperature was at a requested hour — is designed as a separate descriptive signal. It is **not published** on the public job API or command-center switch.
+A second question — what each zone’s average temperature was at a requested hour — is a separate descriptive signal (Selected-Time Thermal Snapshot / Signal B). On the default JudgeShell it is **AVAILABLE NOW — CACHED EVIDENCE** for one dated phoenix-demo window: **2025-07-15 03:00 America/Phoenix**, **25/25** zone means, source **fortyguard_cached**. It is **not live**, not current conditions, and **not** a field on the public job API. Downtown **0/25** remains the negative **GATE 1** fixture and is not this bind.
 
 ```mermaid
 flowchart LR
   subgraph public ["Public today"]
     A["Signal A<br/>Nighttime historical order<br/>or withhold"]
+    B["Signal B<br/>Cached selected-hour °C"]
   end
   subgraph unpublished ["Designed, not public"]
-    B["Signal B<br/>Selected-hour °C"]
     N["Census Place<br/>analysis window"]
   end
   Q["Dated 3 a.m. replay<br/>25-zone window"] --> A
+  C["Dated cached snapshot<br/>2025-07-15 03:00"] --> B
   A -.->|"different question"| B
   B -.->|"not a substitute"| A
 ```
@@ -111,7 +112,7 @@ SNAPSHOT → HISTORICAL CONTEXT → EXPOSURE OVER TIME
         → ENVIRONMENTAL STRESS → FORECAST → ACTION
 ```
 
-The public path starts at **historical context**, with Action as Decision 8 **decision framing**. Snapshot and later numeric stages are not extra gauges on the command center.
+The public path includes **historical context** (Signal A), a **dated cached snapshot** (Signal B — **AVAILABLE NOW — CACHED EVIDENCE**), and Action as Decision 8 **decision framing**. Later numeric stages are not extra gauges. The snapshot is not live, not current conditions, and not a rank.
 
 ---
 
@@ -124,13 +125,14 @@ Open the command center. No account. Leave **Data mode** on **Replay**.
 | Run Signal A on `phoenix-demo` at 03:00 AOI-local | Pick a U.S. city or Census Place — place search is **disabled** |
 | See **25 ranked fills** when spatial spread clears the configured floor | Treat fills as °C, harm chance, or “treat here first” |
 | See **25 outlines and 0 fills** when the night is too flat | Read empty outlines as all-clear or low risk |
+| See Signal B **AVAILABLE NOW — CACHED EVIDENCE** for phoenix-demo **2025-07-15 03:00 America/Phoenix** (25/25, fortyguard_cached) | Treat that snapshot as live, now, or current conditions |
 | Read Action framing: Decision 8 **supports spatial ordering** or **do not use thermal ranking alone** | Treat framing as a deploy order, harm-reduction percent, or all-clear |
 | Inspect health, readiness, areas, and job status | Submit Signal B, spend, or live-acquire fields on the public job API |
-| Replay two dated nights (see [Demo flow](#20-demo-flow)) | Switch to live vendor acquisition |
+| Replay two dated nights (see [Demo flow](#20-demo-flow)) | Switch to live vendor acquisition; run temporal daily/seasonal, score vulnerability, or combine A×B×V |
 
 Default analysis time is `2022-07-01T03:00` (AOI-local). That night is Decision 8 **insufficient** (outlines only). `2022-06-30T03:00` is **sufficient** (backend-authorized ranked fills).
 
-Code for place search, two-signal jobs, a selected-time snapshot, and a national geography library **exists in this repository**. Code existence is **not** enablement. Those surfaces stay **off** until their publication gates close.
+Code for place search, two-signal jobs, a live snapshot request, and a national geography library **exists in this repository**. Code existence is **not** enablement. Those surfaces stay **off**. The public Signal B surface is the dated cached bind only — **AVAILABLE NOW — CACHED EVIDENCE**, not a live request path.
 
 ---
 
@@ -142,7 +144,7 @@ The foundation it is built around can describe the thermal field at a selected t
 
 **What you can run today** is the historical half of that foundation plus a dated cached Signal B snapshot: the Nighttime Historical Thermal Signal on the frozen phoenix-demo window, including the withhold, Action as **decision framing**, and Selected-Time Thermal Snapshot as **AVAILABLE NOW — CACHED EVIDENCE** for 2025-07-15 03:00. The public job API remains Signal A only.
 
-The next capability layer extends that foundation from **what is happening** to **how heat develops over time**, **how severe environmental conditions become**, **what may happen next**, and **what decisions the evidence can support**.
+The next capability layer extends that foundation from a **selected-time description** to **how heat develops over time**, **how severe environmental conditions become**, **what may happen next**, and **what decisions the evidence can support**. Temporal daily, temporal seasonal, cumulative, persistence, and JJA products are **off**.
 
 These capabilities move into the public product only when their data requirements, analytical definitions, interpretation, and validation are defensible. HVA-Signal does not expose a metric simply because it can be calculated. It will not ship a number, gauge, or map layer for a module that has not cleared those gates.
 
@@ -225,7 +227,7 @@ flowchart TB
 | `data/demo` | Legally distributable demo context. |
 | `infra` | Docker Compose and Render blueprint. Replay by default. |
 
-The runnable image must not depend on gitignored `workforce/` trees or sibling worktrees. A Census Gazetteer zip is **not** required to run `phoenix-demo`.
+The runnable image must not depend on gitignored `workforce/` trees or sibling worktrees. A Census Gazetteer zip is **not** required to run `phoenix-demo`. Cached Signal B on the default JudgeShell is a **client-bound dated bind**, not a public two-signal job. Decision UI 2.0 at `hackathon/workforce/decision_ui_2` is a workforce shell and is **not mounted** into `apps/web`.
 
 Schema stamp: `analysis_schema_version` `0.4`. Thermal-burden, intervention-evidence, and recovery model versions are unset — those modules are not active.
 
@@ -278,11 +280,11 @@ flowchart TD
 
 ## 8. Signal B status
 
-**Selected-Time Thermal Snapshot** — **AVAILABLE NOW — CACHED EVIDENCE**. Phoenix-demo 2025-07-15 03:00 America/Phoenix, 25/25 zone means, source ortyguard_cached. **Not live.** Downtown 0/25 TCM fixture remains a negative hold.
+**Selected-Time Thermal Snapshot** — **AVAILABLE NOW — CACHED EVIDENCE**. Phoenix-demo 2025-07-15 03:00 America/Phoenix, 25/25 zone means, source fortyguard_cached. **Not live.** Downtown 0/25 remains the negative **GATE 1** fixture and is not this bind.
 
 **Question:** What was each zone’s average temperature, in °C, at the selected hour?
 
-Rules if it is ever published:
+Rules for this cached publication:
 
 - Description only. Absolute zone-mean °C.
 - Not `q_A`, not Decision 8, not rank, not priority, not danger, not NOW, not current conditions.
@@ -290,11 +292,11 @@ Rules if it is ever published:
 - Color must not invent contrast (no current-window min/max stretch, no percentile stretch).
 - Cached evidence must be labeled **cached**, never live.
 - A withheld Signal A order does **not** suppress a genuine snapshot. A snapshot does **not** authorize ranking.
-- No combined A+B score.
+- No combined A+B or A×B×V score.
 
 Public POST /api/v1/analysis/jobs is the **legacy Signal A** contract. Unpublished snapshot and spend fields are rejected (**422**). The two-signal sibling route is **not** in the default OpenAPI. Command-center Signal B chrome shows the cached phoenix-demo snapshot.
 
-The public phoenix-demo bind is the processed 25/25 cached snapshot (ctivity_id e0244934-0840-4072-bcb6-96cca26a9a20). The downtown hourly TCM fixture stays 0/25. The vendor tile dump is not shipped. A schematic fixture is not product evidence.
+The public phoenix-demo bind is the processed 25/25 cached snapshot (activity_id e0244934-0840-4072-bcb6-96cca26a9a20). The downtown hourly TCM fixture stays 0/25 as the negative **GATE 1** fixture. The vendor tile dump is not shipped. A schematic fixture is not product evidence.
 
 ---
 
@@ -486,10 +488,12 @@ Evidence status is **per signal**. Do not collapse A and B into one badge.
 HVA-Signal does **not** currently:
 
 - predict individual harm or emit a calibrated heat-event probability
-- score vulnerability, equity, or preparedness
-- prove intervention effectiveness or recommend a deploy order
+- score vulnerability, equity, or preparedness (a vulnerability-context foundation exists; we do not score; no runtime ACS)
+- prove intervention effectiveness, verify an intervention, or recommend a deploy order
 - validate 100 m localization as a targeting product
-- publish Signal B, place search, or national resolve
+- publish a live or current-conditions Signal B, place search, or national resolve
+- publish temporal daily or seasonal context, a cumulative or persistence score, or a JJA product
+- mount Decision UI 2.0 into `apps/web` or combine A×B×V
 - acquire live vendor evidence on the public path
 - treat `phoenix-demo` as the City of Phoenix
 - close Architecture Gate 0 or Milestone 0 (always-on public URL still a human hosting step)
@@ -504,7 +508,7 @@ Why extra surfaces stay off (product blockers, not polish):
 | **L2 timezone** — no shippable offline lon/lat → IANA lookup | No public national resolve or national Signal B |
 | Search plus thermal chrome would overclaim | Place search stays **disabled** |
 | Public jobs must not leak spend or live-grant fields | Allowance schemas stay off the P1 API |
-| Signal B must not reuse the Signal A rank map | No snapshot switch on the command center |
+| Signal B must not reuse the Signal A rank map | Cached snapshot is a separate descriptive panel, not a rank and not a live hour switch |
 | `NOT_PREPARED` must not read as low risk | No fake “analysis complete” on a new window |
 | The opening demo must not be a cold national resolve | Landing stays `phoenix-demo` replay |
 
@@ -519,7 +523,8 @@ Why extra surfaces stay off (product blockers, not polish):
 | `HVA_PUBLIC_GEOGRAPHY` | Off |
 | `HVA_PUBLIC_TWO_SIGNAL` | Off |
 | `HVA_CENSUS_FETCH` | Off |
-| Vite place-search / snapshot flags | Off (and chrome not mounted) |
+| Vite place-search flags | Off (chrome not mounted) |
+| Cached Signal B chrome | **On** — dated JudgeShell bind only. Not live. Downtown 0/25 GATE 1 fixture unchanged |
 | Demo allowance | `enabled=false`, `max_total=0` |
 | Hosted live / real vendor grant | **Disabled** — no public spend path |
 | `FORTYGUARD_API_KEY` | Empty in `.env.example`; backend only if ever set |
@@ -534,12 +539,13 @@ Do not paste vendor keys into the browser. Do not enable Census fetch to “make
 
 ```text
 apps/api     FastAPI modular monolith (jobs, areas, gated optional routers)
-apps/web     React + TypeScript command center (Vite, MapLibre)
+apps/web     React + TypeScript command center (Vite, MapLibre). Default JudgeShell.
 data/demo    Legally distributable demo datasets
 data/phoenix/reference   Frozen Decision 1B runtime panel
 infra        Docker Compose, Render blueprint, DEPLOY.md
 scripts      Maintenance and sanitization
 tests/e2e    Playwright
+hackathon/workforce/decision_ui_2   Decision UI 2.0 shell — not mounted in apps/web
 ```
 
 ---
@@ -554,8 +560,8 @@ Presenter or judge, **replay only**. Source banner must stay **REPLAY**. Do not 
 4. Change the date to **`2022-06-30`** (time stays 03:00). Submit.
 5. Map: **25 ranked fills**. Observed spread about **0.135**. Fills are historical nighttime order, not °C, not harm probability.
 6. Read Action framing on the same nights: 2022-06-30 **supports spatial ordering** (one input, not a deploy order); 2022-07-01 **do not use thermal ranking alone** (withhold is not all-clear). Framing is Decision 8 translate only.
-7. Say the second question out loud: selected-hour °C is descriptive only, **AVAILABLE NOW — CACHED EVIDENCE** for 15 Jul 03:00, 25/25, not live.
-8. Do not demo a national place resolve. Place search is **disabled**. If asked: **L2 timezone** is still open (no shippable offline lon/lat → IANA lookup); a Census Place can later become a versioned 25-zone **analysis window** inside the place; historical Signal A would stay unprepared until a reference package exists; hosted live is **off**.
+7. Say the second question out loud: selected-hour °C is descriptive only, **AVAILABLE NOW — CACHED EVIDENCE** for 2025-07-15 03:00 America/Phoenix, 25/25, fortyguard_cached, not live. Downtown 0/25 stays the negative GATE 1 fixture.
+8. Do not demo a national place resolve, temporal daily/seasonal, vulnerability scoring, or Decision UI 2.0. Place search is **disabled**. If asked: **L2 timezone** is still open (no shippable offline lon/lat → IANA lookup); a Census Place can later become a versioned 25-zone **analysis window** inside the place; historical Signal A would stay unprepared until a reference package exists; hosted live is **off**; Decision UI 2.0 exists as a workforce shell and is **not mounted** in `apps/web`.
 
 If a hosted Free URL is asleep, record or judge from local Compose / Vite and say hosting is a human always-on step.
 
@@ -566,22 +572,25 @@ If a hosted Free URL is asleep, record or judge from local Compose / Vite and sa
 | Surface | Status |
 |---|---|
 | `phoenix-demo` Signal A replay | **Available now** |
-| Accountless command center | **Available now** |
+| Accountless command center | **Available now** (default JudgeShell) |
 | Decision 8 rank-or-withhold | **Available now** (Signal A) |
 | Action intelligence | **Available now — decision framing** (Decision 8 translate only) |
-| Public Signal B / selected-time snapshot | **AVAILABLE NOW — CACHED EVIDENCE** (phoenix-demo 2025-07-15 03:00, 25/25, not live) |
+| Public Signal B / selected-time snapshot | **AVAILABLE NOW — CACHED EVIDENCE** (phoenix-demo 2025-07-15 03:00 America/Phoenix, 25/25, fortyguard_cached — not live) |
 | Public two-signal job API | **Disabled** |
-| Place search | **Disabled** |
+| Place search / city search | **Disabled** |
 | Public geography resolve | **Disabled** (**L2 timezone**) |
 | National resolver library | Present · policy **frozen candidate** · no public route |
-| Hosted live | **Disabled** |
+| Hosted live | **Disabled** — not GO |
 | Demo allowance | **Disabled** |
 | Login / BYOK | **None** / **planned** (not this demo) |
-| Combined A+B score | **Forbidden** |
-| Vulnerability score | **Not built** |
+| Temporal daily | **Off** |
+| Temporal seasonal | **Off** — no public JJA/DJF product. Signal A’s Jun 30–Jul 30 reference window is not Temporal Seasonal. |
+| Vulnerability context | **Off** — foundation exists; we do not score; no runtime ACS |
+| Combined A+B or A×B×V score | **Forbidden** |
 | HeatDose / AfterHeat / WBGT numbers | **Not shown** |
 | Public numeric probability | **Blocked** |
-| Action engine / intervention efficacy | **Not shipped** |
+| Intervention verification / Action engine | **Off** / **Not shipped** |
+| Decision UI 2.0 | Present at `hackathon/workforce/decision_ui_2` — **not mounted** in `apps/web` |
 | Always-on judges URL | **Not claimed** — human hosting step |
 | Architecture Gate 0 / Milestone 0 | **Open** |
 
@@ -593,4 +602,4 @@ HVA-Signal is built by **3K Labs**.
 
 The name expands to Heat, Vulnerability & Action Signal. Only **Heat** is measured on the public path. Vulnerability explains zone scale and is not scored. Action is **available now as decision framing** from Decision 8, not a certified cooling program.
 
-Contact and hosting for a judged demo are human-owned. This README describes the repository as it runs with **default flags off** and **replay on**.
+Contact and hosting for a judged demo are human-owned. This README describes the repository as it runs with **default publication flags off**, **replay on**, and the dated cached Signal B bind labeled **AVAILABLE NOW — CACHED EVIDENCE**.
