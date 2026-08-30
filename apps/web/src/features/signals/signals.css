@@ -1,0 +1,60 @@
+.signals-rail {
+  display: grid;
+  gap: 0;
+}
+
+.signals-section {
+  margin-top: 1.1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--rule);
+}
+
+.signals-stamp {
+  display: inline-block;
+  margin: 0;
+  padding: 0.35rem 0.5rem;
+  border: 2px solid var(--stamp);
+  color: var(--stamp);
+  background: transparent;
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.signals-stamp[data-tone="not-prepared"],
+.signals-stamp[data-tone="insufficient"],
+.signals-stamp[data-tone="failed"] {
+  border-color: var(--stamp);
+  color: var(--stamp);
+  background: transparent;
+}
+
+.signals-stamp[data-tone="inert"],
+.signals-stamp[data-tone="pending"],
+.signals-stamp[data-tone="historical"] {
+  border-color: var(--rule);
+  color: var(--carbon);
+  background: transparent;
+}
+
+.signals-stamp[data-b-tone="b_cached"],
+.signals-stamp[data-b-tone="b_ready"],
+.signals-stamp[data-b-tone="b_fetching"],
+.signals-stamp[data-b-tone="b_partial"],
+.signals-stamp[data-b-tone="b_unavailable"],
+.signals-stamp[data-b-tone="b_not_requested"] {
+  border-color: var(--rule);
+  color: var(--carbon);
+  background: transparent;
+}
+
+.signals-zone-list {
+  margin: 0.45rem 0 0;
+  padding-left: 1.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.signals-zone-unknown {
+  color: var(--muted);
+}
