@@ -42,6 +42,12 @@ class DemoAllowanceDecisionCode(str, Enum):
     NOT_SNAPSHOT_CAPABLE = "NOT_SNAPSHOT_CAPABLE"
     LIVE_ACQUISITION_UNAVAILABLE = "LIVE_ACQUISITION_UNAVAILABLE"
     POLICY_INVALID = "POLICY_INVALID"
+    RESERVATION_SLOT_EXHAUSTED = "RESERVATION_SLOT_EXHAUSTED"
+
+
+class AllowanceDurability(str, Enum):
+    J0_PROCESS_LOCAL_NOT_DURABLE = "J0_PROCESS_LOCAL_NOT_DURABLE"
+    J3_LOCAL_SQLITE_DURABLE = "J3_LOCAL_SQLITE_DURABLE"
 
 
 class ReservationState(str, Enum):
@@ -99,8 +105,8 @@ class DemoAllowanceState(BaseModel):
     reserved_units: int
     consumed_units: int
     remaining_units: int
-    restart_resets_remaining: Literal[True] = True
-    durability: Literal["J0_PROCESS_LOCAL_NOT_DURABLE"] = "J0_PROCESS_LOCAL_NOT_DURABLE"
+    restart_resets_remaining: bool = True
+    durability: AllowanceDurability = AllowanceDurability.J0_PROCESS_LOCAL_NOT_DURABLE
 
 
 class DemoReservation(BaseModel):
@@ -136,6 +142,44 @@ class DemoAllowanceDecision(BaseModel):
     reservation: DemoReservation | None = None
     approval_required: bool = False
     spend_authorized: bool = False
+
+
+class CachedDemoResult(BaseModel):
+    """Server-side cached payload bound to a fingerprint. Never a client field."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    request_fingerprint: str
+    geometry_sha256: str
+    reservation_id: str
+    payload: dict
+    cached_at: datetime
+
+
+class AllowanceRestartReport(BaseModel):
+    """What recovery did after process start. Never auto-consumes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    expired_reservation_ids: list[str]
+    reserved_ids: list[str]
+    consumed_ids: list[str]
+    reserved_units: int
+    consumed_units: int
+    auto_consumed: Literal[False] = False
+    auto_resumed_paid_work: Literal[False] = False
+
+
+class ConsumeAfterCacheResult(BaseModel):
+    """Recovery after cache-before-consume. Consume is at most once."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    reservation: DemoReservation
+    cached: CachedDemoResult
+    already_consumed: bool
+    double_spend: Literal[False] = False
+    cache_lost: Literal[False] = False
 
 
 def disabled_demo_policy() -> DemoAllowancePolicy:

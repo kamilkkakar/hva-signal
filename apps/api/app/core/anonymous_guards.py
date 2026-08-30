@@ -48,7 +48,13 @@ PUBLIC_SERIALIZER_DENYLIST = frozenset(
         "authorized_max_units",
         "allowance_remaining",
         "demo_budget",
+        "budget",
+        "allowance_cap",
         "internal_key",
+        "key",
+        "operator_approval",
+        "reservation_state",
+        "reservation_id",
         "allowance",
         "approved",
         "authorize",
@@ -176,6 +182,7 @@ def spend_defaults_remain_closed() -> bool:
     return (
         fields["demo_allowance_enabled"].default is False
         and int(fields["demo_allowance_max_total_units"].default) == 0
+        and str(fields["demo_allowance_store_path"].default) == ""
     )
 
 

@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     demo_allowance_allowed_areas: str = ""
     demo_allowance_valid_from: str = ""
     demo_allowance_valid_until: str = ""
+    demo_allowance_store_path: str = ""
+    demo_allowance_reservation_ttl_seconds: int = 900
+    demo_allowance_max_open_reservations: int = 8
 
 
 @lru_cache
