@@ -4,3 +4,5 @@ data/demo/phoenix/area_config.json -text
 data/phoenix/reference/observations.jsonl -text
 apps/api/tests/fixtures/decision8/decision8_policy_impact_by_timestamp.csv -text
 data/areas/phoenix-demo/geometry.geojson -text
+apps/api/docker-entrypoint.sh text eol=lf
+apps/web/docker-entrypoint.sh text eol=lf

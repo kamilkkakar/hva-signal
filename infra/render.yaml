@@ -1,10 +1,14 @@
 # Render Blueprint — HVA-Signal (3K Labs) Free-tier public validation.
 #
+# Canonical deployment source: infra/render.yaml. Root render.yaml is a
+# required byte-identical copy (unit test enforces this). Do not edit one
+# without the other.
+#
 # Free services sleep when idle and cannot use private-network hostport.
 # This is validation infrastructure, not the judged-demo plan.
 # Leave FORTYGUARD_API_KEY empty. DATA_MODE is replay.
-#
-# Default Blueprint path: infra/render.yaml (also mirrored at repo-root render.yaml).
+# Hosted live, real vendor, and demo allowance stay OFF.
+# Vite public-context / place-search flags are baked in apps/web/Dockerfile.
 
 services:
   - type: web
@@ -27,6 +31,28 @@ services:
         sync: false
       - key: FORTYGUARD_BASE_URL
         value: https://api.fortyguard.com
+      - key: HOSTED_LIVE_ENABLED
+        value: false
+      - key: HOSTED_LIVE_REAL_VENDOR_ENABLED
+        value: false
+      - key: DEMO_ALLOWANCE_ENABLED
+        value: false
+      - key: DEMO_ALLOWANCE_MAX_TOTAL_UNITS
+        value: 0
+      - key: HVA_PUBLIC_CONTEXT
+        value: 1
+      - key: HVA_PUBLIC_TEMPORAL_STORIES
+        value: 1
+      - key: HVA_PUBLIC_TWO_SIGNAL
+        value: 0
+      - key: HVA_PUBLIC_GEOGRAPHY
+        value: 0
+      - key: HVA_PUBLIC_SAFETY_MIDDLEWARE
+        value: 1
+      - key: OPERATOR_APPROVAL_ENABLED
+        value: false
+      - key: LOCAL_SQLITE_PERSISTENCE_ENABLED
+        value: false
       - key: API_PUBLIC_URL
         fromService:
           name: urban-thermal-api
