@@ -1,0 +1,51 @@
+<div class="result-overflow-page" data-testid="result-overflow-page">
+  <div class="result-overflow-grid">
+    <aside class="result-overflow-stub" aria-hidden="true">Query</aside>
+    <div class="result-overflow-stub" aria-hidden="true">Map</div>
+    <aside class="result-column" data-testid="result-column" aria-label="Decision panel">
+      <section class="result-cards" aria-label="Thermal evidence" data-testid="result-cards">
+        <article class="result-card" data-testid="thermal-card-a" data-result-id="a">
+          <p class="result-card-kicker">Signal A</p>
+          <h2 class="result-card-title">Nighttime historical</h2>
+          <p class="result-card-question" data-testid="result-card-a-question">How unusual was each zone at 3 a.m. versus its own past 3 a.m. nights?</p>
+          <p class="result-card-stamp" data-testid="signal-a-stamp">ORDER WITHHELD</p>
+          <p class="result-card-message" data-testid="result-card-a-message">The night is too flat to defend a ranking. Missing is not safe.</p>
+          <dl class="result-card-values" data-testid="result-card-a-values">
+            <div class="result-card-value"><dt>Clock</dt><dd>03:00</dd></div>
+            <div class="result-card-value"><dt>Window</dt><dd>25-zone</dd></div>
+            <div class="result-card-value"><dt>Source</dt><dd>REPLAY</dd></div>
+          </dl>
+        </article>
+        <article class="result-card" data-testid="thermal-card-b" data-result-id="b">
+          <p class="result-card-kicker">Signal B</p>
+          <h2 class="result-card-title">Selected-time snapshot</h2>
+          <p class="result-card-question" data-testid="result-card-b-question">What was each zone's temperature at a chosen hour?</p>
+          <p class="result-card-stamp" data-testid="signal-b-stamp">NOT ON THIS SURFACE</p>
+          <p class="result-card-message" data-testid="result-card-b-message">Selected-hour snapshot is not published here.</p>
+          <dl class="result-card-values" data-testid="result-card-b-values">
+            <div class="result-card-value"><dt>Surface</dt><dd>off</dd></div>
+          </dl>
+        </article>
+      </section>
+    </aside>
+    <details class="result-d8 analysis-detail" data-testid="analysis-detail" open>
+      <summary class="result-d8-summary analysis-detail-summary">Analysis detail</summary>
+      <div class="result-d8-body analysis-detail-body">
+        <p class="result-d8-method" data-testid="result-method">q_A, Decision 8, and S stay in Method. Cards show the order call only.</p>
+        <p class="result-d8-limitation decision-limitation" data-testid="decision-thermal-limitation">There is not enough thermal differentiation here to support a spatial thermal-ranking claim.</p>
+        <section class="result-d8-panel analysis-detail-panel" data-testid="decision8-evidence-panel">
+          <p>THERMAL ORDERING NOT SUPPORTED</p>
+          <p data-testid="decision8-observed-s">Observed normalized spread S: 0.0439665471923536</p>
+          <p data-testid="decision8-policy-floor">Decision 8 policy floor: 0.10 q_A units</p>
+          <p>Statistic: <span class="copyable-token" data-testid="decision8-statistic"><code class="copyable-token-value" title="TOP3_BOTTOM3_MEAN_DIFFERENCE" data-full-value="TOP3_BOTTOM3_MEAN_DIFFERENCE">TOP3_BOTTOM3_MEAN_DIFFERENCE</code><button type="button" class="copy-btn" data-testid="decision8-statistic-copy">Copy</button></span></p>
+          <p>Tail group size: 3 / 25 per tail</p>
+          <p data-testid="decision8-policy-version">Decision 8 policy: <span class="copyable-token" data-testid="decision8-policy-token"><code class="copyable-token-value" title="PHX_NORMALIZED_HAZARD_SPREAD_V1_TOP3_BOTTOM3_QA_FLOOR_0P10" data-full-value="PHX_NORMALIZED_HAZARD_SPREAD_V1_TOP3_BOTTOM3_QA_FLOOR_0P10">PHX_NORMALIZED_HAZARD_SPREAD_V1_TOP3_BOTTOM3_QA_FLOOR_0P10</code><button type="button" class="copy-btn" data-testid="decision8-policy-token-copy">Copy</button></span></p>
+          <p data-testid="decision8-reference-version">Decision 1B reference: <span class="copyable-token" data-testid="decision8-reference-token"><code class="copyable-token-value" title="PHX_ZTSI_REF_V1" data-full-value="PHX_ZTSI_REF_V1">PHX_ZTSI_REF_V1</code><button type="button" class="copy-btn" data-testid="decision8-reference-token-copy">Copy</button></span></p>
+          <p data-testid="decision8-zone-geometry">Zone geometry: <span class="copyable-token" data-testid="decision8-geometry-token"><code class="copyable-token-value" title="US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f" data-full-value="US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f">US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f</code><button type="button" class="copy-btn" data-testid="decision8-geometry-token-copy">Copy</button></span></p>
+          <p>Result: <span class="copyable-token" data-testid="decision8-result"><code class="copyable-token-value" title="THERMAL_SPATIAL_DIFFERENTIATION_INSUFFICIENT" data-full-value="THERMAL_SPATIAL_DIFFERENTIATION_INSUFFICIENT">THERMAL_SPATIAL_DIFFERENTIATION_INSUFFICIENT</code><button type="button" class="copy-btn" data-testid="decision8-result-copy">Copy</button></span></p>
+          <p data-testid="result-d8-job-id">Job ID: <span class="copyable-token" data-testid="job-id"><code class="copyable-token-value" title="aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" data-full-value="aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee">aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee</code><button type="button" class="copy-btn" data-testid="job-id-copy">Copy</button></span></p>
+        </section>
+      </div>
+    </details>
+  </div>
+</div>
