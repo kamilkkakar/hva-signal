@@ -1,7 +1,9 @@
 .mapi {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(16.25rem, 18.75rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 18.75rem);
   grid-template-rows: minmax(0, 1fr);
+  min-width: 0;
+  max-width: 100%;
   min-height: 22rem;
   height: 100%;
   background: #c2c8b4;
@@ -64,12 +66,16 @@
 .mapi-hover {
   display: inline-block;
   margin: 0 0.45rem 0.45rem 0;
+  max-width: 100%;
   padding: 0.22rem 0.5rem;
   background: #10140e;
   color: #c2c8b4;
   font-size: 0.72rem;
   letter-spacing: 0.04em;
   font-family: "IBM Plex Mono", ui-monospace, monospace;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
 }
 
 .mapi-copy {
@@ -110,11 +116,13 @@
 
 .mapi-chrome {
   min-width: 0;
+  max-width: 100%;
   min-height: 0;
   padding: 0.7rem 0.85rem 0.9rem;
   background: #d3d8c6;
   border-left: 1px solid #4e5748;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   color: #10140e;
 }
 
@@ -142,8 +150,9 @@
 
 .mapi-legend li {
   display: grid;
-  grid-template-columns: 0.85rem 1fr;
+  grid-template-columns: 0.85rem minmax(0, 1fr);
   gap: 0.4rem 0.55rem;
+  min-width: 0;
   margin: 0 0 0.35rem;
   font-size: 0.82rem;
   line-height: 1.35;
@@ -225,8 +234,9 @@
 
 .mapi-detail dl {
   display: grid;
-  grid-template-columns: 7.5rem 1fr;
+  grid-template-columns: minmax(0, 7.5rem) minmax(0, 1fr);
   gap: 0.18rem 0.6rem;
+  min-width: 0;
   margin: 0 0 0.7rem;
   font-size: 0.82rem;
 }
@@ -276,6 +286,8 @@
 
 .mapi-table-wrap {
   margin-top: 0.35rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .mapi-table-wrap summary {
@@ -284,6 +296,8 @@
 
 .mapi-table {
   width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.75rem;
   font-family: "IBM Plex Mono", ui-monospace, monospace;
@@ -294,6 +308,8 @@
   text-align: left;
   padding: 0.22rem 0.3rem;
   border-bottom: 1px solid rgba(16, 20, 14, 0.18);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .mapi-table th {

@@ -43,11 +43,12 @@ describe("judge shell kill list", () => {
     expect(surface.toLowerCase()).not.toContain("fortyguard");
   });
 
-  it("keeps overflow-safe bands", () => {
+  it("keeps overflow-safe bands without hiding page scroll", () => {
     const css = readFileSync(path.join(here, "judgeShell.css"), "utf8");
     expect(css).toContain("min-width: 0");
-    expect(css).toContain("overflow-x: hidden");
+    expect(css).toContain("max-width: 100%");
     expect(css).toContain("overflow-wrap: anywhere");
     expect(css).toContain("flex-wrap: wrap");
+    expect(css).not.toMatch(/\.judge-shell\s*\{[^}]*overflow-x:\s*hidden/s);
   });
 });

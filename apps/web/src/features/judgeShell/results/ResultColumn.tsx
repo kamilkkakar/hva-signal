@@ -5,7 +5,7 @@ export type ResultColumnProps = {
   view: ResultCardsView;
 };
 
-/** 300px-safe third column. Long Decision 8 tokens stay out of this rail. */
+/** Full-width result band. Long Decision 8 tokens stay in the accordion. */
 export function ResultColumn({ view }: ResultColumnProps) {
   return (
     <aside
