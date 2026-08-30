@@ -90,7 +90,7 @@ export function JudgeShell() {
       <ContextBar
         source={source}
         clockDate={clockDate}
-        bannerLabel={snapshot == null ? "UNAVAILABLE" : source}
+        bannerLabel={source}
       />
       <HappeningBand
         happening={happening}

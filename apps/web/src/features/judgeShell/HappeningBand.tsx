@@ -32,7 +32,7 @@ export function HappeningBand({
         {happening.stamp}
       </p>
       <p className="judge-sr" data-testid="evidence-state">
-        {happening.rankingState}
+        {happening.stamp}
       </p>
       <p className="judge-happening-line" data-testid="happening-line">
         {happening.line}
