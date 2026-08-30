@@ -10,6 +10,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.domain.demo_allowance import DemoReservation, SpendAuthorizationSource
 from app.domain.job_lifecycle import CostAuthorization, CostAuthorizationState
 from app.domain.signals import ThermalSignalKind
 
@@ -67,6 +68,10 @@ class SpendGrant(BaseModel):
     expires_at: datetime | None = None
     approval_ref: str | None = None
     reason: str | None = None
+    authorization_source: SpendAuthorizationSource = (
+        SpendAuthorizationSource.MANUAL_OPERATOR_FUTURE
+    )
+    reservation_id: str | None = None
 
 
 class ExecutionGateResult(BaseModel):
@@ -196,6 +201,25 @@ def compare_planned_units_to_cap(
     if grant.authorized_max_units is None or planned_units > grant.authorized_max_units:
         return CostAuthorizationState.INSUFFICIENT
     return grant.state
+
+
+def grant_from_demo_reservation(reservation: DemoReservation) -> SpendGrant:
+    """Server demo reservation becomes a fingerprint-bound grant. Not user approval."""
+    return SpendGrant(
+        state=CostAuthorizationState.AUTHORIZED,
+        signal_kind=reservation.signal_kind,
+        request_fingerprint=reservation.request_fingerprint,
+        geometry_sha256=reservation.geometry_sha256,
+        authorized_max_units=reservation.planned_units,
+        requested_units=1,
+        planned_acquisition_units=reservation.planned_units,
+        approved_at=reservation.created_at,
+        expires_at=reservation.expires_at,
+        approval_ref=reservation.reservation_id,
+        reason="Hosted demo allowance reservation.",
+        authorization_source=SpendAuthorizationSource.DEMO_ALLOWANCE,
+        reservation_id=reservation.reservation_id,
+    )
 
 
 def cost_view_from_grant(grant: SpendGrant) -> CostAuthorization:

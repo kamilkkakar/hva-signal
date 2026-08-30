@@ -17,6 +17,16 @@ _CLIENT_AUTHORIZATION_KEYS = frozenset(
         "admin",
         "operator_override",
         "spend_authorized",
+        "demo",
+        "demo_test",
+        "live_demo",
+        "force_live",
+        "allowance",
+        "demo_budget",
+        "internal_key",
+        "bypass_limit",
+        "allowance_remaining",
+        "authorized_max_units",
     }
 )
 
