@@ -99,8 +99,8 @@ class DemoAllowanceState(BaseModel):
     reserved_units: int
     consumed_units: int
     remaining_units: int
-    restart_resets_remaining: Literal[True] = True
-    durability: Literal["J0_PROCESS_LOCAL_NOT_DURABLE"] = "J0_PROCESS_LOCAL_NOT_DURABLE"
+    restart_resets_remaining: bool = True
+    durability: str = "J0_PROCESS_LOCAL_NOT_DURABLE"
 
 
 class DemoReservation(BaseModel):

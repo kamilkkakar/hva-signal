@@ -1,8 +1,11 @@
-"""Local file-backed job store. J2 only. Not production-durable.
+"""Local file-backed job store with J3 WAL / crash-safe durable columns.
 
-Render Free filesystems are ephemeral. Multi-instance deploy does not share
-this file. A RUNNING row after process restart is INTERRUPTED and is never
-auto-retried (no vendor resubmit).
+Default product store remains InMemory (see persistence_factory). This
+adapter is opt-in local/demo durability. Enabling it does not enable a
+live vendor, demo allowance, or hosted live.
+
+Render Free filesystems are ephemeral. Multi-instance deploy does not
+share this file. Recovery never auto-resubmits vendor work.
 """
 
 from __future__ import annotations
@@ -15,6 +18,17 @@ from threading import Lock
 from typing import Any
 from uuid import uuid4
 
+from app.core.durable_live import (
+    DurableAck,
+    DurableJobRecord,
+    LiveWorkerState,
+    PersistenceError,
+    RECOVERY_QUERY_STATES,
+    RestartAction,
+    classify_restart,
+    require_commit_before_ack,
+    resulting_worker_state,
+)
 from app.core.job_store import (
     AnalysisJob,
     JobStoreError,
@@ -22,20 +36,25 @@ from app.core.job_store import (
     _guard_section_progress,
     _TERMINAL,
 )
+from app.core.sqlite_schema import (
+    RECOVERY_JOBS_SQL,
+    apply_durable_pragmas,
+    apply_migrations,
+)
 from app.domain.enums import JobStatus
 from app.domain.job_lifecycle import ExecutionState, TwoSignalJobState
-
-_SCHEMA = """
-CREATE TABLE IF NOT EXISTS analysis_jobs (
-    job_id TEXT PRIMARY KEY,
-    dedupe_key TEXT UNIQUE,
-    payload TEXT NOT NULL
-);
-"""
 
 _INTERRUPT_MESSAGE = (
     "Job interrupted by process restart. Execution was not recovered "
     "and will not be retried automatically."
+)
+_UNKNOWN_VENDOR_MESSAGE = (
+    "Submit may have reached the vendor but activity_id was not committed. "
+    "State is UNKNOWN_VENDOR_STATE. Do not resubmit."
+)
+_RECOVERY_MESSAGE = (
+    "Process restarted. Resume via persisted activity_id / reservation only. "
+    "Do not resubmit."
 )
 
 
@@ -84,29 +103,81 @@ def _job_from_payload(payload: dict[str, Any]) -> AnalysisJob:
     )
 
 
+def _parse_worker_state(value: Any) -> LiveWorkerState | None:
+    if value is None or value == "":
+        return None
+    return LiveWorkerState(str(value))
+
+
 class SQLiteJobStore:
-    """J2 local file-backed persistence. Off by default. Not production-durable."""
+    """J2 local file store with J3 crash-safe activity_id / reservation columns.
+
+    durability_level stays J2 for the JobStore protocol (file-backed, not
+    production). durable_live_level names the WAL recovery tier.
+    """
 
     durability_level = "J2"
+    durable_live_level = "J3_LOCAL_SQLITE_WAL"
+    hosted_live_implied = False
 
     def __init__(self, path: str | Path) -> None:
         self._path = Path(path)
         self._path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = Lock()
-        self._conn = sqlite3.connect(self._path, check_same_thread=False)
-        self._conn.execute("PRAGMA journal_mode=WAL")
-        self._conn.execute(_SCHEMA)
-        self._conn.commit()
+        self._conn = sqlite3.connect(
+            self._path,
+            check_same_thread=False,
+            isolation_level=None,
+        )
+        self._conn.row_factory = sqlite3.Row
+        self._pragmas = apply_durable_pragmas(self._conn)
+        apply_migrations(self._conn)
         self._interrupt_orphans()
 
+    @property
+    def path(self) -> Path:
+        return self._path
+
+    def close(self) -> None:
+        with self._lock:
+            self._conn.close()
+
     def _interrupt_orphans(self) -> None:
-        """STATE persisted != EXECUTION persisted. Never auto-retry vendor work."""
-        rows = self._conn.execute("SELECT job_id, payload FROM analysis_jobs").fetchall()
-        for job_id, raw in rows:
-            payload = json.loads(raw)
-            status = payload.get("status")
+        """Classify persisted rows. Never auto-retry vendor work."""
+        rows = self._conn.execute(
+            """
+            SELECT job_id, payload, worker_state, fingerprint, activity_id,
+                   reservation_id, error_class, recovery_required, public_status
+            FROM analysis_jobs
+            """
+        ).fetchall()
+        if not rows:
+            return
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            for row in rows:
+                self._apply_restart_row(row)
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+
+    def _apply_restart_row(self, row: sqlite3.Row) -> None:
+        payload = json.loads(row["payload"])
+        status = payload.get("status")
+        record = DurableJobRecord(
+            job_id=str(row["job_id"]),
+            worker_state=_parse_worker_state(row["worker_state"]),
+            fingerprint=row["fingerprint"],
+            activity_id=row["activity_id"],
+            reservation_id=row["reservation_id"],
+            error_class=row["error_class"],
+            recovery_required=bool(row["recovery_required"]),
+            public_status=row["public_status"] or status,
+        )
+        if record.worker_state is None:
             if status in {item.value for item in _TERMINAL}:
-                continue
+                return
             payload["status"] = JobStatus.FAILED.value
             payload["execution_state"] = ExecutionState.INTERRUPTED.value
             payload["recoverable"] = True
@@ -114,24 +185,131 @@ class SQLiteJobStore:
             payload["revision"] = int(payload.get("revision") or 0) + 1
             payload["updated_at"] = _now().isoformat()
             self._conn.execute(
-                "UPDATE analysis_jobs SET payload = ? WHERE job_id = ?",
-                (json.dumps(payload), job_id),
+                """
+                UPDATE analysis_jobs
+                SET payload = ?, public_status = ?, updated_at = ?,
+                    revision = revision + 1
+                WHERE job_id = ?
+                """,
+                (
+                    json.dumps(payload),
+                    JobStatus.FAILED.value,
+                    payload["updated_at"],
+                    record.job_id,
+                ),
             )
-        self._conn.commit()
+            return
 
-    def _put(self, job: AnalysisJob) -> None:
-        payload = json.dumps(_job_to_payload(job))
+        action = classify_restart(record)
+        if action == RestartAction.KEEP:
+            return
+        nxt = resulting_worker_state(record, action)
+        recovery = action in {
+            RestartAction.MARK_UNKNOWN_VENDOR,
+            RestartAction.MARK_RECOVERY_REQUIRED,
+        }
+        error_class = None
+        if action == RestartAction.MARK_UNKNOWN_VENDOR:
+            error_class = "UNKNOWN_VENDOR_STATE"
+            payload["message"] = _UNKNOWN_VENDOR_MESSAGE
+            payload["recoverable"] = True
+        elif action == RestartAction.MARK_RECOVERY_REQUIRED:
+            error_class = "RECOVERY_REQUIRED"
+            payload["message"] = _RECOVERY_MESSAGE
+            payload["recoverable"] = True
+        elif action == RestartAction.INTERRUPT_PRE_SUBMIT:
+            error_class = "FAILED_PRE_SUBMIT"
+            payload["status"] = JobStatus.FAILED.value
+            payload["execution_state"] = ExecutionState.INTERRUPTED.value
+            payload["recoverable"] = True
+            payload["message"] = _INTERRUPT_MESSAGE
+        payload["worker_state"] = nxt.value if nxt else None
+        payload["activity_id"] = record.activity_id
+        payload["reservation_id"] = record.reservation_id
+        payload["revision"] = int(payload.get("revision") or 0) + 1
+        payload["updated_at"] = _now().isoformat()
         self._conn.execute(
             """
-            INSERT INTO analysis_jobs (job_id, dedupe_key, payload)
-            VALUES (?, ?, ?)
-            ON CONFLICT(job_id) DO UPDATE SET
-                dedupe_key = excluded.dedupe_key,
-                payload = excluded.payload
+            UPDATE analysis_jobs
+            SET payload = ?,
+                worker_state = ?,
+                recovery_required = ?,
+                error_class = COALESCE(?, error_class),
+                public_status = ?,
+                updated_at = ?,
+                revision = revision + 1
+            WHERE job_id = ?
             """,
-            (job.job_id, job.dedupe_key, payload),
+            (
+                json.dumps(payload),
+                nxt.value if nxt else None,
+                1 if recovery else 0,
+                error_class,
+                payload.get("status"),
+                payload["updated_at"],
+                record.job_id,
+            ),
         )
-        self._conn.commit()
+
+    def _insert_job_unlocked(self, job: AnalysisJob) -> None:
+        payload = _job_to_payload(job)
+        self._conn.execute(
+            """
+            INSERT INTO analysis_jobs (
+                job_id, dedupe_key, fingerprint, payload, public_status,
+                created_at, updated_at, revision
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                job.job_id,
+                job.dedupe_key,
+                job.dedupe_key,
+                json.dumps(payload),
+                job.status.value,
+                job.created_at.isoformat(),
+                job.updated_at.isoformat() if job.updated_at else None,
+                job.revision,
+            ),
+        )
+
+    def _put(self, job: AnalysisJob) -> None:
+        payload = _job_to_payload(job)
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                """
+                INSERT INTO analysis_jobs (
+                    job_id, dedupe_key, fingerprint, payload, public_status,
+                    created_at, updated_at, revision
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(job_id) DO UPDATE SET
+                    dedupe_key = excluded.dedupe_key,
+                    fingerprint = COALESCE(analysis_jobs.fingerprint, excluded.fingerprint),
+                    payload = excluded.payload,
+                    public_status = excluded.public_status,
+                    updated_at = excluded.updated_at,
+                    revision = excluded.revision
+                """,
+                (
+                    job.job_id,
+                    job.dedupe_key,
+                    job.dedupe_key,
+                    json.dumps(payload),
+                    job.status.value,
+                    job.created_at.isoformat(),
+                    job.updated_at.isoformat() if job.updated_at else None,
+                    job.revision,
+                ),
+            )
+            self._conn.execute("COMMIT")
+        except sqlite3.IntegrityError as exc:
+            self._conn.execute("ROLLBACK")
+            raise PersistenceError(f"unique constraint: {exc}") from exc
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
 
     def create(
         self,
@@ -162,17 +340,24 @@ class SQLiteJobStore:
             ).fetchone()
         if row is None:
             return None
-        return _job_from_payload(json.loads(row[0]))
+        return _job_from_payload(json.loads(row["payload"]))
 
     def find_by_dedupe_key(self, dedupe_key: str) -> AnalysisJob | None:
         with self._lock:
-            row = self._conn.execute(
-                "SELECT payload FROM analysis_jobs WHERE dedupe_key = ?",
-                (dedupe_key,),
-            ).fetchone()
+            return self._find_by_key_unlocked(dedupe_key)
+
+    def _find_by_key_unlocked(self, dedupe_key: str) -> AnalysisJob | None:
+        row = self._conn.execute(
+            """
+            SELECT payload FROM analysis_jobs
+            WHERE dedupe_key = ? OR fingerprint = ?
+            LIMIT 1
+            """,
+            (dedupe_key, dedupe_key),
+        ).fetchone()
         if row is None:
             return None
-        return _job_from_payload(json.loads(row[0]))
+        return _job_from_payload(json.loads(row["payload"]))
 
     def create_or_join(
         self,
@@ -180,10 +365,36 @@ class SQLiteJobStore:
         *,
         dedupe_key: str,
     ) -> tuple[AnalysisJob, bool]:
-        existing = self.find_by_dedupe_key(dedupe_key)
-        if existing is not None:
-            return existing, True
-        return self.create(request, dedupe_key=dedupe_key), False
+        job = AnalysisJob(
+            job_id=f"job_{uuid4().hex[:12]}",
+            status=JobStatus.QUEUED,
+            request=request,
+            created_at=_now(),
+            updated_at=_now(),
+            message="Job queued.",
+            result=None,
+            dedupe_key=dedupe_key,
+            execution_state=ExecutionState.NOT_STARTED,
+        )
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                existing = self._find_by_key_unlocked(dedupe_key)
+                if existing is not None:
+                    self._conn.execute("COMMIT")
+                    return existing, True
+                self._insert_job_unlocked(job)
+                self._conn.execute("COMMIT")
+                return job, False
+            except sqlite3.IntegrityError:
+                self._conn.execute("ROLLBACK")
+                joined = self._find_by_key_unlocked(dedupe_key)
+                if joined is None:
+                    raise PersistenceError("fingerprint unique conflict without row")
+                return joined, True
+            except Exception:
+                self._conn.execute("ROLLBACK")
+                raise
 
     def _mutate(self, job_id: str, mutator) -> None:
         with self._lock:
@@ -193,7 +404,7 @@ class SQLiteJobStore:
             ).fetchone()
             if row is None:
                 return
-            job = _job_from_payload(json.loads(row[0]))
+            job = _job_from_payload(json.loads(row["payload"]))
             mutator(job)
             self._put(job)
 
@@ -271,10 +482,269 @@ class SQLiteJobStore:
     def list_in_flight(self) -> list[AnalysisJob]:
         with self._lock:
             rows = self._conn.execute("SELECT payload FROM analysis_jobs").fetchall()
-        jobs = [_job_from_payload(json.loads(row[0])) for row in rows]
+        jobs = [_job_from_payload(json.loads(row["payload"])) for row in rows]
         return [job for job in jobs if job.status not in _TERMINAL]
 
     def reset(self) -> None:
         with self._lock:
-            self._conn.execute("DELETE FROM analysis_jobs")
-            self._conn.commit()
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                self._conn.execute("DELETE FROM analysis_jobs")
+                self._conn.execute("COMMIT")
+            except Exception:
+                self._conn.execute("ROLLBACK")
+                raise
+
+    def get_durable(self, job_id: str) -> DurableJobRecord | None:
+        with self._lock:
+            row = self._conn.execute(
+                """
+                SELECT job_id, worker_state, fingerprint, activity_id,
+                       reservation_id, error_class, recovery_required, public_status
+                FROM analysis_jobs
+                WHERE job_id = ?
+                """,
+                (job_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return self._record_from_row(row)
+
+    def find_by_fingerprint(self, fingerprint: str) -> DurableJobRecord | None:
+        with self._lock:
+            row = self._conn.execute(
+                """
+                SELECT job_id, worker_state, fingerprint, activity_id,
+                       reservation_id, error_class, recovery_required, public_status
+                FROM analysis_jobs
+                WHERE fingerprint = ?
+                """,
+                (fingerprint,),
+            ).fetchone()
+        if row is None:
+            return None
+        return self._record_from_row(row)
+
+    def find_by_activity_id(self, activity_id: str) -> DurableJobRecord | None:
+        with self._lock:
+            row = self._conn.execute(
+                """
+                SELECT job_id, worker_state, fingerprint, activity_id,
+                       reservation_id, error_class, recovery_required, public_status
+                FROM analysis_jobs
+                WHERE activity_id = ?
+                """,
+                (activity_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return self._record_from_row(row)
+
+    def list_recovery_jobs(self) -> list[DurableJobRecord]:
+        with self._lock:
+            rows = self._conn.execute(RECOVERY_JOBS_SQL).fetchall()
+        return [self._record_from_row(row) for row in rows]
+
+    def mark_submitting(
+        self,
+        job_id: str,
+        *,
+        reservation_id: str | None = None,
+        fingerprint: str | None = None,
+    ) -> DurableAck:
+        """Commit SUBMITTING before the vendor call. No activity_id yet."""
+        return self._commit_worker_write(
+            job_id,
+            worker_state=LiveWorkerState.SUBMITTING,
+            activity_id=None,
+            reservation_id=reservation_id,
+            fingerprint=fingerprint,
+            acknowledged_status="SUBMITTING",
+            require_ids=False,
+        )
+
+    def commit_reservation_binding(
+        self,
+        job_id: str,
+        *,
+        reservation_id: str,
+        fingerprint: str,
+        worker_state: LiveWorkerState = LiveWorkerState.ALLOWANCE_RESERVED,
+    ) -> DurableAck:
+        if not reservation_id.strip() or not fingerprint.strip():
+            raise PersistenceError("reservation binding requires reservation_id and fingerprint")
+        return self._commit_worker_write(
+            job_id,
+            worker_state=worker_state,
+            activity_id=None,
+            reservation_id=reservation_id,
+            fingerprint=fingerprint,
+            acknowledged_status=worker_state.value,
+            require_ids=False,
+        )
+
+    def acknowledge_submitted(
+        self,
+        job_id: str,
+        *,
+        activity_id: str,
+        reservation_id: str,
+        fingerprint: str | None = None,
+    ) -> DurableAck:
+        require_commit_before_ack(
+            activity_id=activity_id,
+            reservation_id=reservation_id,
+            acknowledged_status="SUBMITTED",
+        )
+        return self._commit_worker_write(
+            job_id,
+            worker_state=LiveWorkerState.SUBMITTED,
+            activity_id=activity_id,
+            reservation_id=reservation_id,
+            fingerprint=fingerprint,
+            acknowledged_status="SUBMITTED",
+            require_ids=True,
+        )
+
+    def acknowledge_activity_id_persisted(
+        self,
+        job_id: str,
+        *,
+        activity_id: str,
+        reservation_id: str,
+        fingerprint: str | None = None,
+    ) -> DurableAck:
+        require_commit_before_ack(
+            activity_id=activity_id,
+            reservation_id=reservation_id,
+            acknowledged_status="ACTIVITY_ID_PERSISTED",
+        )
+        return self._commit_worker_write(
+            job_id,
+            worker_state=LiveWorkerState.ACTIVITY_ID_PERSISTED,
+            activity_id=activity_id,
+            reservation_id=reservation_id,
+            fingerprint=fingerprint,
+            acknowledged_status="ACTIVITY_ID_PERSISTED",
+            require_ids=True,
+        )
+
+    def write_uncommitted_activity_id_for_tests(
+        self, job_id: str, activity_id: str
+    ) -> None:
+        """Test hook: write activity_id inside an open transaction, no COMMIT."""
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            self._conn.execute(
+                "UPDATE analysis_jobs SET activity_id = ? WHERE job_id = ?",
+                (activity_id, job_id),
+            )
+
+    def crash_close_for_tests(self) -> None:
+        """Test hook: drop the connection so an open transaction rolls back."""
+        self._conn.close()
+
+    def _commit_worker_write(
+        self,
+        job_id: str,
+        *,
+        worker_state: LiveWorkerState,
+        activity_id: str | None,
+        reservation_id: str | None,
+        fingerprint: str | None,
+        acknowledged_status: str,
+        require_ids: bool,
+    ) -> DurableAck:
+        if require_ids:
+            require_commit_before_ack(
+                activity_id=activity_id,
+                reservation_id=reservation_id,
+                acknowledged_status=acknowledged_status,
+            )
+        if worker_state in {
+            LiveWorkerState.SUBMITTED,
+            LiveWorkerState.ACTIVITY_ID_PERSISTED,
+        } and (not activity_id or not reservation_id):
+            raise PersistenceError(
+                f"cannot persist {worker_state.value} without activity_id and reservation"
+            )
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT payload FROM analysis_jobs WHERE job_id = ?",
+                (job_id,),
+            ).fetchone()
+            if row is None:
+                raise PersistenceError(f"unknown job {job_id}")
+            payload = json.loads(row["payload"])
+            payload["worker_state"] = worker_state.value
+            if activity_id:
+                payload["activity_id"] = activity_id
+            if reservation_id:
+                payload["reservation_id"] = reservation_id
+            if fingerprint:
+                payload["fingerprint"] = fingerprint
+            payload["updated_at"] = _now().isoformat()
+            payload["revision"] = int(payload.get("revision") or 0) + 1
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                self._conn.execute(
+                    """
+                    UPDATE analysis_jobs
+                    SET payload = ?,
+                        worker_state = ?,
+                        activity_id = COALESCE(?, activity_id),
+                        reservation_id = COALESCE(?, reservation_id),
+                        fingerprint = COALESCE(?, fingerprint),
+                        recovery_required = 0,
+                        error_class = NULL,
+                        updated_at = ?,
+                        revision = revision + 1
+                    WHERE job_id = ?
+                    """,
+                    (
+                        json.dumps(payload),
+                        worker_state.value,
+                        activity_id,
+                        reservation_id,
+                        fingerprint,
+                        payload["updated_at"],
+                        job_id,
+                    ),
+                )
+                self._conn.execute("COMMIT")
+            except sqlite3.IntegrityError as exc:
+                self._conn.execute("ROLLBACK")
+                raise PersistenceError(f"unique constraint: {exc}") from exc
+            except Exception:
+                self._conn.execute("ROLLBACK")
+                raise
+        return DurableAck(
+            job_id=job_id,
+            worker_state=worker_state,
+            activity_id=activity_id,
+            reservation_id=reservation_id,
+            acknowledged_status=acknowledged_status,
+        )
+
+    @staticmethod
+    def _record_from_row(row: sqlite3.Row) -> DurableJobRecord:
+        return DurableJobRecord(
+            job_id=str(row["job_id"]),
+            worker_state=_parse_worker_state(row["worker_state"]),
+            fingerprint=row["fingerprint"],
+            activity_id=row["activity_id"],
+            reservation_id=row["reservation_id"],
+            error_class=row["error_class"],
+            recovery_required=bool(row["recovery_required"]),
+            public_status=row["public_status"],
+        )
+
+
+# Re-export for existing tests that import the interrupt copy.
+__all__ = [
+    "SQLiteJobStore",
+    "PersistenceError",
+    "JobStoreError",
+    "_INTERRUPT_MESSAGE",
+    "RECOVERY_QUERY_STATES",
+]

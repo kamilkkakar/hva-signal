@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     demo_allowance_allowed_areas: str = ""
     demo_allowance_valid_from: str = ""
     demo_allowance_valid_until: str = ""
+    # Local file durability only. Default off. Enabling SQLite does not
+    # enable hosted live, demo allowance, or any vendor adapter.
+    local_sqlite_persistence_enabled: bool = False
+    local_sqlite_path: str = ""
 
 
 @lru_cache

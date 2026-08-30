@@ -4,8 +4,10 @@ Durability language:
 - InMemoryJobStore is J0 process-local / J1 client-reattachable while the
   process survives. It is not file-backed and not production-durable.
 - SQLiteJobStore (optional, off by default) is J2 local file-backed
-  persistence. It is not production-durable on an ephemeral filesystem
-  and is not worker-recoverable.
+  persistence with J3 WAL / activity_id / reservation columns. It is not
+  production-durable on an ephemeral filesystem. Enabling it does not
+  enable hosted live. LIVE-B owns the SQLite adapter; InMemory remains
+  the process default unless an operator sets local_sqlite_* explicitly.
 """
 
 from __future__ import annotations
