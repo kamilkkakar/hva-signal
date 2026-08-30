@@ -16,12 +16,12 @@ describe("map-primary analysis workspace", () => {
     expect(shell).toMatch(/judge-explore/);
     expect(shell).toMatch(/<RunBand \/>/);
     expect(shell).toMatch(/<MapBand/);
-    expect(shell).not.toMatch(/SelectedZoneBand/);
+    expect(shell).toMatch(/SelectedZoneBand/);
     expect(css).toMatch(/grid-template-columns:\s*minmax\(12\.75rem,\s*15\.25rem\)\s*minmax\(0,\s*1fr\)/);
     expect(css).toMatch(/min-height:\s*min\(70vh,\s*48rem\)/);
     expect(css).not.toMatch(/judge-explore[^{]*\{[^}]*repeat\(3/);
     expect(mapCss).toMatch(
-      /grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(16\.25rem,\s*18\.75rem\)/,
+      /grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*18\.75rem\)/,
     );
   });
 

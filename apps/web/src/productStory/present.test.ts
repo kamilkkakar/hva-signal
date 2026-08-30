@@ -120,7 +120,9 @@ describe("presentAnalysisStory", () => {
 
     expect(view.comparison_state).toBe("too_similar");
     expect(view.comparison_explanation).toBe(COMPARISON_TOO_SIMILAR);
-    expect(view.headline).toBe("Nighttime heat order is withheld");
+    expect(view.headline).toBe(
+      "Nighttime patterns are too similar to rank defensibly",
+    );
     expect(view.map_mode).toBe("order_withheld");
     expect(view.zone_story.ranked_fill_count).toBe(0);
     expect(view.zone_story.outline_count).toBe(25);
