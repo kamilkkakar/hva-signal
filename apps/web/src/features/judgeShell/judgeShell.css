@@ -285,6 +285,42 @@
   border: 2px solid var(--carbon);
 }
 
+/* Laptop first-read: compact chrome so the map is in the first viewport.
+   Strings stay in the DOM. Do not hide page overflow. */
+@media (max-width: 1440px) {
+  .judge-hero,
+  .judge-context,
+  .judge-happening,
+  .judge-result-story {
+    padding: 0.4rem 0.85rem;
+  }
+
+  .judge-hero-line {
+    margin: 0.28rem 0 0;
+    font-size: 1.05rem;
+  }
+
+  .judge-hero .product-expansion,
+  .judge-hero-support,
+  .judge-hero-honesty,
+  .judge-hero-tagline,
+  .judge-happening .kicker,
+  .judge-happening-line {
+    display: none;
+  }
+
+  .judge-stamp {
+    margin: 0.15rem 0 0;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .judge-explore {
+    min-height: calc(100vh - 13.5rem);
+    grid-template-rows: minmax(calc(100vh - 13.5rem), 1fr);
+  }
+}
+
 @media (max-width: 900px) {
   .judge-thermal,
   .judge-supports,
@@ -294,17 +330,25 @@
 
   .judge-explore {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(22rem, 58vh);
-    min-height: 0;
+    grid-template-rows: auto minmax(20rem, 1fr);
+    min-height: calc(100vh - 12rem);
   }
 
   .judge-explore .judge-run {
     border-right: 0;
     border-bottom: 1px solid var(--carbon);
+    padding: 0.45rem 0.75rem;
+  }
+
+  .judge-explore .judge-run-clicks,
+  .judge-explore .judge-run-form {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 0.3rem;
   }
 
   .judge-map {
-    min-height: 22rem;
+    min-height: 20rem;
   }
 }
 
