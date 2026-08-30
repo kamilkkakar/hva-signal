@@ -16,6 +16,12 @@ _UNPUBLISHED_SIGNAL_B_FIELDS = frozenset(
         "prepare",
         "prepare_reference",
         "live_snapshot",
+        "signals",
+        "spend_authorization",
+        "spend",
+        "approval",
+        "contract_version",
+        "authorized_max_units",
     }
 )
 
