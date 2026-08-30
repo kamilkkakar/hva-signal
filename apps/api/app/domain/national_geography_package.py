@@ -20,13 +20,32 @@ from app.domain.enums import TileAssignmentMethod, ZoneAggregationStatistic
 
 PACKAGE_SCHEMA_VERSION = "NATIONAL_GEOGRAPHY_PACKAGE_V1"
 LEGACY_PHOENIX_AREA_ID = "phoenix-demo"
+LEGACY_PHOENIX_POLICY_ID = "PHX_DEMO_AOI_POLICY_V1"
 NATIONAL_AREA_ID_PREFIX = "us-place"
 NATIONAL_RESOLVER_POLICY_ID = "NATIONAL_PLACE_GEOGRAPHY_V1"
+NATIONAL_ALGORITHM_ID = "ALG1_GREEDY_LEX_PLACE_INTPT_V1"
 NATIONAL_CENSUS_SOURCE = "US_CENSUS_TIGERLINE"
 NATIONAL_ZONE_TYPE = "census_tract"
-NATIONAL_CENSUS_VINTAGE_CANDIDATE = "2025"
+NATIONAL_CENSUS_VINTAGE = "2025"
+NATIONAL_CENSUS_VINTAGE_CANDIDATE = NATIONAL_CENSUS_VINTAGE
 NATIONAL_AGGREGATION_POLICY_ID = (
     "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+)
+NATIONAL_SEED_RULE_ID = (
+    "SEED_PLACE_TIGER_INTPT_CONTAINER_ELSE_NEAREST_ELIGIBLE_INTPT_GEOID_ASC_V1"
+)
+NATIONAL_ELIGIBILITY_RULE_ID = "ELIGIBILITY_TIGER_INTPT_IN_PLACE_ALAND_GT_0_V1"
+NATIONAL_ROOK_POLICY_ID = "ROOK_LINEAR_SHARED_BOUNDARY_GT_1E-3_M_EPSG5070_V1"
+NATIONAL_PROJECTION_CRS = "EPSG:5070"
+NATIONAL_TIE_BREAK_POLICY_ID = (
+    "TIE_PP_COMPARE_6DP_SHARED_DESC_DISTANCE_ASC_GEOID_ASC_V1"
+)
+LEGACY_POLICY_ALIASES = frozenset(
+    {
+        LEGACY_PHOENIX_POLICY_ID.lower(),
+        LEGACY_PHOENIX_AREA_ID,
+        "phx-demo-aoi-policy-v1",
+    }
 )
 ZONE_ID_PROPERTY = "GEOID"
 EXPECTED_ZONE_COUNT = 25
@@ -58,6 +77,8 @@ FORBIDDEN_PACKAGE_KEYS = frozenset(
         "hazard_spread_policy",
         "area_config_path",
         "area_config_sha256",
+        "area_config",
+        "AreaConfig",
     }
 )
 
@@ -138,6 +159,22 @@ def assert_area_id_not_legacy_phoenix(area_id: str) -> None:
         raise NationalGeographyError(
             "national geography must not use the legacy phoenix-demo area_id"
         )
+
+
+def assert_not_legacy_phoenix_policy(resolver_policy_id: str) -> None:
+    if resolver_policy_id.strip().lower() in LEGACY_POLICY_ALIASES:
+        raise NationalGeographyError(
+            "national materializer must not emit the legacy Phoenix policy identity"
+        )
+
+
+def _contains_legacy_phoenix_token(value: str) -> bool:
+    lowered = value.strip().lower()
+    return (
+        LEGACY_PHOENIX_AREA_ID in lowered
+        or "phx_demo" in lowered
+        or "phx-demo" in lowered
+    )
 
 
 def looks_like_national_area_id(area_id: str) -> bool:
@@ -227,6 +264,8 @@ class SelectionAuditMetadata(BaseModel):
 
     seed_geoid: str
     selection_order: tuple[str, ...]
+    algorithm_id: str = Field(min_length=1)
+    seed_rule_id: str = Field(min_length=1)
     eligible_tract_count: int = Field(ge=EXPECTED_ZONE_COUNT)
     connected_component_size: int = Field(ge=EXPECTED_ZONE_COUNT)
     rook_connected: Literal[True]
@@ -253,11 +292,90 @@ class SelectionAuditMetadata(BaseModel):
                 raise ValueError("selection_order entries must be 11-digit tract GEOIDs")
         return value
 
+    @field_validator(
+        "algorithm_id",
+        "seed_rule_id",
+        "eligibility_rule_id",
+        "rook_policy_id",
+        "tie_break_policy_id",
+    )
+    @classmethod
+    def _rule_ids_not_legacy_phoenix(cls, value: str | None) -> str | None:
+        if value is None:
+            return value
+        if _contains_legacy_phoenix_token(value):
+            raise ValueError("selection audit must not stamp the legacy Phoenix policy")
+        return value
+
     @model_validator(mode="after")
     def _seed_in_selection(self) -> SelectionAuditMetadata:
         if self.seed_geoid not in self.selection_order:
             raise ValueError("seed_geoid must appear in selection_order")
         return self
+
+
+def national_selection_audit(
+    *,
+    seed_geoid: str,
+    selection_order: tuple[str, ...],
+    eligible_tract_count: int,
+    connected_component_size: int,
+    compactness: float | None = None,
+    area_km2: float | None = None,
+) -> SelectionAuditMetadata:
+    """Stamp the frozen-candidate ALG1 seed and substrate rule ids."""
+    return SelectionAuditMetadata.model_validate(
+        {
+            "seed_geoid": seed_geoid,
+            "selection_order": selection_order,
+            "algorithm_id": NATIONAL_ALGORITHM_ID,
+            "seed_rule_id": NATIONAL_SEED_RULE_ID,
+            "eligible_tract_count": eligible_tract_count,
+            "connected_component_size": connected_component_size,
+            "rook_connected": True,
+            "eligibility_rule_id": NATIONAL_ELIGIBILITY_RULE_ID,
+            "rook_policy_id": NATIONAL_ROOK_POLICY_ID,
+            "projection_crs": NATIONAL_PROJECTION_CRS,
+            "tie_break_policy_id": NATIONAL_TIE_BREAK_POLICY_ID,
+            "compactness": compactness,
+            "area_km2": area_km2,
+        }
+    )
+
+
+def assert_frozen_candidate_policy(
+    *,
+    resolver_policy_id: str,
+    algorithm_id: str,
+    seed_rule_id: str,
+    eligibility_rule_id: str,
+    rook_policy_id: str,
+    projection_crs: str,
+) -> None:
+    """NATIONAL_PLACE_GEOGRAPHY_V1 is ALG1 plus the locked substrate stamps."""
+    assert_not_legacy_phoenix_policy(resolver_policy_id)
+    if resolver_policy_id != NATIONAL_RESOLVER_POLICY_ID:
+        return
+    expected = {
+        "algorithm_id": NATIONAL_ALGORITHM_ID,
+        "seed_rule_id": NATIONAL_SEED_RULE_ID,
+        "eligibility_rule_id": NATIONAL_ELIGIBILITY_RULE_ID,
+        "rook_policy_id": NATIONAL_ROOK_POLICY_ID,
+        "projection_crs": NATIONAL_PROJECTION_CRS,
+    }
+    actual = {
+        "algorithm_id": algorithm_id,
+        "seed_rule_id": seed_rule_id,
+        "eligibility_rule_id": eligibility_rule_id,
+        "rook_policy_id": rook_policy_id,
+        "projection_crs": projection_crs,
+    }
+    mismatches = [key for key, value in expected.items() if actual[key] != value]
+    if mismatches:
+        raise NationalGeographyError(
+            "NATIONAL_PLACE_GEOGRAPHY_V1 must stamp ALG1 and locked rule ids: "
+            + ", ".join(mismatches)
+        )
 
 
 class NationalGeographyPackage(BaseModel):
@@ -385,6 +503,24 @@ class NationalGeographyPackage(BaseModel):
         expected_package = package_identity_sha256(self, ignore_package_sha=True)
         if self.package_sha256 != expected_package:
             raise ValueError("package_sha256 does not match canonical identity document")
+        if self.aggregation_spec.version != NATIONAL_AGGREGATION_POLICY_ID:
+            raise ValueError(
+                "aggregation_spec.version must be "
+                f"{NATIONAL_AGGREGATION_POLICY_ID}"
+            )
+        if "phx" in self.aggregation_spec.version.lower():
+            raise ValueError("aggregation_spec must not use a Phoenix identity")
+        try:
+            assert_frozen_candidate_policy(
+                resolver_policy_id=self.resolver_policy_id,
+                algorithm_id=self.selection_audit.algorithm_id,
+                seed_rule_id=self.selection_audit.seed_rule_id,
+                eligibility_rule_id=self.selection_audit.eligibility_rule_id,
+                rook_policy_id=self.selection_audit.rook_policy_id,
+                projection_crs=self.selection_audit.projection_crs,
+            )
+        except NationalGeographyError as exc:
+            raise ValueError(str(exc)) from exc
         return self
 
 

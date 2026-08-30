@@ -16,16 +16,23 @@ from app.core.area_readiness import (
 )
 from app.core.area_registry import UnsupportedAreaError, load_area_registry, resolve_area_geography
 from app.domain.enums import DataStatus, ThermalDataSource
+from app.domain.aggregation import ThermalAggregationSpec
+from app.domain.enums import TileAssignmentMethod, ZoneAggregationStatistic
 from app.domain.national_geography_package import (
     EXPECTED_ZONE_COUNT,
     LEGACY_PHOENIX_AREA_ID,
     NATIONAL_AGGREGATION_POLICY_ID,
+    NATIONAL_ALGORITHM_ID,
+    NATIONAL_ELIGIBILITY_RULE_ID,
     NATIONAL_RESOLVER_POLICY_ID,
+    NATIONAL_ROOK_POLICY_ID,
+    NATIONAL_SEED_RULE_ID,
     CanonicalPlaceIdentity,
     NationalGeographyError,
     NationalGeographyImmutabilityError,
     NationalGeographyLifecycle,
     SelectionAuditMetadata,
+    national_selection_audit,
     to_geography_identity,
 )
 from app.domain.phoenix_v1 import AREA_ID
@@ -61,18 +68,23 @@ def _geoids(*, prefix: str = "17999000") -> tuple[str, ...]:
     return tuple(f"{prefix}{i:03d}" for i in range(EXPECTED_ZONE_COUNT))
 
 
-def _audit(geoids: tuple[str, ...]) -> SelectionAuditMetadata:
-    return SelectionAuditMetadata.model_validate(
-        {
-            "seed_geoid": geoids[0],
-            "selection_order": geoids,
-            "eligible_tract_count": 48,
-            "connected_component_size": 40,
-            "rook_connected": True,
-            "eligibility_rule_id": "TEST_ELIGIBILITY_V1",
-            "rook_policy_id": "TEST_ROOK_V1",
-            "projection_crs": "EPSG:5070",
-        }
+def _audit(
+    geoids: tuple[str, ...], **overrides: object
+) -> SelectionAuditMetadata:
+    if overrides:
+        payload = national_selection_audit(
+            seed_geoid=geoids[0],
+            selection_order=geoids,
+            eligible_tract_count=48,
+            connected_component_size=40,
+        ).model_dump()
+        payload.update(overrides)
+        return SelectionAuditMetadata.model_validate(payload)
+    return national_selection_audit(
+        seed_geoid=geoids[0],
+        selection_order=geoids,
+        eligible_tract_count=48,
+        connected_component_size=40,
     )
 
 
@@ -102,6 +114,8 @@ def _success(
     resolver_policy_id: str = NATIONAL_RESOLVER_POLICY_ID,
     census_vintage: str = "2025",
     geometry: dict | None = None,
+    selection_audit: SelectionAuditMetadata | None = None,
+    aggregation_spec: ThermalAggregationSpec | None = None,
 ) -> ResolverSuccessInput:
     ids = geoids or _geoids()
     return ResolverSuccessInput(
@@ -109,9 +123,10 @@ def _success(
         zone_geoids=ids,
         geometry=geometry or _geometry(ids),
         timezone=timezone,
-        selection_audit=_audit(ids),
+        selection_audit=selection_audit or _audit(ids),
         resolver_policy_id=resolver_policy_id,
         census_vintage=census_vintage,
+        aggregation_spec=aggregation_spec,
     )
 
 
@@ -184,7 +199,9 @@ def test_phoenix_place_materializes_as_distinct_legacy_identity() -> None:
     )
     assert record.area_id == "us-place-0455000-2025-national-place-geography-v1"
     assert record.area_id != LEGACY_PHOENIX_AREA_ID
+    assert record.package.resolver_policy_id == NATIONAL_RESOLVER_POLICY_ID
     assert record.package.resolver_policy_id != "PHX_DEMO_AOI_POLICY_V1"
+    assert record.package.selection_audit.algorithm_id == NATIONAL_ALGORITHM_ID
     assert "PHX_DEMO" not in record.package.zone_geometry_version
 
 
@@ -301,6 +318,61 @@ def test_illegal_transition_from_resolved_to_ready() -> None:
     prior = begin_place_resolved(_place())
     with pytest.raises(NationalGeographyError):
         transition_geography(prior, NationalGeographyLifecycle.GEOGRAPHY_READY)
+
+
+def test_package_stamps_alg1_seed_and_rule_ids() -> None:
+    record = materialize_national_geography(_success())
+    package = record.package
+    assert package.area_id == "us-place-1714000-2025-national-place-geography-v1"
+    assert package.schema_version == "NATIONAL_GEOGRAPHY_PACKAGE_V1"
+    assert package.resolver_policy_id == NATIONAL_RESOLVER_POLICY_ID
+    assert package.selection_audit.algorithm_id == NATIONAL_ALGORITHM_ID
+    assert package.selection_audit.seed_geoid == package.zone_geoids[0]
+    assert package.selection_audit.seed_rule_id == NATIONAL_SEED_RULE_ID
+    assert package.selection_audit.eligibility_rule_id == NATIONAL_ELIGIBILITY_RULE_ID
+    assert package.selection_audit.rook_policy_id == NATIONAL_ROOK_POLICY_ID
+    assert package.selection_audit.projection_crs == "EPSG:5070"
+    assert package.aggregation_spec.version == NATIONAL_AGGREGATION_POLICY_ID
+    assert package.zone_geoids == tuple(sorted(package.zone_geoids))
+    dumped = package.model_dump(mode="json")
+    assert "reference_sha256" not in dumped
+    assert "q_A" not in dumped
+    assert "hazard_spread_policy" not in dumped
+    assert "area_config_sha256" not in dumped
+
+
+def test_alg2_cannot_use_national_place_geography_v1() -> None:
+    ids = _geoids()
+    with pytest.raises(NationalGeographyError, match="ALG1"):
+        assemble_national_geography_package(
+            _success(
+                selection_audit=_audit(
+                    ids, algorithm_id="ALG2_MEDOID_DISTANCE_LEX_V1"
+                )
+            )
+        )
+
+
+def test_phoenix_aggregation_identity_is_refused() -> None:
+    phoenix_spec = ThermalAggregationSpec(
+        version="PHX_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN",
+        assignment_method=TileAssignmentMethod.CENTROID_WITHIN,
+        statistic=ZoneAggregationStatistic.MEAN,
+        minimum_coverage_ratio=None,
+        zero_tile_behavior="insufficient_evidence",
+        boundary_behavior="centroid_within_zone",
+    )
+    with pytest.raises(NationalGeographyError, match="Phoenix aggregation"):
+        assemble_national_geography_package(_success(aggregation_spec=phoenix_spec))
+
+
+def test_write_internal_dir_refuses_data_areas_without_registry(tmp_path: Path) -> None:
+    record = materialize_national_geography(_success())
+    data_areas = tmp_path / "data" / "areas"
+    data_areas.mkdir(parents=True)
+    with pytest.raises(NationalGeographyError, match="public area registry"):
+        write_internal_package_dir(data_areas, record.package)
+    assert list(data_areas.iterdir()) == []
 
 
 def test_materializer_source_stays_vendor_and_phoenix_write_free() -> None:

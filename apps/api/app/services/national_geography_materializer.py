@@ -24,8 +24,9 @@ from app.domain.national_geography_package import (
     EXPECTED_ZONE_COUNT,
     FORBIDDEN_PACKAGE_KEYS,
     LEGACY_PHOENIX_AREA_ID,
+    NATIONAL_AGGREGATION_POLICY_ID,
     NATIONAL_CENSUS_SOURCE,
-    NATIONAL_CENSUS_VINTAGE_CANDIDATE,
+    NATIONAL_CENSUS_VINTAGE,
     NATIONAL_RESOLVER_POLICY_ID,
     CanonicalPlaceIdentity,
     NationalGeographyError,
@@ -34,7 +35,9 @@ from app.domain.national_geography_package import (
     NationalGeographyPackage,
     SelectionAuditMetadata,
     assert_area_id_not_legacy_phoenix,
+    assert_frozen_candidate_policy,
     assert_no_forbidden_package_keys,
+    assert_not_legacy_phoenix_policy,
     build_national_area_id,
     build_zone_definition_version,
     build_zone_geometry_version,
@@ -79,7 +82,7 @@ class ResolverSuccessInput:
     timezone: str
     selection_audit: SelectionAuditMetadata
     resolver_policy_id: str = NATIONAL_RESOLVER_POLICY_ID
-    census_vintage: str = NATIONAL_CENSUS_VINTAGE_CANDIDATE
+    census_vintage: str = NATIONAL_CENSUS_VINTAGE
     census_source: str = NATIONAL_CENSUS_SOURCE
     aggregation_spec: ThermalAggregationSpec | None = None
 
@@ -241,13 +244,15 @@ def assemble_national_geography_package(
     success: ResolverSuccessInput,
 ) -> NationalGeographyPackage:
     """Build and validate an immutable package from resolver success."""
-    if success.resolver_policy_id.strip().lower() in {
-        "phx_demo_aoi_policy_v1",
-        "phoenix-demo",
-    }:
-        raise NationalGeographyError(
-            "national materializer must not emit the legacy Phoenix policy identity"
-        )
+    assert_not_legacy_phoenix_policy(success.resolver_policy_id)
+    assert_frozen_candidate_policy(
+        resolver_policy_id=success.resolver_policy_id,
+        algorithm_id=success.selection_audit.algorithm_id,
+        seed_rule_id=success.selection_audit.seed_rule_id,
+        eligibility_rule_id=success.selection_audit.eligibility_rule_id,
+        rook_policy_id=success.selection_audit.rook_policy_id,
+        projection_crs=success.selection_audit.projection_crs,
+    )
     if len(success.zone_geoids) != EXPECTED_ZONE_COUNT:
         raise NationalGeographyError("resolver success must contain exactly 25 GEOIDs")
     if set(success.zone_geoids) != set(success.selection_audit.selection_order):
@@ -264,6 +269,15 @@ def assemble_national_geography_package(
         resolver_policy_id=success.resolver_policy_id,
     )
     spec = success.aggregation_spec or national_aggregation_spec()
+    if "phx" in spec.version.lower():
+        raise NationalGeographyError(
+            "national materializer must not emit a Phoenix aggregation identity"
+        )
+    if spec.version != NATIONAL_AGGREGATION_POLICY_ID:
+        raise NationalGeographyError(
+            "aggregation_spec.version must be "
+            f"{NATIONAL_AGGREGATION_POLICY_ID}"
+        )
     zone_definition_version = build_zone_definition_version(
         census_source=success.census_source,
         zone_type="census_tract",
@@ -375,6 +389,25 @@ def snapshot_geography_from_national(
     )
 
 
+def _is_public_areas_tree(root) -> bool:
+    from pathlib import Path
+
+    dest = Path(root)
+    try:
+        resolved = dest.resolve()
+    except OSError:
+        resolved = dest
+    parts = [part.lower() for part in resolved.parts]
+    for index in range(len(parts) - 1):
+        if parts[index] == "data" and parts[index + 1] == "areas":
+            return True
+    if resolved.name.lower() == "areas":
+        return True
+    if (resolved / "registry.json").exists() or (dest / "registry.json").exists():
+        return True
+    return False
+
+
 def write_internal_package_dir(root, package: NationalGeographyPackage) -> None:
     """Test/internal dump only. Refuses Phoenix paths and public registry writes."""
     from pathlib import Path
@@ -384,11 +417,15 @@ def write_internal_package_dir(root, package: NationalGeographyPackage) -> None:
     assert_area_id_not_legacy_phoenix(area_id)
     if area_id in RESERVED_DISK_AREA_IDS:
         raise NationalGeographyError("refusing to write a reserved legacy area_id")
-    if dest_root.name == "areas" or (dest_root / "registry.json").exists():
+    if _is_public_areas_tree(dest_root):
         raise NationalGeographyError("refusing to write into the public area registry tree")
     target = dest_root / area_id
-    if "phoenix-demo" in target.as_posix():
+    if _is_public_areas_tree(target):
+        raise NationalGeographyError("refusing to write into the public area registry tree")
+    if "phoenix-demo" in target.as_posix().lower():
         raise NationalGeographyError("refusing a path that mentions phoenix-demo")
+    if "data/areas" in target.as_posix().lower() or "data\\areas" in str(target).lower():
+        raise NationalGeographyError("refusing to write into the public area registry tree")
     target.mkdir(parents=True, exist_ok=True)
     (target / "geometry.geojson").write_bytes(
         json.dumps(
