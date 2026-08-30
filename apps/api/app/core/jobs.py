@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from app.core.job_store import (
     AnalysisJob,
+    DurableJobContract,
+    DurabilityState,
     InMemoryJobStore,
+    JobErrorClass,
     JobStore,
     JobStoreError,
 )
@@ -14,7 +17,10 @@ job_store = InMemoryJobStore()
 
 __all__ = [
     "AnalysisJob",
+    "DurableJobContract",
+    "DurabilityState",
     "InMemoryJobStore",
+    "JobErrorClass",
     "JobStatus",
     "JobStore",
     "JobStoreError",
