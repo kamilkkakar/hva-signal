@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     allowed_origins: str = "http://localhost:5173"
     cache_dir: str = ".cache/fortyguard"
     demo_allowance_enabled: bool = False
+    hva_public_two_signal: bool = False
     demo_allowance_max_total_units: int = 0
     demo_allowance_max_units_per_request: int = 1
     demo_allowance_allowed_areas: str = ""
