@@ -22,6 +22,11 @@ _SECRET_KEYS = frozenset(
         "bearer",
         "private_key",
         "client_secret",
+        "budget",
+        "activity_id",
+        "vendor_activity_id",
+        "reservation_id",
+        "reservation_state",
     }
 )
 
