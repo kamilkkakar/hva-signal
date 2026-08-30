@@ -51,15 +51,27 @@
   color: var(--muted);
 }
 
+.capability-sequence {
+  margin: 0.85rem 0 0;
+}
+
+.capability-sequence summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .capability-spine {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.35rem 0;
-  margin: 1rem 0 0;
-  padding: 0.55rem 0 0.15rem;
+  margin: 0.45rem 0 0;
+  padding: 0.35rem 0 0.15rem;
   list-style: none;
-  border-top: 1px solid var(--filament);
 }
 
 .capability-spine li {

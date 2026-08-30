@@ -59,7 +59,8 @@ export const RESTORE_LAYER_LABEL = "Restore layer";
 export const CLEAR_SELECTION_LABEL = "Clear selection";
 export const TABLE_CAPTION =
   "Zone list and table. Same records as the map. Keyboard: activate a zone button to select.";
-export const LIST_CAPTION = "Zone list. Same records as the map.";
+export const LIST_CAPTION = "Zone identifiers for this analysis window. Same records as the map.";
+export const LIST_SUMMARY = "Zone identifiers (advanced)";
 export const VALUE_KIND_LABEL: Record<"q_A" | "order" | "mean_c" | "none", string> = {
   q_A: "own-night historical index",
   order: "relative order within this analysis",

@@ -1,3 +1,4 @@
+import { PUBLIC_STATUS, publicStatusForRankingState } from "@/features/publicLanguage";
 import type { JobStatus } from "@/types";
 import { shouldContinuePolling } from "@/utils/jobPolling";
 import {
@@ -18,8 +19,8 @@ import {
 export type HappeningStamp =
   | "NOT REQUESTED"
   | "WORKING"
-  | "ORDER SHOWN"
-  | "ORDER WITHHELD"
+  | typeof PUBLIC_STATUS.SPATIAL_ORDERING_SUPPORTED
+  | typeof PUBLIC_STATUS.SPATIAL_ORDERING_WITHHELD
   | "HISTORY NOT PREPARED"
   | "JOB LOST"
   | "FAILED";
@@ -66,7 +67,11 @@ export function happeningView(input: {
     };
   }
   if (rankingState === "READY") {
-    return { stamp: "ORDER SHOWN", line: HAPPENING_ORDER_SHOWN, rankingState };
+    return {
+      stamp: publicStatusForRankingState("READY"),
+      line: HAPPENING_ORDER_SHOWN,
+      rankingState,
+    };
   }
   if (
     input.limitations.includes(THERMAL_SPATIAL_DIFFERENTIATION_INSUFFICIENT) ||
@@ -74,7 +79,7 @@ export function happeningView(input: {
     input.status === "partial"
   ) {
     return {
-      stamp: "ORDER WITHHELD",
+      stamp: publicStatusForRankingState("INSUFFICIENT_EVIDENCE"),
       line: HAPPENING_ORDER_WITHHELD,
       rankingState,
     };

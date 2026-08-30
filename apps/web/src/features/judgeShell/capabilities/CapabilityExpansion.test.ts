@@ -42,6 +42,11 @@ describe("CapabilityExpansion", () => {
     expect(html).toContain(PLACE_SEARCH_MATURITY);
     expect(html).toContain(HOSTED_LIVE_MATURITY);
     expect(html).toContain("We do not score this yet");
+    expect(html).toContain("Research sequence — not live product modes");
+    expect(html).toMatch(
+      /<details class="capability-sequence"[^>]*>[\s\S]*<ol class="capability-spine"/,
+    );
+    expect(html).not.toMatch(/<details[^>]*\sopen[\s>]/);
   });
 
   it("does not render gauges, meters, or numeric HeatDose/WBGT/probability values", () => {

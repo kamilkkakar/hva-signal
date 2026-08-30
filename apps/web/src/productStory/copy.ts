@@ -18,7 +18,8 @@ export const HEADLINE_IDLE = "No night submitted";
 export const HEADLINE_AWAITING = "Replay is running. No order is shown yet.";
 export const HEADLINE_FAILED = "Analysis failed closed";
 export const HEADLINE_HISTORY = "Historical reference is not prepared";
-export const HEADLINE_COMPARABLE = "Nighttime heat order is shown";
+export const HEADLINE_COMPARABLE =
+  "Spatial differences are clear enough to compare";
 export const HEADLINE_TOO_SIMILAR =
   "Nighttime patterns are too similar to rank defensibly";
 export const HEADLINE_NOT_EVALUATED = "Spatial ordering was not evaluated";
@@ -159,7 +160,7 @@ export function formatAreaLabel(areaId: string | null | undefined): string {
     return AREA_GENERIC_SUFFIX;
   }
   if (areaId === "phoenix-demo") {
-    return `phoenix-demo — ${AREA_WINDOW_SUFFIX}`;
+    return `Phoenix demonstration area — ${AREA_WINDOW_SUFFIX}`;
   }
   return `${areaId} — ${AREA_GENERIC_SUFFIX}`;
 }

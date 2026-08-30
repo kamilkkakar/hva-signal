@@ -31,7 +31,7 @@ function visibleText(html: string): string {
 }
 
 describe("HappeningBand assistive stamp", () => {
-  it("announces ORDER WITHHELD after a flat night, not the ranking enum", () => {
+  it("announces SPATIAL ORDERING WITHHELD after a flat night, not the ranking enum", () => {
     const html = markup(
       happeningView({
         status: "complete",
@@ -43,13 +43,14 @@ describe("HappeningBand assistive stamp", () => {
     );
     expect(html).toContain('data-testid="happening-stamp"');
     expect(html).toContain('data-ranking-state="INSUFFICIENT_EVIDENCE"');
-    expect(evidenceStateText(html)).toBe("ORDER WITHHELD");
-    expect(visibleText(html)).toContain("ORDER WITHHELD");
+    expect(evidenceStateText(html)).toBe("SPATIAL ORDERING WITHHELD");
+    expect(visibleText(html)).toContain("SPATIAL ORDERING WITHHELD");
+    expect(visibleText(html)).not.toContain("ORDER WITHHELD");
     expect(visibleText(html)).not.toContain("INSUFFICIENT_EVIDENCE");
     expect(visibleText(html)).not.toContain("INSUFFICIENT EVIDENCE");
   });
 
-  it("announces ORDER SHOWN when ranking is ready", () => {
+  it("announces SPATIAL ORDERING SUPPORTED when ranking is ready", () => {
     const html = markup(
       happeningView({
         status: "complete",
@@ -59,7 +60,8 @@ describe("HappeningBand assistive stamp", () => {
         limitations: [],
       }),
     );
-    expect(evidenceStateText(html)).toBe("ORDER SHOWN");
+    expect(evidenceStateText(html)).toBe("SPATIAL ORDERING SUPPORTED");
+    expect(visibleText(html)).not.toContain("ORDER SHOWN");
     expect(visibleText(html)).not.toContain("READY");
   });
 

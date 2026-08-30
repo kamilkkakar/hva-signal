@@ -18,7 +18,7 @@ describe("happening stamps", () => {
     expect(view.line.toLowerCase()).not.toContain("insufficient_evidence");
   });
 
-  it("stamps ORDER SHOWN when ranking is ready", () => {
+  it("stamps SPATIAL ORDERING SUPPORTED when ranking is ready", () => {
     const view = happeningView({
       status: "complete",
       busy: false,
@@ -26,10 +26,10 @@ describe("happening stamps", () => {
       rankingState: "READY",
       limitations: [],
     });
-    expect(view.stamp).toBe("ORDER SHOWN");
+    expect(view.stamp).toBe("SPATIAL ORDERING SUPPORTED");
   });
 
-  it("stamps ORDER WITHHELD on a flat night", () => {
+  it("stamps SPATIAL ORDERING WITHHELD on a flat night", () => {
     const view = happeningView({
       status: "complete",
       busy: false,
@@ -37,7 +37,7 @@ describe("happening stamps", () => {
       rankingState: "INSUFFICIENT_EVIDENCE",
       limitations: [THERMAL_SPATIAL_DIFFERENTIATION_INSUFFICIENT],
     });
-    expect(view.stamp).toBe("ORDER WITHHELD");
+    expect(view.stamp).toBe("SPATIAL ORDERING WITHHELD");
   });
 
   it("stamps HISTORY NOT PREPARED when reference is missing", () => {

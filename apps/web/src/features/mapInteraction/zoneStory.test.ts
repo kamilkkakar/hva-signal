@@ -60,7 +60,7 @@ describe("zone story", () => {
     const geoid = catalog.zones[0]?.geoid ?? "";
     let state = reduceInteraction(initialInteractionState(), { type: "hover", geoid }, catalog);
     const hover = hoverFromState(state, catalog);
-    expect(hover?.line).toBe(`Zone ${geoid} · Own 03:00 position`);
+    expect(hover?.line).toBe(`${catalog.zones[0]?.label} · Own 03:00 position`);
     expect(hover?.line).not.toMatch(/q_A|0\.2000/);
     expect(detailFromState(state, catalog)).toBeNull();
 

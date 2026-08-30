@@ -78,7 +78,7 @@ describe("presentAnalysisStory", () => {
 
     expect(view.comparison_state).toBe("comparable");
     expect(view.comparison_explanation).toBe(COMPARISON_SUFFICIENT);
-    expect(view.headline).toBe("Nighttime heat order is shown");
+    expect(view.headline).toBe("Spatial differences are clear enough to compare");
     expect(view.map_mode).toBe("order_shown");
     expect(view.zone_count).toBe(STORY_ZONE_COUNT);
     expect(view.zone_story.ranked_fill_count).toBe(25);
@@ -236,7 +236,9 @@ describe("presentAnalysisStory", () => {
       true,
     );
     expect(publicBlob(view)).not.toMatch(/°C/);
+    expect(view.analysis_area_label).toContain("Phoenix demonstration area");
     expect(view.analysis_area_label).toContain("not the municipality");
+    expect(view.analysis_area_label).not.toContain("phoenix-demo");
   });
 
   it("leaves method notes in technical details only", () => {

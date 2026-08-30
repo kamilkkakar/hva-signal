@@ -37,7 +37,7 @@ describe("signalAInputFromResult", () => {
       }),
     );
     expect(shown.kind).toBe("order_shown");
-    expect(shown.stamp).toBe("ORDER SHOWN");
+    expect(shown.stamp).toBe("SPATIAL ORDERING SUPPORTED");
     expect(shown.hoverLine).toContain("order 2 of 25");
     expect(shown.method.q_A).toContain("q_A");
     const shownChrome = judgeChromeStrings(shown).join("\n");
