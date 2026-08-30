@@ -1,6 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AnalysisResultStub } from "@/api/analysisJobs";
 import { createGeometryLoader } from "@/api/areaGeometry";
+import {
+  MapModeTabs,
+  bindMapModeCatalog,
+  contextFillCount,
+  type MapMode,
+  type ZoneMapProperties,
+} from "@/features/areaContext";
 import {
   catalogFromHistorical,
   rankedFillCount,
@@ -20,6 +27,10 @@ type MapBandProps = {
   result: AnalysisResultStub | null;
   submitting: boolean;
   analysisTime?: string | null;
+  mapMode?: MapMode;
+  onMapModeChange?: (mode: MapMode) => void;
+  contextZones?: ZoneMapProperties[];
+  selectedZoneId?: string | null;
   onSelectedIdChange?: (geoid: string | null) => void;
 };
 
@@ -47,6 +58,7 @@ function exploreMapState(input: {
 
 export function MapBand(props: MapBandProps) {
   const [catalog, setCatalog] = useState<InteractionCatalog | null>(null);
+  const mapMode = props.mapMode ?? "THERMAL";
 
   useEffect(() => {
     const areaId = props.areaId;
@@ -103,10 +115,20 @@ export function MapBand(props: MapBandProps) {
     props.result,
   ]);
 
+  const modeCatalog = useMemo(
+    () =>
+      bindMapModeCatalog({
+        historical: catalog,
+        mode: mapMode,
+        zones: props.contextZones ?? [],
+      }),
+    [catalog, mapMode, props.contextZones],
+  );
+
   const mapState = exploreMapState({
     submitting: props.submitting,
     jobStatus: props.jobStatus,
-    catalog,
+    catalog: modeCatalog,
     rankingState: props.ranking.state,
   });
 
@@ -117,18 +139,24 @@ export function MapBand(props: MapBandProps) {
       data-testid="map-stage"
       data-layout="map-primary"
       data-map-state={mapState}
-      data-ranked-feature-count={String(rankedFillCount(catalog))}
-      data-geometry-feature-count={String(catalog?.collection.features.length ?? 0)}
-      data-map-source-count={String(catalog?.collection.features.length ?? 0)}
-      data-layer-label={props.layer.label}
+      data-map-mode={mapMode}
+      data-ranked-feature-count={String(rankedFillCount(modeCatalog))}
+      data-context-fill-count={String(contextFillCount(modeCatalog))}
+      data-geometry-feature-count={String(modeCatalog?.collection.features.length ?? 0)}
+      data-map-source-count={String(modeCatalog?.collection.features.length ?? 0)}
+      data-layer-label={modeCatalog?.layer_title ?? props.layer.label}
     >
       <p className="judge-sr" data-testid="map-layer-label">
-        {props.layer.label}
+        {modeCatalog?.layer_title ?? props.layer.label}
       </p>
+      {props.onMapModeChange ? (
+        <MapModeTabs mode={mapMode} onModeChange={props.onMapModeChange} />
+      ) : null}
       <JudgeMap
         lane="A"
-        historical={catalog}
+        historical={modeCatalog}
         enabled
+        selectedId={props.selectedZoneId ?? null}
         onSelectedIdChange={props.onSelectedIdChange}
       />
     </section>

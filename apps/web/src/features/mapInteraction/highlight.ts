@@ -1,4 +1,5 @@
 import {
+  contextQuantityFillPaint,
   signalAFillPaint,
   signalAHatchPaint,
   signalALinePaint,
@@ -39,11 +40,27 @@ function maxAuthorizedOrder(catalog: InteractionCatalog): number {
  * Authorized fills use RESCUE-E historical-position tokens.
  * Insufficient / unauthorized stays outline-only (opacity 0).
  */
+function contextRange(catalog: InteractionCatalog): { min: number; max: number } {
+  const values = catalog.collection.features
+    .map((feature) => feature.properties.context_fill_value)
+    .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  if (values.length === 0) {
+    return { min: 0, max: 1 };
+  }
+  return { min: Math.min(...values), max: Math.max(...values) };
+}
+
 export function highlightFillPaint(
   catalog: InteractionCatalog | null,
   state: InteractionState,
 ): InteractionFillPaint {
-  const authorized = Boolean(state.layerActive && catalog?.fill_authorized);
+  if (catalog?.fill_kind === "context_quantity" && state.layerActive) {
+    const { min, max } = contextRange(catalog);
+    return contextQuantityFillPaint(min, max);
+  }
+  const authorized = Boolean(
+    state.layerActive && catalog?.fill_authorized && catalog.fill_kind !== "context_quantity",
+  );
   return signalAFillPaint({
     authorized,
     maxOrder: catalog ? maxAuthorizedOrder(catalog) : 25,
@@ -55,6 +72,9 @@ export function highlightHatchPaint(
   catalog: InteractionCatalog | null,
   state: InteractionState,
 ): SignalAHatchPaint {
+  if (catalog?.fill_kind === "context_quantity") {
+    return signalAHatchPaint({ authorized: false, maxOrder: 25 });
+  }
   const authorized = Boolean(state.layerActive && catalog?.fill_authorized);
   return signalAHatchPaint({
     authorized,

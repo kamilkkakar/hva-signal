@@ -51,6 +51,8 @@ export function reduceInteraction(
         hoverId: null,
         fitGeneration: state.fitGeneration + 1,
       };
+    case "set_selected":
+      return { ...state, selectedId: event.geoid };
     default: {
       const _never: never = event;
       return _never;

@@ -5,10 +5,16 @@ import type { AreaContextListRow } from "./present";
 export type AreaContextListProps = {
   rows: AreaContextListRow[];
   mode: MapMode;
+  selectedZoneId?: string | null;
   onSelectTract?: (tractId: string) => void;
 };
 
-export function AreaContextList({ rows, mode, onSelectTract }: AreaContextListProps) {
+export function AreaContextList({
+  rows,
+  mode,
+  selectedZoneId = null,
+  onSelectTract,
+}: AreaContextListProps) {
   return (
     <section
       className="area-context-list"
@@ -20,6 +26,7 @@ export function AreaContextList({ rows, mode, onSelectTract }: AreaContextListPr
         <caption>{MAP_MODE_LABEL[mode]} values for each analysis area</caption>
         <thead>
           <tr>
+            <th>Analysis area</th>
             <th>Census tract</th>
             <th>Tree canopy</th>
             <th>Income</th>
@@ -28,31 +35,39 @@ export function AreaContextList({ rows, mode, onSelectTract }: AreaContextListPr
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
-            <tr key={row.tractId}>
-              <td>
-                {onSelectTract ? (
-                  <button type="button" onClick={() => onSelectTract(row.tractId)}>
-                    {row.tractId}
-                  </button>
-                ) : (
-                  row.tractId
-                )}
-              </td>
-              <td>{row.canopy == null ? "—" : `${Math.round(row.canopy * 100)}%`}</td>
-              <td>
-                {row.income == null
-                  ? "—"
-                  : `$${Math.round(row.income).toLocaleString("en-US")}`}
-              </td>
-              <td>
-                {row.olderHousing == null
-                  ? "—"
-                  : `${Math.round(row.olderHousing * 100)}%`}
-              </td>
-              <td>{row.coolingStatus}</td>
-            </tr>
-          ))}
+          {rows.map((row) => {
+            const selected = selectedZoneId === row.tractId;
+            return (
+              <tr key={row.tractId} data-selected={selected ? "true" : "false"}>
+                <td>
+                  {onSelectTract ? (
+                    <button
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => onSelectTract(row.tractId)}
+                    >
+                      {row.areaLabel}
+                    </button>
+                  ) : (
+                    row.areaLabel
+                  )}
+                </td>
+                <td>{row.tractId}</td>
+                <td>{row.canopy == null ? "—" : `${Math.round(row.canopy * 100)}%`}</td>
+                <td>
+                  {row.income == null
+                    ? "—"
+                    : `$${Math.round(row.income).toLocaleString("en-US")}`}
+                </td>
+                <td>
+                  {row.olderHousing == null
+                    ? "—"
+                    : `${Math.round(row.olderHousing * 100)}%`}
+                </td>
+                <td>{row.coolingStatus}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </section>

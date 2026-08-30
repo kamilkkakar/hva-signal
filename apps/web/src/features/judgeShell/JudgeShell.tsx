@@ -9,7 +9,7 @@ import { happeningView } from "./happening";
 import { HappeningBand } from "./HappeningBand";
 import { HeroHeader } from "./HeroHeader";
 import { judgeMapLayer } from "./layer";
-import { AreaContextBand } from "@/features/areaContext";
+import { AreaContextBand, type MapMode, type ZoneMapProperties } from "@/features/areaContext";
 import { MapBand } from "./MapBand";
 import { ProvenanceBand } from "./ProvenanceBand";
 import { ResultStoryBand } from "./ResultStoryBand";
@@ -86,6 +86,8 @@ export function JudgeShell() {
   );
   const showRecovery = snapshot?.status === "unknown_job" || stalled;
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const [mapMode, setMapMode] = useState<MapMode>("THERMAL");
+  const [contextZones, setContextZones] = useState<ZoneMapProperties[]>([]);
 
   useEffect(() => {
     setSelectedZoneId(null);
@@ -117,6 +119,10 @@ export function JudgeShell() {
           result={snapshot?.result ?? null}
           submitting={submitting}
           analysisTime={lastRequest?.analysis_time ?? snapshot?.request?.analysis_time}
+          mapMode={mapMode}
+          onMapModeChange={setMapMode}
+          contextZones={contextZones}
+          selectedZoneId={selectedZoneId}
           onSelectedIdChange={setSelectedZoneId}
         />
         <RunBand />
@@ -143,7 +149,9 @@ export function JudgeShell() {
         areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? "phoenix-demo"}
         selectedZoneId={selectedZoneId}
         result={snapshot?.result ?? null}
+        mapMode={mapMode}
         onSelectTract={setSelectedZoneId}
+        onContextZones={setContextZones}
       />
       <SupportsBand status={snapshot?.status ?? null} result={snapshot?.result ?? null} />
       <CapabilityBand />

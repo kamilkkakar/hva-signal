@@ -23,6 +23,7 @@ export function emptyCatalog(
     time_label: extras.time_label ?? "—",
     source_label: extras.source_label ?? "UNAVAILABLE",
     fill_authorized: false,
+    fill_kind: "none",
     zones: [],
     collection: EMPTY_COLLECTION,
   };
@@ -35,6 +36,7 @@ export function buildCatalog(input: {
   time_label: string;
   source_label: ProductSourceLabel;
   fill_authorized: boolean;
+  fill_kind?: import("./types").CatalogFillKind;
   layer_title?: string;
   meaning?: string;
 }): InteractionCatalog {
@@ -50,6 +52,7 @@ export function buildCatalog(input: {
     time_label: input.time_label,
     source_label: input.source_label,
     fill_authorized: input.fill_authorized,
+    fill_kind: input.fill_kind ?? (input.fill_authorized ? "thermal_order" : "none"),
     zones,
     collection,
   };

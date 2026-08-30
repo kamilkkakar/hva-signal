@@ -9,6 +9,7 @@ export type JudgeMapProps = {
   historical: InteractionCatalog | null;
   snapshot?: InteractionCatalog | null;
   enabled?: boolean;
+  selectedId?: string | null;
   onSelectedIdChange?: (geoid: string | null) => void;
 };
 
@@ -21,6 +22,7 @@ export function JudgeMap({
   historical,
   snapshot = null,
   enabled,
+  selectedId = null,
   onSelectedIdChange,
 }: JudgeMapProps) {
   const catalog = bindExclusiveMapLayer({
@@ -32,6 +34,7 @@ export function JudgeMap({
     <MapInteractionStage
       enabled={enabled}
       catalog={catalog}
+      selectedId={selectedId}
       onSelectedIdChange={onSelectedIdChange}
     />
   );

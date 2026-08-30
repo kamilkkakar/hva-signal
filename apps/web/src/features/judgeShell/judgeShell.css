@@ -395,3 +395,12 @@
     animation: none;
   }
 }
+
+.judge-map-modes {
+  padding: 0.45rem 0.7rem 0;
+}
+
+.judge-map-legend {
+  margin: 0.35rem 0 0.55rem;
+  font-size: 0.85rem;
+}

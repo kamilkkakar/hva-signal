@@ -120,3 +120,31 @@ export function signalAHaloPaint(authorized: boolean): SignalALinePaint {
     "line-opacity": authorized ? 1 : 0,
   };
 }
+
+
+export const CONTEXT_FILL_PROPERTY = "context_fill_value";
+
+export function contextQuantityFillPaint(min: number, max: number): {
+  "fill-color": unknown;
+  "fill-opacity": unknown;
+} {
+  const lo = Math.min(min, max);
+  const hi = Math.max(min, max);
+  const top = hi === lo ? lo + 1 : hi;
+  const low = SIGNAL_A_POS_STOPS[0] ?? SIGNAL_A_INSUFFICIENT_FILL;
+  const high = SIGNAL_A_POS_STOPS[SIGNAL_A_POS_STOPS.length - 1] ?? low;
+  return {
+    "fill-color": [
+      "case",
+      ["==", ["typeof", ["get", CONTEXT_FILL_PROPERTY]], "number"],
+      ["interpolate", ["linear"], ["get", CONTEXT_FILL_PROPERTY], lo, low, top, high],
+      SIGNAL_A_INSUFFICIENT_FILL,
+    ],
+    "fill-opacity": [
+      "case",
+      ["==", ["typeof", ["get", CONTEXT_FILL_PROPERTY]], "number"],
+      SIGNAL_A_FILL_OPACITY,
+      0,
+    ],
+  };
+}

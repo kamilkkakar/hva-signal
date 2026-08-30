@@ -25,6 +25,8 @@ export {
   signalAHaloPaint,
   signalAColorStops,
   signalAHatchSteps,
+  contextQuantityFillPaint,
+  CONTEXT_FILL_PROPERTY,
 } from "./paint";
 export type { SignalAHatchPaint, SignalAFillPaint, SignalALinePaint } from "./paint";
 export { hatchImage, allHatchImages, hatchImageId } from "./hatch";

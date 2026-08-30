@@ -5,6 +5,7 @@ import {
   SCORE_REFUSAL,
   VERIFY_QUESTION,
 } from "./copy";
+import { analysisAreaLabel, analysisAreaNumber } from "@/features/selectedAreaStory/identity";
 import type { AnalysisAreaContextView, AreaContextDocument, MapMode } from "./types";
 
 export type AreaContextPanelView = {
@@ -24,6 +25,8 @@ export type AreaContextPanelView = {
 
 export type AreaContextListRow = {
   tractId: string;
+  areaNumber: number | null;
+  areaLabel: string;
   canopy: number | null;
   income: number | null;
   olderHousing: number | null;
@@ -56,6 +59,8 @@ export function presentSelectedArea(
 export function presentList(document: AreaContextDocument): AreaContextListRow[] {
   return document.zones.map((zone) => ({
     tractId: zone.census_tract_geoid,
+    areaNumber: analysisAreaNumber(zone.census_tract_geoid),
+    areaLabel: analysisAreaLabel(zone.census_tract_geoid) ?? zone.census_tract_geoid,
     canopy: zone.canopy_comparison_allowed ? zone.canopy_cover_share : null,
     income: zone.income_comparison_allowed ? zone.median_household_income : null,
     olderHousing: zone.older_housing_comparison_allowed

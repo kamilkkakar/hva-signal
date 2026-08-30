@@ -26,6 +26,7 @@ const EMPTY_COLLECTION = {
 export type MapInteractionStageProps = {
   enabled?: boolean;
   catalog: InteractionCatalog | null;
+  selectedId?: string | null;
   onSelectedIdChange?: (geoid: string | null) => void;
 };
 
@@ -144,6 +145,7 @@ function fitCatalog(map: maplibregl.Map, catalog: InteractionCatalog | null): vo
 export function MapInteractionStage({
   enabled,
   catalog,
+  selectedId = null,
   onSelectedIdChange,
 }: MapInteractionStageProps) {
   const gatedOn = mapInteractionIsEnabled(enabled);
@@ -169,6 +171,10 @@ export function MapInteractionStage({
   useEffect(() => {
     onSelectedIdChange?.(selectedOut);
   }, [onSelectedIdChange, selectedOut]);
+
+  useEffect(() => {
+    dispatch({ type: "set_selected", geoid: selectedId });
+  }, [selectedId]);
 
   useEffect(() => {
     if (!gatedOn || !view.canvasAllowed) {
@@ -303,7 +309,7 @@ export function MapInteractionStage({
         <>
           {view.canvasAllowed ? (
             <div className="mapi-stage">
-              <div ref={containerRef} className="mapi-canvas" data-testid="map-interaction-canvas" />
+              <div ref={containerRef} id="judge-map-canvas" className="mapi-canvas" data-testid="map-interaction-canvas" />
               <div className="mapi-overlay">
                 <p className="mapi-label" data-testid="map-interaction-layer-label">
                   {view.layerTitle}

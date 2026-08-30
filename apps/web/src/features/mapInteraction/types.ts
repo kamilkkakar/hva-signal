@@ -6,6 +6,8 @@ export type MapLayerKind =
   | "historical_ordering"
   | "selected_time_snapshot";
 
+export type CatalogFillKind = "thermal_order" | "context_quantity" | "none";
+
 export type InteractionValueKind = "q_A" | "order" | "mean_c" | "none";
 
 export type ProductSourceLabel =
@@ -52,6 +54,7 @@ export type InteractionCatalog = {
   time_label: string;
   source_label: ProductSourceLabel;
   fill_authorized: boolean;
+  fill_kind: CatalogFillKind;
   zones: InteractionZone[];
   collection: InteractionCollection;
 };
@@ -70,7 +73,8 @@ export type InteractionEvent =
   | { type: "clear_layer" }
   | { type: "restore_layer" }
   | { type: "fit_aoi" }
-  | { type: "reset_aoi" };
+  | { type: "reset_aoi" }
+  | { type: "set_selected"; geoid: string | null };
 
 export type HoverCard = {
   geoid: string;
