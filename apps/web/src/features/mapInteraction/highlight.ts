@@ -1,6 +1,8 @@
 import {
   signalAFillPaint,
+  signalAHatchPaint,
   signalALinePaint,
+  type SignalAHatchPaint,
 } from "@/features/mapEncoding";
 import {
   INTERACTION_HOVER_LINE,
@@ -43,6 +45,18 @@ export function highlightFillPaint(
 ): InteractionFillPaint {
   const authorized = Boolean(state.layerActive && catalog?.fill_authorized);
   return signalAFillPaint({
+    authorized,
+    maxOrder: catalog ? maxAuthorizedOrder(catalog) : 25,
+  });
+}
+
+/** JudgeMap hatch. Same C2b density steps as MapStage — this host is the mounted map. */
+export function highlightHatchPaint(
+  catalog: InteractionCatalog | null,
+  state: InteractionState,
+): SignalAHatchPaint {
+  const authorized = Boolean(state.layerActive && catalog?.fill_authorized);
+  return signalAHatchPaint({
     authorized,
     maxOrder: catalog ? maxAuthorizedOrder(catalog) : 25,
   });

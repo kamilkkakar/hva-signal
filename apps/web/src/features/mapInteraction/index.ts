@@ -7,7 +7,12 @@ export { catalogFromSnapshot } from "./fromSnapshot";
 export { legendFromCatalog } from "./legend";
 export { detailFromState, hoverFromState } from "./detail";
 export { tableFromCatalog } from "./table";
-export { highlightFillPaint, highlightLinePaint, featureStatePatch } from "./highlight";
+export {
+  highlightFillPaint,
+  highlightHatchPaint,
+  highlightLinePaint,
+  featureStatePatch,
+} from "./highlight";
 export { featureCollectionBounds } from "./bounds";
 export {
   productSourceLabel,

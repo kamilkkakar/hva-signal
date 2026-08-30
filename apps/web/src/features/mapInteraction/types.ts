@@ -125,6 +125,7 @@ export type MapInteractionView = {
   canvasAllowed: boolean;
   layerTitle: string;
   meaningCopy: string;
+  positionLegendMode: "sufficient" | "insufficient" | "idle" | "loading" | "error" | null;
   legend: LegendItem[];
   hover: HoverCard | null;
   detail: ZoneDetail | null;

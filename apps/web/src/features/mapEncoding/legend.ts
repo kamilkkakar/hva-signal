@@ -85,6 +85,24 @@ export function historicalPositionLegend(
   };
 }
 
+/** JudgeMap host. Snapshot B keeps its own chrome. A uses the sequential legend. */
+export function legendModeFromInteraction(input: {
+  kind: string | null | undefined;
+  fillAuthorized: boolean;
+  layerActive: boolean;
+}): LegendMode | null {
+  if (input.kind !== "historical_ordering" && input.kind !== "aoi_outline") {
+    return null;
+  }
+  if (!input.layerActive) {
+    return "idle";
+  }
+  if (input.kind === "historical_ordering" && input.fillAuthorized) {
+    return "sufficient";
+  }
+  return "insufficient";
+}
+
 export function legendModeFromMap(input: {
   visualState: "idle" | "loading" | "insufficient" | "sufficient" | "error";
   thermalOrderingVisible: boolean;

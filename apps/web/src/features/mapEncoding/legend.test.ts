@@ -2,7 +2,11 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { historicalPositionLegend, legendModeFromMap } from "./legend";
+import {
+  historicalPositionLegend,
+  legendModeFromInteraction,
+  legendModeFromMap,
+} from "./legend";
 import { FORBIDDEN_LEGEND_PHRASES, SIGNAL_A_POS_STOPS } from "./tokens";
 
 describe("historical position legend", () => {
@@ -24,6 +28,31 @@ describe("historical position legend", () => {
     expect(view.outlineSwatch).toBe("#4e5748");
     expect(view.denial).toMatch(/not shown/i);
     expect(view.denial).toMatch(/no ranking colors/i);
+  });
+
+  it("maps JudgeMap catalogs onto sufficient vs withheld without a one-swatch mode", () => {
+    expect(
+      legendModeFromInteraction({
+        kind: "historical_ordering",
+        fillAuthorized: true,
+        layerActive: true,
+      }),
+    ).toBe("sufficient");
+    expect(
+      legendModeFromInteraction({
+        kind: "aoi_outline",
+        fillAuthorized: false,
+        layerActive: true,
+      }),
+    ).toBe("insufficient");
+    expect(
+      legendModeFromInteraction({
+        kind: "selected_time_snapshot",
+        fillAuthorized: true,
+        layerActive: true,
+      }),
+    ).toBeNull();
+    expect(historicalPositionLegend("sufficient").stops.length).toBeGreaterThan(1);
   });
 
   it("maps map visual state without showing a ramp on idle or error", () => {

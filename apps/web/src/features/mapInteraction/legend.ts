@@ -68,19 +68,9 @@ export function legendFromCatalog(
       },
     ];
   }
-  return [
-    {
-      id: "authorized",
-      label: "Own-night 03:00 position",
-      meaning:
-        "Each zone versus its own historical 03:00 record. Color encoding is the legend scale. This is not a treatment list.",
-      swatch: INTERACTION_SHARED_FILL,
-    },
-    {
-      id: "excluded",
-      label: "Not in this pattern",
-      meaning: "Outline only. Absence is not a cool or safe class.",
-      swatch: null,
-    },
-  ];
+  /**
+   * Authorized A: sequential scale lives on HistoricalPositionLegend.
+   * Do not emit one shared sage swatch or "the encoding is the legend."
+   */
+  return [];
 }
