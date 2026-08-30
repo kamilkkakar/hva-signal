@@ -80,8 +80,11 @@ export function QueryRail() {
           />
         </label>
         <p className="copilot-note">
-          Phoenix 03:00 AOI-local historical replay. Not live. Not the 2025
-          paid target.
+          phoenix-demo 03:00 AOI-local historical replay. Not live. Not
+          current conditions. Not the 2025 paid target. Not Census-place
+          national Phoenix, AZ. Granularity is request tile size, not
+          100 m targeting. Operational (0–12h) is not a forecast. Live
+          does not authorize spend.
         </p>
         <label>
           Mode
@@ -156,7 +159,7 @@ export function QueryRail() {
         <textarea
           disabled
           rows={3}
-          placeholder="Ask why a zone ranks, or hold a scenario."
+          placeholder="Copilot is locked."
           aria-label="Copilot query"
         />
         <p className="copilot-note">
