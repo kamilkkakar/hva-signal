@@ -27,7 +27,8 @@ from app.domain.signals import (
     SignalProvenance,
     ThermalSignalKind,
 )
-from app.services.snapshot_identity import require_requested_hour
+from app.services.aoi_timezone import AoiLocalTimeError
+from app.services.snapshot_identity import require_dst_safe_requested_hour
 from app.services.zone_aggregator import aggregate_tiles_to_zones
 
 CENTROID_WITHIN_MEAN = "centroid_within_mean"
@@ -129,7 +130,10 @@ def process_selected_time_snapshot(
     vendor_request_fingerprint: str | None = None,
 ) -> SelectedTimeSnapshot:
     """Aggregate mapped TCM tiles to zone-mean °C. Missing zones stay unknown."""
-    target = require_requested_hour(target_timestamp)
+    try:
+        target = require_dst_safe_requested_hour(target_timestamp, geography.timezone)
+    except AoiLocalTimeError as exc:
+        raise SnapshotProcessorError(str(exc)) from exc
     _require_centroid_within_mean(geography.aggregation_spec)
     if geography.expected_zone_count != len(geography.zone_geoids):
         raise SnapshotProcessorError("geography zone count is inconsistent")

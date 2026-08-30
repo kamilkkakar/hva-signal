@@ -18,6 +18,7 @@ from app.services.national_tract_selection import (
     TractSelectionError,
     rook_adjacency,
 )
+from app.services.aoi_timezone import PHOENIX_IANA, TimezoneFailureCode
 from app.services.place_geography_resolver import (
     CensusPlaceGeometry,
     CensusTractRecord,
@@ -65,8 +66,15 @@ def _grid_tracts(
     return tracts
 
 
-def _metric_policy() -> ResolverPolicy:
-    return ResolverPolicy(geometries_are_analysis_crs=True)
+def _const_tz(name: str = "America/Chicago"):
+    return lambda lon, lat: name
+
+
+def _metric_policy(*, timezone: str = "America/Chicago") -> ResolverPolicy:
+    return ResolverPolicy(
+        geometries_are_analysis_crs=True,
+        timezone_lookup=_const_tz(timezone),
+    )
 
 
 def test_resolve_place_geography_signature_is_locked() -> None:
@@ -104,6 +112,7 @@ def test_supported_place_returns_25_unique_and_one_rook_component() -> None:
     assert outcome.area_id.lower() != "phoenix-demo"
     assert outcome.rook_connected is True
     assert outcome.projection_crs == "EPSG:5070"
+    assert outcome.timezone == "America/Chicago"
     graph = rook_adjacency(
         [
             TractInput(
@@ -224,12 +233,17 @@ def test_precomputed_rook_graph_is_accepted() -> None:
         for item in tracts
     ]
     graph = rook_adjacency(inputs)
-    policy = ResolverPolicy(geometries_are_analysis_crs=True, rook_graph=graph)
+    policy = ResolverPolicy(
+        geometries_are_analysis_crs=True,
+        rook_graph=graph,
+        timezone_lookup=_const_tz(),
+    )
     place = CensusPlaceGeometry(box(-0.1, -0.1, 6.1, 6.1), 3.0, 3.0)
     first = resolve_place_geography("1714000", place, tracts, policy)
     flipped = ResolverPolicy(
         geometries_are_analysis_crs=True,
         rook_graph={k: list(reversed(list(v))) for k, v in graph.items()},
+        timezone_lookup=_const_tz(),
     )
     second = resolve_place_geography("1714000", place, list(reversed(tracts)), flipped)
     assert isinstance(first, PlaceGeographySuccess)
@@ -286,6 +300,7 @@ def test_national_phoenix_place_is_not_phoenix_demo() -> None:
     assert outcome.area_id == "us-place-0455000-2025-national-place-geography-v1"
     assert outcome.area_id != "phoenix-demo"
     assert "phoenix-demo" not in outcome.geoids
+    assert outcome.timezone == "America/Chicago"
 
 
 def test_build_national_area_id_never_equals_phoenix_demo() -> None:
@@ -355,9 +370,10 @@ def test_official_intpt_is_source_crs_and_growth_uses_supplied_5070_geoms() -> N
         "0455000",
         place,
         [*tracts, outsider],
-        ResolverPolicy(),
+        ResolverPolicy(timezone_lookup=_const_tz(PHOENIX_IANA)),
     )
     assert isinstance(outcome, PlaceGeographySuccess)
+    assert outcome.timezone == PHOENIX_IANA
     assert len(outcome.geoids) == TARGET_ZONE_COUNT
     assert outcome.rook_connected is True
     assert "04999999999" not in outcome.geoids
@@ -391,3 +407,80 @@ def test_module_does_not_import_forbidden_surfaces() -> None:
                 imported.add(node.module.split(".")[-1].lower())
                 imported.update(alias.name.lower() for alias in node.names)
         assert forbidden.isdisjoint(imported)
+
+
+def test_unanimous_lookup_embeds_iana_on_success() -> None:
+    tracts = _grid_tracts(6, 6)
+    place = CensusPlaceGeometry(box(-0.1, -0.1, 6.1, 6.1), 3.0, 3.0)
+    outcome = resolve_place_geography(
+        "1714000",
+        place,
+        tracts,
+        _metric_policy(timezone="America/New_York"),
+    )
+    assert isinstance(outcome, PlaceGeographySuccess)
+    assert outcome.timezone == "America/New_York"
+    assert outcome.details["timezone_policy_version"] == "HVA_AOI_TIMEZONE_POLICY_V1_CANDIDATE"
+
+
+def test_missing_timezone_lookup_fails_closed() -> None:
+    tracts = _grid_tracts(6, 6)
+    place = CensusPlaceGeometry(box(-0.1, -0.1, 6.1, 6.1), 3.0, 3.0)
+    outcome = resolve_place_geography(
+        "1714000",
+        place,
+        tracts,
+        ResolverPolicy(geometries_are_analysis_crs=True),
+    )
+    assert isinstance(outcome, PlaceGeographyUnsupported)
+    assert outcome.reason_code == TimezoneFailureCode.TIMEZONE_NOT_FOUND
+    assert outcome.supported is False
+
+
+def test_one_point_miss_is_timezone_not_found() -> None:
+    tracts = _grid_tracts(6, 6)
+    place = CensusPlaceGeometry(box(-0.1, -0.1, 6.1, 6.1), 3.0, 3.0)
+
+    def lookup(lon: float, lat: float) -> str | None:
+        return None if lon >= 3.0 else "America/Chicago"
+
+    outcome = resolve_place_geography(
+        "1714000",
+        place,
+        tracts,
+        ResolverPolicy(geometries_are_analysis_crs=True, timezone_lookup=lookup),
+    )
+    assert isinstance(outcome, PlaceGeographyUnsupported)
+    assert outcome.reason_code == TimezoneFailureCode.TIMEZONE_NOT_FOUND
+
+
+def test_split_representative_points_are_multi_timezone() -> None:
+    tracts = _grid_tracts(6, 6)
+    place = CensusPlaceGeometry(box(-0.1, -0.1, 6.1, 6.1), 3.0, 3.0)
+
+    def lookup(lon: float, lat: float) -> str | None:
+        return "America/Phoenix" if lon < 3.0 else "America/Denver"
+
+    outcome = resolve_place_geography(
+        "1714000",
+        place,
+        tracts,
+        ResolverPolicy(geometries_are_analysis_crs=True, timezone_lookup=lookup),
+    )
+    assert isinstance(outcome, PlaceGeographyUnsupported)
+    assert outcome.reason_code == TimezoneFailureCode.MULTI_TIMEZONE_AOI
+    assert outcome.supported is False
+
+
+def test_national_phoenix_place_does_not_force_phoenix_iana() -> None:
+    tracts = _grid_tracts(6, 6)
+    place = CensusPlaceGeometry(box(-0.1, -0.1, 6.1, 6.1), 3.0, 3.0)
+    outcome = resolve_place_geography(
+        "0455000",
+        place,
+        tracts,
+        _metric_policy(timezone="America/Denver"),
+    )
+    assert isinstance(outcome, PlaceGeographySuccess)
+    assert outcome.timezone == "America/Denver"
+    assert outcome.area_id != "phoenix-demo"

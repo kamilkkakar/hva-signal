@@ -439,6 +439,7 @@ def test_phoenix_census_place_area_id_is_distinct_from_legacy_demo() -> None:
             zone_geoids=geoids,
             geometry=_feature_collection(geoids),
             timezone="America/Phoenix",
+            timezone_lookup=lambda lon, lat: "America/Phoenix",
             selection_audit=audit,
         )
     )
@@ -518,6 +519,7 @@ def test_successful_package_is_snapshot_capable_while_reference_not_prepared() -
             zone_geoids=geoids,
             geometry=_feature_collection(geoids),
             timezone="America/Chicago",
+            timezone_lookup=lambda lon, lat: "America/Chicago",
             selection_audit=audit,
         )
     )
