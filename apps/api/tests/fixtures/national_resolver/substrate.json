@@ -1,0 +1,21 @@
+{
+  "schema_version": "NATIONAL_RESOLVER_PANEL_SUBSTRATE_V1",
+  "status": "FROZEN_CANDIDATE",
+  "policy_id": "NATIONAL_PLACE_GEOGRAPHY_V1",
+  "slug": "national-place-geography-v1",
+  "algorithm": "ALG1_GREEDY_LEX_PLACE_INTPT_V1",
+  "census_source": "TIGER/Line",
+  "census_vintage": "2025",
+  "eligibility": "Official TIGER tract INTPT (INTPTLON, INTPTLAT) covered by the 2025 place polygon after make_valid. ALAND <= 0 ineligible. No any-intersection. No outside-place expansion.",
+  "projection_conus": "EPSG:5070",
+  "published_crs": "EPSG:4269",
+  "rook": "Shared linear boundary length > 1e-3 m after make_valid and EPSG:5070. Corner-only contact is not rook. No distance fallback.",
+  "rook_min_length_m": 0.001,
+  "seed": "Official TIGER place INTPT container; else nearest eligible tract INTPT in EPSG:5070; GEOID ASC",
+  "growth": "greedy_lex: PP_COMPARE DESC -> shared boundary DESC -> distance-to-seed ASC -> GEOID ASC",
+  "component_policy": "Eligible < 25 -> INSUFFICIENT_ELIGIBLE_TRACTS. Seed-component < 25 -> INSUFFICIENT_CONNECTED_TRACTS (no island jump). Do not invent 25.",
+  "outside_place_expansion": false,
+  "target_tracts": 25,
+  "phoenix_legacy_reproduction_required": false,
+  "not_e_medoid_stub": true
+}
