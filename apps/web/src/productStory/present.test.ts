@@ -232,8 +232,11 @@ describe("presentAnalysisStory", () => {
       result: sufficientResult(),
       areaId: "phoenix-demo",
     });
-    expect(view.primary_facts.some((fact) => fact.includes("snapshot"))).toBe(
-      true,
+    expect(view.primary_facts).toContain(
+      "Selected-hour snapshot is AVAILABLE NOW — CACHED EVIDENCE for 15 Jul 2025 03:00. Not live.",
+    );
+    expect(view.primary_facts.join("\n")).not.toContain(
+      "Selected-hour snapshot is not published here.",
     );
     expect(publicBlob(view)).not.toMatch(/°C/);
     expect(view.analysis_area_label).toContain("Phoenix demonstration area");

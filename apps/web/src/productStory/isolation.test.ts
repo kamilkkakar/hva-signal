@@ -38,6 +38,9 @@ describe("productStory isolation", () => {
       expect(source, path).not.toMatch(/\bfetch\s*\(/);
       expect(source, path).not.toMatch(/FORTYGUARD/);
       expect(source, path).not.toMatch(/FortyGuard live/);
+      expect(source, path).not.toContain(
+        "Selected-hour snapshot is not published here.",
+      );
     }
   });
 });

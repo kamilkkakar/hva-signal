@@ -38,8 +38,8 @@ app = FastAPI(
     title="HVA-Signal API",
     description=(
         "3K Labs — HVA-Signal (Heat, Vulnerability & Action Signal). "
-        "Combines thermal evidence with vulnerability and preparedness "
-        "context to support defensible urban heat decisions."
+        "Heat plus Action framing: measure the thermal field and authorize "
+        "or withhold. Vulnerability is not scored."
     ),
     version="0.1.0",
 )

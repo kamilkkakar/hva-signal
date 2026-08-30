@@ -16,7 +16,7 @@ The canonical HVA-Signal codebase lives at **`hackathon-temporal-intelligence`**
 |---|---|
 | **FortyGuard** | Spatial thermal surface only — 100 m TCM tiles aggregated to 25 zones via centroid-within mean. Used for Signal A/B thermal evidence, not regional climatology. |
 | **Public temporal context** | Domain types + mixing rules exist (`TemporalSourceFamily.PUBLIC`). All committed fixtures are **synthetic**. No nClimGrid / NLDAS / URMA ingest pipeline in repo. |
-| **Temporal UI** | No climate time-series widgets in the main web app. Signal A uses a **historical position strip** (q_A), not daily/seasonal charts. Signal B / two-signal rail is **unmounted by default**. |
+| **Temporal UI** | No climate time-series widgets in the main web app. Signal A uses a **historical position strip** (q_A), not daily/seasonal charts. Daily / seasonal context stays **unpublished**. JudgeShell mounts a **dated cached Signal B** bind (phoenix-demo 2025-07-15 03:00, **25/25**, `fortyguard_cached`) as **AVAILABLE NOW — CACHED EVIDENCE**. The two-signal rail stays **unmounted** unless `VITE_HVA_SELECTED_TIME_SNAPSHOT=1`. Downtown TCM **0/25** remains the negative **GATE 1** fixture. |
 | **On-disk temporal data** | **`data/temporal/` does not exist yet** (this report creates `data/temporal/reports/`). Real evidence today is `data/phoenix/reference/` (FortyGuard-derived replay panel). |
 
 **Binding rule (implementable):** Public sources supply **AOI/regional temporal context** at their native grain. FortyGuard supplies **local spatial evidence** at 100 m → 25-zone aggregation. **Never downscale public regional series to 25 tracts.** **Never blend families into one number.**
@@ -198,23 +198,26 @@ Subfolders: `daily/`, `seasonal/`, `yoy/`, `coverage/`, `zones_25/`, `public_con
 | **HistoricalPositionStrip** | `features/judgeShell/charts/HistoricalPositionStrip.tsx` | **Live** — shows per-zone q_A marks at 03:00 (Signal A). Not a climate chart. |
 | **SelectedZonePosition** | `features/judgeShell/charts/SelectedZonePosition.tsx` | Zone click detail for historical position |
 | **SignalRail (A/B)** | `features/signals/SignalRail.tsx` | **Unmounted** unless `VITE_HVA_SELECTED_TIME_SNAPSHOT=1` |
-| **Signal B section** | `features/signals/SignalBSection.tsx` | Selected-hour °C snapshot — **no genuine data** on phoenix-demo |
+| **Signal B section** | `features/signals/SignalBSection.tsx` | Shared presenter. Public phoenix-demo bind is the **cached 25/25** JudgeShell panel (`SignalBCachedPanel`), not this rail |
+| **Signal B cached panel** | `features/judgeShell/signalB/SignalBCachedPanel.tsx` | **AVAILABLE NOW — CACHED EVIDENCE** — phoenix-demo 2025-07-15 03:00, 25/25, `fortyguard_cached`. Not live |
+| **GATE 1 downtown fixture** | `features/judgeShell/signalB/SignalBUnavailableDisclosure.tsx` | Downtown TCM **0/25** — negative unavailable contract. Do not rewrite this to the 25/25 bind |
 | **TemporalChart** | — | **Does not exist** in main web app |
-| **Daily / seasonal / YoY charts** | — | **Not implemented** in UI |
+| **Daily / seasonal / YoY charts** | — | **Not implemented** in UI — still unpublished |
 
 Default flags (`apps/web/src/features/signals/flags.ts`):
 
-- `VITE_HVA_SELECTED_TIME_SNAPSHOT` → **off**
+- `VITE_HVA_SELECTED_TIME_SNAPSHOT` → **off** (two-signal rail unmounted)
 - `VITE_HVA_LIVE_DEMO_CONFIRMATION` → **off**
 
-`presentTwoSignals()` sets `mounted: false` when snapshot flag is off — entire A/B rail hidden.
+`presentTwoSignals()` sets `mounted: false` when snapshot flag is off — entire A/B rail hidden. That flag-off rail is **not** the public Signal B surface. JudgeShell already binds the dated cached 25/25 snapshot. Daily and seasonal temporal widgets remain unpublished.
 
 ### What the UI actually shows today
 
 1. **Map** — 25-zone choropleth (Signal A rank or withhold)
 2. **Historical position strip** — q_A distribution across zones (not temperature time series)
 3. **Action framing** — Decision 8 authorize/withhold copy
-4. **No** 24-hour profile, JJA/DJF panel, or public climatology widget
+4. **Cached Signal B** — dated phoenix-demo 2025-07-15 03:00, 25/25, **AVAILABLE NOW — CACHED EVIDENCE**. Not live. Downtown 0/25 GATE 1 fixture stays separate
+5. **No** 24-hour profile, JJA/DJF panel, or public climatology widget — daily/seasonal still unpublished
 
 ### Backend temporal API
 

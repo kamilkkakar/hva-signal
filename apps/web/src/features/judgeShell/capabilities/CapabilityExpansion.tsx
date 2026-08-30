@@ -10,7 +10,7 @@ export function CapabilityExpansion() {
       className="capability-expansion"
       data-testid="capability-expansion"
       data-fake-gauges="false"
-      data-public-b="false"
+      data-public-b="cached"
       data-search-geo="disabled"
       data-hosted-live="disabled"
       data-numeric-probability="blocked"

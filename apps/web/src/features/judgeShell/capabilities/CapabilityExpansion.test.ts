@@ -27,7 +27,7 @@ describe("CapabilityExpansion", () => {
     const html = render();
     expect(html).toContain('data-testid="capability-expansion"');
     expect(html).toContain('data-fake-gauges="false"');
-    expect(html).toContain('data-public-b="false"');
+    expect(html).toContain('data-public-b="cached"');
     expect(html).toContain('data-search-geo="disabled"');
     expect(html).toContain('data-hosted-live="disabled"');
     expect(html).toContain("Beyond a snapshot");

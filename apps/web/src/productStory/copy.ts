@@ -62,7 +62,7 @@ export const WITHHOLD_FACT =
 export const HISTORY_FACT =
   "Geography ready is not history ready. Missing history is not treated as safe.";
 export const SNAPSHOT_OFF_FACT =
-  "Selected-hour snapshot is not published here.";
+  "Selected-hour snapshot is AVAILABLE NOW — CACHED EVIDENCE for 15 Jul 2025 03:00. Not live.";
 
 export const OBSERVATION_TIME_FALLBACK =
   "03:00 AOI-local · dated replay · not live";

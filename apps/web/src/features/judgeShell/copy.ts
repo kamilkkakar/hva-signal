@@ -84,10 +84,10 @@ export const CAPABILITY_ON_ITEMS = [
   { noun: "Signal A replay", status: "AVAILABLE NOW" },
   { noun: "Rank or withhold", status: "AVAILABLE NOW" },
   { noun: "Action framing", status: "AVAILABLE NOW — DECISION FRAMING" },
+  { noun: "Signal B snapshot", status: "AVAILABLE NOW — CACHED EVIDENCE" },
 ] as const;
 
 export const CAPABILITY_NEXT_ITEMS = [
-  { noun: "Signal B snapshot", status: "INTEGRATION TESTING" },
   { noun: "Place search / geo", status: "DISABLED" },
   { noun: "Hosted live", status: "DISABLED" },
 ] as const;
