@@ -1,0 +1,222 @@
+.mapi {
+  display: grid;
+  grid-template-rows: minmax(16rem, 1fr) auto;
+  min-height: 16rem;
+  height: 100%;
+  background: #c2c8b4;
+  color: #10140e;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+.mapi[data-map-interaction-gate="off"] {
+  grid-template-rows: 1fr;
+  place-items: start;
+  padding: 1rem;
+}
+
+.mapi-gated,
+.mapi-empty {
+  margin: 0;
+  max-width: 32rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #10140e;
+}
+
+.mapi-stage {
+  position: relative;
+  min-height: 16rem;
+  overflow: hidden;
+}
+
+.mapi-canvas,
+.mapi-canvas .maplibregl-map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.mapi-canvas .maplibregl-ctrl-bottom-left,
+.mapi-canvas .maplibregl-ctrl-bottom-right,
+.mapi-canvas .maplibregl-ctrl-top-left,
+.mapi-canvas .maplibregl-ctrl-top-right {
+  display: none;
+}
+
+.mapi-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 0.85rem;
+  pointer-events: none;
+}
+
+.mapi-overlay .mapi-toolbar {
+  pointer-events: auto;
+}
+
+.mapi-label,
+.mapi-hover {
+  display: inline-block;
+  margin: 0 0.45rem 0.45rem 0;
+  padding: 0.22rem 0.5rem;
+  background: #10140e;
+  color: #c2c8b4;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+.mapi-copy {
+  max-width: 28rem;
+  margin: 0 0 0.45rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.mapi-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.55rem;
+}
+
+.mapi-toolbar button {
+  border: 1px solid #10140e;
+  background: #d3d8c6;
+  color: #10140e;
+  padding: 0.28rem 0.5rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  cursor: pointer;
+}
+
+.mapi-toolbar button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.mapi-toolbar button:focus-visible {
+  outline: 2px solid #10140e;
+  outline-offset: 2px;
+}
+
+.mapi-chrome {
+  padding: 0.7rem 0.85rem 0.9rem;
+  background: #d3d8c6;
+  border-top: 1px solid #4e5748;
+  overflow: auto;
+  max-height: 46%;
+  color: #10140e;
+}
+
+.mapi-legend {
+  margin: 0 0 0.7rem;
+}
+
+.mapi-legend h3,
+.mapi-detail h3,
+.mapi-table-wrap h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  color: #10140e;
+}
+
+.mapi-legend ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mapi-legend li {
+  display: grid;
+  grid-template-columns: 0.85rem 1fr;
+  gap: 0.4rem 0.55rem;
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.mapi-swatch {
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-top: 0.15rem;
+  border: 1px solid #10140e;
+}
+
+.mapi-swatch[data-empty="true"] {
+  background: transparent;
+}
+
+.mapi-detail dl {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 0.18rem 0.6rem;
+  margin: 0 0 0.7rem;
+  font-size: 0.82rem;
+}
+
+.mapi-detail dt {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mapi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+.mapi-table th,
+.mapi-table td {
+  text-align: left;
+  padding: 0.22rem 0.3rem;
+  border-bottom: 1px solid rgba(16, 20, 14, 0.18);
+}
+
+.mapi-table th {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.62rem;
+  color: #10140e;
+}
+
+.mapi-table tr[data-selected="true"] {
+  background: rgba(16, 20, 14, 0.08);
+}
+
+.mapi-table button {
+  border: 0;
+  background: transparent;
+  color: #10140e;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.mapi-table button:focus-visible {
+  outline: 2px solid #10140e;
+  outline-offset: 2px;
+}
+
+.mapi-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
