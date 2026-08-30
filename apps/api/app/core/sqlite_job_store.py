@@ -34,8 +34,17 @@ from app.core.job_store import (
     JobStoreError,
     _assert_status_transition,
     _guard_section_progress,
+    _new_job,
     _TERMINAL,
+    analysis_job_from_payload,
+    analysis_job_to_payload,
+    apply_persist_activity_id,
+    apply_persist_fingerprint,
+    apply_persist_reservation_id,
+    apply_replace_durability,
+    apply_restart_recovery,
 )
+from app.domain.job_durability import DurableJobContract
 from app.core.sqlite_schema import (
     RECOVERY_JOBS_SQL,
     apply_durable_pragmas,
@@ -63,44 +72,27 @@ def _now() -> datetime:
 
 
 def _job_to_payload(job: AnalysisJob) -> dict[str, Any]:
-    return {
-        "job_id": job.job_id,
-        "status": job.status.value,
-        "request": job.request,
-        "created_at": job.created_at.isoformat(),
-        "updated_at": job.updated_at.isoformat() if job.updated_at else None,
-        "recoverable": job.recoverable,
-        "message": job.message,
-        "progress_notes": list(job.progress_notes),
-        "result": job.result,
-        "dedupe_key": job.dedupe_key,
-        "execution_state": job.execution_state.value,
-        "revision": job.revision,
-        "two_signal": job.two_signal.model_dump(mode="json") if job.two_signal else None,
-    }
+    return analysis_job_to_payload(job)
 
 
 def _job_from_payload(payload: dict[str, Any]) -> AnalysisJob:
-    two = payload.get("two_signal")
-    return AnalysisJob(
-        job_id=payload["job_id"],
-        status=JobStatus(payload["status"]),
-        request=payload["request"],
-        created_at=datetime.fromisoformat(payload["created_at"]),
-        updated_at=(
-            datetime.fromisoformat(payload["updated_at"])
-            if payload.get("updated_at")
-            else None
-        ),
-        recoverable=bool(payload.get("recoverable")),
-        message=payload.get("message"),
-        progress_notes=list(payload.get("progress_notes") or []),
-        result=payload.get("result"),
-        dedupe_key=payload.get("dedupe_key"),
-        execution_state=ExecutionState(payload.get("execution_state") or "NOT_STARTED"),
-        revision=int(payload.get("revision") or 0),
-        two_signal=TwoSignalJobState.model_validate(two) if two else None,
-    )
+    return analysis_job_from_payload(payload)
+
+
+def _wal_from_job(job: AnalysisJob) -> tuple[str | None, str | None, str | None, str | None]:
+    """Fingerprint / activity / reservation / worker_state for J3 columns."""
+    durability = job.durability
+    fingerprint = job.dedupe_key
+    activity_id = None
+    reservation_id = None
+    worker_state = None
+    if durability is not None:
+        fingerprint = durability.fingerprint or fingerprint
+        activity_id = durability.activity_id
+        reservation_id = durability.reservation_id
+        if durability.state is not None:
+            worker_state = durability.state.value
+    return fingerprint, activity_id, reservation_id, worker_state
 
 
 def _parse_worker_state(value: Any) -> LiveWorkerState | None:
@@ -119,6 +111,7 @@ class SQLiteJobStore:
     durability_level = "J2"
     durable_live_level = "J3_LOCAL_SQLITE_WAL"
     hosted_live_implied = False
+    implements_durability_contract = True
 
     def __init__(self, path: str | Path) -> None:
         self._path = Path(path)
@@ -164,19 +157,36 @@ class SQLiteJobStore:
 
     def _apply_restart_row(self, row: sqlite3.Row) -> None:
         payload = json.loads(row["payload"])
+        job = _job_from_payload(payload)
+        original_durability = job.durability
+        original_status = payload.get("status")
+        if job.status not in _TERMINAL:
+            apply_restart_recovery(job)
+        payload = _job_to_payload(job)
         status = payload.get("status")
+        worker_state = _parse_worker_state(row["worker_state"])
+        activity_id = row["activity_id"]
+        reservation_id = row["reservation_id"]
+        if original_durability is not None:
+            if worker_state is None and original_durability.state is not None:
+                try:
+                    worker_state = LiveWorkerState(original_durability.state.value)
+                except ValueError:
+                    worker_state = None
+            activity_id = activity_id or original_durability.activity_id
+            reservation_id = reservation_id or original_durability.reservation_id
         record = DurableJobRecord(
             job_id=str(row["job_id"]),
-            worker_state=_parse_worker_state(row["worker_state"]),
+            worker_state=worker_state,
             fingerprint=row["fingerprint"],
-            activity_id=row["activity_id"],
-            reservation_id=row["reservation_id"],
+            activity_id=activity_id,
+            reservation_id=reservation_id,
             error_class=row["error_class"],
             recovery_required=bool(row["recovery_required"]),
-            public_status=row["public_status"] or status,
+            public_status=row["public_status"] or original_status,
         )
         if record.worker_state is None:
-            if status in {item.value for item in _TERMINAL}:
+            if original_status in {item.value for item in _TERMINAL}:
                 return
             payload["status"] = JobStatus.FAILED.value
             payload["execution_state"] = ExecutionState.INTERRUPTED.value
@@ -253,18 +263,23 @@ class SQLiteJobStore:
 
     def _insert_job_unlocked(self, job: AnalysisJob) -> None:
         payload = _job_to_payload(job)
+        fingerprint, activity_id, reservation_id, worker_state = _wal_from_job(job)
         self._conn.execute(
             """
             INSERT INTO analysis_jobs (
-                job_id, dedupe_key, fingerprint, payload, public_status,
-                created_at, updated_at, revision
+                job_id, dedupe_key, fingerprint, activity_id, reservation_id,
+                worker_state, payload, public_status, created_at, updated_at,
+                revision
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 job.job_id,
                 job.dedupe_key,
-                job.dedupe_key,
+                fingerprint,
+                activity_id,
+                reservation_id,
+                worker_state,
                 json.dumps(payload),
                 job.status.value,
                 job.created_at.isoformat(),
@@ -275,18 +290,23 @@ class SQLiteJobStore:
 
     def _put(self, job: AnalysisJob) -> None:
         payload = _job_to_payload(job)
+        fingerprint, activity_id, reservation_id, worker_state = _wal_from_job(job)
         self._conn.execute("BEGIN IMMEDIATE")
         try:
             self._conn.execute(
                 """
                 INSERT INTO analysis_jobs (
-                    job_id, dedupe_key, fingerprint, payload, public_status,
-                    created_at, updated_at, revision
+                    job_id, dedupe_key, fingerprint, activity_id, reservation_id,
+                    worker_state, payload, public_status, created_at, updated_at,
+                    revision
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(job_id) DO UPDATE SET
                     dedupe_key = excluded.dedupe_key,
-                    fingerprint = COALESCE(analysis_jobs.fingerprint, excluded.fingerprint),
+                    fingerprint = COALESCE(excluded.fingerprint, analysis_jobs.fingerprint),
+                    activity_id = COALESCE(excluded.activity_id, analysis_jobs.activity_id),
+                    reservation_id = COALESCE(excluded.reservation_id, analysis_jobs.reservation_id),
+                    worker_state = COALESCE(excluded.worker_state, analysis_jobs.worker_state),
                     payload = excluded.payload,
                     public_status = excluded.public_status,
                     updated_at = excluded.updated_at,
@@ -295,7 +315,10 @@ class SQLiteJobStore:
                 (
                     job.job_id,
                     job.dedupe_key,
-                    job.dedupe_key,
+                    fingerprint,
+                    activity_id,
+                    reservation_id,
+                    worker_state,
                     json.dumps(payload),
                     job.status.value,
                     job.created_at.isoformat(),
@@ -317,17 +340,7 @@ class SQLiteJobStore:
         *,
         dedupe_key: str | None = None,
     ) -> AnalysisJob:
-        job = AnalysisJob(
-            job_id=f"job_{uuid4().hex[:12]}",
-            status=JobStatus.QUEUED,
-            request=request,
-            created_at=_now(),
-            updated_at=_now(),
-            message="Job queued.",
-            result=None,
-            dedupe_key=dedupe_key,
-            execution_state=ExecutionState.NOT_STARTED,
-        )
+        job = _new_job(request, dedupe_key=dedupe_key)
         with self._lock:
             self._put(job)
         return job
@@ -365,17 +378,7 @@ class SQLiteJobStore:
         *,
         dedupe_key: str,
     ) -> tuple[AnalysisJob, bool]:
-        job = AnalysisJob(
-            job_id=f"job_{uuid4().hex[:12]}",
-            status=JobStatus.QUEUED,
-            request=request,
-            created_at=_now(),
-            updated_at=_now(),
-            message="Job queued.",
-            result=None,
-            dedupe_key=dedupe_key,
-            execution_state=ExecutionState.NOT_STARTED,
-        )
+        job = _new_job(request, dedupe_key=dedupe_key)
         with self._lock:
             self._conn.execute("BEGIN IMMEDIATE")
             try:
@@ -407,6 +410,31 @@ class SQLiteJobStore:
             job = _job_from_payload(json.loads(row["payload"]))
             mutator(job)
             self._put(job)
+
+    def replace_durability(self, job_id: str, durability: DurableJobContract) -> None:
+        self._mutate(job_id, lambda job: apply_replace_durability(job, durability))
+
+    def persist_fingerprint(self, job_id: str, fingerprint: str) -> None:
+        self._mutate(job_id, lambda job: apply_persist_fingerprint(job, fingerprint))
+
+    def persist_activity_id(self, job_id: str, activity_id: str) -> None:
+        self._mutate(job_id, lambda job: apply_persist_activity_id(job, activity_id))
+
+    def persist_reservation_id(self, job_id: str, reservation_id: str) -> None:
+        self._mutate(
+            job_id, lambda job: apply_persist_reservation_id(job, reservation_id)
+        )
+
+    def recover_after_restart(self) -> list[AnalysisJob]:
+        recovered: list[AnalysisJob] = []
+        with self._lock:
+            rows = self._conn.execute("SELECT payload FROM analysis_jobs").fetchall()
+            for row in rows:
+                job = _job_from_payload(json.loads(row["payload"]))
+                apply_restart_recovery(job)
+                self._put(job)
+                recovered.append(job)
+        return recovered
 
     def update_status(
         self,
@@ -520,6 +548,21 @@ class SQLiteJobStore:
                 WHERE fingerprint = ?
                 """,
                 (fingerprint,),
+            ).fetchone()
+        if row is None:
+            return None
+        return self._record_from_row(row)
+
+    def find_by_reservation_id(self, reservation_id: str) -> DurableJobRecord | None:
+        with self._lock:
+            row = self._conn.execute(
+                """
+                SELECT job_id, worker_state, fingerprint, activity_id,
+                       reservation_id, error_class, recovery_required, public_status
+                FROM analysis_jobs
+                WHERE reservation_id = ?
+                """,
+                (reservation_id,),
             ).fetchone()
         if row is None:
             return None
