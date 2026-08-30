@@ -103,8 +103,9 @@ def test_policy_or_place_cannot_smuggle_reference_tokens() -> None:
         _fp(resolver_policy_version="USES_HISTORICAL_REFERENCE_V1")
     with pytest.raises(ResolverCacheError, match="7-digit"):
         _fp(canonical_place_geoid="phoenix-demo")
-    with pytest.raises(ResolverCacheError, match="TIGER"):
-        _fp(census_vintage="2025")
+    with pytest.raises(ResolverCacheError, match="2025 or TIGER2025"):
+        _fp(census_vintage="latest")
+    assert _fp(census_vintage="2025") == _fp(census_vintage=DEFAULT_CENSUS_VINTAGE)
 
 
 def test_state_fips_and_census_urls_are_deterministic() -> None:

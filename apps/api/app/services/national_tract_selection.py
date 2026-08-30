@@ -23,6 +23,13 @@ from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
 from shapely.validation import make_valid
 
+from app.domain.national_geography_package import (
+    NATIONAL_ELIGIBILITY_RULE_ID,
+    NATIONAL_ROOK_POLICY_ID,
+    NATIONAL_SEED_RULE_ID,
+    NATIONAL_TIE_BREAK_POLICY_ID,
+)
+
 RESOLVER_POLICY_ID = "NATIONAL_PLACE_GEOGRAPHY_V1"
 ALGORITHM_ID = "ALG1_GREEDY_LEX_PLACE_INTPT_V1"
 POLICY_VERSION = RESOLVER_POLICY_ID
@@ -30,12 +37,13 @@ CENSUS_VINTAGE = "2025"
 ANALYSIS_CRS = "EPSG:5070"
 TARGET_ZONE_COUNT = 25
 
-ELIGIBILITY_RULE_ID = "official_tiger_intpt_in_place"
+ELIGIBILITY_RULE_ID = NATIONAL_ELIGIBILITY_RULE_ID
+SEED_RULE_ID = NATIONAL_SEED_RULE_ID
 SEED_RULE_PLACE_INTPT = "place_intpt_container"
 SEED_RULE_NEAREST_INTPT = "nearest_eligible_intpt"
 GROWTH_RULE_ID = "greedy_lex"
-ROOK_POLICY_ID = "rook_linear_shared_boundary_1e-3_m_epsg5070"
-TIE_BREAK_POLICY_ID = "pp_compare_6_shared_distance_geoid"
+ROOK_POLICY_ID = NATIONAL_ROOK_POLICY_ID
+TIE_BREAK_POLICY_ID = NATIONAL_TIE_BREAK_POLICY_ID
 
 # I2 contract: linear shared boundary in EPSG:5070, millimetre floor.
 ROOK_BOUNDARY_FLOOR_M = 1e-3
@@ -69,6 +77,7 @@ __all__ = [
     "RESOLVER_POLICY_ID",
     "ROOK_BOUNDARY_FLOOR_M",
     "ROOK_POLICY_ID",
+    "SEED_RULE_ID",
     "SEED_RULE_NEAREST_INTPT",
     "SEED_RULE_PLACE_INTPT",
     "SupportedSelection",

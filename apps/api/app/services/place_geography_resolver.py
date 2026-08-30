@@ -22,6 +22,7 @@ from app.services.national_tract_selection import (
     ANALYSIS_CRS,
     CENSUS_VINTAGE,
     ELIGIBILITY_RULE_ID,
+    SEED_RULE_ID,
     GROWTH_RULE_ID,
     REASON_EMPTY_PLACE,
     REASON_INSUFFICIENT_CONNECTED_TRACTS,
@@ -191,6 +192,7 @@ class PlaceGeographySuccess:
     area_id: str
     seed_geoid: str
     seed_rule: str
+    seed_rule_id: str
     geoids: tuple[str, ...]
     geoids_sorted: tuple[str, ...]
     eligible_count: int
@@ -643,6 +645,7 @@ def _success(
         area_id=area_id,
         seed_geoid=outcome.seed_geoid,
         seed_rule=outcome.seed_rule,
+        seed_rule_id=SEED_RULE_ID,
         geoids=outcome.geoids,
         geoids_sorted=outcome.geoids_sorted,
         eligible_count=outcome.eligible_count,

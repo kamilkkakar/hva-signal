@@ -34,6 +34,7 @@ ALLOWED_RESOLVED_FIELDS: Final[frozenset[str]] = frozenset(
 
 _PLACE_GEOID_RE = re.compile(r"^[0-9]{7}$")
 _VINTAGE_RE = re.compile(r"^TIGER(20[0-9]{2})$")
+_YEAR_ONLY_RE = re.compile(r"^(20[0-9]{2})$")
 _TOKEN_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 
 # Keys that would couple geography cache identity to Signal A / historical
@@ -167,9 +168,12 @@ def state_fips_from_place_geoid(place_geoid: str) -> str:
 
 def normalize_census_vintage(value: str) -> str:
     text = value.strip()
+    year_only = _YEAR_ONLY_RE.fullmatch(text)
+    if year_only is not None:
+        text = f"TIGER{year_only.group(1)}"
     if not _VINTAGE_RE.fullmatch(text):
         raise ResolverCacheError(
-            "census_vintage must look like TIGER2025 (year-stamped TIGER vintage)"
+            "census_vintage must look like 2025 or TIGER2025"
         )
     return text
 

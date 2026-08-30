@@ -75,6 +75,9 @@ def _resolve_place_geography_files() -> list[Path]:
     named = _find_impl("app", "services", "resolve_place_geography.py")
     if named is not None:
         files.append(named)
+    impl = _find_impl("app", "services", "place_geography_resolver.py")
+    if impl is not None:
+        files.append(impl)
     extras = (
         ("app", "services", "national_resolver.py"),
         ("app", "services", "national_place_geography.py"),
