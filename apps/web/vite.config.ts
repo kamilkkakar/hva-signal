@@ -4,6 +4,15 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
+const apiUpstream =
+  process.env.API_UPSTREAM ??
+  process.env.API_BASE_URL ??
+  "http://127.0.0.1:8000";
+const apiProxy = {
+  "/api": apiUpstream,
+  "/health": apiUpstream,
+  "/ready": apiUpstream,
+};
 
 export default defineConfig({
   plugins: [react()],
@@ -14,19 +23,11 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    proxy: {
-      "/api": "http://127.0.0.1:8000",
-      "/health": "http://127.0.0.1:8000",
-      "/ready": "http://127.0.0.1:8000",
-    },
+    proxy: apiProxy,
   },
   preview: {
     port: 4173,
-    proxy: {
-      "/api": "http://127.0.0.1:8000",
-      "/health": "http://127.0.0.1:8000",
-      "/ready": "http://127.0.0.1:8000",
-    },
+    proxy: apiProxy,
   },
   test: {
     environment: "node",
