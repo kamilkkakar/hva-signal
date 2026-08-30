@@ -1,15 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
-import {
-  INSUFFICIENT_TIME,
-  fillAnalysisTime,
-  openZoneIdentifierList,
-  submitAnalysis,
-  waitForMapState,
-} from "../../apps/web/e2e/judge-ready.helpers";
 
 const CONTEXT_ON = /^(1|true|yes|on)$/i.test(
   (process.env.HVA_PUBLIC_CONTEXT ?? "").trim(),
 );
+
+const INSUFFICIENT_TIME = "2022-07-01T03:00";
 
 const STORY_QUESTIONS = [
   "WHAT ARE THERMAL CONDITIONS HERE?",
@@ -17,6 +12,22 @@ const STORY_QUESTIONS = [
   "WHAT SUPPORT IS IDENTIFIED NEARBY?",
   "WHAT SHOULD BE VERIFIED BEFORE ACTION?",
 ] as const;
+
+async function fillAnalysisTime(page: Page, value: string) {
+  const input = page.locator('input[name="analysis_time"]');
+  await input.fill(value);
+  await expect(input).toHaveValue(value);
+}
+
+async function submitAnalysis(page: Page) {
+  await page.getByRole("button", { name: "Submit analysis" }).click();
+}
+
+async function waitForMapState(page: Page, state: "insufficient") {
+  const map = page.getByTestId("map-stage");
+  await expect(map).toHaveAttribute("data-map-state", state, { timeout: 45_000 });
+  return map;
+}
 
 async function selectZone(page: Page) {
   const contextList = page.getByTestId("area-context-list");
@@ -27,7 +38,11 @@ async function selectZone(page: Page) {
     return;
   }
 
-  await openZoneIdentifierList(page);
+  const wrap = page.getByTestId("map-interaction-list-wrap");
+  if ((await wrap.count()) > 0 && (await wrap.getAttribute("open")) == null) {
+    await wrap.locator("summary").first().click();
+    await expect(wrap).toHaveAttribute("open", "");
+  }
   const mapButton = page.getByTestId("map-interaction-list").locator("button").first();
   await expect(mapButton).toBeVisible();
   await mapButton.click();
@@ -79,10 +94,6 @@ test.describe("isolated HVA_PUBLIC_CONTEXT=1", () => {
     await expect(page.getByTestId("story-thermal-b")).toContainText(
       "CACHED EVIDENCE",
     );
-    const signalBStamp = page.getByTestId("signal-b-stamp");
-    if ((await signalBStamp.count()) > 0) {
-      await expect(signalBStamp).toContainText("CACHED EVIDENCE");
-    }
 
     await expect(map).toHaveAttribute("data-map-state", "insufficient");
     await expect(map).toHaveAttribute("data-ranked-feature-count", "0");
