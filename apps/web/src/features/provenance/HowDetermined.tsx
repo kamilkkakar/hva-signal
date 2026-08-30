@@ -37,7 +37,7 @@ export function HowDetermined({ snapshot }: HowDeterminedProps) {
         </div>
         <div>
           <dt>{HOW_LABEL_SEPARATION}</dt>
-          <dd data-testid="how-determined-separation" data-precision="public-4">
+          <dd data-testid="how-determined-separation" data-precision="public-3">
             {view.observedSeparation}
           </dd>
         </div>

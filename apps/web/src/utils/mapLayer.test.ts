@@ -6,29 +6,27 @@ import {
 } from "./mapLayer";
 
 describe("mapLayerFromLimitations", () => {
-  it("defaults to INTERVENTION PRIORITY", () => {
+  it("defaults to a public nighttime-pattern title, not INTERVENTION PRIORITY", () => {
     const layer = mapLayerFromLimitations([]);
-    expect(layer.label).toBe("INTERVENTION PRIORITY");
+    expect(layer.label).toBe("Nighttime historical thermal pattern");
+    expect(layer.label).not.toContain("INTERVENTION PRIORITY");
     expect(layer.allowPriorityChoropleth).toBe(true);
   });
 
-  it("drops INTERVENTION PRIORITY when thermal differentiation is insufficient", () => {
+  it("does not leak INTERVENTION PRIORITY when thermal differentiation is insufficient", () => {
     const layer = mapLayerFromLimitations([
       "THERMAL_SPATIAL_DIFFERENTIATION_INSUFFICIENT",
     ]);
     expect(layer.label).not.toContain("INTERVENTION PRIORITY");
-    expect(layer.label).toBe(
-      "CONTEXTUAL PREPAREDNESS PRIORITY — THERMAL DIFFERENTIATION UNAVAILABLE",
-    );
+    expect(layer.label).toBe("Nighttime historical thermal pattern");
     expect(layer.message).toBe(ARCHITECTURE_THERMAL_DIFF_MESSAGE);
     expect(layer.allowPriorityChoropleth).toBe(false);
   });
 
   it("does not label insufficient reference as Decision 8 contextual fallback", () => {
     const layer = mapLayerFromLimitations(["INSUFFICIENT_REFERENCE"]);
-    expect(layer.label).not.toBe(
-      "CONTEXTUAL PREPAREDNESS PRIORITY — THERMAL DIFFERENTIATION UNAVAILABLE",
-    );
+    expect(layer.label).not.toContain("INTERVENTION PRIORITY");
+    expect(layer.label).not.toContain("CONTEXTUAL PREPAREDNESS PRIORITY");
     expect(layer.label).toBe("THERMAL ORDERING NOT SUPPORTED");
     expect(layer.allowPriorityChoropleth).toBe(false);
   });

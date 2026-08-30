@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  CONTEXTUAL_MAP_LAYER,
   DEFAULT_MAP_LAYER,
   mapLayerFromLimitations,
   THERMAL_SPATIAL_DIFFERENTIATION_INSUFFICIENT,
@@ -30,10 +29,9 @@ describe("judge map layer titles", () => {
       true,
     );
     expect(withheld.label).toBe(JUDGE_LAYER_WITHHELD);
-    expect(withheld.label).not.toBe(CONTEXTUAL_MAP_LAYER);
+    expect(withheld.label).not.toMatch(/INTERVENTION PRIORITY/);
     expect(withheld.label.toLowerCase()).not.toContain("intervention");
     expect(withheld.label.toLowerCase()).not.toContain("preparedness");
-    expect(withheld.label.toLowerCase()).not.toMatch(/\border\b/);
 
     const shown = judgeMapLayer(
       mapLayerFromLimitations([]),
@@ -41,6 +39,6 @@ describe("judge map layer titles", () => {
       true,
     );
     expect(shown.label).toBe(JUDGE_LAYER_ORDER);
-    expect(shown.label).not.toBe(DEFAULT_MAP_LAYER);
+    expect(shown.label).not.toMatch(/INTERVENTION PRIORITY/);
   });
 });

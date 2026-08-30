@@ -22,16 +22,11 @@ export function Decision8AccordionView({
     limitations: snapshot?.result?.system_limitations,
   });
   const decision8Panel = decision8EvidencePanel(snapshot?.result);
-  const hasLongAnalysis = Boolean(
-    decision8Panel || thermalLimitation || probability || snapshot?.result,
-  );
-
   return (
     <details
       className="result-d8 analysis-detail"
       data-testid="analysis-detail"
       data-disclosure-layer="advanced"
-      open={hasLongAnalysis}
     >
       <summary
         className="result-d8-summary analysis-detail-summary"

@@ -51,12 +51,12 @@ describe("ResultColumn 07-01", () => {
 });
 
 describe("Decision8Accordion 07-01", () => {
-  it("opens long Decision 8 analysis with copyable tokens", () => {
+  it("keeps long Decision 8 analysis closed with copyable tokens inside", () => {
     const html = renderToStaticMarkup(
       createElement(Decision8AccordionView, { snapshot: replay0701Snapshot }),
     );
     expect(html).toContain('data-testid="analysis-detail"');
-    expect(html).toMatch(/<details[^>]*\sopen/);
+    expect(html).not.toMatch(/<details[^>]*\sopen/);
     expect(html).toContain('data-testid="decision8-evidence-panel"');
     expect(html).toContain(REPLAY_0701_POLICY);
     expect(html).toContain(REPLAY_0701_GEOMETRY);

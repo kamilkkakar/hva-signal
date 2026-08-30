@@ -67,7 +67,17 @@ export async function waitForMapState(
   return map;
 }
 
+export async function openAdvancedDetails(page: Page) {
+  const details = page.getByTestId("analysis-detail");
+  await expect(details).toBeAttached({ timeout: 45_000 });
+  if ((await details.getAttribute("open")) == null) {
+    await page.getByTestId("advanced-technical-details").click();
+  }
+  await expect(details).toHaveAttribute("open", "");
+}
+
 export async function waitForDecision8(page: Page) {
+  await openAdvancedDetails(page);
   const panel = page.getByTestId("decision8-evidence-panel");
   await expect(panel).toBeVisible({ timeout: 45_000 });
   return panel;

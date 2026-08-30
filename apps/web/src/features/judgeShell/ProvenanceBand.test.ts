@@ -68,7 +68,7 @@ describe("ProvenanceBand disclosure IA", () => {
     const primary = sectionHtml(html, "how-this-was-determined");
     expect(primary).toContain("2022–2024 at 03:00");
     expect(primary).toContain("Supported");
-    expect(primary).toContain("0.1355");
+    expect(primary).toContain("0.135");
     expect(primary).toContain("0.10");
     expect(primary).not.toContain(POLICY);
     expect(primary).not.toContain(GEOMETRY);

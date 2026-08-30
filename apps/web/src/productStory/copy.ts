@@ -4,7 +4,7 @@ export const COMPARISON_SUFFICIENT =
   "Spatial differences are clear enough to compare";
 
 export const COMPARISON_TOO_SIMILAR =
-  "Temperatures are too similar across the area to support a defensible ordering";
+  "Nighttime patterns are too similar to rank defensibly";
 
 export const REFERENCE_AVAILABLE = "Historical reference available";
 
@@ -19,7 +19,8 @@ export const HEADLINE_AWAITING = "Replay is running. No order is shown yet.";
 export const HEADLINE_FAILED = "Analysis failed closed";
 export const HEADLINE_HISTORY = "Historical reference is not prepared";
 export const HEADLINE_COMPARABLE = "Nighttime heat order is shown";
-export const HEADLINE_TOO_SIMILAR = "Nighttime heat order is withheld";
+export const HEADLINE_TOO_SIMILAR =
+  "Nighttime patterns are too similar to rank defensibly";
 export const HEADLINE_NOT_EVALUATED = "Spatial ordering was not evaluated";
 
 export const SUMMARY_IDLE =

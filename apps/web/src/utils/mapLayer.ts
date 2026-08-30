@@ -11,10 +11,9 @@ export const ARCHITECTURE_THERMAL_DIFF_MESSAGE =
 export const INSUFFICIENT_REFERENCE_MESSAGE =
   "Required historical reference is incomplete. Thermal ordering is not evaluated. This is not a Decision 8 thermal-differentiation fallback.";
 
-export const DEFAULT_MAP_LAYER = "INTERVENTION PRIORITY";
+export const DEFAULT_MAP_LAYER = "Nighttime historical thermal pattern";
 
-export const CONTEXTUAL_MAP_LAYER =
-  "CONTEXTUAL PREPAREDNESS PRIORITY — THERMAL DIFFERENTIATION UNAVAILABLE";
+export const CONTEXTUAL_MAP_LAYER = "Nighttime historical thermal pattern";
 
 export type MapLayerState = {
   label: string;

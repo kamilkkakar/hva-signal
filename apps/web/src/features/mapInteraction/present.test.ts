@@ -116,13 +116,19 @@ describe("presentMapInteraction", () => {
     expect(view.decorative).toBe(false);
   });
 
-  it("does not interpolate values into fill paint", () => {
-    const catalog = snapshotCatalog();
+  it("paints no ranking fill when the night is unauthorized", () => {
+    const catalog = historicalCatalog(false);
     const state = initialInteractionState();
     const fill = highlightFillPaint(catalog, state);
-    const line = highlightLinePaint(state);
+    expect(fill["fill-opacity"]).toBe(0);
     expect(JSON.stringify(fill)).not.toMatch(/interpolate/i);
-    expect(JSON.stringify(line)).not.toMatch(/interpolate/i);
-    expect(fill["fill-color"]).toBe("#9aa392");
+  });
+
+  it("uses historical-position encoding when an order is authorized", () => {
+    const catalog = historicalCatalog(true);
+    const state = initialInteractionState();
+    const fill = highlightFillPaint(catalog, state);
+    expect(JSON.stringify(fill)).toMatch(/interpolate/i);
+    expect(JSON.stringify(fill)).not.toMatch(/°C/);
   });
 });

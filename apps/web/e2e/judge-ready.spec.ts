@@ -76,7 +76,7 @@ test.describe("judge-ready Phoenix sequence", () => {
     const map = await waitForMapState(page, "sufficient");
     await expect(map).toHaveAttribute("data-ranked-feature-count", "25");
     await expect(map).toHaveAttribute("data-geometry-feature-count", "25");
-    await expect(page.locator("body")).toContainText(BACKEND_ORDERING_COPY);
+    await expect(page.locator("body")).not.toContainText(BACKEND_ORDERING_COPY);
     await expect(page.getByTestId("happening-stamp")).toHaveText("ORDER SHOWN");
     await expect(page.getByTestId("evidence-state")).toHaveText("ORDER SHOWN");
     await expect(page.getByTestId("map-hover")).toHaveCount(0);

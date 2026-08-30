@@ -51,6 +51,11 @@ test.describe("result layout overflow", () => {
     await page.goto("/");
     await page.getByRole("button", { name: "Submit analysis" }).click();
 
+    const details = page.getByTestId("analysis-detail");
+    await expect(details).toBeAttached({ timeout: 45_000 });
+    if ((await details.getAttribute("open")) == null) {
+      await page.getByTestId("advanced-technical-details").click();
+    }
     const panel = page.getByTestId("decision8-evidence-panel");
     await expect(panel).toBeVisible({ timeout: 45_000 });
     await expect(page.getByTestId("analysis-detail")).toHaveAttribute("open", "");

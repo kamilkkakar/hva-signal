@@ -29,7 +29,7 @@ export function CapabilityExpansion() {
         </dl>
       </header>
 
-      <ol className="capability-spine" aria-label="Capability progression">
+      <ol className="capability-spine" aria-label="Development stages, not live product modes">
         {view.spine.map((stage) => (
           <li key={stage}>
             <span>{stage}</span>

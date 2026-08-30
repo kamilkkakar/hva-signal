@@ -5,7 +5,7 @@ export const CAPABILITY_KICKER = "Active capability expansion" as const;
 export const CAPABILITY_TITLE = "Beyond a snapshot" as const;
 
 export const CAPABILITY_LEAD =
-  "Next capabilities — actively being developed. Shown when data, definition, interpretation, and validation are defensible.";
+  "Development ledger only — not a live Current / Forecast / Scenario / Overnight switcher. Shown when data, definition, interpretation, and validation are defensible.";
 
 export const CAPABILITY_SPINE = [
   "OBSERVE",

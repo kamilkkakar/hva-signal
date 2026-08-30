@@ -44,9 +44,9 @@ function sufficientJob(overrides: Partial<AnalysisJobPayload> = {}): AnalysisJob
 }
 
 describe("public determination precision", () => {
-  it("prints observed separation at 4 decimals, not 17", () => {
-    expect(formatPublicSeparation(SUFFICIENT_S)).toBe("0.1355");
-    expect(formatPublicSeparation(INSUFFICIENT_S)).toBe("0.0440");
+  it("prints observed separation at 3 public decimals, not 17", () => {
+    expect(formatPublicSeparation(SUFFICIENT_S)).toBe("0.135");
+    expect(formatPublicSeparation(INSUFFICIENT_S)).toBe("0.044");
     expect(formatPublicSeparation(SUFFICIENT_S)).not.toContain("0.135483870967741");
   });
 
@@ -72,7 +72,7 @@ describe("howDeterminedFromJob", () => {
     expect(view).toEqual({
       historicalComparison: "2022–2024 at 03:00",
       spatialDifferentiation: "Supported",
-      observedSeparation: "0.1355",
+      observedSeparation: "0.135",
       policyRequirement: "0.10",
       observedSeparationExact: SUFFICIENT_S,
     });
@@ -94,7 +94,7 @@ describe("howDeterminedFromJob", () => {
       }),
     );
     expect(view?.spatialDifferentiation).toBe("Withheld");
-    expect(view?.observedSeparation).toBe("0.0440");
+    expect(view?.observedSeparation).toBe("0.044");
   });
 
   it("returns null before a hazard-spread result exists", () => {

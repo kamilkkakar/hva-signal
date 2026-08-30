@@ -1,4 +1,5 @@
 /** Primary result story. Public language only. Deep IDs stay with RESCUE-I. */
+import { PUBLIC_STATUS } from "@/features/publicLanguage";
 
 export const STORY_KICKER = "Result";
 export const STORY_ARIA = "What this analysis found";
@@ -21,8 +22,8 @@ export const HOW_DIFF_UNEVALUATED = "Spatial differentiation: Not evaluated";
 export const HOW_SEPARATION_LABEL = "Observed separation";
 export const HOW_FLOOR_LABEL = "Minimum separation required";
 
-export const STAMP_SUPPORTED = "SPATIAL ORDERING SUPPORTED";
-export const STAMP_WITHHELD = "SPATIAL ORDERING WITHHELD";
+export const STAMP_SUPPORTED = PUBLIC_STATUS.SPATIAL_ORDERING_SUPPORTED;
+export const STAMP_WITHHELD = PUBLIC_STATUS.SPATIAL_ORDERING_WITHHELD;
 export const STAMP_NOT_EVALUATED = "ORDERING NOT EVALUATED";
 export const STAMP_AWAITING = "AWAITING ANALYSIS";
 export const STAMP_FAILED = "ANALYSIS DID NOT COMPLETE";

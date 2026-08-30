@@ -18,8 +18,9 @@ describe("story copy lock", () => {
       "Spatial differences are clear enough to compare",
     );
     expect(COMPARISON_TOO_SIMILAR).toBe(
-      "Temperatures are too similar across the area to support a defensible ordering",
+      "Nighttime patterns are too similar to rank defensibly",
     );
+    expect(COMPARISON_TOO_SIMILAR.toLowerCase()).not.toContain("temperature");
     expect(REFERENCE_AVAILABLE).toBe("Historical reference available");
     expect(EVIDENCE_LINEAGE_RECORDED).toBe("Evidence lineage recorded");
   });

@@ -1,17 +1,17 @@
 import {
-  INTERACTION_BASE_LINE,
-  INTERACTION_FILL_OPACITY,
+  signalAFillPaint,
+  signalALinePaint,
+} from "@/features/mapEncoding";
+import {
   INTERACTION_HOVER_LINE,
   INTERACTION_HOVER_LINE_WIDTH,
-  INTERACTION_LINE_WIDTH,
   INTERACTION_SELECT_LINE,
   INTERACTION_SELECT_LINE_WIDTH,
-  INTERACTION_SHARED_FILL,
 } from "./policy";
 import type { InteractionCatalog, InteractionState } from "./types";
 
 export type InteractionFillPaint = {
-  "fill-color": string;
+  "fill-color": unknown;
   "fill-opacity": unknown;
 };
 
@@ -20,32 +20,40 @@ export type InteractionLinePaint = {
   "line-width": unknown;
 };
 
+function maxAuthorizedOrder(catalog: InteractionCatalog): number {
+  let max = 0;
+  for (const zone of catalog.zones) {
+    if (zone.relative_order_of != null) {
+      max = Math.max(max, zone.relative_order_of);
+    }
+    if (zone.relative_order != null) {
+      max = Math.max(max, zone.relative_order);
+    }
+  }
+  return max > 0 ? max : 25;
+}
+
 /**
- * Hover/select are outline emphasis. Fill is shared ink or off.
- * Never interpolates °C, q_A, or order into a client ramp.
+ * Authorized fills use RESCUE-E historical-position tokens.
+ * Insufficient / unauthorized stays outline-only (opacity 0).
  */
 export function highlightFillPaint(
   catalog: InteractionCatalog | null,
   state: InteractionState,
 ): InteractionFillPaint {
-  if (!state.layerActive || !catalog?.fill_authorized) {
-    return {
-      "fill-color": INTERACTION_SHARED_FILL,
-      "fill-opacity": 0,
-    };
-  }
-  return {
-    "fill-color": INTERACTION_SHARED_FILL,
-    "fill-opacity": [
-      "case",
-      ["==", ["get", "has_semantic_fill"], true],
-      INTERACTION_FILL_OPACITY,
-      0,
-    ],
-  };
+  const authorized = Boolean(state.layerActive && catalog?.fill_authorized);
+  return signalAFillPaint({
+    authorized,
+    maxOrder: catalog ? maxAuthorizedOrder(catalog) : 25,
+  });
 }
 
-export function highlightLinePaint(_state: InteractionState): InteractionLinePaint {
+export function highlightLinePaint(
+  catalog: InteractionCatalog | null,
+  state: InteractionState,
+): InteractionLinePaint {
+  const authorized = Boolean(state.layerActive && catalog?.fill_authorized);
+  const base = signalALinePaint(authorized);
   return {
     "line-color": [
       "case",
@@ -53,7 +61,7 @@ export function highlightLinePaint(_state: InteractionState): InteractionLinePai
       INTERACTION_SELECT_LINE,
       ["boolean", ["feature-state", "hover"], false],
       INTERACTION_HOVER_LINE,
-      INTERACTION_BASE_LINE,
+      base["line-color"],
     ],
     "line-width": [
       "case",
@@ -61,7 +69,7 @@ export function highlightLinePaint(_state: InteractionState): InteractionLinePai
       INTERACTION_SELECT_LINE_WIDTH,
       ["boolean", ["feature-state", "hover"], false],
       INTERACTION_HOVER_LINE_WIDTH,
-      INTERACTION_LINE_WIDTH,
+      base["line-width"],
     ],
   };
 }

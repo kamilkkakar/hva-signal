@@ -76,7 +76,7 @@ function applyCatalog(
   const payload = canvasAllowed && catalog ? catalog.collection : EMPTY_COLLECTION;
   source.setData(payload as GeoJSON.FeatureCollection);
   const fill = highlightFillPaint(catalog, state);
-  const line = highlightLinePaint(state);
+  const line = highlightLinePaint(catalog, state);
   map.setPaintProperty(FILL_LAYER_ID, "fill-color", fill["fill-color"]);
   map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", fill["fill-opacity"]);
   map.setPaintProperty(LINE_LAYER_ID, "line-color", line["line-color"]);

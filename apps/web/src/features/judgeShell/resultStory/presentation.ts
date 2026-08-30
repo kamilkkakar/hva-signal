@@ -1,5 +1,6 @@
 import type { AnalysisJobPayload } from "@/api/analysisJobs";
-import { presentActionFraming } from "../action/framing";
+import { storyFromJob } from "@/productStory";
+import type { StoryComparisonState } from "@/productStory";
 import {
   AWAITING_DOES_NOT,
   AWAITING_HEADLINE,
@@ -131,33 +132,36 @@ function storyFor(
   }
 }
 
+function kindFromComparison(state: StoryComparisonState): ResultStoryKind {
+  switch (state) {
+    case "comparable":
+      return "sufficient";
+    case "too_similar":
+      return "insufficient";
+    case "failed":
+      return "failed";
+    case "awaiting":
+    case "idle":
+      return "awaiting";
+    default:
+      return "not_evaluated";
+  }
+}
+
 export function presentResultStory(input: {
   snapshot: AnalysisJobPayload | null;
   busy?: boolean;
 }): ResultStoryView {
   const snapshot = input.snapshot;
-  const status = snapshot?.status ?? null;
   const spread = snapshot?.result?.hazard_spread;
   const observed = formatPublicSeparation(spread?.observed_spread);
   const floor = formatPublicFloor(spread?.floor ?? 0.1);
-
-  if (status === "failed") {
-    return storyFor("failed", observed, floor);
-  }
-
-  const framing = presentActionFraming({
-    status: input.busy && status == null ? "queued" : status,
+  const story = storyFromJob({
+    status: input.busy && snapshot?.status == null ? "queued" : snapshot?.status,
     result: snapshot?.result ?? null,
+    areaId: snapshot?.request?.area_id,
+    analysisTime: snapshot?.request?.analysis_time,
+    dataMode: snapshot?.request?.data_mode,
   });
-
-  if (framing.kind === "sufficient") {
-    return storyFor("sufficient", observed, floor);
-  }
-  if (framing.kind === "insufficient") {
-    return storyFor("insufficient", observed, floor);
-  }
-  if (framing.kind === "awaiting" || input.busy) {
-    return storyFor("awaiting", observed, floor);
-  }
-  return storyFor("not_evaluated", observed, floor);
+  return storyFor(kindFromComparison(story.comparison_state), observed, floor);
 }

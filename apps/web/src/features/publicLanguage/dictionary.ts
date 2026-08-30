@@ -469,7 +469,7 @@ export const SCAN_NOTES: readonly ScanNote[] = [
   {
     term: "intervention priority",
     verdict: "remove",
-    note: "mapLayer.ts DEFAULT_MAP_LAYER still defines INTERVENTION PRIORITY. JudgeShell remaps. Not justified. Remove from any public title.",
+    note: "mapLayer.ts DEFAULT_MAP_LAYER is the public nighttime-pattern title. INTERVENTION PRIORITY must not return as a default.",
   },
   {
     term: "priority",

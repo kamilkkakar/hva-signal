@@ -46,7 +46,7 @@ describe("HowDetermined", () => {
     expect(html).toContain("How this was determined");
     expect(html).toContain("2022–2024 at 03:00");
     expect(html).toContain("Supported");
-    expect(html).toContain("0.1355");
+    expect(html).toContain("0.135");
     expect(html).toContain("0.10");
     expect(html).not.toContain("0.135483870967741");
     expect(html).not.toContain(POLICY);

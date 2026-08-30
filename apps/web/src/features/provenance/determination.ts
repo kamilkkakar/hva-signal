@@ -1,7 +1,7 @@
 import type { AnalysisJobPayload } from "@/api/analysisJobs";
 import { SPATIAL_SUPPORTED, SPATIAL_WITHHELD } from "./disclosureCopy";
 
-export const PUBLIC_SEPARATION_DECIMALS = 4;
+export const PUBLIC_SEPARATION_DECIMALS = 3;
 export const PUBLIC_POLICY_DECIMALS = 2;
 export const PHOENIX_REFERENCE_YEARS = [2022, 2023, 2024] as const;
 export const PHOENIX_REFERENCE_HOUR = "03:00";
