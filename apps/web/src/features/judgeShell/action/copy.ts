@@ -3,7 +3,7 @@
 export const ACTION_V0_STATUS = "AVAILABLE NOW — DECISION FRAMING" as const;
 
 export const ACTION_V0_SCOPE =
-  "Decision framing from Decision 8 only. Not an intervention recommendation.";
+  "Decision framing only. Not an intervention recommendation.";
 
 export const ACTION_V0_TITLE = "What this evidence supports" as const;
 
