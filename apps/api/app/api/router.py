@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.optional_context_router import include_public_context_routes
 from app.api.optional_geography_router import include_public_geography_routes
 from app.api.optional_two_signal_router import include_optional_two_signal_routes
 from app.api.routes.analysis_jobs import router as jobs_router
@@ -10,6 +11,7 @@ api_router = APIRouter()
 api_router.include_router(jobs_router, prefix="/api/v1")
 api_router.include_router(areas_router, prefix="/api/v1")
 include_public_geography_routes(api_router)
+include_public_context_routes(api_router)
 include_optional_two_signal_routes(api_router)
 
 

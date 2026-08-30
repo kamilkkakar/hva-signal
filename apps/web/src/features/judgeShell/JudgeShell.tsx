@@ -9,6 +9,7 @@ import { happeningView } from "./happening";
 import { HappeningBand } from "./HappeningBand";
 import { HeroHeader } from "./HeroHeader";
 import { judgeMapLayer } from "./layer";
+import { AreaContextBand } from "@/features/areaContext";
 import { MapBand } from "./MapBand";
 import { ProvenanceBand } from "./ProvenanceBand";
 import { ResultStoryBand } from "./ResultStoryBand";
@@ -136,6 +137,10 @@ export function JudgeShell() {
       />
       <SelectedZoneBand
         result={snapshot?.result ?? null}
+        selectedZoneId={selectedZoneId}
+      />
+      <AreaContextBand
+        areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? "phoenix-demo"}
         selectedZoneId={selectedZoneId}
       />
       <SupportsBand status={snapshot?.status ?? null} result={snapshot?.result ?? null} />
