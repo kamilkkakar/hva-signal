@@ -14,17 +14,24 @@ export const INTERACTION_SELECT_LINE_WIDTH = 2.6;
 
 export const DECORATIVE_MAP_FORBIDDEN = true;
 
-export const ORDER_SHOWN_TITLE = "Nighttime historical thermal order";
-export const ORDER_WITHHELD_TITLE = "Order withheld — night too flat";
+export const ORDER_SHOWN_TITLE = "Nighttime historical thermal pattern";
+export const ORDER_WITHHELD_TITLE = "Nighttime historical thermal pattern";
 export const ORDER_WITHHELD_STATUS_LOCK =
   "THERMAL SPATIAL DIFFERENTIATION IS INSUFFICIENT FOR A DEFENSIBLE ORDERING";
 export const ORDER_WITHHELD_JUDGE_SENTENCE =
   "The observed differences across the analysis area are too small to support a defensible thermal ordering, so HVA-Signal does not rank the zones.";
-export const ORDER_SHOWN_OVERLAY =
-  "Fill shows the historical 3 a.m. order. Rank is not a probability and not a heat-severity class.";
+export const PATTERN_SUPPORT =
+  "Each zone is positioned relative to its own historical 03:00 temperature record.";
+export const ORDER_SHOWN_OVERLAY = PATTERN_SUPPORT;
 export const ORDER_WITHHELD_OVERLAY =
-  "No order is shown. Rankings will not be invented from outlines.";
-export const NIGHTTIME_HISTORICAL_MAP_NAME = "Nighttime historical thermal map";
+  "This night is not differentiated enough to draw a relative pattern. Zones stay as geography only.";
+export const NIGHTTIME_HISTORICAL_MAP_NAME = "Nighttime historical thermal pattern";
+export const POSITION_MEANING =
+  "Position within this zone's own 03:00 historical reference.";
+export const RELATIVE_ORDER_LABEL = "Relative order within this analysis";
+export const HOVER_POSITION_EVIDENCE = "Own 03:00 position";
+export const HOVER_GEOGRAPHY_ONLY = "Geography only";
+export const QA_EXPAND_LABEL = "Historical index";
 
 export const LAYER_TITLES: Record<MapLayerKind, string> = {
   none: "No active layer",
@@ -44,17 +51,18 @@ export const LAYER_MEANING: Record<MapLayerKind, string> = {
 export const LAYER_CLEARED_COPY = "Active layer cleared. Outlines stay. No thermal fill is shown.";
 export const EMPTY_CATALOG_COPY =
   "No bindable zones. The map is withheld so it cannot be read as an empty product field.";
-export const SELECT_PROMPT = "Select a zone on the map or in the zone table.";
-export const FIT_AOI_LABEL = "Fit analysis window";
+export const SELECT_PROMPT = "Select a zone on the map or in the zone list.";
+export const FIT_AOI_LABEL = "Fit geography";
 export const RESET_AOI_LABEL = "Reset view";
 export const CLEAR_LAYER_LABEL = "Clear active layer";
 export const RESTORE_LAYER_LABEL = "Restore layer";
 export const CLEAR_SELECTION_LABEL = "Clear selection";
 export const TABLE_CAPTION =
-  "Zone table. Same records as the map. Keyboard: activate a GEOID button to select.";
+  "Zone list and table. Same records as the map. Keyboard: activate a zone button to select.";
+export const LIST_CAPTION = "Zone list. Same records as the map.";
 export const VALUE_KIND_LABEL: Record<"q_A" | "order" | "mean_c" | "none", string> = {
-  q_A: "historical quantile position",
-  order: "nighttime order",
+  q_A: "own-night historical index",
+  order: "relative order within this analysis",
   mean_c: "zone mean °C",
   none: "no mapped value",
 };
@@ -90,15 +98,47 @@ export function formatQuantile(value: number | null | undefined): string {
   return value.toFixed(3);
 }
 
-/** Chrome order line. Never says backend order, q_A, or %. */
-export function formatNighttimeOrder(
+/** Four-decimal index for expandable chrome only. Never 16-decimal primary. */
+export function formatQuantile4(value: number | null | undefined): string {
+  if (value == null || !Number.isFinite(value)) {
+    return MISSING_DISPLAY;
+  }
+  return value.toFixed(4);
+}
+
+/** Relative order inside this analysis. Never names a server rank field, q_A, or %. */
+export function formatRelativeOrder(
   order: number | null | undefined,
   of: number,
 ): string {
   if (order == null || !Number.isFinite(order) || of < 1) {
     return MISSING_DISPLAY;
   }
-  return `Nighttime order ${order} of ${of}`;
+  return `${order} of ${of} in this analysis`;
+}
+
+/** @deprecated Use formatRelativeOrder. Kept as a thin alias for existing imports. */
+export function formatNighttimeOrder(
+  order: number | null | undefined,
+  of: number,
+): string {
+  return formatRelativeOrder(order, of);
+}
+
+export function storySourceLabel(label: ProductSourceLabel): string {
+  if (label === "REPLAY") {
+    return "Replay evidence";
+  }
+  if (label === "CACHED") {
+    return "Cached evidence";
+  }
+  if (label === "LIVE") {
+    return "Live evidence";
+  }
+  if (label === "PARTIAL") {
+    return "Partial evidence";
+  }
+  return "Evidence unavailable";
 }
 
 export function formatTimeLabel(

@@ -16,24 +16,27 @@ import {
 } from "./policy";
 
 describe("MAP-B titles and insufficient fills", () => {
-  it("titles the authorized A layer as nighttime historical thermal order", () => {
+  it("titles the authorized A layer as nighttime historical thermal pattern", () => {
     const catalog = historicalCatalog(true);
     const view = presentMapInteraction({
       catalog,
       state: initialInteractionState(),
     });
     expect(catalog.layer_title).toBe(ORDER_SHOWN_TITLE);
-    expect(view.layerTitle).toBe("Nighttime historical thermal order");
+    expect(view.layerTitle).toBe("Nighttime historical thermal pattern");
+    expect(view.meaningCopy).toMatch(/own historical 03:00 temperature record/i);
   });
 
-  it("titles the withheld A layer and keeps the status lock string", () => {
+  it("titles the withheld A layer without an ordering label and keeps the status lock string", () => {
     const catalog = historicalCatalog(false);
     const view = presentMapInteraction({
       catalog,
       state: initialInteractionState(),
     });
     expect(catalog.layer_title).toBe(ORDER_WITHHELD_TITLE);
-    expect(view.layerTitle).toBe("Order withheld — night too flat");
+    expect(view.layerTitle).toBe("Nighttime historical thermal pattern");
+    expect(view.layerTitle.toLowerCase()).not.toMatch(/\border\b/);
+    expect(view.legend[0]?.label).toBe("Geography only");
     expect(ORDER_WITHHELD_STATUS_LOCK).toBe(
       "THERMAL SPATIAL DIFFERENTIATION IS INSUFFICIENT FOR A DEFENSIBLE ORDERING",
     );
@@ -97,8 +100,10 @@ describe("hover, click, and a11y table", () => {
     let state = initialInteractionState();
     state = reduceInteraction(state, { type: "hover", geoid }, catalog);
     expect(hoverFromState(state, catalog)?.line).toBe(
-      `Zone ${geoid} · Nighttime order 1 of 5`,
+      `Zone ${geoid} · Own 03:00 position`,
     );
+    expect(hoverFromState(state, catalog)?.primary_evidence).toBe("Own 03:00 position");
+    expect(hoverFromState(state, catalog)?.line).not.toMatch(/q_A|0\.\d{5,}/);
     expect(state.selectedId).toBeNull();
     state = reduceInteraction(state, { type: "select", geoid }, catalog);
     state = reduceInteraction(state, { type: "hover", geoid: null }, catalog);
@@ -106,7 +111,7 @@ describe("hover, click, and a11y table", () => {
     expect(state.hoverId).toBeNull();
   });
 
-  it("turns hover off when the order is withheld", () => {
+  it("keeps geography hover when the pattern is withheld and suppresses ordering evidence", () => {
     const catalog = historicalCatalog(false);
     const geoid = catalog.zones[0]?.geoid ?? "";
     const state = reduceInteraction(
@@ -114,10 +119,14 @@ describe("hover, click, and a11y table", () => {
       { type: "hover", geoid },
       catalog,
     );
-    expect(state.hoverId).toBeNull();
-    expect(hoverFromState(state, catalog)).toBeNull();
+    expect(state.hoverId).toBe(geoid);
+    const hover = hoverFromState(state, catalog);
+    expect(hover?.primary_evidence).toBe("Geography only");
+    expect(hover?.line).toBe(`Zone ${geoid} · Geography only`);
+    expect(JSON.stringify(hover)).not.toMatch(/q_A|relative order|0\.\d{4}/i);
     const view = presentMapInteraction({ catalog, state });
-    expect(view.hover).toBeNull();
+    expect(view.hover?.primary_evidence).toBe("Geography only");
+    expect(view.legend.some((item) => /order/i.test(item.label))).toBe(false);
   });
 
   it("keeps the accessible zone table as the keyboard path", () => {

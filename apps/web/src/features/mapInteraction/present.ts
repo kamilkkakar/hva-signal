@@ -37,7 +37,8 @@ function announce(
     return LAYER_CLEARED_COPY;
   }
   if (viewDetail) {
-    return `Selected ${viewDetail.geoid}. ${viewDetail.label}. ${viewDetail.value_display}. Coverage ${viewDetail.coverage}. ${viewDetail.time_label}. Source ${viewDetail.source_label}.`;
+    const order = viewDetail.relative_order_line ? ` ${viewDetail.relative_order_line}.` : "";
+    return `Selected zone ${viewDetail.geoid}. ${viewDetail.position_meaning} ${viewDetail.observation_label}. Source ${viewDetail.source_story}.${order}`;
   }
   if (viewHover) {
     return `Hover ${viewHover.line}.`;

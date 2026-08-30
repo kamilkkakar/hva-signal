@@ -13,7 +13,6 @@ import { MapBand } from "./MapBand";
 import { ProvenanceBand } from "./ProvenanceBand";
 import { ResultStoryBand } from "./ResultStoryBand";
 import { RunBand } from "./RunBand";
-import { SelectedZoneBand } from "./SelectedZoneBand";
 import { contextSourceChip } from "./sourceChip";
 import { SupportsBand } from "./SupportsBand";
 import { ThermalBand } from "./ThermalBand";
@@ -100,28 +99,32 @@ export function JudgeShell() {
         canResubmit={canResubmit}
         onResubmit={() => void resubmit()}
       />
-      <MapBand
-        layer={layer}
-        ranking={ranking}
-        areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? "phoenix-demo"}
-        resultAreaId={snapshot?.request?.area_id ?? null}
-        jobId={jobId}
-        jobStatus={snapshot?.status ?? null}
-        result={snapshot?.result ?? null}
-        submitting={submitting}
-        analysisTime={lastRequest?.analysis_time ?? snapshot?.request?.analysis_time}
-      />
       <ResultStoryBand snapshot={snapshot} busy={busy} />
+      <div
+        className="judge-explore"
+        data-testid="judge-explore"
+        data-layout="map-primary"
+      >
+        <RunBand />
+        <MapBand
+          layer={layer}
+          ranking={ranking}
+          areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? "phoenix-demo"}
+          jobId={jobId}
+          jobStatus={snapshot?.status ?? null}
+          result={snapshot?.result ?? null}
+          submitting={submitting}
+          analysisTime={lastRequest?.analysis_time ?? snapshot?.request?.analysis_time}
+        />
+      </div>
       <ThermalBand
         snapshot={snapshot}
         status={snapshot?.status ?? null}
         result={snapshot?.result ?? null}
       />
-      <SelectedZoneBand />
       <SupportsBand status={snapshot?.status ?? null} result={snapshot?.result ?? null} />
       <CapabilityBand />
       <ProvenanceBand snapshot={snapshot} />
-      <RunBand />
     </div>
   );
 }

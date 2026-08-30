@@ -166,9 +166,12 @@ export function MapInteractionStage({ enabled, catalog }: MapInteractionStagePro
       fitCatalog(map, catalogRef.current);
     };
     const onMove = (event: maplibregl.MapLayerMouseEvent) => {
-      dispatch({ type: "hover", geoid: geoidFromEvent(event) });
+      const geoid = geoidFromEvent(event);
+      map.getCanvas().style.cursor = geoid ? "pointer" : "";
+      dispatch({ type: "hover", geoid });
     };
     const onLeave = () => {
+      map.getCanvas().style.cursor = "";
       dispatch({ type: "hover", geoid: null });
     };
     const onClick = (event: maplibregl.MapLayerMouseEvent) => {
@@ -231,11 +234,15 @@ export function MapInteractionStage({ enabled, catalog }: MapInteractionStagePro
       aria-label={
         catalog?.kind === "selected_time_snapshot"
           ? "Selected-time thermal snapshot"
-          : "Nighttime historical thermal map"
+          : "Nighttime historical thermal pattern"
       }
       data-testid="map-interaction-stage"
+      data-layout="map-primary"
       data-map-interaction-gate={gatedOn ? "on" : "off"}
       data-map-state={view.visualState}
+      data-order-shown={
+        catalog?.kind === "historical_ordering" && catalog.fill_authorized ? "true" : "false"
+      }
       data-canvas-allowed={view.canvasAllowed ? "true" : "false"}
       data-decorative="false"
     >

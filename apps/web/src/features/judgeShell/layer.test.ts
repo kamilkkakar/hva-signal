@@ -33,6 +33,7 @@ describe("judge map layer titles", () => {
     expect(withheld.label).not.toBe(CONTEXTUAL_MAP_LAYER);
     expect(withheld.label.toLowerCase()).not.toContain("intervention");
     expect(withheld.label.toLowerCase()).not.toContain("preparedness");
+    expect(withheld.label.toLowerCase()).not.toMatch(/\border\b/);
 
     const shown = judgeMapLayer(
       mapLayerFromLimitations([]),

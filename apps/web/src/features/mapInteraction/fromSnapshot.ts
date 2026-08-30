@@ -6,6 +6,7 @@ import {
   zoneLabel,
 } from "./policy";
 import type { InteractionCatalog, InteractionCollection, InteractionZone } from "./types";
+import { emptyStoryFields, formatObservationLabel } from "./zoneStory";
 
 export type SnapshotZoneInput = {
   zone_id: string;
@@ -67,6 +68,10 @@ export function catalogFromSnapshot(input: {
       time_label,
       source_label,
       has_semantic_fill: !missing,
+      ...emptyStoryFields({
+        observation_label: formatObservationLabel(input.targetTimestamp),
+        source_label,
+      }),
     });
     collection.features.push({
       type: "Feature",

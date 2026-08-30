@@ -9,8 +9,8 @@ import {
 
 describe("judgeShell/map", () => {
   it("exports MAP-B titles", () => {
-    expect(ORDER_SHOWN_TITLE).toBe("Nighttime historical thermal order");
-    expect(ORDER_WITHHELD_TITLE).toBe("Order withheld — night too flat");
+    expect(ORDER_SHOWN_TITLE).toBe("Nighttime historical thermal pattern");
+    expect(ORDER_WITHHELD_TITLE).toBe("Nighttime historical thermal pattern");
   });
 
   it("never places the B snapshot on the A rank map", () => {

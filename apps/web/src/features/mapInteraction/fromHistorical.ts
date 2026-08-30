@@ -1,12 +1,13 @@
 import { buildCatalog } from "./catalog";
 import {
   MISSING_DISPLAY,
-  formatNighttimeOrder,
+  formatRelativeOrder,
   formatTimeLabel,
   productSourceLabel,
   zoneLabel,
 } from "./policy";
 import type { InteractionCatalog, InteractionCollection, InteractionZone } from "./types";
+import { authorizedStoryFields, emptyStoryFields, formatObservationLabel } from "./zoneStory";
 
 export type HistoricalFeatureInput = {
   properties?: Record<string, unknown> | null;
@@ -29,8 +30,9 @@ function orderDenominator(features: HistoricalFeatureInput[]): number {
 
 /**
  * Bind already-joined historical features. Fill authorization is an input.
- * Chrome shows backend nighttime order, never q_A. This adapter does not
- * compute rank or read system-limitation layer labels.
+ * Primary chrome is own-night position / relative order. q_A is expandable
+ * secondary and never a 16-decimal primary. This adapter does not compute
+ * rank or read system-limitation layer labels.
  */
 export function catalogFromHistorical(input: {
   features: HistoricalFeatureInput[];
@@ -42,6 +44,7 @@ export function catalogFromHistorical(input: {
   fillAuthorized: boolean;
 }): InteractionCatalog {
   const time_label = formatTimeLabel(input.analysisTime, input.timezone);
+  const observation_label = formatObservationLabel(input.analysisTime);
   const source_label = productSourceLabel(
     input.dataStatus ?? input.dataMode ?? input.thermalSource,
   );
@@ -58,9 +61,10 @@ export function catalogFromHistorical(input: {
       continue;
     }
     const order = finiteNumber(props.backend_order);
+    const q_A = finiteNumber(props.q_A);
     const permitted = props.thermal_ordering_permitted === true;
     const coverage = !input.fillAuthorized
-      ? "order withheld"
+      ? "pattern withheld"
       : order != null && permitted
         ? "valid"
         : permitted
@@ -68,7 +72,16 @@ export function catalogFromHistorical(input: {
           : "not authorized";
     const hasFill = input.fillAuthorized && permitted && order != null;
     const displayName = typeof props.display_name === "string" ? props.display_name : null;
-    const value_display = hasFill ? formatNighttimeOrder(order, of) : MISSING_DISPLAY;
+    const value_display = hasFill ? formatRelativeOrder(order, of) : MISSING_DISPLAY;
+    const story = hasFill
+      ? authorizedStoryFields({
+          q_A,
+          order,
+          of,
+          observation_label,
+          source_label,
+        })
+      : emptyStoryFields({ observation_label, source_label });
     zones.push({
       geoid,
       zone_id: props.zone_id != null ? String(props.zone_id) : geoid,
@@ -79,6 +92,7 @@ export function catalogFromHistorical(input: {
       time_label,
       source_label,
       has_semantic_fill: hasFill,
+      ...story,
     });
     collection.features.push({
       type: "Feature",
@@ -92,6 +106,7 @@ export function catalogFromHistorical(input: {
         coverage,
         time_label,
         source_label,
+        observation_label,
       },
     });
   }
