@@ -40,7 +40,7 @@ function announce(
     return `Selected ${viewDetail.geoid}. ${viewDetail.label}. ${viewDetail.value_display}. Coverage ${viewDetail.coverage}. ${viewDetail.time_label}. Source ${viewDetail.source_label}.`;
   }
   if (viewHover) {
-    return `Hover ${viewHover.geoid}. ${viewHover.label}. ${viewHover.value_display}.`;
+    return `Hover ${viewHover.line}.`;
   }
   if (!catalog || catalog.zones.length === 0) {
     return EMPTY_CATALOG_COPY;

@@ -1,5 +1,15 @@
 import { catalogZone } from "./catalog";
-import type { InteractionCatalog, InteractionState, ZoneDetail } from "./types";
+import type { HoverCard, InteractionCatalog, InteractionState, ZoneDetail } from "./types";
+
+function hoverLine(
+  catalog: InteractionCatalog,
+  zone: { geoid: string; label: string; value_display: string },
+): string {
+  if (catalog.kind === "historical_ordering") {
+    return `Zone ${zone.geoid} · ${zone.value_display}`;
+  }
+  return `${zone.geoid} · ${zone.label} · ${zone.value_display}`;
+}
 
 /** Detail is a projection of map state. It has no store of its own. */
 export function detailFromState(
@@ -23,11 +33,12 @@ export function detailFromState(
   };
 }
 
+/** MAP-B: hover is off when the nighttime order is withheld. */
 export function hoverFromState(
   state: InteractionState,
   catalog: InteractionCatalog | null,
-): { geoid: string; label: string; value_display: string } | null {
-  if (!state.layerActive) {
+): HoverCard | null {
+  if (!state.layerActive || !catalog?.fill_authorized) {
     return null;
   }
   const zone = catalogZone(catalog, state.hoverId);
@@ -38,5 +49,6 @@ export function hoverFromState(
     geoid: zone.geoid,
     label: zone.label,
     value_display: zone.value_display,
+    line: hoverLine(catalog, zone),
   };
 }

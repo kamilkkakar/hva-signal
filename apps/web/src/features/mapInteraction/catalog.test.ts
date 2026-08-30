@@ -41,31 +41,36 @@ describe("catalogFromSnapshot", () => {
 });
 
 describe("catalogFromHistorical", () => {
-  it("exposes q_A as text when ordering is authorized", () => {
+  it("exposes nighttime order text when ordering is authorized, never q_A", () => {
     const catalog = historicalCatalog(true);
     expect(catalog.kind).toBe("historical_ordering");
+    expect(catalog.layer_title).toBe("Nighttime historical thermal order");
     expect(catalog.fill_authorized).toBe(true);
-    expect(catalog.zones[0]?.value_kind).toBe("q_A");
-    expect(catalog.zones[0]?.value_display).toBe("0.200");
+    expect(catalog.zones[0]?.value_kind).toBe("order");
+    expect(catalog.zones[0]?.value_display).toBe("Nighttime order 1 of 5");
     expect(catalog.zones[0]?.label).toBe("Locator 1");
     expect(catalog.zones[0]?.source_label).toBe("REPLAY");
+    expect(catalog.zones.every((zone) => !zone.value_display.includes("0.2"))).toBe(true);
   });
 
   it("stays outline-only when ranking is not authorized", () => {
     const catalog = historicalCatalog(false);
     expect(catalog.kind).toBe("aoi_outline");
+    expect(catalog.layer_title).toBe("Order withheld — night too flat");
     expect(catalog.fill_authorized).toBe(false);
     expect(catalog.zones.every((zone) => zone.has_semantic_fill === false)).toBe(true);
-    expect(catalog.zones[0]?.coverage).toBe("not authorized");
+    expect(catalog.zones.every((zone) => zone.value_display === "—")).toBe(true);
+    expect(catalog.zones[0]?.coverage).toBe("order withheld");
   });
 
-  it("does not invent fill authorization", () => {
+  it("does not invent fill authorization from leftover q_A or backend_order", () => {
     const catalog = catalogFromHistorical({
       features: [
         {
           properties: {
             GEOID: "040139999",
             q_A: 0.9,
+            backend_order: 1,
             thermal_ordering_permitted: true,
           },
         },
@@ -75,6 +80,8 @@ describe("catalogFromHistorical", () => {
     });
     expect(catalog.fill_authorized).toBe(false);
     expect(catalog.zones[0]?.has_semantic_fill).toBe(false);
+    expect(catalog.zones[0]?.value_display).toBe("—");
+    expect(catalog.zones[0]?.value_kind).toBe("none");
   });
 });
 

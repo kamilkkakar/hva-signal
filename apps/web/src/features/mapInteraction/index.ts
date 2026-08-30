@@ -9,7 +9,18 @@ export { detailFromState, hoverFromState } from "./detail";
 export { tableFromCatalog } from "./table";
 export { highlightFillPaint, highlightLinePaint, featureStatePatch } from "./highlight";
 export { featureCollectionBounds } from "./bounds";
-export { productSourceLabel } from "./policy";
+export {
+  productSourceLabel,
+  ORDER_SHOWN_TITLE,
+  ORDER_WITHHELD_TITLE,
+  ORDER_WITHHELD_STATUS_LOCK,
+  formatNighttimeOrder,
+} from "./policy";
+export {
+  bindExclusiveMapLayer,
+  catalogForHistoricalRankMap,
+  rankedFillCount,
+} from "./exclusive";
 export { MapInteractionChrome } from "./MapInteractionChrome";
 export { MapInteractionStage } from "./MapInteractionStage";
 export type { MapInteractionStageProps } from "./MapInteractionStage";

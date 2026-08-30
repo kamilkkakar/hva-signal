@@ -23,7 +23,11 @@ export function reduceInteraction(
 ): InteractionState {
   switch (event.type) {
     case "hover": {
-      if (!state.layerActive || !zoneExists(catalog, event.geoid)) {
+      if (
+        !state.layerActive ||
+        !catalog?.fill_authorized ||
+        !zoneExists(catalog, event.geoid)
+      ) {
         return { ...state, hoverId: null };
       }
       return { ...state, hoverId: event.geoid };

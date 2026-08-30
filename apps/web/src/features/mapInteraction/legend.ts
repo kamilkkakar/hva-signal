@@ -46,7 +46,7 @@ export function legendFromCatalog(
       {
         id: "outline",
         label: "AOI outline",
-        meaning: "Thermal ranking fill is not authorized. Outline is geography only.",
+        meaning: "Order withheld. Outline is geography only. Absence is not a cool or safe class.",
         swatch: INTERACTION_BASE_LINE,
       },
     ];
@@ -70,9 +70,9 @@ export function legendFromCatalog(
   return [
     {
       id: "authorized",
-      label: "Ordering participant",
+      label: "Nighttime order",
       meaning:
-        "Shared interaction fill. The host map may replace this ink; MAP-A does not invent a severity ramp.",
+        "Nighttime order 1 of N → N of N. Not °C. Not a probability. Shared interaction fill; the host may replace this ink.",
       swatch: INTERACTION_SHARED_FILL,
     },
     {

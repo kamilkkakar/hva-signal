@@ -228,7 +228,11 @@ export function MapInteractionStage({ enabled, catalog }: MapInteractionStagePro
   return (
     <section
       className="mapi"
-      aria-label="Analysis map interaction"
+      aria-label={
+        catalog?.kind === "selected_time_snapshot"
+          ? "Selected-time thermal snapshot"
+          : "Nighttime historical thermal map"
+      }
       data-testid="map-interaction-stage"
       data-map-interaction-gate={gatedOn ? "on" : "off"}
       data-map-state={view.visualState}
@@ -251,11 +255,7 @@ export function MapInteractionStage({ enabled, catalog }: MapInteractionStagePro
                 <p className="mapi-copy">{view.meaningCopy}</p>
                 {view.hover && (
                   <p className="mapi-hover" data-testid="map-interaction-hover">
-                    {view.hover.geoid}
-                    {" · "}
-                    {view.hover.label}
-                    {" · "}
-                    {view.hover.value_display}
+                    {view.hover.line}
                   </p>
                 )}
               </div>

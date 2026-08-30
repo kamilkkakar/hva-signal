@@ -6,7 +6,7 @@ export type MapLayerKind =
   | "historical_ordering"
   | "selected_time_snapshot";
 
-export type InteractionValueKind = "q_A" | "mean_c" | "none";
+export type InteractionValueKind = "q_A" | "order" | "mean_c" | "none";
 
 export type ProductSourceLabel =
   | "REPLAY"
@@ -69,6 +69,7 @@ export type HoverCard = {
   geoid: string;
   label: string;
   value_display: string;
+  line: string;
 };
 
 export type ZoneDetail = {

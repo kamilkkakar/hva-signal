@@ -17,6 +17,9 @@ export type MapInteractionChromeProps = {
 export function MapInteractionChrome({ view, dispatch }: MapInteractionChromeProps) {
   return (
     <div className="mapi-chrome" data-testid="map-interaction-chrome">
+      <p className="mapi-label" data-testid="map-interaction-chrome-title">
+        {view.layerTitle}
+      </p>
       <div className="mapi-toolbar" role="toolbar" aria-label="Map interaction">
         <button
           type="button"

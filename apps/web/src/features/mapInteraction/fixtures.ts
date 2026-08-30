@@ -59,7 +59,8 @@ export function historicalCatalog(authorized: boolean): InteractionCatalog {
     properties: {
       GEOID: zoneId,
       zone_id: zoneId,
-      q_A: authorized ? 0.2 + index * 0.1 : null,
+      q_A: authorized ? 0.2 + index * 0.1 : 0.2 + index * 0.1,
+      backend_order: authorized ? index + 1 : index + 1,
       thermal_ordering_permitted: authorized,
       display_name: `Locator ${index + 1}`,
     },

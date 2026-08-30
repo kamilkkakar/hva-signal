@@ -9,8 +9,9 @@ import { initialInteractionState, reduceInteraction } from "./state";
 import { tableFromCatalog } from "./table";
 
 describe("presentMapInteraction", () => {
-  it("stays gated off by default", () => {
+  it("stays gated off when the stitch override is false", () => {
     const view = presentMapInteraction({
+      enabled: false,
       catalog: snapshotCatalog(),
       state: initialInteractionState(),
     });
@@ -21,6 +22,16 @@ describe("presentMapInteraction", () => {
     expect(view.decorative).toBe(false);
   });
 
+  it("defaults on for the I-MAP stitch branch", () => {
+    const view = presentMapInteraction({
+      catalog: snapshotCatalog(),
+      state: initialInteractionState(),
+    });
+    expect(view.gated).toBe(false);
+    expect(view.visualState).not.toBe("gated_off");
+    expect(view.canvasAllowed).toBe(true);
+  });
+
   it("lets map state drive hover, selection, and detail", () => {
     const catalog = snapshotCatalog();
     const geoid = catalog.zones[0]?.geoid ?? "";
@@ -29,6 +40,7 @@ describe("presentMapInteraction", () => {
     let view = presentMapInteraction({ enabled: true, catalog, state });
     expect(view.hover?.geoid).toBe(geoid);
     expect(view.hover?.value_display).toBe(catalog.zones[0]?.value_display);
+    expect(view.hover?.line).toContain(geoid);
     expect(view.detail).toBeNull();
 
     state = reduceInteraction(state, { type: "select", geoid }, catalog);
