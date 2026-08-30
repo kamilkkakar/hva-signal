@@ -4,13 +4,15 @@ Durability language:
 - InMemoryJobStore is J0 process-local / J1 client-reattachable while the
   process survives. It is not file-backed and not production-durable.
 - SQLiteJobStore (optional, off by default) is J2 local file-backed
-  persistence. LIVE-B owns the file adapter. This module owns the J3
-  durable contract and restart recovery hooks.
-- J3: job identity, durability state, fingerprint, activity_id,
+  persistence with J3 WAL / activity_id / reservation columns. LIVE-B
+  owns the SQLite adapter; InMemory remains the process default unless
+  an operator sets local_sqlite_* explicitly. Enabling it does not
+  enable hosted live. This module owns the J3 durable contract:
+  job identity, durability state, fingerprint, activity_id,
   reservation_id, error class, and recovery flags persist on the same
   AnalysisJob. A worker crash must not drop activity_id or reservation.
-- J4 worker transitions are LIVE-C. This store persists those states; it
-  does not drive the vendor worker.
+  J4 worker transitions are LIVE-C. This store persists those states;
+  it does not drive the vendor worker.
 """
 
 from __future__ import annotations

@@ -37,6 +37,10 @@ class Settings(BaseSettings):
     hosted_live_real_vendor_enabled: bool = False
     # Operator approval is server-side only. Default denied.
     operator_approval_enabled: bool = False
+    # Local file durability only. Default off. Enabling SQLite does not
+    # enable hosted live, demo allowance, or any vendor adapter.
+    local_sqlite_persistence_enabled: bool = False
+    local_sqlite_path: str = ""
 
 
 @lru_cache
