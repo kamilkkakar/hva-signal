@@ -1,0 +1,271 @@
+{
+  "schema_version": "NATIONAL_RESOLVER_PANEL_CATALOG_V1",
+  "census_vintage": "2025",
+  "success": [
+    {
+      "place_geoid": "1714000",
+      "name": "Chicago city",
+      "state": "IL",
+      "role": "dense_grid"
+    },
+    {
+      "place_geoid": "3651000",
+      "name": "New York city",
+      "state": "NY",
+      "role": "large_dense_multipart_water"
+    },
+    {
+      "place_geoid": "0644000",
+      "name": "Los Angeles city",
+      "state": "CA",
+      "role": "irregular_western_harbor_strip"
+    },
+    {
+      "place_geoid": "4835000",
+      "name": "Houston city",
+      "state": "TX",
+      "role": "sprawling_irregular_annexation"
+    },
+    {
+      "place_geoid": "1245000",
+      "name": "Miami city",
+      "state": "FL",
+      "role": "coastal"
+    },
+    {
+      "place_geoid": "0820000",
+      "name": "Denver city",
+      "state": "CO",
+      "role": "western_high_plains"
+    },
+    {
+      "place_geoid": "4260000",
+      "name": "Philadelphia city",
+      "state": "PA",
+      "role": "older_river_irregular"
+    },
+    {
+      "place_geoid": "0477000",
+      "name": "Tucson city",
+      "state": "AZ",
+      "role": "lower_density_qualifying_southwest"
+    }
+  ],
+  "fail_lt25": [
+    {
+      "place_geoid": "1236550",
+      "name": "Key West city",
+      "state": "FL",
+      "role": "required_lt25_coastal_island"
+    },
+    {
+      "place_geoid": "0465350",
+      "name": "Sedona city",
+      "state": "AZ",
+      "role": "lt25_tourist_city"
+    },
+    {
+      "place_geoid": "0803620",
+      "name": "Aspen city",
+      "state": "CO",
+      "role": "lt25_small_mountain_city"
+    },
+    {
+      "place_geoid": "5114968",
+      "name": "Charlottesville city",
+      "state": "VA",
+      "role": "lt25_independent_city"
+    },
+    {
+      "place_geoid": "2401600",
+      "name": "Annapolis city",
+      "state": "MD",
+      "role": "lt25_coastal_capital"
+    }
+  ],
+  "fail2_search": [
+    {
+      "place_geoid": "5157000",
+      "name": "Norfolk city",
+      "state": "VA",
+      "role": "water_separated_midsize"
+    },
+    {
+      "place_geoid": "5164000",
+      "name": "Portsmouth city",
+      "state": "VA",
+      "role": "water_separated_midsize"
+    },
+    {
+      "place_geoid": "5135000",
+      "name": "Hampton city",
+      "state": "VA",
+      "role": "water_heavy_midsize"
+    },
+    {
+      "place_geoid": "5182000",
+      "name": "Virginia Beach city",
+      "state": "VA",
+      "role": "coastal_large"
+    },
+    {
+      "place_geoid": "4828068",
+      "name": "Galveston city",
+      "state": "TX",
+      "role": "barrier_island"
+    },
+    {
+      "place_geoid": "1234132",
+      "name": "Islamorada, Village of Islands village",
+      "state": "FL",
+      "role": "multipart_keys"
+    },
+    {
+      "place_geoid": "1243000",
+      "name": "Marathon city",
+      "state": "FL",
+      "role": "keys_island_chain"
+    },
+    {
+      "place_geoid": "0600562",
+      "name": "Alameda city",
+      "state": "CA",
+      "role": "island_city"
+    },
+    {
+      "place_geoid": "2255000",
+      "name": "New Orleans city",
+      "state": "LA",
+      "role": "river_coastal"
+    },
+    {
+      "place_geoid": "2507000",
+      "name": "Boston city",
+      "state": "MA",
+      "role": "harbor_islands"
+    },
+    {
+      "place_geoid": "5363000",
+      "name": "Seattle city",
+      "state": "WA",
+      "role": "coastal_lakes"
+    },
+    {
+      "place_geoid": "0667000",
+      "name": "San Francisco city",
+      "state": "CA",
+      "role": "peninsula_islands"
+    },
+    {
+      "place_geoid": "0236400",
+      "name": "Juneau city and borough",
+      "state": "AK",
+      "role": "famous_multipart_nonconus"
+    },
+    {
+      "place_geoid": "1571550",
+      "name": "Urban Honolulu CDP",
+      "state": "HI",
+      "role": "nonconus_cdp"
+    },
+    {
+      "place_geoid": "0203000",
+      "name": "Anchorage municipality",
+      "state": "AK",
+      "role": "nonconus_municipality"
+    },
+    {
+      "place_geoid": "4752006",
+      "name": "Nashville-Davidson metropolitan government (balance)",
+      "state": "TN",
+      "role": "consolidated_balance_holes"
+    },
+    {
+      "place_geoid": "1836003",
+      "name": "Indianapolis city (balance)",
+      "state": "IN",
+      "role": "consolidated_balance_holes"
+    },
+    {
+      "place_geoid": "0423620",
+      "name": "Flagstaff city",
+      "state": "AZ",
+      "role": "borderline_count"
+    },
+    {
+      "place_geoid": "3570500",
+      "name": "Santa Fe city",
+      "state": "NM",
+      "role": "borderline_count"
+    }
+  ],
+  "phoenix_retrospective": [
+    {
+      "place_geoid": "0455000",
+      "name": "Phoenix city",
+      "state": "AZ",
+      "role": "legacy_retrospective_only"
+    }
+  ],
+  "identity_fail": [
+    {
+      "place_geoid": "00XXXXX",
+      "name": "(malformed GEOID)",
+      "state": "NA",
+      "role": "invalid_place_id"
+    },
+    {
+      "place_geoid": "0499999",
+      "name": "(well-formed GEOID absent from TIGER 2025 AZ places)",
+      "state": "AZ",
+      "role": "unknown_place"
+    }
+  ],
+  "fail2_found": [
+    {
+      "place_geoid": "0485540",
+      "name": "Yuma city",
+      "state": "AZ",
+      "role": "yuma_fragmented_intpt"
+    },
+    {
+      "place_geoid": "0812815",
+      "name": "Centennial city",
+      "state": "CO",
+      "role": "centennial_multipart_fragmented"
+    },
+    {
+      "place_geoid": "1212875",
+      "name": "Clearwater city",
+      "state": "FL",
+      "role": "clearwater_multipart_fragmented"
+    },
+    {
+      "place_geoid": "4816432",
+      "name": "Conroe city",
+      "state": "TX",
+      "role": "conroe_multipart_fragmented"
+    }
+  ],
+  "should_fail": [
+    {
+      "place_geoid": "1236550",
+      "name": "Key West city",
+      "state": "FL",
+      "role": "required_real_lt25",
+      "expected_reason": "INSUFFICIENT_ELIGIBLE_TRACTS"
+    },
+    {
+      "place_geoid": "0485540",
+      "name": "Yuma city",
+      "state": "AZ",
+      "role": "required_real_connected_lt25",
+      "expected_reason": "INSUFFICIENT_CONNECTED_TRACTS",
+      "alg1_seed_component": 6,
+      "note": "ALG1 place-INTPT / nearest eligible lands on the 6-tract island, not the 20."
+    }
+  ],
+  "required_real_lt25": true,
+  "real_connected_lt25_found": true,
+  "success_only_is_incomplete": true
+}
