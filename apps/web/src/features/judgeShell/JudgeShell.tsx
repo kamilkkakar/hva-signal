@@ -142,6 +142,8 @@ export function JudgeShell() {
       <AreaContextBand
         areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? "phoenix-demo"}
         selectedZoneId={selectedZoneId}
+        result={snapshot?.result ?? null}
+        onSelectTract={setSelectedZoneId}
       />
       <SupportsBand status={snapshot?.status ?? null} result={snapshot?.result ?? null} />
       <CapabilityBand />

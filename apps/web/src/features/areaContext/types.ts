@@ -35,6 +35,16 @@ export type ZoneMapProperties = {
   combined_score_authorized: false;
 };
 
+export type SectionedPublicStory = {
+  zone_id: string;
+  thermal_evidence_status: "AVAILABLE" | "UNKNOWN";
+  thermal_evidence: string[];
+  context: string[];
+  preparedness: string[];
+  direction: string[];
+  combined_score_authorized: false;
+};
+
 export type AnalysisAreaContextView = {
   area_label: string;
   census_tract_geoid: string;
@@ -46,6 +56,7 @@ export type AnalysisAreaContextView = {
   sources: string[];
   cope_characteristics: string[];
   verify_before_action: string[];
+  story?: SectionedPublicStory;
   vulnerability_score_authorized: false;
   combined_score_authorized: false;
 };
@@ -61,6 +72,7 @@ export type AreaContextDocument = {
     comparison_layer_allowed: boolean;
     quantity_only: boolean;
   }>;
+  comparison_eligibility?: Record<string, number>;
   map_modes: MapMode[];
   cooling_inventory: {
     coverage: "partial";

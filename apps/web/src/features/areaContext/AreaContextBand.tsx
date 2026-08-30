@@ -1,26 +1,38 @@
 import { useEffect, useState } from "react";
+import type { AnalysisResultStub } from "@/api/analysisJobs";
+import { composeSelectedAreaStory, SelectedAreaStoryPanel } from "@/features/selectedAreaStory";
 import { AreaContextList } from "./AreaContextList";
-import { AreaContextPanel } from "./AreaContextPanel";
 import { MAP_MODE_LABEL } from "./copy";
 import { fetchAreaContext } from "./fetchContext";
 import { MAP_MODES } from "./mapModes";
-import { allowedMapModes, presentList, presentSelectedArea } from "./present";
+import { allowedMapModes, presentList } from "./present";
+import { isPublicContextEnabled } from "./publicContextGate";
 import type { AreaContextDocument, MapMode } from "./types";
 import "./areaContext.css";
 
 export type AreaContextBandProps = {
   areaId?: string;
   selectedZoneId?: string | null;
+  result?: AnalysisResultStub | null;
+  onSelectTract?: (tractId: string) => void;
+  contextEnabled?: boolean;
 };
 
 export function AreaContextBand({
   areaId = "phoenix-demo",
   selectedZoneId = null,
+  result = null,
+  onSelectTract,
+  contextEnabled = isPublicContextEnabled(),
 }: AreaContextBandProps) {
   const [document, setDocument] = useState<AreaContextDocument | null>(null);
   const [mode, setMode] = useState<MapMode>("THERMAL");
 
   useEffect(() => {
+    if (!contextEnabled) {
+      setDocument(null);
+      return;
+    }
     let cancelled = false;
     void fetchAreaContext(areaId, selectedZoneId)
       .then((payload) => {
@@ -36,16 +48,19 @@ export function AreaContextBand({
     return () => {
       cancelled = true;
     };
-  }, [areaId, selectedZoneId]);
+  }, [areaId, selectedZoneId, contextEnabled]);
 
-  if (!document) {
+  if (!contextEnabled || !document) {
     return null;
   }
 
   const modes = allowedMapModes(document);
-  const selected = document.selected
-    ? presentSelectedArea(document.selected)
-    : null;
+  const story = composeSelectedAreaStory({
+    selectedGeoid: selectedZoneId,
+    result,
+    context: document.selected,
+    document,
+  });
 
   return (
     <section
@@ -67,8 +82,12 @@ export function AreaContextBand({
           </button>
         ))}
       </div>
-      {selected ? <AreaContextPanel view={selected} /> : null}
-      <AreaContextList rows={presentList(document)} mode={mode} />
+      {selectedZoneId ? <SelectedAreaStoryPanel story={story} mode={mode} /> : null}
+      <AreaContextList
+        rows={presentList(document)}
+        mode={mode}
+        onSelectTract={onSelectTract}
+      />
     </section>
   );
 }
