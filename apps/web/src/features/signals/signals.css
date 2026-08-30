@@ -12,6 +12,7 @@
 .signals-stamp {
   display: inline-block;
   margin: 0;
+  max-width: 100%;
   padding: 0.35rem 0.5rem;
   border: 2px solid var(--stamp);
   color: var(--stamp);
@@ -19,6 +20,8 @@
   font-family: var(--font-display);
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .signals-stamp[data-tone="not-prepared"],

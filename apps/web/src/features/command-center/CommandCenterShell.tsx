@@ -5,6 +5,7 @@ import { useJobStore } from "@/stores/jobStore";
 import { POLL_INTERVAL_MS } from "@/utils/jobPolling";
 import { mapLayerFromLimitations, rankingPresentation } from "@/utils/mapLayer";
 import { sourceBannerLabel } from "@/utils/sourceBanner";
+import { AnalysisDetail } from "./AnalysisDetail";
 import { DecisionRail } from "./DecisionRail";
 import { QueryRail } from "./QueryRail";
 import { SourceTape } from "./SourceTape";
@@ -60,6 +61,7 @@ export function CommandCenterShell() {
           submitting={submitting}
         />
         <DecisionRail ranking={ranking} />
+        <AnalysisDetail />
       </div>
       <TimelineBar />
     </div>
