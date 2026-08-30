@@ -20,6 +20,7 @@ type MapBandProps = {
   result: AnalysisResultStub | null;
   submitting: boolean;
   analysisTime?: string | null;
+  onSelectedIdChange?: (geoid: string | null) => void;
 };
 
 function resultIsReady(status: JobStatus | null): boolean {
@@ -119,7 +120,12 @@ export function MapBand(props: MapBandProps) {
       data-ranked-feature-count={String(rankedFillCount(catalog))}
       data-layer-label={props.layer.label}
     >
-      <JudgeMap lane="A" historical={catalog} enabled />
+      <JudgeMap
+        lane="A"
+        historical={catalog}
+        enabled
+        onSelectedIdChange={props.onSelectedIdChange}
+      />
     </section>
   );
 }

@@ -9,6 +9,7 @@ import {
   STAMP_ORDER_SHOWN,
   STAMP_ORDER_WITHHELD,
 } from "./copy";
+import { clusteredResult } from "../charts/fixtures";
 import { presentSignalA } from "./presentation";
 import { SignalAPanel } from "./SignalAPanel";
 
@@ -63,6 +64,20 @@ describe("SignalAPanel", () => {
     expect(html).toContain(STAMP_HISTORY_NOT_PREPARED);
     expect(html).not.toContain(`>${STAMP_ORDER_WITHHELD}<`);
     expect(html).toContain("Geography ready is not history ready");
+  });
+
+  it("puts the historical-position strip in chrome without leaking q_A", () => {
+    const html = render({
+      input: { kind: "order_withheld" },
+      result: clusteredResult(),
+    });
+    expect(html).toContain('data-testid="historical-position-strip"');
+    expect(html).toContain("ORDERING WITHHELD");
+    const chrome = chromeOf(html);
+    expect(chrome).toContain("LOWER POSITION IN OWN HISTORY");
+    for (const token of FORBIDDEN_CHROME_METHOD) {
+      expect(chrome.includes(token), token).toBe(false);
+    }
   });
 
   it("omits forbidden judge phrases from chrome", () => {

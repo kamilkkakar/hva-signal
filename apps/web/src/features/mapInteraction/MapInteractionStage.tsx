@@ -24,6 +24,7 @@ const EMPTY_COLLECTION = {
 export type MapInteractionStageProps = {
   enabled?: boolean;
   catalog: InteractionCatalog | null;
+  onSelectedIdChange?: (geoid: string | null) => void;
 };
 
 function ensureLayers(map: maplibregl.Map): GeoJSONSource | null {
@@ -106,7 +107,11 @@ function fitCatalog(map: maplibregl.Map, catalog: InteractionCatalog | null): vo
   map.fitBounds(bounds, { padding: 36, duration: 0 });
 }
 
-export function MapInteractionStage({ enabled, catalog }: MapInteractionStageProps) {
+export function MapInteractionStage({
+  enabled,
+  catalog,
+  onSelectedIdChange,
+}: MapInteractionStageProps) {
   const gatedOn = mapInteractionIsEnabled(enabled);
   const [state, dispatch] = useReducer(
     (current: InteractionState, event: InteractionEvent) =>
@@ -125,6 +130,11 @@ export function MapInteractionStage({ enabled, catalog }: MapInteractionStagePro
   catalogRef.current = catalog;
   stateRef.current = state;
   viewRef.current = view;
+
+  const selectedOut = state.layerActive ? state.selectedId : null;
+  useEffect(() => {
+    onSelectedIdChange?.(selectedOut);
+  }, [onSelectedIdChange, selectedOut]);
 
   useEffect(() => {
     if (!gatedOn || !view.canvasAllowed) {
