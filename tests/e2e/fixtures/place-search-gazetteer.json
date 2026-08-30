@@ -1,0 +1,27 @@
+{
+  "_test_only": true,
+  "_not_product_evidence": true,
+  "_fortyguard_calls": 0,
+  "source": "MOCK_OR_SYNTHETIC_NOT_VENDOR",
+  "thermal_product_evidence": false,
+  "invented_mean_temperature_c": false,
+  "vintage": "2025",
+  "rule": "exact normalized short name; no largest-city tie-break; identity only",
+  "rows": [
+    { "geoid": "1772000", "name": "Springfield city", "state": "IL" },
+    { "geoid": "2970000", "name": "Springfield city", "state": "MO" },
+    { "geoid": "1714000", "name": "Chicago city", "state": "IL" },
+    { "geoid": "0455000", "name": "Phoenix city", "state": "AZ" },
+    { "geoid": "4157500", "name": "Phoenix city", "state": "OR" }
+  ],
+  "queries": {
+    "Springfield": "AMBIGUOUS_PLACE",
+    "Phoenix": "AMBIGUOUS_PLACE",
+    "Springfield, IL": "1772000",
+    "Springfield, MO": "2970000",
+    "Phoenix, AZ": "0455000",
+    "Chicago, IL": "1714000"
+  },
+  "phoenix_az_is_not": "phoenix-demo",
+  "malformed_geoids": ["12", "abc", "17140000"]
+}

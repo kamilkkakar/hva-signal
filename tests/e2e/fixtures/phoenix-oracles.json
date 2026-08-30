@@ -1,0 +1,26 @@
+{
+  "note": "Product-grade Phoenix Decision 8 oracles. Not synthetic. Do not invent a third date.",
+  "thermal_product_evidence": true,
+  "source": "PHOENIX_DECISION8_REPLAY",
+  "hashes": {
+    "area_config": "df00333a4df900a9762b7be975ed0c36b6e1749c953e9fb4690d9f6e4e02a60a",
+    "reference": "8de5db71fe24118cf5b66e3bee394398fd142516ad2590c46e617e0c0b83408c",
+    "geometry": "3f16870fc801da5052b03e0f09c172feb4a1e0d6736452d22ffd6f09bb4e11f0",
+    "d8_oracle": "febd0cdd11451eff16e01fe59d26ffeaf94456d94e422ac45045431de1e0a651"
+  },
+  "geometry_version": "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f",
+  "oracles": [
+    {
+      "analysis_time": "2022-07-01T03:00:00",
+      "state": "INSUFFICIENT",
+      "observed_spread": 0.0439665471923536,
+      "ranked_fills": 0
+    },
+    {
+      "analysis_time": "2022-06-30T03:00:00",
+      "state": "SUFFICIENT",
+      "observed_spread": 0.13548387096774192,
+      "ranked_fills": 25
+    }
+  ]
+}
