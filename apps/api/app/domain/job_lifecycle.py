@@ -34,9 +34,13 @@ class ExecutionState(str, Enum):
 
 class CostAuthorizationState(str, Enum):
     NOT_REQUIRED = "NOT_REQUIRED"
+    REQUIRED = "REQUIRED"
     WAITING_FOR_APPROVAL = "WAITING_FOR_APPROVAL"
     AUTHORIZED = "AUTHORIZED"
     DENIED = "DENIED"
+    EXPIRED = "EXPIRED"
+    CONSUMED = "CONSUMED"
+    INSUFFICIENT = "INSUFFICIENT"
 
 
 class SignalPhase(str, Enum):
@@ -84,14 +88,23 @@ class SignalProgress(BaseModel):
 
 
 class CostAuthorization(BaseModel):
-    """Spend approval. Not analytical availability."""
+    """Spend approval. Not analytical availability. Not a vendor receipt."""
 
     model_config = ConfigDict(extra="forbid")
 
     state: CostAuthorizationState = CostAuthorizationState.NOT_REQUIRED
+    signal_kind: ThermalSignalKind | None = None
+    request_fingerprint: str | None = None
+    geometry_sha256: str | None = None
+    requested_units: int | None = Field(default=None, ge=0)
+    planned_acquisition_units: int | None = Field(default=None, ge=0)
     estimated_units: int | None = Field(default=None, ge=0)
     authorized_max_units: int | None = Field(default=None, ge=0)
-    request_fingerprint: str | None = None
+    consumed_units: int = Field(default=0, ge=0)
+    approved_at: datetime | None = None
+    expires_at: datetime | None = None
+    approval_ref: str | None = None
+    reason: str | None = None
 
 
 class SignalSection(BaseModel):
@@ -155,7 +168,12 @@ class TwoSignalJobState(BaseModel):
 
 
 _IN_FLIGHT = frozenset(
-    {SignalAvailability.PENDING, SignalAvailability.FETCHING}
+    {
+        SignalAvailability.PENDING,
+        SignalAvailability.FETCHING,
+        SignalAvailability.WAITING_FOR_APPROVAL,
+        SignalAvailability.AUTHORIZATION_INSUFFICIENT,
+    }
 )
 _FAILED = frozenset({SignalAvailability.FAILED})
 _USEFUL = frozenset(
@@ -175,6 +193,31 @@ def _requested(section: SignalSection) -> bool:
     return section.requested and section.availability != SignalAvailability.NOT_REQUESTED
 
 
+def effective_section_availability(
+    state: TwoSignalJobState, section: SignalSection
+) -> SignalAvailability:
+    """Spend denial/expiry is a failed B even if the section still says waiting."""
+    availability = section.availability
+    if (
+        section.kind != ThermalSignalKind.SELECTED_TIME_SNAPSHOT
+        or not _requested(section)
+    ):
+        return availability
+    cost = state.cost_authorization.state
+    if availability in {
+        SignalAvailability.WAITING_FOR_APPROVAL,
+        SignalAvailability.AUTHORIZATION_INSUFFICIENT,
+        SignalAvailability.PENDING,
+    }:
+        if cost == CostAuthorizationState.DENIED:
+            return SignalAvailability.FAILED
+        if cost == CostAuthorizationState.EXPIRED:
+            return SignalAvailability.FAILED
+        if cost == CostAuthorizationState.INSUFFICIENT:
+            return SignalAvailability.AUTHORIZATION_INSUFFICIENT
+    return availability
+
+
 def derive_job_terminality(state: TwoSignalJobState) -> JobTerminality:
     """Overall job terminality. Both signals need not be READY."""
     if state.cost_authorization.state == CostAuthorizationState.WAITING_FOR_APPROVAL:
@@ -186,11 +229,12 @@ def derive_job_terminality(state: TwoSignalJobState) -> JobTerminality:
     for section in (state.historical, state.selected_time):
         if not _requested(section):
             continue
-        if section.availability in _IN_FLIGHT:
+        availability = effective_section_availability(state, section)
+        if availability in _IN_FLIGHT:
             classes.append("inflight")
-        elif section.availability in _FAILED:
+        elif availability in _FAILED:
             classes.append("failed")
-        elif section.availability in _USEFUL:
+        elif availability in _USEFUL:
             classes.append("useful")
         else:
             classes.append("inflight")

@@ -53,6 +53,7 @@ from app.domain.job_lifecycle import (
     SignalSectionError,
     TwoSignalJobState,
     derive_job_terminality,
+    effective_section_availability,
 )
 from app.domain.signals import (
     HistoricalNormalizedSignalState,
@@ -86,6 +87,7 @@ __all__ = [
     "SignalSectionError",
     "TwoSignalJobState",
     "derive_job_terminality",
+    "effective_section_availability",
     "CoveragePolicy",
     "DataMode",
     "DataStatus",

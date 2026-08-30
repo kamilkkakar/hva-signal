@@ -194,3 +194,21 @@ def test_progress_cannot_regress() -> None:
 
 def test_combined_score_remains_forbidden() -> None:
     assert _job(SignalAvailability.READY, SignalAvailability.READY).combined_score_authorized is False
+
+
+def test_denied_spend_while_b_waiting_is_not_in_flight() -> None:
+    state = _job(
+        SignalAvailability.READY,
+        SignalAvailability.WAITING_FOR_APPROVAL,
+        cost=CostAuthorization(state=CostAuthorizationState.DENIED, reason="denied"),
+    )
+    assert state.terminality == JobTerminality.TERMINAL_PARTIAL
+
+
+def test_expired_spend_while_b_waiting_is_not_in_flight() -> None:
+    state = _job(
+        SignalAvailability.NOT_PREPARED,
+        SignalAvailability.WAITING_FOR_APPROVAL,
+        cost=CostAuthorization(state=CostAuthorizationState.EXPIRED),
+    )
+    assert state.terminality == JobTerminality.TERMINAL_PARTIAL
