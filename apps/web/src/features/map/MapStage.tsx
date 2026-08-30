@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import maplibregl, { type GeoJSONSource } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { AnalysisResultStub } from "@/api/analysisJobs";
@@ -23,7 +23,7 @@ const EMPTY_COLLECTION = {
   features: [],
 };
 
-type MapStageProps = {
+export type MapStageProps = {
   layer: MapLayerState;
   ranking: RankingPresentation;
   areaId: string | null;
@@ -145,7 +145,7 @@ function applyPresentation(map: maplibregl.Map, presentation: MapPresentation): 
   return true;
 }
 
-export function MapStage({
+function MapStageInner({
   layer,
   ranking,
   areaId,
@@ -384,3 +384,5 @@ export function MapStage({
     </main>
   );
 }
+
+export const MapStage = memo(MapStageInner);
