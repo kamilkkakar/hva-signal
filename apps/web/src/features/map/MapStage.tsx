@@ -8,6 +8,15 @@ import {
   bindGeometryToAnalysis,
   featureCollectionBounds,
 } from "@/utils/geometryJoin";
+import {
+  HistoricalPositionLegend,
+  allHatchImages,
+  legendModeFromMap,
+  signalAFillPaint,
+  signalAHaloPaint,
+  signalAHatchPaint,
+  signalALinePaint,
+} from "@/features/mapEncoding";
 import type { MapLayerState, RankingPresentation } from "@/utils/mapLayer";
 import {
   emptyMapPresentation,
@@ -17,6 +26,8 @@ import {
 
 const SOURCE_ID = "hva-area-geometry";
 const FILL_LAYER_ID = "hva-tract-fill";
+const HATCH_LAYER_ID = "hva-tract-hatch";
+const HALO_LAYER_ID = "hva-tract-halo";
 const LINE_LAYER_ID = "hva-tract-outline";
 const EMPTY_COLLECTION = {
   type: "FeatureCollection" as const,
@@ -57,6 +68,19 @@ function resultIsReady(status: JobStatus | null): boolean {
   return status === "complete" || status === "partial";
 }
 
+function ensureHatchImages(map: maplibregl.Map): void {
+  for (const image of allHatchImages()) {
+    if (map.hasImage(image.id)) {
+      continue;
+    }
+    map.addImage(image.id, {
+      width: image.width,
+      height: image.height,
+      data: image.data,
+    });
+  }
+}
+
 function ensureMapLayers(map: maplibregl.Map): GeoJSONSource | null {
   if (!map.isStyleLoaded()) {
     return null;
@@ -67,14 +91,42 @@ function ensureMapLayers(map: maplibregl.Map): GeoJSONSource | null {
       data: EMPTY_COLLECTION,
     });
   }
+  ensureHatchImages(map);
+  const idleFill = signalAFillPaint({ authorized: false, maxOrder: 1 });
+  const idleHatch = signalAHatchPaint({ authorized: false, maxOrder: 1 });
+  const idleHalo = signalAHaloPaint(false);
+  const idleLine = signalALinePaint(false);
   if (!map.getLayer(FILL_LAYER_ID)) {
     map.addLayer({
       id: FILL_LAYER_ID,
       type: "fill",
       source: SOURCE_ID,
       paint: {
-        "fill-color": "#2f8f78",
-        "fill-opacity": 0,
+        "fill-color": idleFill["fill-color"] as string,
+        "fill-opacity": idleFill["fill-opacity"],
+      },
+    });
+  }
+  if (!map.getLayer(HATCH_LAYER_ID)) {
+    map.addLayer({
+      id: HATCH_LAYER_ID,
+      type: "fill",
+      source: SOURCE_ID,
+      paint: {
+        "fill-pattern": idleHatch["fill-pattern"] as string,
+        "fill-opacity": idleHatch["fill-opacity"],
+      },
+    });
+  }
+  if (!map.getLayer(HALO_LAYER_ID)) {
+    map.addLayer({
+      id: HALO_LAYER_ID,
+      type: "line",
+      source: SOURCE_ID,
+      paint: {
+        "line-color": idleHalo["line-color"],
+        "line-width": idleHalo["line-width"],
+        "line-opacity": idleHalo["line-opacity"],
       },
     });
   }
@@ -84,8 +136,9 @@ function ensureMapLayers(map: maplibregl.Map): GeoJSONSource | null {
       type: "line",
       source: SOURCE_ID,
       paint: {
-        "line-color": "#10140e",
-        "line-width": 1.15,
+        "line-color": idleLine["line-color"],
+        "line-width": idleLine["line-width"],
+        "line-opacity": idleLine["line-opacity"],
       },
     });
   }
@@ -119,20 +172,27 @@ function applyPresentation(map: maplibregl.Map, presentation: MapPresentation): 
     (feature) => Number(feature.properties.backend_order) || 0,
   );
   const maxOrder = Math.max(1, ...orders);
-  map.setPaintProperty(
-    FILL_LAYER_ID,
-    "fill-opacity",
-    presentation.thermalOrderingVisible ? 0.72 : 0,
-  );
-  map.setPaintProperty(FILL_LAYER_ID, "fill-color", [
-    "interpolate",
-    ["linear"],
-    ["get", "backend_order"],
-    1,
-    "#2f8f78",
-    maxOrder,
-    "#d56a1c",
-  ]);
+  const authorized = presentation.thermalOrderingVisible;
+  const fill = signalAFillPaint({ authorized, maxOrder });
+  const hatch = signalAHatchPaint({ authorized, maxOrder });
+  const halo = signalAHaloPaint(authorized);
+  const line = signalALinePaint(authorized);
+  map.setPaintProperty(FILL_LAYER_ID, "fill-color", fill["fill-color"]);
+  map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", fill["fill-opacity"]);
+  if (map.getLayer(HATCH_LAYER_ID)) {
+    map.setPaintProperty(HATCH_LAYER_ID, "fill-pattern", hatch["fill-pattern"]);
+    map.setPaintProperty(HATCH_LAYER_ID, "fill-opacity", hatch["fill-opacity"]);
+  }
+  if (map.getLayer(HALO_LAYER_ID)) {
+    map.setPaintProperty(HALO_LAYER_ID, "line-color", halo["line-color"]);
+    map.setPaintProperty(HALO_LAYER_ID, "line-width", halo["line-width"]);
+    map.setPaintProperty(HALO_LAYER_ID, "line-opacity", halo["line-opacity"]);
+  }
+  if (map.getLayer(LINE_LAYER_ID)) {
+    map.setPaintProperty(LINE_LAYER_ID, "line-color", line["line-color"]);
+    map.setPaintProperty(LINE_LAYER_ID, "line-width", line["line-width"]);
+    map.setPaintProperty(LINE_LAYER_ID, "line-opacity", line["line-opacity"]);
+  }
   if (!showGeometry) {
     return true;
   }
@@ -171,6 +231,10 @@ function MapStageInner({
   const areaAligned = Boolean(areaId && resultAreaId && areaId === resultAreaId);
   const empty = ranking.state === "INSUFFICIENT_EVIDENCE";
   const thermalBlocked = !layer.allowPriorityChoropleth;
+  const legendMode = legendModeFromMap({
+    visualState: presentation.visualState,
+    thermalOrderingVisible: presentation.thermalOrderingVisible,
+  });
 
   useEffect(() => {
     const node = containerRef.current;
@@ -327,6 +391,9 @@ function MapStageInner({
       data-map-state={presentation.visualState}
       data-geometry-feature-count={String(presentation.outlineCount)}
       data-ranked-feature-count={String(presentation.rankedFillCount)}
+      data-encoding="historical-position"
+      data-legend-mode={legendMode}
+      data-b-public="no"
     >
       <div ref={containerRef} className="map-canvas" data-testid="map-canvas" />
       <div className="fiducial fiducial-nw" aria-hidden="true" />
@@ -380,6 +447,9 @@ function MapStageInner({
         <p className="map-coords" aria-hidden="true">
           PLOTTER BED · NO TILESERVER · NO SYNTHETIC FIELD
         </p>
+      </div>
+      <div className="map-encoding-slot">
+        <HistoricalPositionLegend mode={legendMode} />
       </div>
     </main>
   );
