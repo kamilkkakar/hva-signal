@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SCORE_QUESTION } from "./copy";
-import { answersProductQuestions, presentList, presentSelectedArea } from "./present";
+import { answersProductQuestions, listCaption, presentList, presentSelectedArea } from "./present";
 import type { AnalysisAreaContextView, AreaContextDocument } from "./types";
 
 const view: AnalysisAreaContextView = {
@@ -108,5 +108,24 @@ describe("area context presentation", () => {
     const rows = presentList(document);
     expect(rows[0]?.canopy).toBe(0.15);
     expect(rows[0]?.income).toBeNull();
+    expect(rows[0]?.areaLabel).toMatch(/Analysis Area/i);
+  });
+
+  it("never captions the inventory table as thermal evidence", () => {
+    expect(listCaption("THERMAL")).toBe("Context and inventory values for each analysis area");
+    expect(listCaption("THERMAL")).not.toMatch(/thermal|fortyguard/i);
+    expect(listCaption("TREE_CANOPY")).toMatch(/tree canopy/i);
+    expect(listCaption("INCOME")).toMatch(/income/i);
+    expect(listCaption("OLDER_HOUSING")).toMatch(/older housing/i);
+  });
+
+  it("drops the thermal-warrant placeholder from product copy", () => {
+    const presented = presentSelectedArea({
+      ...view,
+      cope_characteristics: ["Thermal evidence warrants closer review."],
+      direction: ["Thermal evidence warrants closer review."],
+    });
+    expect(presented.cope.join(" ")).not.toMatch(/warrants closer review/i);
+    expect(presented.direction.join(" ")).not.toMatch(/warrants closer review/i);
   });
 });

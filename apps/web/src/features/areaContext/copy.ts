@@ -1,5 +1,7 @@
 export const PANEL_ARIA = "Selected analysis area context";
 export const LIST_ARIA = "Analysis area context without the map";
+export const LIST_CAPTION =
+  "Context and inventory values for each analysis area";
 export const KICKER = "Area context";
 export const NOT_A_SCORE = "This is not a vulnerability score.";
 export const MAP_MODE_LABEL: Record<string, string> = {

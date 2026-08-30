@@ -137,10 +137,11 @@ def test_thermal_intersection_only_when_supported() -> None:
         cooling_preparedness(status="UNKNOWN"),
         {MetricKind.CANOPY_COVER_SHARE: 0.20},
         {MetricKind.CANOPY_COVER_SHARE: 25},
-        thermal_sentence="Thermal evidence warrants closer review.",
+        thermal_sentence="Nighttime historical thermal order is shown for this analysis area.",
     )
     assert facts_view.thermal_evidence_status == "AVAILABLE"
-    assert any("warrants closer review" in line for line in facts_view.cope_characteristics)
+    assert any("historical thermal order" in line for line in facts_view.cope_characteristics)
+    assert all("warrants closer review" not in line.lower() for line in facts_view.cope_characteristics)
 
     empty = cope_characteristics([], thermal_status="UNKNOWN", thermal_sentence=None)
     assert empty == []

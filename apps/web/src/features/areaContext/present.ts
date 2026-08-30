@@ -1,5 +1,7 @@
 import {
   COPE_QUESTION,
+  LIST_CAPTION,
+  MAP_MODE_LABEL,
   NOT_A_SCORE,
   SCORE_QUESTION,
   SCORE_REFUSAL,
@@ -7,6 +9,21 @@ import {
 } from "./copy";
 import { analysisAreaLabel, analysisAreaNumber } from "@/features/selectedAreaStory/identity";
 import type { AnalysisAreaContextView, AreaContextDocument, MapMode } from "./types";
+
+const WARRANT = /warrants closer review/i;
+
+function withoutWarrant(lines: string[]): string[] {
+  return lines.filter((line) => !WARRANT.test(line));
+}
+
+/** Context/inventory table. Never labels the columns as thermal or FortyGuard. */
+export function listCaption(mode: MapMode): string {
+  if (mode === "THERMAL") {
+    return LIST_CAPTION;
+  }
+  return `${MAP_MODE_LABEL[mode]} values for each analysis area`;
+}
+
 
 export type AreaContextPanelView = {
   areaLabel: string;
@@ -47,8 +64,8 @@ export function presentSelectedArea(
     })),
     preparedness: view.preparedness,
     uncertainty: view.uncertainty_notes,
-    direction: view.direction,
-    cope: view.cope_characteristics,
+    direction: withoutWarrant(view.direction),
+    cope: withoutWarrant(view.cope_characteristics),
     verify: view.verify_before_action,
     sources: view.sources,
     notAScore: NOT_A_SCORE,

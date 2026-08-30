@@ -1,4 +1,5 @@
-import { LIST_ARIA, MAP_MODE_LABEL, ZERO_LAYER_NOTE } from "./copy";
+import { LIST_ARIA, ZERO_LAYER_NOTE } from "./copy";
+import { listCaption } from "./present";
 import type { MapMode } from "./types";
 import type { AreaContextListRow } from "./present";
 
@@ -23,7 +24,7 @@ export function AreaContextList({
     >
       <p>{ZERO_LAYER_NOTE}</p>
       <table>
-        <caption>{MAP_MODE_LABEL[mode]} values for each analysis area</caption>
+        <caption data-testid="area-context-list-caption">{listCaption(mode)}</caption>
         <thead>
           <tr>
             <th>Analysis area</th>
