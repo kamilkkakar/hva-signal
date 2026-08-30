@@ -15,9 +15,9 @@ const ENABLED = {
 } as const;
 
 describe("default feature flags", () => {
-  it("hides the selected-time interface and live-demo confirmation", () => {
+  it("mounts the selected-time interface and keeps live-demo confirmation off", () => {
     const flags = defaultSignalFeatureFlags();
-    expect(flags.selectedTimeSnapshotInterface).toBe(false);
+    expect(flags.selectedTimeSnapshotInterface).toBe(true);
     expect(flags.liveDemoConfirmation).toBe(false);
   });
 });
@@ -132,7 +132,7 @@ describe("two-signal presentation", () => {
   it("stays unmounted when the selected-time interface flag is off", () => {
     const view = presentTwoSignals({
       ...fixturePair("a_not_prepared_b_cached"),
-      flags: defaultSignalFeatureFlags(),
+      flags: { selectedTimeSnapshotInterface: false, liveDemoConfirmation: false },
     });
     expect(view.mounted).toBe(false);
   });

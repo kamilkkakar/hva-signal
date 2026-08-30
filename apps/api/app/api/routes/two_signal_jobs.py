@@ -2,12 +2,16 @@
 
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 
 from app.schemas.two_signal_public import (
     TwoSignalPublicationRequest,
     TwoSignalPublicJob,
     TwoSignalUnknownJob,
+)
+from app.services.hosted_live_redteam import (
+    ClientPrivilegeError,
+    reject_client_privilege_surfaces,
 )
 from app.services.two_signal_jobs import (
     TwoSignalRequestError,
@@ -21,7 +25,21 @@ router = APIRouter()
     "/analysis/two-signal-jobs",
     status_code=status.HTTP_202_ACCEPTED,
 )
-def create_two_signal_job(payload: TwoSignalPublicationRequest) -> dict[str, Any]:
+def create_two_signal_job(
+    payload: TwoSignalPublicationRequest,
+    request: Request,
+) -> dict[str, Any]:
+    try:
+        reject_client_privilege_surfaces(
+            body=payload.model_dump(mode="json"),
+            query=dict(request.query_params),
+            headers=dict(request.headers),
+        )
+    except ClientPrivilegeError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
     try:
         job = two_signal_job_service.create(payload)
     except TwoSignalRequestError as exc:

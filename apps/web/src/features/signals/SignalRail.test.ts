@@ -25,7 +25,7 @@ function render(scene: Parameters<typeof fixturePair>[0], flags = ENABLE) {
 
 describe("SignalRail gate", () => {
   it("renders nothing when the selected-time interface is off", () => {
-    expect(render("a_not_prepared_b_cached", {})).toBe("");
+    expect(render("a_not_prepared_b_cached", { selectedTimeSnapshotInterface: false })).toBe("");
   });
 });
 

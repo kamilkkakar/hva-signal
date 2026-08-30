@@ -14,6 +14,8 @@ from time import monotonic
 from typing import Any, Callable, Literal
 from uuid import uuid4
 
+from app.domain.public_safety_fields import CLIENT_CONTROL_FIELD_NAMES
+
 REASON_RATE_LIMITED = "RATE_LIMITED"
 REASON_JOB_QUOTA_IN_FLIGHT = "JOB_QUOTA_IN_FLIGHT"
 REASON_JOB_QUOTA_STORED = "JOB_QUOTA_STORED"
@@ -48,7 +50,13 @@ PUBLIC_SERIALIZER_DENYLIST = frozenset(
         "authorized_max_units",
         "allowance_remaining",
         "demo_budget",
+        "budget",
+        "allowance_cap",
         "internal_key",
+        "key",
+        "operator_approval",
+        "reservation_state",
+        "reservation_id",
         "allowance",
         "approved",
         "authorize",
@@ -57,7 +65,14 @@ PUBLIC_SERIALIZER_DENYLIST = frozenset(
         "spend_authorized",
         "bypass_limit",
         "operator_override",
+        "budget",
+        "reservation_state",
+        "activity_id",
+        "vendor_activity_id",
+        "hosted_live_enabled",
+        "operator_approval",
     }
+    | CLIENT_CONTROL_FIELD_NAMES
 )
 _DENY_LOWER = frozenset(name.lower() for name in PUBLIC_SERIALIZER_DENYLIST)
 
@@ -176,6 +191,7 @@ def spend_defaults_remain_closed() -> bool:
     return (
         fields["demo_allowance_enabled"].default is False
         and int(fields["demo_allowance_max_total_units"].default) == 0
+        and str(fields["demo_allowance_store_path"].default) == ""
     )
 
 

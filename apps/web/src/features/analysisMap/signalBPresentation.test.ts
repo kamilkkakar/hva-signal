@@ -30,8 +30,9 @@ describe("V1 locks", () => {
 });
 
 describe("presentSignalBMap", () => {
-  it("stays gated off by default and does not emit a snapshot layer", () => {
+  it("can still be gated off when explicitly disabled", () => {
     const presentation = presentSignalBMap({
+      enabled: false,
       snapshot: afternoonFlatSnapshot(),
       geometry: signalBFixtureGeometry(),
     });
@@ -105,6 +106,7 @@ describe("presentSignalBMap", () => {
     expect(JSON.stringify(presentation.fillPaint)).not.toContain("temperature_min_c");
     expect(JSON.stringify(presentation.fillPaint)).not.toContain("interpolate");
     expect(presentation.snapshotFacts.factText).toMatch(/zone means in this snapshot/);
+    expect(presentation.meaningCopy).not.toMatch(/q_A|Decision 8|rank|priority/i);
   });
 
   it("shows missing zones as an em dash, never 0 °C", () => {

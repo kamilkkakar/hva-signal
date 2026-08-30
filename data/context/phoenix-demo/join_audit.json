@@ -1,0 +1,394 @@
+{
+  "zone_geoids": [
+    "04013107401",
+    "04013107500",
+    "04013107601",
+    "04013107602",
+    "04013108802",
+    "04013108602",
+    "04013108601",
+    "04013117100",
+    "04013108501",
+    "04013107700",
+    "04013108502",
+    "04013107404",
+    "04013107403",
+    "04013107402",
+    "04013108902",
+    "04013108901",
+    "04013106703",
+    "04013106600",
+    "04013106501",
+    "04013106502",
+    "04013106400",
+    "04013106702",
+    "04013106701",
+    "04013107800",
+    "04013108400"
+  ],
+  "acs_matched": [
+    "04013107401",
+    "04013107500",
+    "04013107601",
+    "04013107602",
+    "04013108802",
+    "04013108602",
+    "04013108601",
+    "04013117100",
+    "04013108501",
+    "04013107700",
+    "04013108502",
+    "04013107404",
+    "04013107403",
+    "04013107402",
+    "04013108902",
+    "04013108901",
+    "04013106703",
+    "04013106600",
+    "04013106501",
+    "04013106502",
+    "04013106400",
+    "04013106702",
+    "04013106701",
+    "04013107800",
+    "04013108400"
+  ],
+  "acs_unmatched": [],
+  "canopy_matched": [
+    "04013106400",
+    "04013106501",
+    "04013106502",
+    "04013106600",
+    "04013106701",
+    "04013106702",
+    "04013106703",
+    "04013107401",
+    "04013107402",
+    "04013107403",
+    "04013107404",
+    "04013107500",
+    "04013107601",
+    "04013107602",
+    "04013107700",
+    "04013107800",
+    "04013108400",
+    "04013108501",
+    "04013108502",
+    "04013108601",
+    "04013108602",
+    "04013108802",
+    "04013108901",
+    "04013108902",
+    "04013117100"
+  ],
+  "canopy_unmatched": [],
+  "cooling_sites_in_window": 4,
+  "cooling_geocode_failures": [
+    {
+      "resource_id": "mag-hrn-2026-001",
+      "name": "1111 W. Hatcher",
+      "address": "1111 W. Hatcher Rd. Phoenix AZ 85021",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-002",
+      "name": "1818 W. Adams Cooling Pod",
+      "address": "1818 W. Adams St. Phoenix AZ 85007",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-004",
+      "name": "23rd Avenue Recovery Center",
+      "address": "8836 N. 23rd Ave. Phoenix AZ 85021",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-005",
+      "name": "27th Avenue Integrated Care",
+      "address": "3864 N. 27th Ave. Phoenix AZ 85017",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-008",
+      "name": "Adam Diaz Senior Center",
+      "address": "4115 W. Thomas Rd. Phoenix AZ 85019",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-009",
+      "name": "Agave Library",
+      "address": "23550 N. 36th Ave. Phoenix AZ 85310",
+      "reason": "{'error': 'The read operation timed out'}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-010",
+      "name": "Andre House",
+      "address": "213 S. 11th Ave. Phoenix AZ 85007",
+      "reason": "{'error': 'The read operation timed out'}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-012",
+      "name": "Bret Tarver Learning Center",
+      "address": "1516 N. 35th Ave. Phoenix AZ 85009",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-013",
+      "name": "Burton Barr Central Library",
+      "address": "1221 N. Central Ave. Phoenix AZ 85004",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-014",
+      "name": "Century Library",
+      "address": "1750 E. Highland Ave. Phoenix AZ 85016",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-017",
+      "name": "Cholla Library",
+      "address": "10050 E. Metro Pkwy. Phoenix AZ 85051",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-018",
+      "name": "Cielito Pool",
+      "address": "4551 N. 35th Ave. Phoenix AZ 85017",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-019",
+      "name": "City of Refuge",
+      "address": "3147 N. Black Canyon Hwy Phoenix AZ 85015",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-020",
+      "name": "Coronado Pool",
+      "address": "1717 N. 12th St. Phoenix AZ 85006",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-023",
+      "name": "De La Cruz Tire Shop",
+      "address": "3001 N. 16th St. Phoenix AZ 85016",
+      "reason": "{'error': 'The read operation timed out'}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-024",
+      "name": "Deer Valley Community Center",
+      "address": "2001 W. Wahalla Ln. Phoenix AZ 85027",
+      "reason": "{'error': 'The read operation timed out'}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-025",
+      "name": "Deer Valley Pool",
+      "address": "19400 N. 19th Ave. Phoenix AZ 85027",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-026",
+      "name": "Desert Broom Library",
+      "address": "29710 N. Cave Creek Rd. Phoenix AZ 85331",
+      "reason": "geocode_unmatched"
+    },
+    {
+      "resource_id": "mag-hrn-2026-029",
+      "name": "Desert Sage Library",
+      "address": "7602 W. Encanto Blvd. Phoenix AZ 85035",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-030",
+      "name": "Desert West Community Center",
+      "address": "6501 W. Virginia Ave. Phoenix AZ 85035",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-032",
+      "name": "Diamond Street Resource Center",
+      "address": "1245 E Diamond St Phoenix AZ 85006",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-035",
+      "name": "El Prado Pool",
+      "address": "6428 S. 19th Ave. Phoenix AZ 85042",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-036",
+      "name": "Encanto Pool",
+      "address": "2125 N. 15th Ave. Phoenix AZ 85006",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-037",
+      "name": "FIBCO Family Services",
+      "address": "1141 E. Jefferson St. Phoenix AZ 85034",
+      "reason": "{'error': 'The read operation timed out'}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-039",
+      "name": "First Church UCC Phoenix",
+      "address": "1407 N. 2nd St. Phoenix AZ 85004",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-041",
+      "name": "Grace Lutheran Church",
+      "address": "1124 N. 3rd St. Phoenix AZ 85004",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-044",
+      "name": "Harmon Recreation Center",
+      "address": "1425 S. 5th Ave. Phoenix AZ 85003",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-045",
+      "name": "Hayden Neighborhood Recreation Center",
+      "address": "420 W. Tamarisk Ave. Phoenix AZ 85041",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-046",
+      "name": "Helen Drake Senior Center",
+      "address": "7600 N. 27th Ave. Phoenix AZ 85051",
+      "reason": "geocode_unmatched"
+    },
+    {
+      "resource_id": "mag-hrn-2026-048",
+      "name": "Hermoso Pool",
+      "address": "5749 S. 20th St. Phoenix AZ 85040",
+      "reason": "{'error': 'The read operation timed out'}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-049",
+      "name": "Holiday Park Recreation Center",
+      "address": "4560 N. 67th Ave. Phoenix AZ 85035",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-055",
+      "name": "Labor's Community Service Agency",
+      "address": "3117 N. 16th St. Phoenix AZ 85016",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-060",
+      "name": "Maryvale Community Center",
+      "address": "4420 N. 51st Ave. Phoenix AZ 85032",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-061",
+      "name": "Maryvale Pool",
+      "address": "4444 N. 51st Ave. Phoenix AZ 85031",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-062",
+      "name": "McDowell Place Senior Center",
+      "address": "1845 E. McDowell Rd. Phoenix AZ 85006",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-063",
+      "name": "McDowell Road Integrated Care",
+      "address": "4909 E. McDowell Rd. Phoenix AZ 85008",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-064",
+      "name": "Mesquite Library",
+      "address": "4525 E. Paradise Village Pkwy N. Phoenix AZ 85032",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-065",
+      "name": "Midtown Health Center",
+      "address": "4131 N. 24th St. Phoenix AZ 85016",
+      "reason": "{'error': 'The read operation timed out'}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-066",
+      "name": "Midtown Medical Respite Center",
+      "address": "333 W. Indian School Rd. Phoenix AZ 85013",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-067",
+      "name": "Mitchell Clinic",
+      "address": "40 E. Mitchell Dr. Phoenix AZ 85012",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-068",
+      "name": "NourishPHX",
+      "address": "501 S. 9th Ave. Phoenix AZ 85007",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-069",
+      "name": "Ocotillo Library",
+      "address": "102 W. Southern Ave. Phoenix AZ 85041",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-072",
+      "name": "Phoenix Citadel Corps",
+      "address": "628 N. 3rd Ave. Phoenix AZ 85003",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-073",
+      "name": "Phoenix Dream Center",
+      "address": "3210 Grand Ave. Phoenix AZ 85017",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-077",
+      "name": "Senior Opportunities West Senior Center",
+      "address": "1220 S. 7th Ave. Phoenix AZ 85007",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-078",
+      "name": "South Mountain Clinic",
+      "address": "3540 E. Baseline Rd. Phoenix AZ 85042",
+      "reason": "geocode_unmatched"
+    },
+    {
+      "resource_id": "mag-hrn-2026-079",
+      "name": "South Mountain Community Center",
+      "address": "212 E. Alta Vista Rd. Phoenix AZ 85042",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-080",
+      "name": "South Mountain Community Library",
+      "address": "7050 S. 24th St. Phoenix AZ 85042",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-085",
+      "name": "Verde Park Recreation Center",
+      "address": "916 E. Van Buren St. Phoenix AZ 85006",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-086",
+      "name": "Warren Ledbetter Service Center",
+      "address": "2702 E. Washington St. Phoenix AZ 85034",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    },
+    {
+      "resource_id": "mag-hrn-2026-088",
+      "name": "Yideeskaadi Hozhooji Center (YHC)",
+      "address": "3008 N. 3rd St. Phoenix AZ 85012",
+      "reason": "{'error': 'HTTP Error 502: '}"
+    }
+  ]
+}

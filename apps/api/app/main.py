@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.router import api_router, include_health_routes
 from app.core.config import get_settings
+from app.core.public_safety_middleware import PublicSafetyMiddleware
 
 settings = get_settings()
 
@@ -37,13 +38,15 @@ app = FastAPI(
     title="HVA-Signal API",
     description=(
         "3K Labs — HVA-Signal (Heat, Vulnerability & Action Signal). "
-        "Combines thermal evidence with vulnerability and preparedness "
-        "context to support defensible urban heat decisions."
+        "Heat plus Action framing: measure the thermal field and authorize "
+        "or withhold. Vulnerability is not scored."
     ),
     version="0.1.0",
 )
 
 origins = cors_origins_for(settings)
+# Public safety is inner: CORS stays outermost for preflight.
+app.add_middleware(PublicSafetyMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

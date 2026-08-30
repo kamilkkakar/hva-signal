@@ -52,6 +52,14 @@ def _valid() -> dict:
         "acquisition_preference",
         "bypass_limit",
         "allowance_remaining",
+        "allowance_cap",
+        "budget",
+        "key",
+        "operator_approval",
+        "reservation_state",
+        "reservation_id",
+        "hosted_live_enabled",
+        "api_key",
     ],
 )
 def test_unpublished_signal_b_fields_are_rejected(field: str) -> None:

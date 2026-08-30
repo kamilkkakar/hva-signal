@@ -6,6 +6,9 @@ from datetime import datetime
 
 from app.core.config import Settings, get_settings
 from app.domain.demo_allowance import DemoAllowancePolicy, disabled_demo_policy
+from app.services.demo_allowance_ledger import InMemoryDemoAllowanceLedger
+from app.services.demo_allowance_port import DemoAllowanceLedgerPort
+from app.services.demo_allowance_store import SqliteDemoAllowanceStore
 
 
 def _parse_optional_datetime(value: str | None) -> datetime | None:
@@ -44,3 +47,23 @@ def demo_allowance_policy_from_settings(settings: Settings | None = None) -> Dem
         )
     except (TypeError, ValueError):
         return disabled_demo_policy()
+
+
+def demo_allowance_ledger_from_settings(
+    settings: Settings | None = None,
+    policy: DemoAllowancePolicy | None = None,
+) -> DemoAllowanceLedgerPort:
+    """Open J0 memory or J3 SQLite. A store path never enables hosted live."""
+    current = settings or get_settings()
+    resolved = policy or demo_allowance_policy_from_settings(current)
+    path = str(getattr(current, "demo_allowance_store_path", "") or "").strip()
+    ttl = int(getattr(current, "demo_allowance_reservation_ttl_seconds", 900))
+    max_open = int(getattr(current, "demo_allowance_max_open_reservations", 8))
+    if not path:
+        return InMemoryDemoAllowanceLedger(resolved)
+    return SqliteDemoAllowanceStore(
+        path,
+        resolved,
+        reservation_ttl_seconds=ttl,
+        max_open_reservations=max_open,
+    )

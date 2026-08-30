@@ -1,0 +1,137 @@
+.hva-pos-legend {
+  --hva-pos-low: #8a9278;
+  --hva-pos-2: #6c7462;
+  --hva-pos-3: #4e5648;
+  --hva-pos-4: #32382e;
+  --hva-pos-high: #161a14;
+  --hva-pos-panel: #d3d8c6;
+  --hva-pos-ink: #10140e;
+  --hva-pos-muted: #4e5849;
+  pointer-events: auto;
+  max-width: 17.5rem;
+  padding: 0.55rem 0.65rem 0.6rem;
+  background: var(--hva-pos-panel);
+  color: var(--hva-pos-ink);
+  border: 1px solid #4e5748;
+}
+
+.hva-pos-legend h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  color: var(--hva-pos-ink);
+}
+
+.hva-pos-ramp {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: 0.85rem;
+  border: 1px solid var(--hva-pos-ink);
+}
+
+.hva-pos-stop {
+  display: block;
+  min-width: 0;
+}
+
+.hva-pos-axis {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin: 0.28rem 0 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  color: var(--hva-pos-ink);
+  line-height: 1.25;
+}
+
+.hva-pos-hatch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.7rem;
+  margin: 0.45rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.72rem;
+  color: var(--hva-pos-ink);
+}
+
+.hva-pos-hatch li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.hva-pos-hatch-swatch {
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 1px solid var(--hva-pos-ink);
+  background-color: var(--hva-pos-2);
+}
+
+.hva-pos-hatch-swatch--low {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(16, 20, 14, 0.35) 0 1px,
+    transparent 1px 7px
+  );
+}
+
+.hva-pos-hatch-swatch--mid {
+  background-color: var(--hva-pos-3);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(16, 20, 14, 0.4) 0 1px,
+    transparent 1px 5px
+  );
+}
+
+.hva-pos-hatch-swatch--high {
+  background-color: var(--hva-pos-high);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(232, 234, 220, 0.55) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+.hva-pos-outline {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: var(--hva-pos-ink);
+}
+
+.hva-pos-outline-swatch {
+  width: 0.85rem;
+  height: 0.85rem;
+  background: transparent;
+  border: 2px solid #4e5748;
+}
+
+.hva-pos-denial,
+.hva-pos-hatch-note {
+  margin: 0.4rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--hva-pos-ink);
+}
+
+.hva-pos-hatch-note {
+  color: var(--hva-pos-muted);
+}
+
+.map-encoding-slot {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 4;
+  max-width: calc(100% - 2rem);
+}

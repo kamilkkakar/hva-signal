@@ -1,0 +1,299 @@
+{
+  "note": "Tracked Prompt-14 four-instant differences for 2024-07-08. Temperature difference between observed instants only. Not cooling rate, interpolation, daily exposure, or a 24-hour curve. Not Signal A. Not Cool Corridors. Not live.",
+  "local_date": "2024-07-08",
+  "timezone": "America/Phoenix",
+  "area_id": "phoenix-demo",
+  "source": "fortyguard_cached",
+  "data_status": "cached",
+  "geometry_sha256": "3f16870fc801da5052b03e0f09c172feb4a1e0d6736452d22ffd6f09bb4e11f0",
+  "activity_ids": {
+    "2024-07-08T15:00": "92086c4c-1550-4263-8ac8-9a6c9e030bc4",
+    "2024-07-08T21:00": "9865bd33-43a0-42b0-bc9b-74b27510002d"
+  },
+  "n": 25,
+  "complete_25": true,
+  "quantity": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS",
+  "not": [
+    "cooling rate",
+    "interpolation",
+    "daily exposure",
+    "24-hour curve"
+  ],
+  "zones": [
+    {
+      "geoid": "04013106400",
+      "T_03_D": 34.43695681818181,
+      "T_15": 42.340697727272726,
+      "T_21": 39.26000833333333,
+      "T_03_Dplus1": 35.106604924242426,
+      "T15_minus_T03_D": 7.903740909090914,
+      "T21_minus_T15": -3.0806893939393944,
+      "T03_Dplus1_minus_T21": -4.153403409090906,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013106501",
+      "T_03_D": 34.45995303030303,
+      "T_15": 42.382739393939396,
+      "T_21": 39.09946666666667,
+      "T_03_Dplus1": 35.04674090909091,
+      "T15_minus_T03_D": 7.922786363636362,
+      "T21_minus_T15": -3.283272727272724,
+      "T03_Dplus1_minus_T21": -4.0527257575757645,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013106502",
+      "T_03_D": 34.43498581081081,
+      "T_15": 42.37236418918919,
+      "T_21": 39.15665405405405,
+      "T_03_Dplus1": 35.11623986486486,
+      "T15_minus_T03_D": 7.937378378378384,
+      "T21_minus_T15": -3.21571013513514,
+      "T03_Dplus1_minus_T21": -4.0404141891891925,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013106600",
+      "T_03_D": 34.47782265625,
+      "T_15": 42.376326171875,
+      "T_21": 39.099183984375,
+      "T_03_Dplus1": 34.994231640625,
+      "T15_minus_T03_D": 7.898503515625002,
+      "T21_minus_T15": -3.2771421874999973,
+      "T03_Dplus1_minus_T21": -4.10495234375,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013106701",
+      "T_03_D": 34.55644461538462,
+      "T_15": 42.31165846153846,
+      "T_21": 39.24312307692308,
+      "T_03_Dplus1": 34.485587692307696,
+      "T15_minus_T03_D": 7.755213846153836,
+      "T21_minus_T15": -3.0685353846153802,
+      "T03_Dplus1_minus_T21": -4.75753538461538,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013106702",
+      "T_03_D": 34.5624734375,
+      "T_15": 42.325296875,
+      "T_21": 39.2112609375,
+      "T_03_Dplus1": 34.632278125,
+      "T15_minus_T03_D": 7.762823437499996,
+      "T21_minus_T15": -3.114035937499999,
+      "T03_Dplus1_minus_T21": -4.578982812500001,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013106703",
+      "T_03_D": 34.5268375,
+      "T_15": 42.3212328125,
+      "T_21": 39.2797875,
+      "T_03_Dplus1": 34.6312609375,
+      "T15_minus_T03_D": 7.794395312500001,
+      "T21_minus_T15": -3.0414453125000023,
+      "T03_Dplus1_minus_T21": -4.648526562499995,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013107401",
+      "T_03_D": 34.5196234375,
+      "T_15": 42.32812109375,
+      "T_21": 39.25628125,
+      "T_03_Dplus1": 34.67551328125,
+      "T15_minus_T03_D": 7.8084976562499975,
+      "T21_minus_T15": -3.0718398437499985,
+      "T03_Dplus1_minus_T21": -4.580767968750003,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013107402",
+      "T_03_D": 34.5373,
+      "T_15": 42.31395,
+      "T_21": 39.295378125,
+      "T_03_Dplus1": 34.582003125,
+      "T15_minus_T03_D": 7.7766499999999965,
+      "T21_minus_T15": -3.0185718749999992,
+      "T03_Dplus1_minus_T21": -4.713374999999999,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013107403",
+      "T_03_D": 34.542921875,
+      "T_15": 42.3118875,
+      "T_21": 39.29005625,
+      "T_03_Dplus1": 34.5549125,
+      "T15_minus_T03_D": 7.768965625,
+      "T21_minus_T15": -3.021831249999998,
+      "T03_Dplus1_minus_T21": -4.735143749999999,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013107404",
+      "T_03_D": 34.536059375,
+      "T_15": 42.3142046875,
+      "T_21": 39.2965765625,
+      "T_03_Dplus1": 34.58731875,
+      "T15_minus_T03_D": 7.778145312500001,
+      "T21_minus_T15": -3.0176281250000017,
+      "T03_Dplus1_minus_T21": -4.709257812499999,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013107500",
+      "T_03_D": 34.444598846153845,
+      "T_15": 42.387239230769225,
+      "T_21": 39.09442846153846,
+      "T_03_Dplus1": 35.080528461538464,
+      "T15_minus_T03_D": 7.94264038461538,
+      "T21_minus_T15": -3.292810769230762,
+      "T03_Dplus1_minus_T21": -4.0139,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013107601",
+      "T_03_D": 34.42146985294118,
+      "T_15": 42.395542647058825,
+      "T_21": 39.10388088235294,
+      "T_03_Dplus1": 35.14462867647059,
+      "T15_minus_T03_D": 7.974072794117646,
+      "T21_minus_T15": -3.2916617647058857,
+      "T03_Dplus1_minus_T21": -3.9592522058823505,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013107602",
+      "T_03_D": 34.38154453125,
+      "T_15": 42.39250546875,
+      "T_21": 39.1303671875,
+      "T_03_Dplus1": 35.2463484375,
+      "T15_minus_T03_D": 8.010960937500002,
+      "T21_minus_T15": -3.262138281250003,
+      "T03_Dplus1_minus_T21": -3.8840187500000027,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013107700",
+      "T_03_D": 34.37363015267176,
+      "T_15": 42.363869847328246,
+      "T_21": 39.17688167938932,
+      "T_03_Dplus1": 35.25101259541985,
+      "T15_minus_T03_D": 7.990239694656488,
+      "T21_minus_T15": -3.186988167938928,
+      "T03_Dplus1_minus_T21": -3.9258690839694665,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013107800",
+      "T_03_D": 34.391201408450705,
+      "T_15": 42.325916619718306,
+      "T_21": 39.12348366197183,
+      "T_03_Dplus1": 35.174994647887324,
+      "T15_minus_T03_D": 7.934715211267601,
+      "T21_minus_T15": -3.202432957746474,
+      "T03_Dplus1_minus_T21": -3.948489014084508,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013108400",
+      "T_03_D": 34.24015849056604,
+      "T_15": 42.40686415094339,
+      "T_21": 38.97853358490566,
+      "T_03_Dplus1": 35.54057698113208,
+      "T15_minus_T03_D": 8.166705660377353,
+      "T21_minus_T15": -3.4283305660377295,
+      "T03_Dplus1_minus_T21": -3.4379566037735856,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013108501",
+      "T_03_D": 34.219117187500004,
+      "T_15": 42.420428125,
+      "T_21": 38.9795078125,
+      "T_03_Dplus1": 35.60216640625,
+      "T15_minus_T03_D": 8.201310937499997,
+      "T21_minus_T15": -3.4409203124999976,
+      "T03_Dplus1_minus_T21": -3.377341406250004,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013108502",
+      "T_03_D": 34.2161359375,
+      "T_15": 42.42028359375,
+      "T_21": 38.96946484375,
+      "T_03_Dplus1": 35.6060390625,
+      "T15_minus_T03_D": 8.20414765625,
+      "T21_minus_T15": -3.4508187499999963,
+      "T03_Dplus1_minus_T21": -3.363425781250001,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013108601",
+      "T_03_D": 34.29489294117647,
+      "T_15": 42.41856823529412,
+      "T_21": 39.19022705882353,
+      "T_03_Dplus1": 35.47848705882353,
+      "T15_minus_T03_D": 8.123675294117646,
+      "T21_minus_T15": -3.228341176470586,
+      "T03_Dplus1_minus_T21": -3.711739999999999,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013108602",
+      "T_03_D": 34.28004678362573,
+      "T_15": 42.41972046783626,
+      "T_21": 39.148536842105266,
+      "T_03_Dplus1": 35.50391169590643,
+      "T15_minus_T03_D": 8.139673684210528,
+      "T21_minus_T15": -3.271183625730991,
+      "T03_Dplus1_minus_T21": -3.644625146198834,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013108802",
+      "T_03_D": 34.325795192307694,
+      "T_15": 42.4112,
+      "T_21": 39.16475865384616,
+      "T_03_Dplus1": 35.392329807692306,
+      "T15_minus_T03_D": 8.085404807692306,
+      "T21_minus_T15": -3.246441346153844,
+      "T03_Dplus1_minus_T21": -3.7724288461538507,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013108901",
+      "T_03_D": 34.436746,
+      "T_15": 42.351459999999996,
+      "T_21": 39.353381,
+      "T_03_Dplus1": 35.027534,
+      "T15_minus_T03_D": 7.9147139999999965,
+      "T21_minus_T15": -2.998078999999997,
+      "T03_Dplus1_minus_T21": -4.325846999999996,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013108902",
+      "T_03_D": 34.44952631578948,
+      "T_15": 42.346789473684204,
+      "T_21": 39.348523026315796,
+      "T_03_Dplus1": 34.976270394736844,
+      "T15_minus_T03_D": 7.897263157894727,
+      "T21_minus_T15": -2.998266447368408,
+      "T03_Dplus1_minus_T21": -4.372252631578952,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    },
+    {
+      "geoid": "04013117100",
+      "T_03_D": 34.29141419753086,
+      "T_15": 42.41808148148148,
+      "T_21": 39.18398395061728,
+      "T_03_Dplus1": 35.482992592592595,
+      "T15_minus_T03_D": 8.126667283950617,
+      "T21_minus_T15": -3.2340975308641973,
+      "T03_Dplus1_minus_T21": -3.7009913580246874,
+      "label": "TEMPERATURE DIFFERENCE BETWEEN OBSERVED INSTANTS"
+    }
+  ]
+}

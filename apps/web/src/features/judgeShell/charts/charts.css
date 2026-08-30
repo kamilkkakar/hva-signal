@@ -1,0 +1,75 @@
+.hva-pos-strip,
+.hva-pos-selected {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.hva-pos-strip {
+  margin-top: 0.65rem;
+}
+
+.hva-pos-state {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--carbon);
+}
+
+.hva-pos-frame,
+.hva-pos-axis-labels {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.hva-pos-axis-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.55rem;
+}
+
+.hva-pos-axis {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 1.35rem;
+  margin-top: 0.35rem;
+}
+
+.hva-pos-track {
+  stroke: var(--carbon);
+  stroke-width: 0.45;
+}
+
+.hva-pos-mark {
+  fill: var(--carbon);
+}
+
+.hva-pos-mark-selected {
+  fill: var(--panel);
+  stroke: var(--carbon);
+  stroke-width: 0.7;
+}
+
+.hva-pos-details {
+  margin-top: 0.45rem;
+  max-width: 100%;
+}
+
+.hva-pos-details summary {
+  cursor: pointer;
+  font-family: var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hva-pos-details p {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}

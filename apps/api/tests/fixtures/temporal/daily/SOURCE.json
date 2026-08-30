@@ -1,0 +1,9 @@
+{
+  "kind": "SYNTHETIC_FIXTURE",
+  "not_product_data": true,
+  "not_phoenix_climatology": true,
+  "not_public_observation": true,
+  "purpose": "unit oracle for missing-hours / coverage / yoy / join",
+  "area_id": "phoenix-demo-geometry-only",
+  "policy_id": "PHX_TEMPORAL_COVERAGE_POLICY_V1_CANDIDATE"
+}

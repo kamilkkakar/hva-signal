@@ -1,0 +1,164 @@
+import { useEffect, useMemo, useState } from "react";
+import type { AnalysisResultStub } from "@/api/analysisJobs";
+import { createGeometryLoader } from "@/api/areaGeometry";
+import {
+  MapModeTabs,
+  bindMapModeCatalog,
+  contextFillCount,
+  type MapMode,
+  type ZoneMapProperties,
+} from "@/features/areaContext";
+import {
+  catalogFromHistorical,
+  rankedFillCount,
+  type InteractionCatalog,
+} from "@/features/mapInteraction";
+import type { JobStatus } from "@/types";
+import { bindGeometryToAnalysis } from "@/utils/geometryJoin";
+import type { MapLayerState, RankingPresentation } from "@/utils/mapLayer";
+import { JudgeMap } from "./map/JudgeMap";
+
+type MapBandProps = {
+  layer: MapLayerState;
+  ranking: RankingPresentation;
+  areaId: string | null;
+  jobId: string | null;
+  jobStatus: JobStatus | null;
+  result: AnalysisResultStub | null;
+  submitting: boolean;
+  analysisTime?: string | null;
+  mapMode?: MapMode;
+  onMapModeChange?: (mode: MapMode) => void;
+  contextZones?: ZoneMapProperties[];
+  selectedZoneId?: string | null;
+  onSelectedIdChange?: (geoid: string | null) => void;
+};
+
+function resultIsReady(status: JobStatus | null): boolean {
+  return status === "complete" || status === "partial";
+}
+
+function exploreMapState(input: {
+  submitting: boolean;
+  jobStatus: JobStatus | null;
+  catalog: InteractionCatalog | null;
+  rankingState: RankingPresentation["state"];
+}): "idle" | "loading" | "sufficient" | "insufficient" {
+  if (input.submitting) {
+    return "loading";
+  }
+  if (!resultIsReady(input.jobStatus)) {
+    return "idle";
+  }
+  if (!input.catalog) {
+    return "loading";
+  }
+  return input.rankingState === "READY" ? "sufficient" : "insufficient";
+}
+
+export function MapBand(props: MapBandProps) {
+  const [catalog, setCatalog] = useState<InteractionCatalog | null>(null);
+  const mapMode = props.mapMode ?? "THERMAL";
+
+  useEffect(() => {
+    const areaId = props.areaId;
+    const result = props.result;
+    if (
+      !areaId ||
+      !props.jobId ||
+      !resultIsReady(props.jobStatus) ||
+      !result
+    ) {
+      setCatalog(null);
+      return;
+    }
+    const loader = createGeometryLoader();
+    let cancelled = false;
+    void loader
+      .load(areaId)
+      .then((outcome) => {
+        if (cancelled || outcome.stale) {
+          return;
+        }
+        const bound = bindGeometryToAnalysis({
+          geometry: outcome.payload,
+          requestAreaId: areaId,
+          result,
+        });
+        if (!bound.ok) {
+          setCatalog(null);
+          return;
+        }
+        setCatalog(
+          catalogFromHistorical({
+            features: bound.collection.features,
+            analysisTime: props.analysisTime,
+            dataMode: "replay",
+            fillAuthorized: props.ranking.state === "READY",
+          }),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCatalog(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    props.areaId,
+    props.analysisTime,
+    props.jobId,
+    props.jobStatus,
+    props.ranking.state,
+    props.result,
+  ]);
+
+  const modeCatalog = useMemo(
+    () =>
+      bindMapModeCatalog({
+        historical: catalog,
+        mode: mapMode,
+        zones: props.contextZones ?? [],
+      }),
+    [catalog, mapMode, props.contextZones],
+  );
+
+  const mapState = exploreMapState({
+    submitting: props.submitting,
+    jobStatus: props.jobStatus,
+    catalog: modeCatalog,
+    rankingState: props.ranking.state,
+  });
+
+  return (
+    <section
+      className="judge-map"
+      aria-label={props.layer.label}
+      data-testid="map-stage"
+      data-layout="map-primary"
+      data-map-state={mapState}
+      data-map-mode={mapMode}
+      data-ranked-feature-count={String(rankedFillCount(modeCatalog))}
+      data-context-fill-count={String(contextFillCount(modeCatalog))}
+      data-geometry-feature-count={String(modeCatalog?.collection.features.length ?? 0)}
+      data-map-source-count={String(modeCatalog?.collection.features.length ?? 0)}
+      data-layer-label={modeCatalog?.layer_title ?? props.layer.label}
+    >
+      <p className="judge-sr" data-testid="map-layer-label">
+        {modeCatalog?.layer_title ?? props.layer.label}
+      </p>
+      {props.onMapModeChange ? (
+        <MapModeTabs mode={mapMode} onModeChange={props.onMapModeChange} />
+      ) : null}
+      <JudgeMap
+        lane="A"
+        historical={modeCatalog}
+        enabled
+        selectedId={props.selectedZoneId ?? null}
+        onSelectedIdChange={props.onSelectedIdChange}
+      />
+    </section>
+  );
+}

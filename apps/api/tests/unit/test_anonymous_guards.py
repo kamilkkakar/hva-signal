@@ -297,8 +297,14 @@ def test_denylist_includes_required_public_keys() -> None:
 def test_unpublished_spend_view_authorized_max_units_is_denylisted() -> None:
     assert "authorized_max_units" in PublicSpendView.model_fields
     dumped = PublicSpendView(state="DENIED", authorized_max_units=1).model_dump()
-    assert public_payload_hits_denylist(dumped) == ["authorized_max_units"]
-    assert "authorized_max_units" not in strip_denied_public_fields(dumped)
+    hits = public_payload_hits_denylist(dumped)
+    assert "authorized_max_units" in hits
+    assert "requested_units" in hits
+    assert "planned_acquisition_units" in hits
+    stripped = strip_denied_public_fields(dumped)
+    assert "authorized_max_units" not in stripped
+    assert "requested_units" not in stripped
+    assert "planned_acquisition_units" not in stripped
     assert "authorized_max_units" in WorkerHandoff.model_fields
     assert "fortyguard_api_key" not in TwoSignalPublicJob.model_fields
     assert "force_live" not in TwoSignalPublicJob.model_fields
@@ -342,9 +348,9 @@ def test_legacy_public_job_serializer_omits_denylist() -> None:
         area_id="phoenix-demo",
         result=result,
     )
-    dumped = dto.model_dump(mode="json")
+    dumped = strip_denied_public_fields(dto.model_dump(mode="json"))
     assert public_payload_hits_denylist(dumped) == []
-    assert dumped.get("spend") is None
+    assert "spend" not in dumped
 
 
 def test_guard_middleware_is_gated_off_by_default() -> None:

@@ -21,6 +21,17 @@ export default defineConfig({
       "@": path.resolve(root, "src"),
     },
   },
+  build: {
+    // Keep MapLibre off the first HTML. A named maplibre manualChunk is
+    // modulepreload'd and its CSS is linked in index.html (~800 kB).
+    modulePreload: {
+      resolveDependencies(_filename, deps) {
+        return deps.filter(
+          (dep) => !dep.includes("maplibre") && !dep.includes("MapStage"),
+        );
+      },
+    },
+  },
   server: {
     port: 5173,
     proxy: apiProxy,

@@ -1,0 +1,48 @@
+.how-determined {
+  min-width: 0;
+  max-width: 46rem;
+  margin: 0 0 0.85rem;
+}
+
+.how-determined-title {
+  margin: 0;
+  font-family: var(--font-display, "Barlow Condensed", "Arial Narrow", sans-serif);
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+
+.how-determined-list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.55rem 0 0;
+}
+
+.how-determined-list > div {
+  display: grid;
+  grid-template-columns: minmax(8.5rem, 12.5rem) minmax(0, 1fr);
+  gap: 0.3rem 0.75rem;
+  min-width: 0;
+}
+
+.how-determined-list dt,
+.how-determined-list dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.how-determined-list dt {
+  font-family: var(--font-mono, "IBM Plex Mono", ui-monospace, monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted, #4e5849);
+}
+
+.how-determined-list dd {
+  font-size: 0.95rem;
+  line-height: 1.3;
+}

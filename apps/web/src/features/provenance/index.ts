@@ -1,4 +1,45 @@
 export { PerSignalProvenance } from "./PerSignalProvenance";
+export { PublicProvenanceExperience } from "./PublicProvenanceExperience";
+export type { PublicProvenanceExperienceProps } from "./PublicProvenanceExperience";
+export { HowDetermined } from "./HowDetermined";
+export type { HowDeterminedProps } from "./HowDetermined";
+export { howDeterminedFromJob, formatPublicSeparation } from "./determination";
+export type { HowDeterminedView } from "./determination";
+export { ADVANCED_SUMMARY, HOW_DETERMINED_TITLE } from "./disclosureCopy";
+export {
+  CommandCenterProvenance,
+  CommandCenterProvenanceHeader,
+  commandCenterProvenanceMode,
+  headerLevel1Line,
+  P1_LANDING_SELECTED_TIME_REQUESTED,
+  refuseCollapsedCommandCenterTape,
+} from "./sourceTapeBind";
+export type {
+  CommandCenterProvenanceHeaderProps,
+  CommandCenterProvenanceMode,
+} from "./sourceTapeBind";
+export {
+  aTargetTimestamp,
+  asProvenanceSource,
+  asProvenanceStatus,
+  bindProvenanceFromJob,
+  coverageFromZones,
+  selectedTimeFromSection,
+} from "./fromJob";
+export type { BoundProvenance, FromJobInput, JobBindInput } from "./fromJob";
+export {
+  ANALYSIS_ZONE_COUNT,
+  assertLevel1HasNoShaWall,
+  formatCoverage,
+  geographyLine,
+  observationLine,
+  projectLevel1,
+} from "./level1";
+export type { CoverageCount, Level1EvidenceMode, PublicLevel1 } from "./level1";
+export { projectLevel2 } from "./level2";
+export type { Level2Extras, Level2Row } from "./level2";
+export { selectedZoneLevel1 } from "./selectedZone";
+export type { SelectedZoneLevel1 } from "./selectedZone";
 export {
   refuseCollapsedSourceTape,
   signalProvenanceBanner,

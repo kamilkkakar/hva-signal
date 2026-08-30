@@ -11,7 +11,10 @@
     "/api/v1/areas",
     "/api/v1/areas/{area_id}/geometry",
     "/api/v1/analysis/jobs",
-    "/api/v1/analysis/jobs/{job_id}"
+    "/api/v1/analysis/jobs/{job_id}",
+    "/api/v1/areas/{area_id}/context",
+    "/api/v1/demo/matched-nighttime-window",
+    "/api/v1/demo/observed-thermal-instants"
   ],
   "unpublished_geography_paths": [
     "/api/v1/places",

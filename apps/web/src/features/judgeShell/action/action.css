@@ -1,0 +1,83 @@
+.action-supports-band {
+  margin: 0;
+  padding: 0.85rem 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.action-supports-head h3 {
+  margin: 0.12rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.action-status,
+.action-scope,
+.action-says {
+  margin: 0.28rem 0 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.action-status {
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.action-scope {
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+.action-says {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.action-supports-band .evidence-stamp {
+  margin-top: 0.65rem;
+}
+
+.action-supports-grid {
+  margin: 0.7rem 0 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.85rem 1.25rem;
+  min-width: 0;
+}
+
+.action-supports-grid > div {
+  min-width: 0;
+}
+
+.action-supports-grid dt {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  color: var(--muted);
+}
+
+.action-supports-grid dd {
+  margin: 0.18rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+  .action-supports-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

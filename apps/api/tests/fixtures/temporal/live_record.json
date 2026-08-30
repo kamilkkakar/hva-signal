@@ -1,0 +1,16 @@
+{
+  "schema": "TEMPORAL_LIVE_CALL_RECORD_V1",
+  "live_calls": 0,
+  "activity_id": "e0244934-0840-4072-bcb6-96cca26a9a20",
+  "activity_id_role": "cached_reuse_not_a_new_submit",
+  "request_fingerprint": "d83bde1d8e3e7807d67571a8a164c5767ac744c5b125fdfed8fbb1e890813c1d",
+  "aoi_policy": "PHX_DEMO_AOI_POLICY_V1",
+  "expected_zone_count": 25,
+  "valid_zone_count": 25,
+  "missing_zone_ids": [],
+  "normalized_fixture": null,
+  "source_mode": "cache",
+  "credit_delta": 0,
+  "sanitizer": "scripts/sanitize_fortyguard_fixture.py",
+  "notes": "T-K LIVE CALL 0. 25/25 READY from cache reuse. No HTTP this program."
+}

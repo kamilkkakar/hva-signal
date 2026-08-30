@@ -53,6 +53,9 @@ LIVE_OPENAPI_PATHS = {
     "/api/v1/areas/{area_id}/geometry",
     "/api/v1/analysis/jobs",
     "/api/v1/analysis/jobs/{job_id}",
+    "/api/v1/areas/{area_id}/context",
+    "/api/v1/demo/matched-nighttime-window",
+    "/api/v1/demo/observed-thermal-instants",
 }
 OWNED_SOURCES = [
     Path(__file__).resolve().parents[2]

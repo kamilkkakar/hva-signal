@@ -13,7 +13,7 @@ function envFlag(name: string): boolean {
 
 export function defaultSignalFeatureFlags(): SignalFeatureFlags {
   return {
-    selectedTimeSnapshotInterface: envFlag("VITE_HVA_SELECTED_TIME_SNAPSHOT"),
+    selectedTimeSnapshotInterface: true,
     liveDemoConfirmation: envFlag("VITE_HVA_LIVE_DEMO_CONFIRMATION"),
   };
 }

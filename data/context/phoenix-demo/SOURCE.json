@@ -1,0 +1,48 @@
+{
+  "artifact": "context_bundle.json",
+  "contract_version": "hva-signal-phoenix-context-v1",
+  "area_id": "phoenix-demo",
+  "acs_vintage": "ACS 5-year 2020-2024",
+  "generated_at": "2026-08-30T14:13:04+00:00",
+  "sources": {
+    "acs": {
+      "vintage": "ACS 5-year 2020-2024",
+      "year": 2024,
+      "as_of": "2024-07-01",
+      "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+      "tables": [
+        "B01001",
+        "B17001",
+        "B19013",
+        "B25034",
+        "B25035",
+        "B08201",
+        "B11001",
+        "B11007",
+        "B09020",
+        "B18105"
+      ]
+    },
+    "canopy": {
+      "name": "City of Phoenix Office of Heat Response shade study \u2014 tree canopy by census tract",
+      "imagery_year": 2022,
+      "accessed": "2023-07 (source metadata); layer queried at ingest",
+      "url": "https://maps.phoenix.gov/pub/rest/services/Public/Shade_Study_Data_CMO_OHR/MapServer/1",
+      "definition": "TREE_PCT_N = tree canopy area / (total area - building area) * 100 (plantable-ground share, not total-land share)"
+    },
+    "cooling": {
+      "inventory_id": "mag_hrn_2026_v1",
+      "as_of": "2026-05-05",
+      "name": "MAG Heat Relief Network Regional Directory May-September 2026",
+      "url": "https://azmag.gov/Programs/Heat-Relief-Network/Heat-Relief-Network-Directories",
+      "map": "https://hrn.azmag.gov",
+      "coverage": "partial"
+    }
+  },
+  "join_key": {
+    "analysis_zones": "properties.GEOID (11-digit TIGER 2025 census tract)",
+    "acs": "GEO_ID 1400000US{GEOID} from ACS 5-year table-based Summary File",
+    "canopy": "majority-area spatial intersection; Phoenix layer has no GEOID field",
+    "cooling": "Census geocoder lon/lat then point-in-polygon to TIGER 2025 zones"
+  }
+}

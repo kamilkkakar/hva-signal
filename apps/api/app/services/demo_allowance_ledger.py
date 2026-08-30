@@ -10,6 +10,9 @@ from threading import Lock
 from uuid import uuid4
 
 from app.domain.demo_allowance import (
+    AllowanceRestartReport,
+    CachedDemoResult,
+    ConsumeAfterCacheResult,
     DemoAllowanceDecision,
     DemoAllowanceDecisionCode,
     DemoAllowancePolicy,
@@ -67,6 +70,7 @@ class InMemoryDemoAllowanceLedger:
         self._lock = Lock()
         self._reservations: dict[str, DemoReservation] = {}
         self._active_by_fingerprint: dict[str, str] = {}
+        self._cached_results: dict[str, CachedDemoResult] = {}
 
     @property
     def policy(self) -> DemoAllowancePolicy:
@@ -143,6 +147,130 @@ class InMemoryDemoAllowanceLedger:
     def get(self, reservation_id: str) -> DemoReservation | None:
         with self._lock:
             return self._reservations.get(reservation_id)
+
+    def has_active_reservation(self, request_fingerprint: str) -> bool:
+        """Join peek. LIVE-K uses this so duplicate reserve does not consume a slot."""
+        with self._lock:
+            return request_fingerprint in self._active_by_fingerprint
+
+    def expire_stale(self, *, now: datetime) -> list[DemoReservation]:
+        with self._lock:
+            return self._expire_stale_unlocked(now)
+
+    def persist_cached_result(
+        self,
+        *,
+        identity: DemoRequestIdentity,
+        reservation_id: str,
+        payload: dict,
+        now: datetime | None = None,
+    ) -> CachedDemoResult:
+        moment = now or _now()
+        with self._lock:
+            reservation = self._require(reservation_id)
+            if reservation.request_fingerprint != identity.request_fingerprint:
+                raise DemoAllowanceError("fingerprint_mismatch")
+            if reservation.geometry_sha256 != identity.geometry_sha256:
+                raise DemoAllowanceError("geometry_mismatch")
+            existing = self._cached_results.get(identity.request_fingerprint)
+            if existing is not None:
+                if existing.reservation_id != reservation_id:
+                    raise DemoAllowanceError("cached_result_reservation_mismatch")
+                return existing
+            cached = CachedDemoResult(
+                request_fingerprint=identity.request_fingerprint,
+                geometry_sha256=identity.geometry_sha256,
+                reservation_id=reservation_id,
+                payload=dict(payload),
+                cached_at=moment,
+            )
+            self._cached_results[identity.request_fingerprint] = cached
+            return cached
+
+    def get_cached_result(self, request_fingerprint: str) -> CachedDemoResult | None:
+        with self._lock:
+            return self._cached_results.get(request_fingerprint)
+
+    def recover_after_restart(self, *, now: datetime) -> AllowanceRestartReport:
+        with self._lock:
+            expired = self._expire_stale_unlocked(now)
+            reserved_ids = [
+                item.reservation_id
+                for item in self._reservations.values()
+                if item.state == ReservationState.RESERVED
+            ]
+            consumed_ids = [
+                item.reservation_id
+                for item in self._reservations.values()
+                if item.state == ReservationState.CONSUMED
+            ]
+            snap = self._snapshot_unlocked()
+            return AllowanceRestartReport(
+                expired_reservation_ids=[item.reservation_id for item in expired],
+                reserved_ids=reserved_ids,
+                consumed_ids=consumed_ids,
+                reserved_units=snap.reserved_units,
+                consumed_units=snap.consumed_units,
+            )
+
+    def consume_after_cached_result(
+        self,
+        reservation_id: str,
+        *,
+        identity: DemoRequestIdentity,
+        planned_units: int,
+        now: datetime | None = None,
+    ) -> ConsumeAfterCacheResult:
+        del now
+        with self._lock:
+            cached = self._cached_results.get(identity.request_fingerprint)
+            if cached is None:
+                raise DemoAllowanceError("cached_result_missing")
+            if cached.reservation_id != reservation_id:
+                raise DemoAllowanceError("cached_result_reservation_mismatch")
+            reservation = self._require(reservation_id)
+            if reservation.state == ReservationState.CONSUMED:
+                return ConsumeAfterCacheResult(
+                    reservation=reservation,
+                    cached=cached,
+                    already_consumed=True,
+                )
+            if reservation.state != ReservationState.RESERVED:
+                raise DemoAllowanceError(f"cannot consume {reservation.state.value}")
+            if reservation.request_fingerprint != identity.request_fingerprint:
+                raise DemoAllowanceError("fingerprint_mismatch")
+            if reservation.geometry_sha256 != identity.geometry_sha256:
+                raise DemoAllowanceError("geometry_mismatch")
+            if reservation.planned_units != planned_units:
+                raise DemoAllowanceError("planned_units_mismatch")
+            updated = reservation.model_copy(update={"state": ReservationState.CONSUMED})
+            self._reservations[reservation_id] = updated
+            self._forget_active(reservation)
+            replay = self._cached_results.get(identity.request_fingerprint)
+            if replay is None:
+                raise DemoAllowanceError("cached_result_lost")
+            return ConsumeAfterCacheResult(
+                reservation=updated,
+                cached=replay,
+                already_consumed=False,
+            )
+
+    def close(self) -> None:
+        return None
+
+    def _expire_stale_unlocked(self, now: datetime) -> list[DemoReservation]:
+        expired: list[DemoReservation] = []
+        for reservation_id, reservation in list(self._reservations.items()):
+            if (
+                reservation.state == ReservationState.RESERVED
+                and reservation.expires_at is not None
+                and now >= reservation.expires_at
+            ):
+                updated = reservation.model_copy(update={"state": ReservationState.EXPIRED})
+                self._reservations[reservation_id] = updated
+                self._forget_active(reservation)
+                expired.append(updated)
+        return expired
 
     def _try_reserve_unlocked(
         self,

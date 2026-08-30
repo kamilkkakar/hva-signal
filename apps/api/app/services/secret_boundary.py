@@ -15,6 +15,18 @@ _SECRET_KEYS = frozenset(
         "authorization",
         "demo_budget",
         "allowance_remaining",
+        "key",
+        "token",
+        "access_token",
+        "refresh_token",
+        "bearer",
+        "private_key",
+        "client_secret",
+        "budget",
+        "activity_id",
+        "vendor_activity_id",
+        "reservation_id",
+        "reservation_state",
     }
 )
 

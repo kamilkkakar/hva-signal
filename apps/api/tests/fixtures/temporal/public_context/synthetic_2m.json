@@ -1,0 +1,9 @@
+{
+  "kind": "SYNTHETIC_FIXTURE",
+  "source_family": "public",
+  "variable_id": "fixture_2m_t",
+  "spatial_grain": "fixture_grid",
+  "values": [
+    28.0
+  ]
+}

@@ -1,0 +1,25 @@
+.selected-area-story h3 {
+  margin: 0.7rem 0 0.3rem;
+}
+
+.selected-area-story [data-source="fortyguard"] {
+  border-left: 3px solid var(--filament, #e2a34a);
+  padding-left: 0.65rem;
+}
+
+.selected-area-story [data-source="acs-canopy"],
+.selected-area-story [data-source="acs"],
+.selected-area-story [data-source="canopy"] {
+  border-left: 3px solid var(--carbon, #2a2a2a);
+  padding-left: 0.65rem;
+}
+
+.selected-area-story [data-source="mag"] {
+  border-left: 3px solid var(--panel-border, #6b6b6b);
+  padding-left: 0.65rem;
+}
+
+.story-map-mode {
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+}
