@@ -15,6 +15,12 @@ class Settings(BaseSettings):
     web_public_url: str = "http://localhost:5173"
     allowed_origins: str = "http://localhost:5173"
     cache_dir: str = ".cache/fortyguard"
+    demo_allowance_enabled: bool = False
+    demo_allowance_max_total_units: int = 0
+    demo_allowance_max_units_per_request: int = 1
+    demo_allowance_allowed_areas: str = ""
+    demo_allowance_valid_from: str = ""
+    demo_allowance_valid_until: str = ""
 
 
 @lru_cache
