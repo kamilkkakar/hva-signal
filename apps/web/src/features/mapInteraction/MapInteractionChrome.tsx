@@ -3,6 +3,7 @@ import {
   CLEAR_LAYER_LABEL,
   CLEAR_SELECTION_LABEL,
   FIT_AOI_LABEL,
+  MAP_TOOLS_SUMMARY,
   LIST_CAPTION,
   LIST_SUMMARY,
   POSITION_MEANING,
@@ -22,6 +23,8 @@ export type MapInteractionChromeProps = {
 export function MapInteractionChrome({ view, dispatch }: MapInteractionChromeProps) {
   return (
     <div className="mapi-chrome" data-testid="map-interaction-chrome">
+      <details className="mapi-tools" data-testid="map-tools">
+        <summary>{MAP_TOOLS_SUMMARY}</summary>
       <div className="mapi-toolbar" role="toolbar" aria-label="Map interaction">
         <button
           type="button"
@@ -66,6 +69,7 @@ export function MapInteractionChrome({ view, dispatch }: MapInteractionChromePro
           {CLEAR_SELECTION_LABEL}
         </button>
       </div>
+      </details>
 
       <p className="mapi-sr" aria-live="polite" data-testid="map-interaction-announce">
         {view.announce}

@@ -91,27 +91,22 @@ export function JudgeShell() {
   }, [jobId]);
 
   return (
-    <div className="judge-shell" data-testid="judge-shell">
+    <div
+      className="judge-shell"
+      data-testid="judge-shell"
+      data-has-result={snapshot?.result != null ? "true" : "false"}
+    >
       <HeroHeader />
       <ContextBar
         source={source}
         clockDate={clockDate}
         bannerLabel={source}
       />
-      <HappeningBand
-        happening={happening}
-        busy={busy}
-        showRecovery={showRecovery}
-        canResubmit={canResubmit}
-        onResubmit={() => void resubmit()}
-      />
-      <ResultStoryBand snapshot={snapshot} busy={busy} />
       <div
         className="judge-explore"
         data-testid="judge-explore"
         data-layout="map-primary"
       >
-        <RunBand />
         <MapBand
           layer={layer}
           ranking={ranking}
@@ -123,7 +118,16 @@ export function JudgeShell() {
           analysisTime={lastRequest?.analysis_time ?? snapshot?.request?.analysis_time}
           onSelectedIdChange={setSelectedZoneId}
         />
+        <RunBand />
       </div>
+      <HappeningBand
+        happening={happening}
+        busy={busy}
+        showRecovery={showRecovery}
+        canResubmit={canResubmit}
+        onResubmit={() => void resubmit()}
+      />
+      <ResultStoryBand snapshot={snapshot} busy={busy} />
       <ThermalBand
         snapshot={snapshot}
         status={snapshot?.status ?? null}

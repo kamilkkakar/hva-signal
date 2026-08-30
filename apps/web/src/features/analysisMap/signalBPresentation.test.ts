@@ -106,6 +106,7 @@ describe("presentSignalBMap", () => {
     expect(JSON.stringify(presentation.fillPaint)).not.toContain("temperature_min_c");
     expect(JSON.stringify(presentation.fillPaint)).not.toContain("interpolate");
     expect(presentation.snapshotFacts.factText).toMatch(/zone means in this snapshot/);
+    expect(presentation.meaningCopy).not.toMatch(/q_A|Decision 8|rank|priority/i);
   });
 
   it("shows missing zones as an em dash, never 0 °C", () => {

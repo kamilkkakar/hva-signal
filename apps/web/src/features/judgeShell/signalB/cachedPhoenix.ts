@@ -70,3 +70,36 @@ export function selectedZoneTemperatureC(
   const zone = doc.zones.find((row) => row.zone_id === zoneId);
   return zone?.mean_temperature_c ?? null;
 }
+
+export function cachedZoneAverageC(): number {
+  const values = doc.zones
+    .map((zone) => zone.mean_temperature_c)
+    .filter((value): value is number => value != null && Number.isFinite(value));
+  if (values.length === 0) {
+    return Number.NaN;
+  }
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+export function cachedRangeLabel(): string {
+  return `${doc.temperature_min_c.toFixed(1)}–${doc.temperature_max_c.toFixed(1)} °C`;
+}
+
+export const PUBLIC_B_FOOTNOTE = "not q_A / not Decision 8" as const;
+
+export function presentPublicCachedB(selectedZoneId?: string | null) {
+  const selectedC = selectedZoneTemperatureC(selectedZoneId);
+  const averageC = cachedZoneAverageC();
+  return {
+    wording: CACHED_B_WORDING,
+    coverage: "25/25" as const,
+    source: "CACHED" as const,
+    provenance: "fortyguard_cached" as const,
+    zoneAverageLabel: Number.isFinite(averageC) ? `${averageC.toFixed(1)} °C` : null,
+    rangeLabel: cachedRangeLabel(),
+    selectedLabel:
+      selectedC == null ? null : `${selectedC.toFixed(1)} °C`,
+    selectedZoneId: selectedZoneId ?? null,
+    footnote: PUBLIC_B_FOOTNOTE,
+  };
+}

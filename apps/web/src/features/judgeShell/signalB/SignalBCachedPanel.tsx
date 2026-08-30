@@ -2,13 +2,10 @@ import { useEffect, useState } from "react";
 import { createGeometryLoader } from "@/api/areaGeometry";
 import { SignalBMapStage } from "@/features/analysisMap/SignalBMapStage";
 import type { SignalBGeometryCollection } from "@/features/analysisMap/signalBTypes";
-import { SignalBSection } from "@/features/signals/SignalBSection";
-import "@/features/signals/signals.css";
-import { presentSelectedTime } from "@/features/signals/presentation";
 import {
   CACHED_B_WORDING,
   phoenixDemoCachedSelectedTime,
-  selectedZoneTemperatureC,
+  presentPublicCachedB,
 } from "./cachedPhoenix";
 import { PUBLIC_SIGNAL_B } from "./publicBGate";
 import "./signalB.css";
@@ -21,8 +18,7 @@ export function SignalBCachedPanel({
   selectedZoneId = null,
 }: SignalBCachedPanelProps) {
   const section = phoenixDemoCachedSelectedTime();
-  const view = presentSelectedTime(section, { liveDemoConfirmation: false });
-  const selectedC = selectedZoneTemperatureC(selectedZoneId);
+  const facts = presentPublicCachedB(selectedZoneId);
   const [geometry, setGeometry] = useState<SignalBGeometryCollection | null>(null);
 
   useEffect(() => {
@@ -54,18 +50,46 @@ export function SignalBCachedPanel({
       data-capability="available-now-cached-evidence"
       data-coverage="25/25"
       data-source="fortyguard_cached"
+      data-rank="no"
     >
       <p className="chip" data-testid="signal-b-maturity">
         {CACHED_B_WORDING}
       </p>
-      <SignalBSection view={view} />
-      {selectedC != null ? (
-        <p className="job-id" data-testid="signal-b-selected-zone">
-          Selected zone {selectedZoneId}: {selectedC.toFixed(1)} °C
-        </p>
-      ) : null}
+      <dl className="signal-b-public-facts" data-testid="signal-b-public-facts">
+        {facts.selectedLabel ? (
+          <div>
+            <dt>Selected zone</dt>
+            <dd data-testid="signal-b-selected-zone">
+              {facts.selectedZoneId}: {facts.selectedLabel}
+            </dd>
+          </div>
+        ) : null}
+        <div>
+          <dt>Coverage</dt>
+          <dd data-testid="signal-b-coverage">{facts.coverage}</dd>
+        </div>
+        {facts.zoneAverageLabel ? (
+          <div>
+            <dt>Zone average</dt>
+            <dd data-testid="signal-b-zone-average">{facts.zoneAverageLabel}</dd>
+          </div>
+        ) : null}
+        <div>
+          <dt>Source</dt>
+          <dd data-testid="signal-b-source">{facts.source}</dd>
+        </div>
+        <div>
+          <dt>Range</dt>
+          <dd data-testid="signal-b-range">{facts.rangeLabel}</dd>
+        </div>
+      </dl>
+      <details className="signal-b-footnote" data-testid="signal-b-footnote">
+        <summary>Not a historical order</summary>
+        <p>{facts.footnote}</p>
+      </details>
       <SignalBMapStage
         enabled
+        showZoneTable={false}
         snapshot={{
           units: "celsius",
           aggregation_method: "centroid_within_mean",

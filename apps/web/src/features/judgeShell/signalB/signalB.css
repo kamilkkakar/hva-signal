@@ -9,3 +9,42 @@
   padding-top: 0;
   border-top: 0;
 }
+
+.signal-b-cached-panel {
+  min-width: 0;
+}
+
+.signal-b-public-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 0.45rem 0.85rem;
+  margin: 0.55rem 0 0;
+}
+
+.signal-b-public-facts dt {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.signal-b-public-facts dd {
+  margin: 0.12rem 0 0;
+  font-size: 0.95rem;
+}
+
+.signal-b-footnote {
+  margin: 0.55rem 0 0.7rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.signal-b-footnote summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

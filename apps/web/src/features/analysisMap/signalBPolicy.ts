@@ -13,7 +13,9 @@ export const PERCENTILE_AUTOSTRETCH = false;
 export const RANK_IMPLICATION = false;
 
 export const SIGNAL_B_MEANING_COPY =
-  "Zone-level absolute °C at the requested time; descriptive only. Not q_A, not Decision 8, not priority.";
+  "Zone-level absolute °C at the requested time; descriptive only.";
+
+export const SIGNAL_B_FOOTNOTE_COPY = "not q_A / not Decision 8";
 
 export const SIGNAL_B_METHODOLOGY_COPY =
   "Centroid-within mean. User-facing resolution is the zone. This is a selected-time snapshot, not current conditions.";

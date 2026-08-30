@@ -99,3 +99,22 @@
   font-size: 0.62rem;
   color: #5d6758;
 }
+
+.sbmap-notes {
+  margin: 0.35rem 0 0;
+}
+
+.sbmap-notes > summary,
+.sbmap-footnote {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.sbmap-notes > summary {
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.62rem;
+}
+

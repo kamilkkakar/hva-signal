@@ -20,6 +20,10 @@ export function CapabilityExpansion() {
         <p className="kicker">{view.kicker}</p>
         <h2 id="capability-expansion-title">{view.title}</h2>
         <p className="capability-lead">{view.lead}</p>
+      </header>
+
+      <details className="capability-ledger" data-testid="capability-ledger">
+        <summary>Development status — published capabilities, not a live product menu</summary>
         <dl className="capability-hva">
           {view.hva.map((item) => (
             <div key={item.letter}>
@@ -28,7 +32,6 @@ export function CapabilityExpansion() {
             </div>
           ))}
         </dl>
-      </header>
 
       <details
         className="capability-sequence"
@@ -85,6 +88,7 @@ export function CapabilityExpansion() {
         <span>Not this product</span>
         {view.notThisProduct.join(" · ")}
       </p>
+      </details>
 
       <details className="capability-modules">
         <summary>What each module is for</summary>

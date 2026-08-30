@@ -7,6 +7,7 @@ import { featureCollectionBounds } from "./signalBGeometry";
 import { signalBMapIsEnabled } from "./signalBMapGate";
 import {
   SIGNAL_B_FILL_LAYER_ID,
+  SIGNAL_B_FOOTNOTE_COPY,
   SIGNAL_B_LAYER_TITLE,
   SIGNAL_B_LINE_LAYER_ID,
   SIGNAL_B_LINE_WIDTH,
@@ -34,6 +35,7 @@ export type SignalBMapStageProps = {
   snapshot: SignalBSnapshot | null;
   geometry: SignalBGeometryCollection | null;
   availability?: SignalBMapAvailability;
+  showZoneTable?: boolean;
 };
 
 function ensureSignalBLayers(map: maplibregl.Map): GeoJSONSource | null {
@@ -120,6 +122,7 @@ export function SignalBMapStage({
   snapshot,
   geometry,
   availability,
+  showZoneTable = false,
 }: SignalBMapStageProps) {
   const gatedOn = signalBMapIsEnabled(enabled);
   const presentation = presentSignalBMap({
@@ -244,8 +247,6 @@ export function SignalBMapStage({
               <p className="sbmap-label" data-testid="signal-b-layer-label">
                 {SIGNAL_B_LAYER_TITLE}
               </p>
-              <p className="sbmap-copy">{presentation.meaningCopy}</p>
-              <p className="sbmap-copy">{presentation.stretchCopy}</p>
               {presentation.message && (
                 <p className="sbmap-message" data-testid="signal-b-map-message">
                   {presentation.message}
@@ -272,25 +273,35 @@ export function SignalBMapStage({
                 {presentation.snapshotFacts.factText}
               </p>
             )}
-            <p className="sbmap-copy">{presentation.methodologyCopy}</p>
-            <table className="sbmap-table" data-testid="signal-b-zone-table">
-              <thead>
-                <tr>
-                  <th>zone_id</th>
-                  <th>mean °C</th>
-                  <th>coverage</th>
-                </tr>
-              </thead>
-              <tbody>
-                {presentation.tableRows.map((row) => (
-                  <tr key={row.zone_id} data-zone-id={row.zone_id}>
-                    <td>{row.zone_id}</td>
-                    <td>{row.display_temperature}</td>
-                    <td>{row.coverage_status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <details className="sbmap-notes" data-testid="signal-b-map-notes">
+              <summary>Snapshot notes</summary>
+              <p className="sbmap-copy">{presentation.meaningCopy}</p>
+              <p className="sbmap-copy">{presentation.stretchCopy}</p>
+              <p className="sbmap-copy">{presentation.methodologyCopy}</p>
+              <p className="sbmap-footnote" data-testid="signal-b-map-footnote">
+                {SIGNAL_B_FOOTNOTE_COPY}
+              </p>
+              {showZoneTable ? (
+                <table className="sbmap-table" data-testid="signal-b-zone-table">
+                  <thead>
+                    <tr>
+                      <th>zone_id</th>
+                      <th>mean °C</th>
+                      <th>coverage</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {presentation.tableRows.map((row) => (
+                      <tr key={row.zone_id} data-zone-id={row.zone_id}>
+                        <td>{row.zone_id}</td>
+                        <td>{row.display_temperature}</td>
+                        <td>{row.coverage_status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : null}
+            </details>
           </div>
         </>
       )}

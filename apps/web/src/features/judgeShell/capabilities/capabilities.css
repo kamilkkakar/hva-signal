@@ -223,3 +223,17 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.capability-ledger {
+  margin: 0.7rem 0 0;
+}
+
+.capability-ledger > summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+

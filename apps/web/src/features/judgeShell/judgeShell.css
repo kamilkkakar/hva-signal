@@ -36,10 +36,17 @@
 }
 
 .judge-explore .judge-run {
+  grid-column: 1;
+  grid-row: 1;
   padding: 0.7rem 0.8rem 0.9rem;
   border-right: 1px solid var(--carbon);
   border-top: 0;
   overflow: auto;
+}
+
+.judge-explore .judge-map {
+  grid-column: 2;
+  grid-row: 1;
 }
 
 .judge-explore .judge-run-form {
@@ -77,6 +84,26 @@
 
 .judge-hero {
   border-bottom: 3px solid var(--filament);
+}
+
+.judge-hero-more {
+  margin: 0.45rem 0 0;
+  max-width: 40rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.judge-hero-more summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.judge-shell[data-has-result="true"] .judge-happening .judge-stamp,
+.judge-shell[data-has-result="true"] .judge-happening .kicker {
+  display: none;
 }
 
 .judge-hero-line {
@@ -305,7 +332,8 @@
   .judge-hero-honesty,
   .judge-hero-tagline,
   .judge-happening .kicker,
-  .judge-happening-line {
+  .judge-happening-line,
+  .judge-hero-more {
     display: none;
   }
 
@@ -330,13 +358,22 @@
 
   .judge-explore {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(20rem, 1fr);
+    grid-template-rows: minmax(20rem, 1fr) auto;
     min-height: calc(100vh - 12rem);
   }
 
+  .judge-explore .judge-map {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: min(70vh, 28rem);
+  }
+
   .judge-explore .judge-run {
+    grid-column: 1;
+    grid-row: 2;
     border-right: 0;
-    border-bottom: 1px solid var(--carbon);
+    border-bottom: 0;
+    border-top: 1px solid var(--carbon);
     padding: 0.45rem 0.75rem;
   }
 

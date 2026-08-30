@@ -27,4 +27,16 @@ describe("laptop first-read map visibility", () => {
     expect(css).not.toMatch(/\.judge-shell\s*\{[^}]*overflow-x:\s*hidden/s);
     expect(css).not.toMatch(/overflow-x:\s*auto/);
   });
+
+  it("puts the map before run in DOM and demotes the result stamp pair", () => {
+    const shell = readFileSync(path.join(here, "JudgeShell.tsx"), "utf8");
+    expect(shell).toContain('data-has-result={snapshot?.result != null ? "true" : "false"}');
+    expect(shell.indexOf("<MapBand")).toBeLessThan(shell.indexOf("<RunBand"));
+    expect(shell.indexOf("judge-explore")).toBeLessThan(shell.indexOf("<HappeningBand"));
+    expect(shell.indexOf("<HappeningBand")).toBeLessThan(shell.indexOf("<ResultStoryBand"));
+    expect(shell).not.toContain("decision_ui_2");
+    expect(shell).not.toContain("TEST_ONLY");
+    expect(css).toContain('data-has-result="true"');
+    expect(css).toMatch(/\.judge-explore \.judge-map[\s\S]*grid-row:\s*1/);
+  });
 });
