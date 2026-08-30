@@ -35,7 +35,10 @@ describe("map interaction isolation", () => {
       const source = readFileSync(path, "utf8");
       expect(source, path).not.toMatch(/CommandCenterShell/);
       expect(source, path).not.toMatch(/INTERVENTION PRIORITY/);
+      expect(source, path).not.toMatch(/intervention_evidence/);
       expect(source, path).not.toMatch(/CONTEXTUAL PREPAREDNESS/);
+      expect(source, path).not.toMatch(/harm probability/i);
+      expect(source, path).not.toMatch(/backend order/i);
       expect(source, path).not.toMatch(/rankingPresentation/);
       expect(source, path).not.toMatch(/mapLayerFromLimitations/);
       expect(source, path).not.toMatch(/mapPresentationFromBind/);

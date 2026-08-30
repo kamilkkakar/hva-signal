@@ -14,8 +14,15 @@ export {
   ORDER_SHOWN_TITLE,
   ORDER_WITHHELD_TITLE,
   ORDER_WITHHELD_STATUS_LOCK,
+  PATTERN_SUPPORT,
   formatNighttimeOrder,
+  formatRelativeOrder,
+  formatQuantile4,
 } from "./policy";
+export {
+  formatObservationLabel,
+  storyFromZone,
+} from "./zoneStory";
 export {
   bindExclusiveMapLayer,
   catalogForHistoricalRankMap,

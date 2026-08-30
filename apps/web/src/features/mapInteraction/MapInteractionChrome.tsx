@@ -2,6 +2,9 @@ import {
   CLEAR_LAYER_LABEL,
   CLEAR_SELECTION_LABEL,
   FIT_AOI_LABEL,
+  LIST_CAPTION,
+  POSITION_MEANING,
+  QA_EXPAND_LABEL,
   RESET_AOI_LABEL,
   RESTORE_LAYER_LABEL,
   SELECT_PROMPT,
@@ -17,9 +20,6 @@ export type MapInteractionChromeProps = {
 export function MapInteractionChrome({ view, dispatch }: MapInteractionChromeProps) {
   return (
     <div className="mapi-chrome" data-testid="map-interaction-chrome">
-      <p className="mapi-label" data-testid="map-interaction-chrome-title">
-        {view.layerTitle}
-      </p>
       <div className="mapi-toolbar" role="toolbar" aria-label="Map interaction">
         <button
           type="button"
@@ -92,43 +92,119 @@ export function MapInteractionChrome({ view, dispatch }: MapInteractionChromePro
 
       <section
         className="mapi-detail"
-        aria-label="Selected zone"
+        aria-label="Zone details"
         data-testid="map-interaction-detail"
         data-has-selection={view.detail ? "true" : "false"}
+        data-position-shown={view.detail?.position_shown ? "true" : "false"}
       >
-        <h3>Selected zone</h3>
+        <h3>Zone details</h3>
         {view.detail ? (
-          <dl>
-            <dt>GEOID</dt>
-            <dd data-testid="detail-geoid">{view.detail.geoid}</dd>
-            <dt>Label</dt>
-            <dd data-testid="detail-label">{view.detail.label}</dd>
-            <dt>Value</dt>
-            <dd data-testid="detail-value">{view.detail.value_display}</dd>
-            <dt>Coverage</dt>
-            <dd data-testid="detail-coverage">{view.detail.coverage}</dd>
-            <dt>Time</dt>
-            <dd data-testid="detail-time">{view.detail.time_label}</dd>
-            <dt>Source</dt>
-            <dd data-testid="detail-source">{view.detail.source_label}</dd>
-          </dl>
+          <>
+            <p className="mapi-zone-id" data-testid="detail-zone-heading">
+              Zone {view.detail.geoid}
+            </p>
+            {view.detail.position_shown && view.detail.position_pct != null ? (
+              <div
+                className="mapi-position"
+                data-testid="detail-position-visual"
+                aria-label="Nighttime historical position"
+              >
+                <p className="mapi-position-kicker">Nighttime historical position</p>
+                <div className="mapi-position-track" aria-hidden="true">
+                  <span
+                    className="mapi-position-mark"
+                    style={{ left: `${view.detail.position_pct}%` }}
+                  />
+                </div>
+              </div>
+            ) : null}
+            <dl>
+              <dt>Position</dt>
+              <dd data-testid="detail-position-meaning">{view.detail.position_meaning}</dd>
+              <dt>Observation</dt>
+              <dd data-testid="detail-observation">{view.detail.observation_label}</dd>
+              <dt>Source</dt>
+              <dd data-testid="detail-source-story">{view.detail.source_story}</dd>
+              {view.detail.relative_order_line ? (
+                <>
+                  <dt>Within analysis</dt>
+                  <dd data-testid="detail-relative-order">{view.detail.relative_order_line}</dd>
+                </>
+              ) : null}
+              <dt className="mapi-sr">GEOID</dt>
+              <dd className="mapi-sr" data-testid="detail-geoid">
+                {view.detail.geoid}
+              </dd>
+              <dt className="mapi-sr">Label</dt>
+              <dd className="mapi-sr" data-testid="detail-label">
+                {view.detail.label}
+              </dd>
+              <dt className="mapi-sr">Value</dt>
+              <dd className="mapi-sr" data-testid="detail-value">
+                {view.detail.value_display}
+              </dd>
+              <dt className="mapi-sr">Coverage</dt>
+              <dd className="mapi-sr" data-testid="detail-coverage">
+                {view.detail.coverage}
+              </dd>
+              <dt className="mapi-sr">Time</dt>
+              <dd className="mapi-sr" data-testid="detail-time">
+                {view.detail.time_label}
+              </dd>
+              <dt className="mapi-sr">Source token</dt>
+              <dd className="mapi-sr" data-testid="detail-source">
+                {view.detail.source_label}
+              </dd>
+            </dl>
+            {view.detail.q_A_display ? (
+              <details className="mapi-qa" data-testid="detail-qa">
+                <summary>{QA_EXPAND_LABEL}</summary>
+                <p data-testid="detail-qa-value">
+                  q_A = {view.detail.q_A_display}
+                </p>
+              </details>
+            ) : null}
+            <p className="mapi-copy mapi-position-note">{POSITION_MEANING}</p>
+          </>
         ) : (
           <p className="mapi-copy">{view.layerActive ? SELECT_PROMPT : view.meaningCopy}</p>
         )}
       </section>
 
-      <section className="mapi-table-wrap" aria-label="Zone list">
+      <section className="mapi-list-wrap" aria-label="Zone list" data-testid="map-interaction-list-wrap">
         <h3>Zones</h3>
+        <p className="mapi-copy">{LIST_CAPTION}</p>
+        <ul className="mapi-zone-list" data-testid="map-interaction-list">
+          {view.tableRows.map((row) => {
+            const selected = view.selectedId === row.geoid;
+            return (
+              <li key={row.geoid} data-geoid={row.geoid} data-selected={selected ? "true" : "false"}>
+                <button
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => dispatch({ type: "select", geoid: row.geoid })}
+                >
+                  Zone {row.geoid}
+                </button>
+                <span>{row.value_display}</span>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      <details className="mapi-table-wrap" aria-label="Zone table">
+        <summary>All zones (table)</summary>
         <p className="mapi-copy">{TABLE_CAPTION}</p>
         <table className="mapi-table" data-testid="map-interaction-table">
           <caption className="mapi-sr">{TABLE_CAPTION}</caption>
           <thead>
             <tr>
-              <th>GEOID</th>
+              <th>Zone</th>
               <th>Label</th>
-              <th>Value</th>
+              <th>Position</th>
               <th>Coverage</th>
-              <th>Time</th>
+              <th>Observation</th>
               <th>Source</th>
             </tr>
           </thead>
@@ -156,7 +232,7 @@ export function MapInteractionChrome({ view, dispatch }: MapInteractionChromePro
             })}
           </tbody>
         </table>
-      </section>
+      </details>
     </div>
   );
 }

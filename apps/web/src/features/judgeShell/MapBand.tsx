@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import type { AnalysisResultStub } from "@/api/analysisJobs";
 import { createGeometryLoader } from "@/api/areaGeometry";
-import { MapStage } from "@/features/map/MapStage";
 import {
   catalogFromHistorical,
+  rankedFillCount,
   type InteractionCatalog,
 } from "@/features/mapInteraction";
 import type { JobStatus } from "@/types";
@@ -15,7 +15,6 @@ type MapBandProps = {
   layer: MapLayerState;
   ranking: RankingPresentation;
   areaId: string | null;
-  resultAreaId: string | null;
   jobId: string | null;
   jobStatus: JobStatus | null;
   result: AnalysisResultStub | null;
@@ -25,6 +24,24 @@ type MapBandProps = {
 
 function resultIsReady(status: JobStatus | null): boolean {
   return status === "complete" || status === "partial";
+}
+
+function exploreMapState(input: {
+  submitting: boolean;
+  jobStatus: JobStatus | null;
+  catalog: InteractionCatalog | null;
+  rankingState: RankingPresentation["state"];
+}): "idle" | "loading" | "sufficient" | "insufficient" {
+  if (input.submitting) {
+    return "loading";
+  }
+  if (!resultIsReady(input.jobStatus)) {
+    return "idle";
+  }
+  if (!input.catalog) {
+    return "loading";
+  }
+  return input.rankingState === "READY" ? "sufficient" : "insufficient";
 }
 
 export function MapBand(props: MapBandProps) {
@@ -85,18 +102,23 @@ export function MapBand(props: MapBandProps) {
     props.result,
   ]);
 
+  const mapState = exploreMapState({
+    submitting: props.submitting,
+    jobStatus: props.jobStatus,
+    catalog,
+    rankingState: props.ranking.state,
+  });
+
   return (
-    <section className="judge-map" aria-label="25-zone analysis map">
-      <MapStage
-        layer={props.layer}
-        ranking={props.ranking}
-        areaId={props.areaId}
-        resultAreaId={props.resultAreaId}
-        jobId={props.jobId}
-        jobStatus={props.jobStatus}
-        result={props.result}
-        submitting={props.submitting}
-      />
+    <section
+      className="judge-map"
+      aria-label={props.layer.label}
+      data-testid="map-stage"
+      data-layout="map-primary"
+      data-map-state={mapState}
+      data-ranked-feature-count={String(rankedFillCount(catalog))}
+      data-layer-label={props.layer.label}
+    >
       <JudgeMap lane="A" historical={catalog} enabled />
     </section>
   );

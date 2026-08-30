@@ -25,8 +25,8 @@ export function legendFromCatalog(
       },
       {
         id: "outline",
-        label: "AOI outline",
-        meaning: "Geography of the analysis window remains visible.",
+        label: "Analysis geography",
+        meaning: "The analysis window outline remains visible.",
         swatch: INTERACTION_BASE_LINE,
       },
     ];
@@ -45,8 +45,9 @@ export function legendFromCatalog(
     return [
       {
         id: "outline",
-        label: "AOI outline",
-        meaning: "Order withheld. Outline is geography only. Absence is not a cool or safe class.",
+        label: "Geography only",
+        meaning:
+          "No relative pattern is drawn for this night. Outlines are the analysis window. Absence is not a cool or safe class.",
         swatch: INTERACTION_BASE_LINE,
       },
     ];
@@ -70,14 +71,14 @@ export function legendFromCatalog(
   return [
     {
       id: "authorized",
-      label: "Nighttime order",
+      label: "Own-night 03:00 position",
       meaning:
-        "Nighttime order 1 of N → N of N. Not °C. Not a probability. Shared interaction fill; the host may replace this ink.",
+        "Each zone versus its own historical 03:00 record. Color encoding is the legend scale. This is not a treatment list.",
       swatch: INTERACTION_SHARED_FILL,
     },
     {
       id: "excluded",
-      label: "Not authorized",
+      label: "Not in this pattern",
       meaning: "Outline only. Absence is not a cool or safe class.",
       swatch: null,
     },

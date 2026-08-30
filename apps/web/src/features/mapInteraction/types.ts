@@ -25,6 +25,13 @@ export type InteractionZone = {
   time_label: string;
   source_label: ProductSourceLabel;
   has_semantic_fill: boolean;
+  q_A_display: string | null;
+  q_A_value: number | null;
+  relative_order: number | null;
+  relative_order_of: number | null;
+  observation_label: string;
+  source_story: string;
+  position_shown: boolean;
 };
 
 export type InteractionFeature = {
@@ -70,6 +77,7 @@ export type HoverCard = {
   label: string;
   value_display: string;
   line: string;
+  primary_evidence: string;
 };
 
 export type ZoneDetail = {
@@ -79,6 +87,13 @@ export type ZoneDetail = {
   coverage: string;
   time_label: string;
   source_label: ProductSourceLabel;
+  observation_label: string;
+  source_story: string;
+  position_meaning: string;
+  position_shown: boolean;
+  position_pct: number | null;
+  relative_order_line: string | null;
+  q_A_display: string | null;
 };
 
 export type LegendItem = {

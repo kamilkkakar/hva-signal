@@ -6,9 +6,9 @@ import {
   type RankingPresentation,
 } from "@/utils/mapLayer";
 
-export const JUDGE_LAYER_ORDER = "Nighttime historical thermal order";
-export const JUDGE_LAYER_WITHHELD = "Order withheld — night too flat";
-export const JUDGE_LAYER_NOT_PREPARED = "Historical order not prepared";
+export const JUDGE_LAYER_ORDER = "Nighttime historical thermal pattern";
+export const JUDGE_LAYER_WITHHELD = "Nighttime historical thermal pattern";
+export const JUDGE_LAYER_NOT_PREPARED = "Historical pattern not prepared";
 export const JUDGE_LAYER_WINDOW = "25-zone window";
 
 /** Remap intervention/preparedness titles without editing mapLayer.ts. */
