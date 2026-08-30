@@ -43,10 +43,11 @@ describe("story copy lock", () => {
     );
   });
 
-  it("names phoenix-demo as an analysis window, not the municipality", () => {
+  it("names phoenix-demo as a demonstration area, not a catalog token", () => {
     expect(formatAreaLabel("phoenix-demo")).toBe(
-      "phoenix-demo — 25-zone analysis window, not the municipality",
+      "Phoenix demonstration area — 25-zone analysis window, not the municipality",
     );
+    expect(formatAreaLabel("phoenix-demo")).not.toContain("phoenix-demo");
     expect(formatAreaLabel("phoenix-demo")).not.toMatch(/city-wide|Phoenix's heat/);
     expect(formatAreaLabel(null)).toBe("25-zone analysis window, not a city");
   });

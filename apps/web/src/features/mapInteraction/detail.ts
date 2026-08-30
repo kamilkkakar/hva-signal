@@ -13,13 +13,13 @@ function hoverLine(
   if (catalog.kind === "aoi_outline" || !catalog.fill_authorized) {
     return {
       primary_evidence: HOVER_GEOGRAPHY_ONLY,
-      line: `Zone ${zone.geoid} · ${HOVER_GEOGRAPHY_ONLY}`,
+      line: `${zone.label} · ${HOVER_GEOGRAPHY_ONLY}`,
     };
   }
   if (catalog.kind === "historical_ordering") {
     return {
       primary_evidence: HOVER_POSITION_EVIDENCE,
-      line: `Zone ${zone.geoid} · ${HOVER_POSITION_EVIDENCE}`,
+      line: `${zone.label} · ${HOVER_POSITION_EVIDENCE}`,
     };
   }
   return {

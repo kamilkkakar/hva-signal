@@ -1,3 +1,4 @@
+import { CAPABILITY_SEQUENCE_SUMMARY } from "./copy";
 import { presentCapabilityExpansion } from "./model";
 import "./capabilities.css";
 
@@ -29,13 +30,22 @@ export function CapabilityExpansion() {
         </dl>
       </header>
 
-      <ol className="capability-spine" aria-label="Development stages, not live product modes">
-        {view.spine.map((stage) => (
-          <li key={stage}>
-            <span>{stage}</span>
-          </li>
-        ))}
-      </ol>
+      <details
+        className="capability-sequence"
+        data-testid="capability-sequence"
+      >
+        <summary>{CAPABILITY_SEQUENCE_SUMMARY}</summary>
+        <ol
+          className="capability-spine"
+          aria-label="Research sequence, not live product modes"
+        >
+          {view.spine.map((stage) => (
+            <li key={stage}>
+              <span>{stage}</span>
+            </li>
+          ))}
+        </ol>
+      </details>
 
       <div className="capability-bands">
         {view.bands.map((band) => (

@@ -1,4 +1,5 @@
 /** SIG-A judge copy. q_A / Decision 8 / S stay in Method. Math unchanged. */
+import { PUBLIC_STATUS } from "@/features/publicLanguage";
 
 export const SIGA_TITLE = "Nighttime Historical Thermal Signal";
 export const SIGA_CHIP = "Historical unusualness at 3:00";
@@ -14,8 +15,8 @@ export const SIGA_CLOCK = "03:00 AOI-local. Not a selected hour. Not “now.”"
 export const SIGA_GEOGRAPHY = "25-zone analysis window — not the city.";
 export const SIGA_ASSISTIVE_MAP = "Nighttime historical thermal map";
 
-export const STAMP_ORDER_SHOWN = "ORDER SHOWN";
-export const STAMP_ORDER_WITHHELD = "ORDER WITHHELD";
+export const STAMP_ORDER_SHOWN = PUBLIC_STATUS.SPATIAL_ORDERING_SUPPORTED;
+export const STAMP_ORDER_WITHHELD = PUBLIC_STATUS.SPATIAL_ORDERING_WITHHELD;
 export const STAMP_HISTORY_NOT_PREPARED = "HISTORY NOT PREPARED";
 export const STAMP_HISTORY_TOO_THIN = "HISTORY TOO THIN";
 export const STAMP_NOT_REQUESTED = "NOT REQUESTED";
@@ -70,7 +71,7 @@ export const METHOD_TITLE = "Method";
 export const METHOD_QA =
   "q_A is the own-zone historical unusualness index at 03:00. Experience says how unusual versus this zone's own 3 a.m. nights.";
 export const METHOD_D8 =
-  "Decision 8 (D8) is the gate that asks whether the difference is large enough to show an order. Experience shows ORDER SHOWN or ORDER WITHHELD.";
+  "Decision 8 (D8) is the gate that asks whether the difference is large enough to show an order. Experience shows spatial ordering supported or withheld.";
 export const METHOD_S =
   "S is the normalized spread of that unusualness field. Experience says the night differs enough or the night is too flat.";
 

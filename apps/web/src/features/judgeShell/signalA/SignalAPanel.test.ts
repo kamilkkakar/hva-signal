@@ -24,7 +24,7 @@ function chromeOf(html: string): string {
 }
 
 describe("SignalAPanel", () => {
-  it("renders ORDER SHOWN chrome and keeps Method nouns in the drawer", () => {
+  it("renders SPATIAL ORDERING SUPPORTED chrome and keeps Method nouns in the drawer", () => {
     const html = render({
       view: presentSignalA({
         kind: "order_shown",
@@ -48,7 +48,7 @@ describe("SignalAPanel", () => {
     }
   });
 
-  it("renders ORDER WITHHELD as the product with zero fills", () => {
+  it("renders SPATIAL ORDERING WITHHELD as the product with zero fills", () => {
     const html = render({ input: { kind: "order_withheld" } });
     expect(html).toContain(STAMP_ORDER_WITHHELD);
     expect(html).not.toContain("INSUFFICIENT EVIDENCE");

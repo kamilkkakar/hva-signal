@@ -140,6 +140,7 @@
 .mapi-legend h3,
 .mapi-detail h3,
 .mapi-list-wrap h3,
+.mapi-list-wrap summary,
 .mapi-table-wrap summary {
   margin: 0 0 0.35rem;
   font-size: 0.72rem;
@@ -297,6 +298,7 @@
   max-width: 100%;
 }
 
+.mapi-list-wrap summary,
 .mapi-table-wrap summary {
   cursor: pointer;
 }

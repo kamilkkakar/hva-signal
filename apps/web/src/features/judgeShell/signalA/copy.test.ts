@@ -15,8 +15,8 @@ import {
 
 describe("SIG-A copy lock", () => {
   it("pins the three judge stamps", () => {
-    expect(STAMP_ORDER_SHOWN).toBe("ORDER SHOWN");
-    expect(STAMP_ORDER_WITHHELD).toBe("ORDER WITHHELD");
+    expect(STAMP_ORDER_SHOWN).toBe("SPATIAL ORDERING SUPPORTED");
+    expect(STAMP_ORDER_WITHHELD).toBe("SPATIAL ORDERING WITHHELD");
     expect(STAMP_HISTORY_NOT_PREPARED).toBe("HISTORY NOT PREPARED");
     expect(STAMP_ORDER_WITHHELD).not.toBe(STAMP_HISTORY_NOT_PREPARED);
     expect(STAMP_ORDER_WITHHELD).not.toBe("INSUFFICIENT EVIDENCE");

@@ -4,6 +4,7 @@ import {
   CLEAR_SELECTION_LABEL,
   FIT_AOI_LABEL,
   LIST_CAPTION,
+  LIST_SUMMARY,
   POSITION_MEANING,
   QA_EXPAND_LABEL,
   RESET_AOI_LABEL,
@@ -107,7 +108,7 @@ export function MapInteractionChrome({ view, dispatch }: MapInteractionChromePro
         {view.detail ? (
           <>
             <p className="mapi-zone-id" data-testid="detail-zone-heading">
-              Zone {view.detail.geoid}
+              Selected analysis zone
             </p>
             {view.detail.position_shown && view.detail.position_pct != null ? (
               <div
@@ -177,8 +178,12 @@ export function MapInteractionChrome({ view, dispatch }: MapInteractionChromePro
         )}
       </section>
 
-      <section className="mapi-list-wrap" aria-label="Zone list" data-testid="map-interaction-list-wrap">
-        <h3>Zones</h3>
+      <details
+        className="mapi-list-wrap"
+        aria-label="Zone identifiers"
+        data-testid="map-interaction-list-wrap"
+      >
+        <summary>{LIST_SUMMARY}</summary>
         <p className="mapi-copy">{LIST_CAPTION}</p>
         <ul className="mapi-zone-list" data-testid="map-interaction-list">
           {view.tableRows.map((row) => {
@@ -190,14 +195,14 @@ export function MapInteractionChrome({ view, dispatch }: MapInteractionChromePro
                   aria-pressed={selected}
                   onClick={() => dispatch({ type: "select", geoid: row.geoid })}
                 >
-                  Zone {row.geoid}
+                  {row.label}
                 </button>
                 <span>{row.value_display}</span>
               </li>
             );
           })}
         </ul>
-      </section>
+      </details>
 
       <details className="mapi-table-wrap" aria-label="Zone table">
         <summary>All zones (table)</summary>

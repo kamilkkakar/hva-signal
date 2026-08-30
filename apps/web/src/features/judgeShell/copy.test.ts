@@ -22,13 +22,15 @@ describe("judge shell first-paint copy", () => {
     expect(PRODUCT_EXPANSION).toBe("Heat, Vulnerability & Action Signal");
   });
 
-  it("names phoenix-demo, 25-zone window, 03:00, replay", () => {
-    expect(CHIP_WINDOW_ID).toBe("phoenix-demo");
-    expect(CHIP_WINDOW).toBe("25-zone window");
+  it("names the Phoenix demonstration area, not a catalog token", () => {
+    expect(CHIP_WINDOW_ID).toBe("Phoenix demonstration area");
+    expect(CHIP_WINDOW).toBe("25-zone analysis window");
     expect(CHIP_CLOCK).toBe("03:00");
     expect(CHIP_SOURCE).toBe("replay");
-    expect(published).toContain("phoenix-demo");
-    expect(published).toContain("25-zone window");
+    expect(published).toContain("Phoenix demonstration area");
+    expect(published).toContain("25-zone analysis window");
+    expect(published).not.toContain("phoenix-demo");
+    expect(published).not.toMatch(/\bGEOID\b/);
     expect(published).toContain("03:00");
     expect(published).toContain("replay");
   });

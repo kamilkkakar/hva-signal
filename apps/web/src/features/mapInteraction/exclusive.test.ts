@@ -100,7 +100,7 @@ describe("hover, click, and a11y table", () => {
     let state = initialInteractionState();
     state = reduceInteraction(state, { type: "hover", geoid }, catalog);
     expect(hoverFromState(state, catalog)?.line).toBe(
-      `Zone ${geoid} · Own 03:00 position`,
+      `${catalog.zones[0]?.label} · Own 03:00 position`,
     );
     expect(hoverFromState(state, catalog)?.primary_evidence).toBe("Own 03:00 position");
     expect(hoverFromState(state, catalog)?.line).not.toMatch(/q_A|0\.\d{5,}/);
@@ -122,7 +122,7 @@ describe("hover, click, and a11y table", () => {
     expect(state.hoverId).toBe(geoid);
     const hover = hoverFromState(state, catalog);
     expect(hover?.primary_evidence).toBe("Geography only");
-    expect(hover?.line).toBe(`Zone ${geoid} · Geography only`);
+    expect(hover?.line).toBe(`${catalog.zones[0]?.label} · Geography only`);
     expect(JSON.stringify(hover)).not.toMatch(/q_A|relative order|0\.\d{4}/i);
     const view = presentMapInteraction({ catalog, state });
     expect(view.hover?.primary_evidence).toBe("Geography only");

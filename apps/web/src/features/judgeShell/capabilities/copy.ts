@@ -7,6 +7,9 @@ export const CAPABILITY_TITLE = "Beyond a snapshot" as const;
 export const CAPABILITY_LEAD =
   "Development ledger only — not live product modes you can switch. Shown when data, definition, interpretation, and validation are defensible.";
 
+export const CAPABILITY_SEQUENCE_SUMMARY =
+  "Research sequence — not live product modes";
+
 export const CAPABILITY_SPINE = [
   "OBSERVE",
   "CONTEXTUALIZE",
@@ -25,7 +28,7 @@ export const SIGNAL_A_MATURITY = "AVAILABLE NOW" as const;
 export const SIGNAL_A_QUESTION =
   "How unusual was each zone at 3 a.m. versus its own historical nights?";
 export const SIGNAL_A_SCOPE =
-  "phoenix-demo replay at 03:00. Not live. Not a city search.";
+  "Phoenix demonstration area replay at 03:00. Not live. Not a city search.";
 
 export const ACTION_NAME = "Action Intelligence" as const;
 export const ACTION_MATURITY = "AVAILABLE NOW — DECISION FRAMING" as const;
@@ -51,7 +54,7 @@ export const GEOGRAPHY_MATURITY = "DISABLED" as const;
 export const GEOGRAPHY_QUESTION =
   "Does a Census-place resolve publish an analysis window here?";
 export const GEOGRAPHY_SCOPE =
-  "Resolve is off. phoenix-demo is a frozen analysis window, not municipal coverage.";
+  "Resolve is off. This is a frozen analysis window, not municipal coverage.";
 
 export const HOSTED_LIVE_NAME = "Hosted live" as const;
 export const HOSTED_LIVE_MATURITY = "DISABLED" as const;
@@ -137,7 +140,7 @@ export const PLACE_SEARCH_RULE =
 export const GEOGRAPHY_WHAT =
   "Public geography resolve for a Census place.";
 export const GEOGRAPHY_RULE =
-  "DISABLED. phoenix-demo is a frozen 25-zone analysis window, not municipal coverage.";
+  "DISABLED. Frozen 25-zone analysis window, not municipal coverage.";
 
 export const HOSTED_LIVE_WHAT = "Hosted live thermal acquisition.";
 export const HOSTED_LIVE_RULE = "DISABLED. This surface is historical replay.";
@@ -184,6 +187,7 @@ export function publishedCapabilityCopy(): string[] {
     CAPABILITY_KICKER,
     CAPABILITY_TITLE,
     CAPABILITY_LEAD,
+    CAPABILITY_SEQUENCE_SUMMARY,
     ...CAPABILITY_SPINE,
     BAND_ON_THIS_SURFACE,
     BAND_NEXT_GATED,

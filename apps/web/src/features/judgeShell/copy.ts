@@ -18,8 +18,8 @@ export const HERO_TAGLINE =
 
 export const TITLE_CARD = "Rank the night only when the night earns it.";
 
-export const CHIP_WINDOW_ID = "phoenix-demo";
-export const CHIP_WINDOW = "25-zone window";
+export const CHIP_WINDOW_ID = "Phoenix demonstration area";
+export const CHIP_WINDOW = "25-zone analysis window";
 export const CHIP_CLOCK = "03:00";
 export const CHIP_SOURCE = "replay";
 export const CHIP_NOT_LIVE = "not live";
@@ -122,6 +122,8 @@ export const FORBIDDEN_FIRST_PAINT = [
   "fortyguard",
   "intervention priority",
   "contextual preparedness",
+  "phoenix-demo",
+  "geoid",
   "log in",
   "login",
   "sign up",
