@@ -29,6 +29,16 @@ _UNPUBLISHED_SIGNAL_B_FIELDS = frozenset(
         "admin",
         "operator_override",
         "spend_authorized",
+        "demo",
+        "demo_test",
+        "live_demo",
+        "force_live",
+        "allowance",
+        "demo_budget",
+        "internal_key",
+        "acquisition_preference",
+        "bypass_limit",
+        "allowance_remaining",
     }
 )
 

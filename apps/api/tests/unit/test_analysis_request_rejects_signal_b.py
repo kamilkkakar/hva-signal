@@ -42,6 +42,16 @@ def _valid() -> dict:
         "authorize",
         "skip_approval",
         "spend_authorized",
+        "demo",
+        "demo_test",
+        "live_demo",
+        "force_live",
+        "allowance",
+        "demo_budget",
+        "internal_key",
+        "acquisition_preference",
+        "bypass_limit",
+        "allowance_remaining",
     ],
 )
 def test_unpublished_signal_b_fields_are_rejected(field: str) -> None:

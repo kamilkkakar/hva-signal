@@ -12,6 +12,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from app.domain.demo_allowance import AcquisitionPreference
 from app.domain.enums import DataMode
 from app.domain.signals import SignalAvailability, ThermalSignalKind
 from app.services.snapshot_identity import require_requested_hour
@@ -49,6 +50,12 @@ class PublicReasonCode(str, Enum):
     EVIDENCE_REUSED = "EVIDENCE_REUSED"
     JOINED_IN_FLIGHT = "JOINED_IN_FLIGHT"
     EXECUTION_INTERRUPTED = "EXECUTION_INTERRUPTED"
+    LIVE_DEMO_NOT_REQUESTED = "LIVE_DEMO_NOT_REQUESTED"
+    DEMO_ALLOWANCE_DISABLED = "DEMO_ALLOWANCE_DISABLED"
+    DEMO_ALLOWANCE_EXHAUSTED = "DEMO_ALLOWANCE_EXHAUSTED"
+    DEMO_ALLOWANCE_EXPIRED = "DEMO_ALLOWANCE_EXPIRED"
+    REQUEST_UNIT_CAP_EXCEEDED = "REQUEST_UNIT_CAP_EXCEEDED"
+    LIVE_ACQUISITION_UNAVAILABLE = "LIVE_ACQUISITION_UNAVAILABLE"
 
 
 class HistoricalSignalRequest(BaseModel):
@@ -80,6 +87,7 @@ class SelectedTimeSignalRequest(BaseModel):
 
     target_timestamp: datetime
     analytic: Literal["tcm"] = "tcm"
+    acquisition_preference: AcquisitionPreference = AcquisitionPreference.REUSE_ONLY
 
     @field_validator("target_timestamp")
     @classmethod
@@ -252,7 +260,13 @@ class WorkerHandoff(BaseModel):
     job_id: str
     signal_kind: ThermalSignalKind
     request_fingerprint: str
+    geometry_sha256: str | None = None
+    target_timestamp: datetime | None = None
     authorized_max_units: int
     planned_acquisition_units: int
+    reservation_id: str | None = None
+    authorization_source: Literal["demo_allowance", "manual_operator_future"] = (
+        "manual_operator_future"
+    )
     vendor_activity_id: str | None = None
     must_recheck_authorization: Literal[True] = True

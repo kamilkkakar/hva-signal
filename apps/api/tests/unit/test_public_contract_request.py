@@ -42,6 +42,25 @@ def test_b_only_request() -> None:
     )
     assert req.signals.historical is None
     assert req.signals.selected_time is not None
+    assert req.signals.selected_time.acquisition_preference.value == "reuse_only"
+
+
+def test_hosted_live_preference_is_intent_not_authorization() -> None:
+    req = TwoSignalPublicRequest.model_validate(
+        _base(
+            signals={
+                "selected_time": {
+                    "target_timestamp": "2024-07-15T15:00:00",
+                    "acquisition_preference": "allow_hosted_live_demo",
+                }
+            }
+        )
+    )
+    assert req.signals.selected_time.acquisition_preference.value == (
+        "allow_hosted_live_demo"
+    )
+    with pytest.raises(ValidationError):
+        TwoSignalPublicRequest.model_validate(_base(authorized_max_units=99))
 
 
 def test_a_plus_b_keeps_independent_timestamps() -> None:

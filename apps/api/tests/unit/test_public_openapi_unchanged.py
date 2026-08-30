@@ -30,6 +30,10 @@ def test_public_openapi_has_no_signal_b_or_prepare_paths() -> None:
     assert "PublicSelectedTimeResult" not in schemas
     assert "PublicSignalSection" not in schemas
     assert "WorkerHandoff" not in schemas
+    assert "DemoAllowancePolicy" not in schemas
+    assert "DemoReservation" not in schemas
+    assert "HostedDemoResolution" not in schemas
+    assert "AcquisitionPreference" not in schemas
     assert "SelectedTimeSnapshotZone" not in schemas
     request_schema = schemas.get("AnalysisRequest", {})
     props = request_schema.get("properties") or {}

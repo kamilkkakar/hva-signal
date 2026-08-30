@@ -24,6 +24,7 @@ from app.domain.signals import (
 from app.services.orchestrator import run_replay_analysis
 from app.services.public_contract_serialize import (
     historical_section_from_analysis_result,
+    public_reason_from_demo,
     serialize_legacy_a_only_job,
     serialize_two_signal_job,
 )
@@ -329,6 +330,12 @@ def test_unknown_area_failed_job() -> None:
     )
     assert dto.status == PublicJobStatus.FAILED
     assert dto.historical.error.reason_code == PublicReasonCode.UNKNOWN_AREA
+
+
+def test_demo_reasons_do_not_expose_budget() -> None:
+    reason = public_reason_from_demo("ALLOWANCE_EXHAUSTED")
+    assert reason == PublicReasonCode.DEMO_ALLOWANCE_EXHAUSTED
+    assert "remaining" not in reason.value.lower()
 
 
 def test_a_only_omits_b_result_and_may_expose_legacy_source() -> None:

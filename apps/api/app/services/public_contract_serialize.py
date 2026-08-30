@@ -249,3 +249,22 @@ def serialize_legacy_a_only_job(
             historical.provenance.source if historical.provenance is not None else None
         ),
     )
+
+
+def public_reason_from_demo(code: str) -> PublicReasonCode:
+    """Map demo-policy outcomes to public reasons. Never expose remaining units."""
+    mapping = {
+        "LIVE_DEMO_NOT_REQUESTED": PublicReasonCode.LIVE_DEMO_NOT_REQUESTED,
+        "ALLOWANCE_DISABLED": PublicReasonCode.DEMO_ALLOWANCE_DISABLED,
+        "ALLOWANCE_EXHAUSTED": PublicReasonCode.DEMO_ALLOWANCE_EXHAUSTED,
+        "ALLOWANCE_EXPIRED": PublicReasonCode.DEMO_ALLOWANCE_EXPIRED,
+        "REQUEST_UNIT_CAP_EXCEEDED": PublicReasonCode.REQUEST_UNIT_CAP_EXCEEDED,
+        "UNSUPPORTED_REQUEST": PublicReasonCode.LIVE_ACQUISITION_UNAVAILABLE,
+        "NOT_SNAPSHOT_CAPABLE": PublicReasonCode.LIVE_ACQUISITION_UNAVAILABLE,
+        "POLICY_INVALID": PublicReasonCode.LIVE_ACQUISITION_UNAVAILABLE,
+        "LIVE_ACQUISITION_UNAVAILABLE": PublicReasonCode.LIVE_ACQUISITION_UNAVAILABLE,
+        "NOT_REQUIRED_REUSE": PublicReasonCode.EVIDENCE_REUSED,
+        "JOIN_IN_FLIGHT": PublicReasonCode.JOINED_IN_FLIGHT,
+        "JOIN_EXISTING_RESERVATION": PublicReasonCode.JOINED_IN_FLIGHT,
+    }
+    return mapping.get(code, PublicReasonCode.LIVE_ACQUISITION_UNAVAILABLE)
