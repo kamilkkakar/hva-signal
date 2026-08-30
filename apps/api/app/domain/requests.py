@@ -5,6 +5,7 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.domain.client_privilege import CLIENT_NEVER_SET_FIELDS
 from app.domain.enums import AnalysisMode, DataMode
 
 _UNPUBLISHED_SIGNAL_B_FIELDS = frozenset(
@@ -40,7 +41,7 @@ _UNPUBLISHED_SIGNAL_B_FIELDS = frozenset(
         "bypass_limit",
         "allowance_remaining",
     }
-)
+) | CLIENT_NEVER_SET_FIELDS
 
 
 class ScenarioRequest(BaseModel):
@@ -50,6 +51,18 @@ class ScenarioRequest(BaseModel):
 
     scenario_id: str | None = None
     intervention_ids: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _reject_privilege_extras(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            hits = _UNPUBLISHED_SIGNAL_B_FIELDS.intersection(data)
+            if hits:
+                raise ValueError(
+                    "unpublished two-signal request fields are not accepted: "
+                    + ", ".join(sorted(hits))
+                )
+        return data
 
 
 class AnalysisRequest(BaseModel):

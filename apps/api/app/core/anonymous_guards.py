@@ -57,6 +57,12 @@ PUBLIC_SERIALIZER_DENYLIST = frozenset(
         "spend_authorized",
         "bypass_limit",
         "operator_override",
+        "budget",
+        "reservation_state",
+        "activity_id",
+        "vendor_activity_id",
+        "hosted_live_enabled",
+        "operator_approval",
     }
 )
 _DENY_LOWER = frozenset(name.lower() for name in PUBLIC_SERIALIZER_DENYLIST)

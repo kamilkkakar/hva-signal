@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.domain.client_privilege import CLIENT_NEVER_SET_FIELDS
 from app.domain.enums import DataMode
 from app.services.spend_gate import SpendGrant
 
@@ -28,7 +29,7 @@ _CLIENT_AUTHORIZATION_KEYS = frozenset(
         "allowance_remaining",
         "authorized_max_units",
     }
-)
+) | CLIENT_NEVER_SET_FIELDS
 
 
 def client_flags_cannot_authorize(payload: dict[str, Any]) -> list[str]:

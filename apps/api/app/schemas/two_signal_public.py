@@ -12,6 +12,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from app.domain.client_privilege import CLIENT_NEVER_SET_FIELDS
 from app.services.snapshot_identity import (
     require_dst_safe_requested_hour,
     require_requested_hour,
@@ -63,7 +64,7 @@ _LEAK_REQUEST_FIELDS = frozenset(
         "api_key",
         "fortyguard_api_key",
     }
-)
+) | CLIENT_NEVER_SET_FIELDS
 
 
 def _reject_leak_fields(data: Any) -> Any:
