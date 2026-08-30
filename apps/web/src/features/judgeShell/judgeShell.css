@@ -27,6 +27,7 @@
 .judge-hero,
 .judge-context,
 .judge-happening,
+.judge-result-story,
 .judge-thermal,
 .judge-zone,
 .judge-supports,
@@ -97,7 +98,8 @@
   letter-spacing: 0.06em;
 }
 
-.judge-happening {
+.judge-happening,
+.judge-result-story {
   border-bottom: 1px solid var(--rule);
 }
 
