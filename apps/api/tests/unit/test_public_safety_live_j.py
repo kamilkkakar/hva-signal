@@ -472,3 +472,19 @@ def test_legitimate_scenario_fields_still_accepted() -> None:
     assert parsed.scenario.scenario_id == "s1"
     assert parsed.scenario.intervention_ids == ["i1"]
 
+
+def test_allowance_denylist_includes_n_f_remnants() -> None:
+    from app.services.allowance_client_denylist import (
+        CLIENT_NEVER_SET_ALLOWANCE_KEYS,
+        client_set_forbidden_allowance_keys,
+    )
+
+    for field in ("activity_id", "cache_bust", "spend", "vendor_activity_id"):
+        assert field in CLIENT_NEVER_SET_ALLOWANCE_KEYS
+        assert classify_client_control_field(field) is not None
+    hits = client_set_forbidden_allowance_keys(
+        {"scenario": {"wrapper": {"activity_id": "act_stolen", "cache_bust": True, "spend": 1}}}
+    )
+    assert "activity_id" in hits
+    assert "cache_bust" in hits
+    assert "spend" in hits

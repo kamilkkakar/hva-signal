@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.domain.public_safety_fields import classify_client_control_field
+
 CLIENT_NEVER_SET_ALLOWANCE_KEYS = frozenset(
     {
         "allowance",
@@ -47,6 +49,10 @@ CLIENT_NEVER_SET_ALLOWANCE_KEYS = frozenset(
         "reservation",
         "force_consume",
         "consume",
+        "activity_id",
+        "vendor_activity_id",
+        "cache_bust",
+        "spend",
     }
 )
 
@@ -65,4 +71,13 @@ def walk_payload_keys(value: Any) -> set[str]:
 
 def client_set_forbidden_allowance_keys(payload: dict[str, Any]) -> list[str]:
     """Return forbidden allowance/reservation keys present anywhere in a payload."""
-    return sorted(CLIENT_NEVER_SET_ALLOWANCE_KEYS.intersection(walk_payload_keys(payload)))
+    hits: set[str] = set()
+    for key in walk_payload_keys(payload):
+        classified = classify_client_control_field(str(key))
+        if classified is not None:
+            hits.add(classified[0])
+            continue
+        folded = str(key).strip().lower().replace("-", "_")
+        if folded in CLIENT_NEVER_SET_ALLOWANCE_KEYS or str(key) in CLIENT_NEVER_SET_ALLOWANCE_KEYS:
+            hits.add(folded)
+    return sorted(hits)
