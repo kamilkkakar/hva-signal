@@ -39,8 +39,8 @@ describe("V2-N context chrome", () => {
     );
     const visible = firstRead(html);
     expect(visible).toContain("Analysis Area 1");
-    expect(visible).toContain("WHAT ARE THERMAL CONDITIONS HERE?");
-    expect(visible).toContain("WHAT MAKES THIS AREA DIFFERENT?");
+    expect(visible).toContain("What is happening here?");
+    expect(visible).toContain("What makes this area different?");
     expect(visible).not.toContain(AREA_1);
     expect(visible).not.toMatch(/\bGEOID\b/);
     expect(visible).not.toContain("NOT_IDENTIFIED_IN_DATASET");

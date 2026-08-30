@@ -1,3 +1,5 @@
+import { apiUrl } from "./baseUrl";
+
 export type AreaGeometryCollection = {
   type: "FeatureCollection";
   features: Array<{
@@ -18,12 +20,41 @@ export type GeometryLoadResult =
   | { stale: true }
   | { stale: false; payload: AreaGeometryPayload };
 
+type AreaSummary = {
+  area_id?: string;
+  zone_geometry_version?: string;
+};
+
 function header(response: Response, name: string): string {
-  const value = response.headers.get(name)?.trim() ?? "";
-  if (!value) {
-    throw new Error(`Geometry response is missing ${name}.`);
+  return response.headers.get(name)?.trim() ?? "";
+}
+
+function isFeatureCollection(body: unknown): body is AreaGeometryCollection {
+  return (
+    !!body &&
+    typeof body === "object" &&
+    (body as { type?: unknown }).type === "FeatureCollection" &&
+    Array.isArray((body as { features?: unknown }).features)
+  );
+}
+
+async function resolveIdentityFromCatalog(
+  areaId: string,
+  fetchImpl: typeof fetch,
+): Promise<{ areaId: string; zoneGeometryVersion: string }> {
+  const response = await fetchImpl(apiUrl("/api/v1/areas"), {
+    method: "GET",
+    headers: { Accept: "application/json" },
+  });
+  if (!response.ok) {
+    throw new Error(`Area catalog could not be loaded (${response.status}).`);
   }
-  return value;
+  const body = (await response.json()) as { areas?: AreaSummary[] };
+  const match = (body.areas ?? []).find((row) => row.area_id === areaId);
+  if (!match?.zone_geometry_version) {
+    throw new Error(`Area catalog has no geometry version for ${areaId}.`);
+  }
+  return { areaId, zoneGeometryVersion: match.zone_geometry_version };
 }
 
 export async function fetchAreaGeometry(
@@ -31,7 +62,7 @@ export async function fetchAreaGeometry(
   fetchImpl: typeof fetch = fetch,
 ): Promise<AreaGeometryPayload> {
   const response = await fetchImpl(
-    `/api/v1/areas/${encodeURIComponent(areaId)}/geometry`,
+    apiUrl(`/api/v1/areas/${encodeURIComponent(areaId)}/geometry`),
     {
       method: "GET",
       headers: { Accept: "application/geo+json, application/json" },
@@ -41,19 +72,25 @@ export async function fetchAreaGeometry(
     throw new Error(`Area geometry could not be loaded (${response.status}).`);
   }
   const body: unknown = await response.json();
-  if (
-    !body ||
-    typeof body !== "object" ||
-    (body as { type?: unknown }).type !== "FeatureCollection" ||
-    !Array.isArray((body as { features?: unknown }).features)
-  ) {
+  if (!isFeatureCollection(body)) {
     throw new Error("Geometry response is not a GeoJSON FeatureCollection.");
   }
+  let resolvedAreaId = header(response, "X-HVA-Area-ID");
+  let zoneGeometryVersion = header(response, "X-HVA-Zone-Geometry-Version");
+  let geometrySha256 = header(response, "X-HVA-Geometry-SHA256");
+  if (!resolvedAreaId || !zoneGeometryVersion) {
+    const catalog = await resolveIdentityFromCatalog(areaId, fetchImpl);
+    resolvedAreaId = resolvedAreaId || catalog.areaId;
+    zoneGeometryVersion = zoneGeometryVersion || catalog.zoneGeometryVersion;
+  }
+  if (!resolvedAreaId || !zoneGeometryVersion) {
+    throw new Error("Geometry response is missing identity headers.");
+  }
   return {
-    areaId: header(response, "X-HVA-Area-ID"),
-    zoneGeometryVersion: header(response, "X-HVA-Zone-Geometry-Version"),
-    geometrySha256: header(response, "X-HVA-Geometry-SHA256"),
-    collection: body as AreaGeometryCollection,
+    areaId: resolvedAreaId,
+    zoneGeometryVersion,
+    geometrySha256: geometrySha256 || "unexposed",
+    collection: body,
   };
 }
 

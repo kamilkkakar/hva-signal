@@ -18,7 +18,7 @@ describe("map-primary analysis workspace", () => {
     expect(shell).toMatch(/<MapBand/);
     expect(shell).toMatch(/SelectedZoneBand/);
     expect(css).toMatch(/grid-template-columns:\s*minmax\(12\.75rem,\s*15\.25rem\)\s*minmax\(0,\s*1fr\)/);
-    expect(css).toMatch(/min-height:\s*min\(70vh,\s*48rem\)/);
+    expect(css).toMatch(/min-height:\s*min\(52vh,\s*34rem\)/);
     expect(css).not.toMatch(/judge-explore[^{]*\{[^}]*repeat\(3/);
     expect(mapCss).toMatch(
       /grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*18\.75rem\)/,

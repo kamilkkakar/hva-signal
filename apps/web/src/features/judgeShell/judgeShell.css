@@ -24,8 +24,8 @@
 .judge-explore {
   display: grid;
   grid-template-columns: minmax(12.75rem, 15.25rem) minmax(0, 1fr);
-  grid-template-rows: minmax(min(70vh, 48rem), 1fr);
-  min-height: min(70vh, 48rem);
+  grid-template-rows: minmax(min(52vh, 34rem), 1fr);
+  min-height: min(52vh, 34rem);
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -44,9 +44,19 @@
   overflow: auto;
 }
 
-.judge-explore .judge-map {
+.judge-explore .hx-map-stack {
   grid-column: 2;
   grid-row: 1;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+  min-width: 0;
+}
+
+.judge-explore .hx-map-stack .judge-map {
+  grid-column: 1;
+  grid-row: 1;
+  min-height: min(46vh, 28rem);
 }
 
 .judge-explore .judge-run-form {
@@ -361,13 +371,16 @@
   .judge-explore {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(20rem, 1fr) auto;
-    min-height: calc(100vh - 12rem);
+    min-height: auto;
   }
 
-  .judge-explore .judge-map {
+  .judge-explore .hx-map-stack {
     grid-column: 1;
     grid-row: 1;
-    min-height: min(70vh, 28rem);
+  }
+
+  .judge-explore .hx-map-stack .judge-map {
+    min-height: min(52vh, 22rem);
   }
 
   .judge-explore .judge-run {

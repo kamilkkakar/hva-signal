@@ -1,3 +1,4 @@
+import { apiUrl } from "@/api/baseUrl";
 import type { MatchedNighttimeView, ObservedSequenceView } from "./types";
 
 export async function fetchMatchedNighttimeWindow(
@@ -5,7 +6,7 @@ export async function fetchMatchedNighttimeWindow(
   fetchImpl: typeof fetch = fetch,
 ): Promise<MatchedNighttimeView> {
   const response = await fetchImpl(
-    `/api/v1/demo/matched-nighttime-window?area_id=phoenix-demo&geoid=${encodeURIComponent(geoid)}`,
+    apiUrl(`/api/v1/demo/matched-nighttime-window?area_id=phoenix-demo&geoid=${encodeURIComponent(geoid)}`),
     { method: "GET", headers: { Accept: "application/json" } },
   );
   if (!response.ok) {
@@ -23,7 +24,7 @@ export async function fetchObservedThermalInstants(
   fetchImpl: typeof fetch = fetch,
 ): Promise<ObservedSequenceView> {
   const response = await fetchImpl(
-    `/api/v1/demo/observed-thermal-instants?area_id=phoenix-demo&geoid=${encodeURIComponent(geoid)}`,
+    apiUrl(`/api/v1/demo/observed-thermal-instants?area_id=phoenix-demo&geoid=${encodeURIComponent(geoid)}`),
     { method: "GET", headers: { Accept: "application/json" } },
   );
   if (!response.ok) {

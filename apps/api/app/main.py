@@ -44,15 +44,28 @@ app = FastAPI(
     version="0.1.0",
 )
 
+GEOMETRY_CORS_EXPOSE_HEADERS = [
+    "X-HVA-Area-ID",
+    "X-HVA-Zone-Geometry-Version",
+    "X-HVA-Geometry-SHA256",
+    "ETag",
+]
+
 origins = cors_origins_for(settings)
 # Public safety is inner: CORS stays outermost for preflight.
 app.add_middleware(PublicSafetyMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=(
+        r"http://(localhost|127\.0\.0\.1)(:\d+)?$"
+        if settings.app_env.lower() != "production"
+        else None
+    ),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=GEOMETRY_CORS_EXPOSE_HEADERS,
 )
 
 include_health_routes(app)

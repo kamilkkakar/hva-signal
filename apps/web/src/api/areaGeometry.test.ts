@@ -59,6 +59,35 @@ describe("fetchAreaGeometry", () => {
     );
   });
 
+  it("recovers identity from the area catalog when CORS hides geometry headers", async () => {
+    const fetchImpl = vi.fn(async (url: string) => {
+      if (String(url).endsWith("/api/v1/areas")) {
+        return new Response(
+          JSON.stringify({
+            areas: [
+              {
+                area_id: "phoenix-demo",
+                zone_geometry_version:
+                  "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f",
+              },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response(JSON.stringify(collection), {
+        status: 200,
+        headers: { "Content-Type": "application/geo+json" },
+      });
+    }) as unknown as typeof fetch;
+    const payload = await fetchAreaGeometry("phoenix-demo", fetchImpl);
+    expect(payload.areaId).toBe("phoenix-demo");
+    expect(payload.zoneGeometryVersion).toBe(
+      "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f",
+    );
+    expect(payload.collection.features).toHaveLength(1);
+  });
+
   it("rejects a non-FeatureCollection body", async () => {
     const fetchImpl = vi.fn(
       async () =>

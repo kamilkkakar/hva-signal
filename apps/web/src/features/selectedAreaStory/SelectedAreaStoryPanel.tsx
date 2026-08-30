@@ -1,5 +1,6 @@
 import { MAP_MODE_LABEL } from "@/features/areaContext/copy";
 import type { MapMode } from "@/features/areaContext/types";
+import { preparednessLabel } from "@/features/experience/copy";
 import { GEOID_DETAILS_SUMMARY } from "./copy";
 import type { SelectedAreaDecisionStory } from "./types";
 import "./selectedAreaStory.css";
@@ -80,6 +81,9 @@ export function SelectedAreaStoryPanel({
 
       <section data-source="mag" data-testid="story-support">
         <h3>{story.questions.support.label}</h3>
+        <p className="hx-kicker" data-testid="preparedness-status">
+          {preparednessLabel(story.questions.support.status)}
+        </p>
         {story.questions.support.sentences.map((line) => (
           <p key={line}>{line}</p>
         ))}

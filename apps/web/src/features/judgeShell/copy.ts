@@ -5,7 +5,7 @@ export const WORDMARK = "HVA-Signal";
 export const PRODUCT_EXPANSION = "Heat, Vulnerability & Action Signal";
 
 export const HERO_LINE =
-  "Shows a nighttime heat order only when the thermal field can defend it.";
+  "From thermal observations to defensible urban heat decisions.";
 
 export const HERO_SUPPORT =
   "A snapshot is temperature at a chosen hour. Historical is unusualness at 3 a.m. versus each zone's own nights. If the night is too flat, the map keeps outlines and withholds the ranking.";
@@ -100,11 +100,11 @@ export const CAPABILITY_NOT_ITEMS = [
 ] as const;
 
 export const RUN_KICKER = "Replay a night";
-export const RUN_SUFFICIENT = "30 Jun 2022 · order can appear";
-export const RUN_INSUFFICIENT = "1 Jul 2022 · order can vanish";
+export const RUN_SUFFICIENT = "30 Jun 2022 · comparison can appear";
+export const RUN_INSUFFICIENT = "1 Jul 2022 · ranking withheld";
 export const RUN_SUBMIT = "Submit replay";
 export const RUN_RESUBMIT = "Resubmit";
-export const RUN_CLOCK_LOCK = "03:00 AOI-local locked. Replay only.";
+export const RUN_CLOCK_LOCK = "03:00 local · replay only";
 
 export const SUFFICIENT_NIGHT_DATE = "2022-06-30";
 export const INSUFFICIENT_NIGHT_DATE = "2022-07-01";

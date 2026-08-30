@@ -14,16 +14,21 @@ import "./signalB.css";
 
 type SignalBCachedPanelProps = {
   selectedZoneId?: string | null;
+  showMap?: boolean;
 };
 
 export function SignalBCachedPanel({
   selectedZoneId = null,
+  showMap = true,
 }: SignalBCachedPanelProps) {
   const section = phoenixDemoCachedSelectedTime();
   const facts = presentPublicCachedB(selectedZoneId);
   const [geometry, setGeometry] = useState<SignalBGeometryCollection | null>(null);
 
   useEffect(() => {
+    if (!showMap) {
+      return;
+    }
     const loader = createGeometryLoader();
     let cancelled = false;
     void loader
@@ -42,7 +47,7 @@ export function SignalBCachedPanel({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [showMap]);
 
   return (
     <div
@@ -95,26 +100,28 @@ export function SignalBCachedPanel({
         <summary>Not a historical order</summary>
         <p>{facts.footnote}</p>
       </details>
-      <SignalBMapStage
-        enabled
-        showZoneTable={false}
-        snapshot={{
-          units: "celsius",
-          aggregation_method: "centroid_within_mean",
-          spatial_resolution: "zone",
-          user_facing_tile_map: false,
-          target_timestamp: section.target_timestamp ?? undefined,
-          timezone: section.timezone ?? undefined,
-          zones: section.zones,
-          expected_zone_count: section.expected_zone_count,
-          valid_zone_count: section.valid_zone_count,
-          missing_zone_ids: section.missing_zone_ids,
-          temperature_min_c: section.temperature_min_c,
-          temperature_max_c: section.temperature_max_c,
-        }}
-        geometry={geometry}
-        availability="ready"
-      />
+      {showMap ? (
+        <SignalBMapStage
+          enabled
+          showZoneTable={false}
+          snapshot={{
+            units: "celsius",
+            aggregation_method: "centroid_within_mean",
+            spatial_resolution: "zone",
+            user_facing_tile_map: false,
+            target_timestamp: section.target_timestamp ?? undefined,
+            timezone: section.timezone ?? undefined,
+            zones: section.zones,
+            expected_zone_count: section.expected_zone_count,
+            valid_zone_count: section.valid_zone_count,
+            missing_zone_ids: section.missing_zone_ids,
+            temperature_min_c: section.temperature_min_c,
+            temperature_max_c: section.temperature_max_c,
+          }}
+          geometry={geometry}
+          availability="ready"
+        />
+      ) : null}
     </div>
   );
 }

@@ -20,14 +20,17 @@ export function ThermalBand({
 }: ThermalBandProps) {
   return (
     <section className="judge-thermal" aria-label="Thermal evidence">
-      <SignalAPanel
-        status={status}
-        result={result}
-        requested={snapshot != null}
-        selectedZoneId={selectedZoneId}
-      />
+      <details>
+        <summary>Historical comparison method</summary>
+        <SignalAPanel
+          status={status}
+          result={result}
+          requested={snapshot != null}
+          selectedZoneId={selectedZoneId}
+        />
+      </details>
       {PUBLIC_SIGNAL_B ? (
-        <SignalBCachedPanel selectedZoneId={selectedZoneId} />
+        <SignalBCachedPanel selectedZoneId={selectedZoneId} showMap={false} />
       ) : (
         <SignalBUnavailableDisclosure />
       )}

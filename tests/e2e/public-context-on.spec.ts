@@ -7,10 +7,10 @@ const CONTEXT_ON = /^(1|true|yes|on)$/i.test(
 const INSUFFICIENT_TIME = "2022-07-01T03:00";
 
 const STORY_QUESTIONS = [
-  "WHAT ARE THERMAL CONDITIONS HERE?",
-  "WHAT MAKES THIS AREA DIFFERENT?",
-  "WHAT SUPPORT IS IDENTIFIED NEARBY?",
-  "WHAT SHOULD BE VERIFIED BEFORE ACTION?",
+  "What is happening here?",
+  "What makes this area different?",
+  "What support is identified?",
+  "What should be verified next?",
 ] as const;
 
 async function fillAnalysisTime(page: Page, value: string) {

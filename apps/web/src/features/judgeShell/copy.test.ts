@@ -17,7 +17,7 @@ describe("judge shell first-paint copy", () => {
 
   it("locks UX-A V1 hero and HVA expansion", () => {
     expect(HERO_LINE).toBe(
-      "Shows a nighttime heat order only when the thermal field can defend it.",
+      "From thermal observations to defensible urban heat decisions.",
     );
     expect(PRODUCT_EXPANSION).toBe("Heat, Vulnerability & Action Signal");
   });

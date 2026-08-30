@@ -1,3 +1,4 @@
+import { apiUrl } from "@/api/baseUrl";
 import type { AreaContextDocument } from "./types";
 
 export async function fetchAreaContext(
@@ -9,7 +10,7 @@ export async function fetchAreaContext(
     ? `?zone_id=${encodeURIComponent(zoneId)}`
     : "";
   const response = await fetchImpl(
-    `/api/v1/areas/${encodeURIComponent(areaId)}/context${params}`,
+    apiUrl(`/api/v1/areas/${encodeURIComponent(areaId)}/context${params}`),
     { method: "GET", headers: { Accept: "application/json" } },
   );
   if (!response.ok) {

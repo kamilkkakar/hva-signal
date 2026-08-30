@@ -1,4 +1,5 @@
 import type { DataMode, JobStatus, ThermalDataSource } from "@/types";
+import { apiUrl } from "./baseUrl";
 
 export const HORIZON_MIN = 0;
 export const HORIZON_MAX = 12;
@@ -132,7 +133,7 @@ export async function createAnalysisJob(
   request: AnalysisJobRequest,
   fetchImpl: typeof fetch = fetch,
 ): Promise<AnalysisJobPayload> {
-  const response = await fetchImpl("/api/v1/analysis/jobs", {
+  const response = await fetchImpl(apiUrl("/api/v1/analysis/jobs"), {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -150,7 +151,7 @@ export async function getAnalysisJob(
   jobId: string,
   fetchImpl: typeof fetch = fetch,
 ): Promise<AnalysisJobPayload> {
-  const response = await fetchImpl(`/api/v1/analysis/jobs/${jobId}`, {
+  const response = await fetchImpl(apiUrl(`/api/v1/analysis/jobs/${jobId}`), {
     method: "GET",
     headers: { Accept: "application/json" },
   });

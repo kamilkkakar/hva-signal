@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AnalysisResultStub } from "@/api/analysisJobs";
-import { createGeometryLoader } from "@/api/areaGeometry";
+import { createGeometryLoader, type AreaGeometryPayload } from "@/api/areaGeometry";
 import {
   MapModeTabs,
   bindMapModeCatalog,
@@ -8,15 +8,11 @@ import {
   type MapMode,
   type ZoneMapProperties,
 } from "@/features/areaContext";
-import {
-  catalogFromHistorical,
-  rankedFillCount,
-  type InteractionCatalog,
-} from "@/features/mapInteraction";
+import { rankedFillCount } from "@/features/mapInteraction";
 import type { JobStatus } from "@/types";
-import { bindGeometryToAnalysis } from "@/utils/geometryJoin";
 import type { MapLayerState, RankingPresentation } from "@/utils/mapLayer";
 import { JudgeMap } from "./map/JudgeMap";
+import { buildJudgeMapCatalog, exploreMapState } from "./mapCatalog";
 
 type MapBandProps = {
   layer: MapLayerState;
@@ -34,44 +30,12 @@ type MapBandProps = {
   onSelectedIdChange?: (geoid: string | null) => void;
 };
 
-function resultIsReady(status: JobStatus | null): boolean {
-  return status === "complete" || status === "partial";
-}
-
-function exploreMapState(input: {
-  submitting: boolean;
-  jobStatus: JobStatus | null;
-  catalog: InteractionCatalog | null;
-  rankingState: RankingPresentation["state"];
-}): "idle" | "loading" | "sufficient" | "insufficient" {
-  if (input.submitting) {
-    return "loading";
-  }
-  if (!resultIsReady(input.jobStatus)) {
-    return "idle";
-  }
-  if (!input.catalog) {
-    return "loading";
-  }
-  return input.rankingState === "READY" ? "sufficient" : "insufficient";
-}
-
 export function MapBand(props: MapBandProps) {
-  const [catalog, setCatalog] = useState<InteractionCatalog | null>(null);
+  const [geometry, setGeometry] = useState<AreaGeometryPayload | null>(null);
   const mapMode = props.mapMode ?? "THERMAL";
+  const areaId = props.areaId ?? "phoenix-demo";
 
   useEffect(() => {
-    const areaId = props.areaId;
-    const result = props.result;
-    if (
-      !areaId ||
-      !props.jobId ||
-      !resultIsReady(props.jobStatus) ||
-      !result
-    ) {
-      setCatalog(null);
-      return;
-    }
     const loader = createGeometryLoader();
     let cancelled = false;
     void loader
@@ -80,40 +44,30 @@ export function MapBand(props: MapBandProps) {
         if (cancelled || outcome.stale) {
           return;
         }
-        const bound = bindGeometryToAnalysis({
-          geometry: outcome.payload,
-          requestAreaId: areaId,
-          result,
-        });
-        if (!bound.ok) {
-          setCatalog(null);
-          return;
-        }
-        setCatalog(
-          catalogFromHistorical({
-            features: bound.collection.features,
-            analysisTime: props.analysisTime,
-            dataMode: "replay",
-            fillAuthorized: props.ranking.state === "READY",
-          }),
-        );
+        setGeometry(outcome.payload);
       })
       .catch(() => {
         if (!cancelled) {
-          setCatalog(null);
+          setGeometry(null);
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [
-    props.areaId,
-    props.analysisTime,
-    props.jobId,
-    props.jobStatus,
-    props.ranking.state,
-    props.result,
-  ]);
+  }, [areaId]);
+
+  const catalog = useMemo(
+    () =>
+      buildJudgeMapCatalog({
+        geometry,
+        areaId,
+        result: props.result,
+        jobStatus: props.jobStatus,
+        analysisTime: props.analysisTime,
+        fillAuthorized: props.ranking.state === "READY",
+      }),
+    [areaId, geometry, props.analysisTime, props.jobStatus, props.ranking.state, props.result],
+  );
 
   const modeCatalog = useMemo(
     () =>

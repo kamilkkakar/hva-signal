@@ -82,6 +82,7 @@ export default defineConfig({
             API_BASE_URL: apiBase,
             API_UPSTREAM: apiBase,
             VITE_HVA_PUBLIC_CONTEXT: process.env.VITE_HVA_PUBLIC_CONTEXT ?? "1",
+            VITE_API_BASE_URL: apiBase,
           },
         },
       ],

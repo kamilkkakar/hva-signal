@@ -9,9 +9,9 @@ const apiUpstream =
   process.env.API_BASE_URL ??
   "http://127.0.0.1:8000";
 const apiProxy = {
-  "/api": apiUpstream,
-  "/health": apiUpstream,
-  "/ready": apiUpstream,
+  "/api": { target: apiUpstream, changeOrigin: true },
+  "/health": { target: apiUpstream, changeOrigin: true },
+  "/ready": { target: apiUpstream, changeOrigin: true },
 };
 
 export default defineConfig({

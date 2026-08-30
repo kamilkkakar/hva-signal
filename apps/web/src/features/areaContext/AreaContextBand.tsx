@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import type { AnalysisResultStub } from "@/api/analysisJobs";
-import { composeSelectedAreaStory, SelectedAreaStoryPanel } from "@/features/selectedAreaStory";
 import { AreaContextList } from "./AreaContextList";
 import { SELECT_AREA_PROMPT } from "./copy";
 import { fetchAreaContext } from "./fetchContext";
@@ -22,7 +21,7 @@ export type AreaContextBandProps = {
 export function AreaContextBand({
   areaId = "phoenix-demo",
   selectedZoneId = null,
-  result = null,
+  result: _result = null,
   mapMode = "THERMAL",
   onSelectTract,
   onContextZones,
@@ -37,20 +36,24 @@ export function AreaContextBand({
       return;
     }
     let cancelled = false;
-    void fetchAreaContext(areaId, selectedZoneId)
-      .then((payload) => {
-        if (cancelled) {
+    void (async () => {
+      for (let attempt = 0; attempt < 6 && !cancelled; attempt += 1) {
+        try {
+          const payload = await fetchAreaContext(areaId, selectedZoneId);
+          if (!cancelled) {
+            setDocument(payload);
+            onContextZones?.(payload.zones);
+          }
           return;
+        } catch {
+          await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
         }
-        setDocument(payload);
-        onContextZones?.(payload.zones);
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setDocument(null);
-          onContextZones?.([]);
-        }
-      });
+      }
+      if (!cancelled) {
+        setDocument(null);
+        onContextZones?.([]);
+      }
+    })();
     return () => {
       cancelled = true;
     };
@@ -60,24 +63,15 @@ export function AreaContextBand({
     return null;
   }
 
-  const story = composeSelectedAreaStory({
-    selectedGeoid: selectedZoneId,
-    result,
-    context: document.selected,
-    document,
-  });
-
   return (
     <section
       className="judge-area-context"
       data-testid="area-context-band"
       aria-label="Analysis area context"
     >
-      {selectedZoneId ? (
-        <SelectedAreaStoryPanel story={story} mode={mapMode} />
-      ) : (
+      {!selectedZoneId ? (
         <p data-testid="area-context-select-prompt">{SELECT_AREA_PROMPT}</p>
-      )}
+      ) : null}
       <AreaContextList
         rows={presentList(document)}
         mode={mapMode}

@@ -1,10 +1,10 @@
 import type { MapMode } from "@/features/areaContext/types";
 import type { MapModeMeta } from "./types";
 
-export const Q_THERMAL = "WHAT ARE THERMAL CONDITIONS HERE?";
-export const Q_DIFFERENT = "WHAT MAKES THIS AREA DIFFERENT?";
-export const Q_SUPPORT = "WHAT SUPPORT IS IDENTIFIED NEARBY?";
-export const Q_VERIFY = "WHAT SHOULD BE VERIFIED BEFORE ACTION?";
+export const Q_THERMAL = "What is happening here?";
+export const Q_DIFFERENT = "What makes this area different?";
+export const Q_SUPPORT = "What support is identified?";
+export const Q_VERIFY = "What should be verified next?";
 export const GEOID_DETAILS_SUMMARY = "Census tract identifier";
 
 export const B_WORDING = "AVAILABLE NOW — CACHED EVIDENCE" as const;

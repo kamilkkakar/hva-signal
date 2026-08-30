@@ -3,13 +3,35 @@ import { useJobStore } from "@/stores/jobStore";
 import { POLL_INTERVAL_MS } from "@/utils/jobPolling";
 import { mapLayerFromLimitations, rankingPresentation } from "@/utils/mapLayer";
 import { sourceBannerLabel } from "@/utils/sourceBanner";
+import {
+  PHOENIX_DEMO_DEFAULT_DATETIME_LOCAL,
+  phoenixAoiLocalAnalysisTime,
+} from "@/utils/phoenixAoiLocalTime";
+import { AreaContextBand, type MapMode, type ZoneMapProperties } from "@/features/areaContext";
+import { composeSelectedAreaStory } from "@/features/selectedAreaStory";
+import { analysisAreaLabel } from "@/features/selectedAreaStory/identity";
+import { ANALYSIS_AREA_GEOIDS } from "@/features/selectedAreaStory/types";
+import { presentThermalB } from "@/features/selectedAreaStory/thermalB";
+import { B_CLOCK, B_TIMEZONE } from "@/features/selectedAreaStory/copy";
+import {
+  AppShell,
+  DecisionDirection,
+  EvidenceDisclosure,
+  EvidenceSummary,
+  MatchedNightChart,
+  ObservedInstantsChart,
+  ThermalHero,
+  presentHistoricalHero,
+} from "@/features/experience";
+import { ContextPanel } from "@/features/experience/ContextPanel";
+import { PreparednessPanel } from "@/features/experience/PreparednessPanel";
+import { Q_THERMAL, Q_VERIFY } from "@/features/selectedAreaStory/copy";
+import "@/features/experience/experience.css";
 import { CapabilityBand } from "./CapabilityBand";
 import { ContextBar } from "./ContextBar";
 import { happeningView } from "./happening";
 import { HappeningBand } from "./HappeningBand";
-import { HeroHeader } from "./HeroHeader";
 import { judgeMapLayer } from "./layer";
-import { AreaContextBand, type MapMode, type ZoneMapProperties } from "@/features/areaContext";
 import { MapBand } from "./MapBand";
 import { ProvenanceBand } from "./ProvenanceBand";
 import { ResultStoryBand } from "./ResultStoryBand";
@@ -18,10 +40,11 @@ import { SelectedZoneBand } from "./SelectedZoneBand";
 import { contextSourceChip } from "./sourceChip";
 import { SupportsBand } from "./SupportsBand";
 import { ThermalBand } from "./ThermalBand";
-import { DecisionStoriesBand } from "./decision";
+import { useAreaEvidence } from "../experience/useAreaEvidence";
 import "./judgeShell.css";
 
 const EMPTY_LIMITATIONS: readonly string[] = [];
+const DEFAULT_AREA = ANALYSIS_AREA_GEOIDS[0];
 
 function clockDateFromAnalysisTime(value: string | null | undefined): string | null {
   if (!value) {
@@ -38,6 +61,7 @@ export function JudgeShell() {
   const polling = useJobStore((state) => state.polling);
   const jobId = useJobStore((state) => state.jobId);
   const poll = useJobStore((state) => state.poll);
+  const submit = useJobStore((state) => state.submit);
   const busy = useJobStore((state) => state.busy);
   const stalled = useJobStore((state) => state.stalled);
   const canResubmit = useJobStore((state) => state.canResubmit);
@@ -53,6 +77,31 @@ export function JudgeShell() {
     }, POLL_INTERVAL_MS);
     return () => window.clearInterval(timer);
   }, [jobId, poll, polling]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const draft = {
+      area_id: "phoenix-demo",
+      analysis_time: phoenixAoiLocalAnalysisTime(PHOENIX_DEMO_DEFAULT_DATETIME_LOCAL),
+      analysis_mode: "retrospective" as const,
+      horizon_hours: 12,
+      granularity_m: 100,
+      data_mode: "replay" as const,
+    };
+    void (async () => {
+      for (let attempt = 0; attempt < 8 && !cancelled; attempt += 1) {
+        try {
+          await submit(draft);
+          return;
+        } catch {
+          await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [submit]);
 
   const limitations = snapshot?.result?.system_limitations ?? EMPTY_LIMITATIONS;
   const ranking = useMemo(
@@ -70,7 +119,7 @@ export function JudgeShell() {
   );
   const happening = happeningView({
     status: snapshot?.status ?? null,
-    busy,
+    busy: busy || snapshot == null,
     stalled,
     rankingState: ranking.state,
     limitations,
@@ -86,48 +135,79 @@ export function JudgeShell() {
     lastRequest?.analysis_time ?? snapshot?.request?.analysis_time,
   );
   const showRecovery = snapshot?.status === "unknown_job" || stalled;
-  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(DEFAULT_AREA);
   const [mapMode, setMapMode] = useState<MapMode>("THERMAL");
   const [contextZones, setContextZones] = useState<ZoneMapProperties[]>([]);
-
-  useEffect(() => {
-    setSelectedZoneId(null);
-  }, [jobId]);
+  const evidence = useAreaEvidence(selectedZoneId);
+  const thermalB = presentThermalB(selectedZoneId);
+  const history = presentHistoricalHero(snapshot?.result, selectedZoneId);
+  const observationStamp = `${B_CLOCK} ${B_TIMEZONE}`;
+  const rankingReady = snapshot?.result != null;
+  const rankingWithheld = ranking.state !== "READY";
+  const story = composeSelectedAreaStory({
+    selectedGeoid: selectedZoneId,
+    result: snapshot?.result ?? null,
+    context: evidence.context?.selected ?? null,
+    document: evidence.context,
+  });
 
   return (
     <div
-      className="judge-shell"
+      className="judge-shell hx-app"
       data-testid="judge-shell"
       data-has-result={snapshot?.result != null ? "true" : "false"}
     >
-      <HeroHeader />
+      <AppShell observationStamp={observationStamp} />
       <ContextBar
         source={source}
         clockDate={clockDate}
         bannerLabel={source}
+      />
+      <ThermalHero
+        selectedZoneId={selectedZoneId}
+        onSelect={setSelectedZoneId}
+        temperatureC={thermalB.temperatureC}
+        observationStamp={observationStamp}
+        history={history}
+        change2024vs2022={evidence.matched.change2024vs2022}
       />
       <div
         className="judge-explore"
         data-testid="judge-explore"
         data-layout="map-primary"
       >
-        <MapBand
-          layer={layer}
-          ranking={ranking}
-          areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? "phoenix-demo"}
-          jobId={jobId}
-          jobStatus={snapshot?.status ?? null}
-          result={snapshot?.result ?? null}
-          submitting={submitting}
-          analysisTime={lastRequest?.analysis_time ?? snapshot?.request?.analysis_time}
-          mapMode={mapMode}
-          onMapModeChange={setMapMode}
-          contextZones={contextZones}
-          selectedZoneId={selectedZoneId}
-          onSelectedIdChange={setSelectedZoneId}
-        />
+        <div className="hx-map-stack">
+          <MapBand
+            layer={layer}
+            ranking={ranking}
+            areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? "phoenix-demo"}
+            jobId={jobId}
+            jobStatus={snapshot?.status ?? null}
+            result={snapshot?.result ?? null}
+            submitting={submitting}
+            analysisTime={lastRequest?.analysis_time ?? snapshot?.request?.analysis_time}
+            mapMode={mapMode}
+            onMapModeChange={setMapMode}
+            contextZones={contextZones}
+            selectedZoneId={selectedZoneId}
+            onSelectedIdChange={(geoid) => {
+              if (geoid) {
+                setSelectedZoneId(geoid);
+              }
+            }}
+          />
+          <EvidenceSummary withheld={rankingWithheld} ready={rankingReady} />
+        </div>
         <RunBand />
       </div>
+      <MatchedNightChart
+        view={evidence.matched}
+        areaLabel={analysisAreaLabel(selectedZoneId)}
+      />
+      <ObservedInstantsChart
+        view={evidence.observed}
+        areaLabel={analysisAreaLabel(selectedZoneId)}
+      />
       <HappeningBand
         happening={happening}
         busy={busy}
@@ -150,22 +230,41 @@ export function JudgeShell() {
           selectedZoneId={selectedZoneId}
         />
       </div>
-      <DecisionStoriesBand selectedZoneId={selectedZoneId} />
+      <article
+        className="selected-area-story"
+        data-testid="selected-area-story"
+        aria-label={analysisAreaLabel(selectedZoneId) ?? "Selected analysis area"}
+      >
+        <section data-testid="story-thermal">
+          <h3>{Q_THERMAL}</h3>
+          <p data-testid="story-thermal-b">
+            {thermalB.wording}: {thermalB.temperatureC == null ? "—" : `${thermalB.temperatureC.toFixed(1)} °C`}
+          </p>
+        </section>
+        <ContextPanel story={story} />
+        <PreparednessPanel story={story} />
+        <section data-testid="story-verify">
+          <h3>{Q_VERIFY}</h3>
+        </section>
+      </article>
       <div id="area-different">
-      <AreaContextBand
-        areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? "phoenix-demo"}
-        selectedZoneId={selectedZoneId}
-        result={snapshot?.result ?? null}
-        mapMode={mapMode}
-        onSelectTract={setSelectedZoneId}
-        onContextZones={setContextZones}
-      />
+        <AreaContextBand
+          areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? "phoenix-demo"}
+          selectedZoneId={selectedZoneId}
+          result={snapshot?.result ?? null}
+          mapMode={mapMode}
+          onSelectTract={setSelectedZoneId}
+          onContextZones={setContextZones}
+        />
       </div>
+      <DecisionDirection story={story} rankingWithheld={rankingWithheld} />
       <div id="nearby-support">
         <SupportsBand status={snapshot?.status ?? null} result={snapshot?.result ?? null} />
       </div>
-      <CapabilityBand />
       <ProvenanceBand snapshot={snapshot} />
+      <EvidenceDisclosure>
+        <CapabilityBand />
+      </EvidenceDisclosure>
     </div>
   );
 }
