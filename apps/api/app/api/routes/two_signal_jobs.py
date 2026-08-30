@@ -31,6 +31,7 @@ def create_two_signal_job(
 ) -> dict[str, Any]:
     try:
         reject_client_privilege_surfaces(
+            body=payload.model_dump(mode="json"),
             query=dict(request.query_params),
             headers=dict(request.headers),
         )

@@ -419,3 +419,56 @@ def test_owned_modules_have_no_vendor_and_keep_live_off() -> None:
         assert "demo_allowance_enabled=True" not in source
         assert "hosted_live_enabled=True" not in source
         assert "hosted_live_real_vendor_enabled=True" not in source
+
+
+_NF_REMNANTS = (
+    "activity_id",
+    "vendor_activity_id",
+    "cache_bust",
+    "bypass_cache",
+    "cache_key",
+    "no_cache",
+    "nocache",
+    "spend",
+    "force_consume",
+    "demo_allowance_store_path",
+    "max_open_reservations",
+    "reservation_ttl_seconds",
+)
+
+
+@pytest.mark.parametrize("field", _NF_REMNANTS)
+def test_live_n_f_names_are_on_live_j_list(field: str) -> None:
+    assert classify_client_control_field(field) is not None
+
+
+def test_wrapped_scenario_privilege_is_422() -> None:
+    """Nested extra=allow wrapper must not persist activity_id / cache_bust."""
+    from app.main import app
+
+    wrapped = {
+        **_VALID_ANALYSIS,
+        "scenario": {"wrapper": {"activity_id": "act_stolen", "cache_bust": True}},
+    }
+    with pytest.raises(ValidationError, match="activity_id|cache_bust"):
+        AnalysisRequest.model_validate(wrapped)
+
+    client = TestClient(app)
+    response = client.post("/api/v1/analysis/jobs", json=wrapped)
+    assert response.status_code == 422
+    body = response.json()
+    blob = str(body).lower()
+    assert "act_stolen" not in blob
+    assert "activity_id" in blob or body.get("reason_code") == REASON_CLIENT_FORBIDDEN_FIELD
+
+
+def test_legitimate_scenario_fields_still_accepted() -> None:
+    payload = {
+        **_VALID_ANALYSIS,
+        "scenario": {"scenario_id": "s1", "intervention_ids": ["i1"]},
+    }
+    parsed = AnalysisRequest.model_validate(payload)
+    assert parsed.scenario is not None
+    assert parsed.scenario.scenario_id == "s1"
+    assert parsed.scenario.intervention_ids == ["i1"]
+

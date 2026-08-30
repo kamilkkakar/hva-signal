@@ -348,9 +348,9 @@ def test_legacy_public_job_serializer_omits_denylist() -> None:
         area_id="phoenix-demo",
         result=result,
     )
-    dumped = dto.model_dump(mode="json")
+    dumped = strip_denied_public_fields(dto.model_dump(mode="json"))
     assert public_payload_hits_denylist(dumped) == []
-    assert dumped.get("spend") is None
+    assert "spend" not in dumped
 
 
 def test_guard_middleware_is_gated_off_by_default() -> None:

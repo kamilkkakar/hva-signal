@@ -2,6 +2,7 @@ from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, status
 
+from app.core.anonymous_guards import strip_denied_public_fields
 from app.core.jobs import job_store, process_analysis_job
 from app.domain import AnalysisRequest
 from app.services.hosted_live_redteam import (
@@ -16,7 +17,7 @@ def _job_payload(job: Any) -> dict[str, Any]:
     return {
         "job_id": job.job_id,
         "status": job.status,
-        "request": job.request,
+        "request": strip_denied_public_fields(job.request),
         "created_at": job.created_at.isoformat(),
         "recoverable": job.recoverable,
         "message": job.message,
@@ -31,7 +32,9 @@ def create_analysis_job(
     background_tasks: BackgroundTasks,
 ) -> dict[str, Any]:
     try:
+        body = payload.model_dump(mode="json")
         reject_client_privilege_surfaces(
+            body=body,
             query=dict(request.query_params),
             headers=dict(request.headers),
         )
@@ -40,7 +43,7 @@ def create_analysis_job(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(exc),
         ) from exc
-    job = job_store.create(payload.model_dump(mode="json"))
+    job = job_store.create(body)
     snapshot = _job_payload(job)
     background_tasks.add_task(process_analysis_job, job.job_id)
     return snapshot

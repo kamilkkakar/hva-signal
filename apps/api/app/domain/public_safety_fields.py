@@ -94,6 +94,20 @@ _CANONICAL_FIELDS: tuple[tuple[str, str], ...] = (
     ("consumed", CATEGORY_RESERVATION_STATE),
     ("consumed_units", CATEGORY_RESERVATION_STATE),
     ("ledger_state", CATEGORY_RESERVATION_STATE),
+    ("activity_id", CATEGORY_RESERVATION_STATE),
+    ("vendor_activity_id", CATEGORY_RESERVATION_STATE),
+    ("force_consume", CATEGORY_RESERVATION_STATE),
+    ("max_open_reservations", CATEGORY_RESERVATION_STATE),
+    ("reservation_ttl_seconds", CATEGORY_RESERVATION_STATE),
+    # Cache-bust / replay — client cannot force a vendor miss
+    ("cache_bust", CATEGORY_FORCE_LIVE),
+    ("bypass_cache", CATEGORY_FORCE_LIVE),
+    ("cache_key", CATEGORY_FORCE_LIVE),
+    ("no_cache", CATEGORY_FORCE_LIVE),
+    ("nocache", CATEGORY_FORCE_LIVE),
+    # Bare spend + F store path
+    ("spend", CATEGORY_BUDGET),
+    ("demo_allowance_store_path", CATEGORY_ALLOWANCE_CAP),
 )
 
 REQUIRED_CLIENT_NEVER_SET_CATEGORIES = frozenset(
@@ -161,6 +175,12 @@ def _build_alias_map() -> dict[str, tuple[str, str]]:
         ("x-reservation-id", "reservation_id", CATEGORY_RESERVATION_STATE),
         ("x-allowance-cap", "allowance_cap", CATEGORY_ALLOWANCE_CAP),
         ("x-demo-budget", "demo_budget", CATEGORY_BUDGET),
+        ("x-activity-id", "activity_id", CATEGORY_RESERVATION_STATE),
+        ("x-vendor-activity-id", "vendor_activity_id", CATEGORY_RESERVATION_STATE),
+        ("x-cache-bust", "cache_bust", CATEGORY_FORCE_LIVE),
+        ("x-bypass-cache", "bypass_cache", CATEGORY_FORCE_LIVE),
+        ("x-cache-key", "cache_key", CATEGORY_FORCE_LIVE),
+        ("x-force-consume", "force_consume", CATEGORY_RESERVATION_STATE),
     ):
         mapping[normalize_client_key(extra)] = (canonical, category)
     return mapping

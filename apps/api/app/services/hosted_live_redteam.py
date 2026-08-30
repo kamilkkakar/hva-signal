@@ -20,6 +20,7 @@ from app.domain.client_privilege import (
     CLIENT_PRIVILEGE_HEADERS,
     HOSTED_LIVE_ENABLE_FIELDS,
 )
+from app.domain.public_safety_fields import classify_client_control_field
 from app.domain.demo_allowance import DemoRequestIdentity, ReservationState
 from app.services.demo_allowance_ledger import (
     DemoAllowanceError,
@@ -116,6 +117,10 @@ def privilege_hits_in_mapping(payload: Mapping[str, Any] | None) -> list[str]:
         normalized = normalize_client_key(key)
         if normalized in CLIENT_NEVER_SET_FIELDS or key.lower() in CLIENT_NEVER_SET_FIELDS:
             hits.add(normalized)
+            continue
+        classified = classify_client_control_field(key)
+        if classified is not None:
+            hits.add(classified[0])
     return sorted(hits)
 
 

@@ -152,6 +152,30 @@ def test_scenario_nested_privilege_is_rejected(field: str) -> None:
         ScenarioRequest.model_validate({field: True})
 
 
+def test_http_wrapped_scenario_privilege_is_422() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/analysis/jobs",
+        json=_analysis(
+            scenario={"wrapper": {"activity_id": "act_stolen", "cache_bust": True}}
+        ),
+    )
+    assert response.status_code == 422
+    assert "act_stolen" not in str(response.json()).lower()
+
+
+def test_public_job_json_strips_denied_request_fields() -> None:
+    from app.api.routes.analysis_jobs import _job_payload
+    from app.core.jobs import job_store
+
+    job = job_store.create(_analysis())
+    job.request["activity_id"] = "act_planted"
+    job.request["cache_bust"] = True
+    public = _job_payload(job)
+    assert "activity_id" not in (public.get("request") or {})
+    assert "cache_bust" not in (public.get("request") or {})
+
+
 @pytest.mark.parametrize("field", PRIVILEGE_SAMPLE)
 def test_p2_publication_rejects_privilege_fields(field: str) -> None:
     with pytest.raises(ValidationError):

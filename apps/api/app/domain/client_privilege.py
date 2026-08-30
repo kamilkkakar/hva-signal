@@ -64,6 +64,11 @@ CLIENT_NEVER_SET_FIELDS = frozenset(
         "spend_authorized",
         "spend_grant",
         "vendor_activity_id",
+        "spend",
+        "force_consume",
+        "demo_allowance_store_path",
+        "max_open_reservations",
+        "reservation_ttl_seconds",
     }
 )
 
