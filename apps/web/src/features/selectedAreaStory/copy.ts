@@ -20,9 +20,9 @@ export const R0_TEXT =
 export const R1_TEXT =
   "Thermal order is withheld. Do not treat a rank as available. Review whether the historical series is sufficient before comparing areas.";
 export const R2_TEXT =
-  "Review the shown thermal order and q_A as comparative evidence only. This is not an intervention priority.";
+  "Review the shown thermal order as comparative evidence only. This is not an intervention priority.";
 export const R3_TEXT =
-  "Review the cached nighttime temperature as absolute evidence for 2025-07-15 03:00 America/Phoenix. This is not q_A, Decision 8, or rank.";
+  "Review the cached nighttime temperature as absolute evidence for 2025-07-15 03:00 America/Phoenix. This is not a historical-position score and not a rank.";
 export const R4_TEXT =
   "Review published ACS and canopy quantities for this analysis area. Do not treat a missing or unreliable estimate as low need.";
 export const R5_TEXT =
@@ -50,7 +50,7 @@ export const MAP_MODE_META: readonly MapModeMeta[] = [
     source: "FortyGuard replay / cached snapshot",
     year: "analysis clock",
     unit: "order or absolute °C",
-    meaning: "Existing job ranking when Decision 8 is sufficient; otherwise withhold. Cached B is absolute temperature, not rank.",
+    meaning: "Existing job ranking when the historical field can support an order; otherwise withhold. Cached B is absolute temperature, not rank.",
     fill: "job_ranking",
   },
   {

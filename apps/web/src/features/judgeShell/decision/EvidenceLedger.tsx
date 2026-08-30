@@ -19,7 +19,7 @@ export function EvidenceLedger({ geoid, matched }: EvidenceLedgerProps) {
     matched.status === "AVAILABLE" && matched.change2024vs2022 != null
       ? `Matched-window mean changed ${formatDeltaC(matched.change2024vs2022)} from 2022 to 2024.`
       : matched.reason ?? SELECT_AREA;
-  const relative = "Same calendar dates at 03:00 local. Zone-mean TCM. Not q_A.";
+  const relative = "Same calendar dates at 03:00 local. Zone-mean TCM. Not a historical-position score.";
   const period = MATCHED_DISCLOSURE;
   const why = MATCHED_METHOD;
   const direction =

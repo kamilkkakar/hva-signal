@@ -47,6 +47,8 @@ describe("V2-N context chrome", () => {
     expect(visible).not.toContain("THERMAL=");
     expect(visible).not.toMatch(/no cooling site/i);
     expect(visible).not.toContain("THERMAL EVIDENCE: UNKNOWN");
+    expect(visible).not.toContain("q_A");
+    expect(visible).not.toContain("Decision 8");
     expect(html).toContain(AREA_1);
     expect(html).not.toMatch(/<details[^>]*\sopen[\s>]/);
     const factsBlock = html.match(/data-testid="story-facts"[^>]*>([\s\S]*?)<\/ul>/)?.[1] ?? "";

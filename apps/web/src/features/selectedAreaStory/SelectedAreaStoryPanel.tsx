@@ -36,17 +36,24 @@ export function SelectedAreaStoryPanel({
       <section data-source="fortyguard" data-testid="story-thermal">
         <h3>{thermal.label}</h3>
         {thermal.a.hasRealPane && thermal.a.orderShown ? (
-          <p data-testid="story-thermal-a">
-            Signal A shows a historical order for this analysis area
-            {thermal.a.q_A != null ? ` (q_A ${thermal.a.q_A.toFixed(3)})` : ""}
-            {thermal.a.decision8 ? `. Decision 8 ${thermal.a.decision8}` : "."}
-          </p>
+          <>
+            <p data-testid="story-thermal-a">
+              This analysis area has a historical position. The thermal order is shown.
+            </p>
+            <details data-testid="story-thermal-a-method">
+              <summary>Method notes</summary>
+              <p>
+                {thermal.a.q_A != null ? `q_A ${thermal.a.q_A.toFixed(3)}` : "q_A not published"}
+                {thermal.a.decision8 ? `. Decision 8 ${thermal.a.decision8}` : "."}
+              </p>
+            </details>
+          </>
         ) : thermal.a.kind === "order_withheld" ? (
           <p data-testid="story-thermal-a">
-            Signal A historical order is withheld for this analysis area.
+            Historical position is available. The thermal order is withheld.
           </p>
         ) : (
-          <p data-testid="story-thermal-a">Signal A pane is not available for this analysis area.</p>
+          <p data-testid="story-thermal-a">Historical-position evidence is not available for this analysis area.</p>
         )}
         {thermal.b.kind === "cached" && thermal.b.temperatureC != null ? (
           <p data-testid="story-thermal-b">
