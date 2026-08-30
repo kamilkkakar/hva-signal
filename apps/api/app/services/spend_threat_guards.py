@@ -7,6 +7,10 @@ from typing import Any
 from app.domain.client_privilege import CLIENT_NEVER_SET_FIELDS
 from app.domain.enums import DataMode
 from app.domain.public_safety_fields import CLIENT_CONTROL_FIELD_NAMES
+from app.services.allowance_client_denylist import (
+    CLIENT_NEVER_SET_ALLOWANCE_KEYS,
+    walk_payload_keys,
+)
 from app.services.spend_gate import SpendGrant
 
 
@@ -29,6 +33,12 @@ _CLIENT_AUTHORIZATION_KEYS = frozenset(
         "bypass_limit",
         "allowance_remaining",
         "authorized_max_units",
+        "allowance_cap",
+        "budget",
+        "key",
+        "operator_approval",
+        "reservation_state",
+        "reservation_id",
     }
     | CLIENT_CONTROL_FIELD_NAMES
     | CLIENT_NEVER_SET_FIELDS
@@ -37,7 +47,8 @@ _CLIENT_AUTHORIZATION_KEYS = frozenset(
 
 def client_flags_cannot_authorize(payload: dict[str, Any]) -> list[str]:
     """A request body must never carry its own spend approval."""
-    return sorted(key for key in payload if key in _CLIENT_AUTHORIZATION_KEYS)
+    denied = _CLIENT_AUTHORIZATION_KEYS | CLIENT_NEVER_SET_ALLOWANCE_KEYS
+    return sorted(walk_payload_keys(payload).intersection(denied))
 
 
 def data_mode_cannot_authorize(data_mode: DataMode) -> bool:

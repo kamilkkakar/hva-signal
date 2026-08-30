@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from app.domain.client_privilege import CLIENT_NEVER_SET_FIELDS
 from app.domain.public_safety_fields import CLIENT_CONTROL_FIELD_NAMES
+from app.services.allowance_client_denylist import CLIENT_NEVER_SET_ALLOWANCE_KEYS
 from app.services.snapshot_identity import (
     require_dst_safe_requested_hour,
     require_requested_hour,
@@ -39,10 +40,15 @@ _LEAK_REQUEST_FIELDS = frozenset(
         "allowance",
         "allowance_remaining",
         "demo_budget",
+        "budget",
+        "allowance_cap",
         "demo",
         "demo_test",
         "live_demo",
         "force_live",
+        "key",
+        "operator_approval",
+        "reservation_state",
         "bypass_limit",
         "operator",
         "operator_override",
@@ -67,6 +73,7 @@ _LEAK_REQUEST_FIELDS = frozenset(
     }
     | CLIENT_CONTROL_FIELD_NAMES
     | CLIENT_NEVER_SET_FIELDS
+    | CLIENT_NEVER_SET_ALLOWANCE_KEYS
 )
 
 

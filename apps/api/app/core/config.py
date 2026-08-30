@@ -41,6 +41,9 @@ class Settings(BaseSettings):
     # enable hosted live, demo allowance, or any vendor adapter.
     local_sqlite_persistence_enabled: bool = False
     local_sqlite_path: str = ""
+    demo_allowance_store_path: str = ""
+    demo_allowance_reservation_ttl_seconds: int = 900
+    demo_allowance_max_open_reservations: int = 8
 
 
 @lru_cache

@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from app.domain.client_privilege import CLIENT_NEVER_SET_FIELDS
 from app.domain.enums import AnalysisMode, DataMode
 from app.domain.public_safety_fields import CLIENT_CONTROL_FIELD_NAMES
+from app.services.allowance_client_denylist import CLIENT_NEVER_SET_ALLOWANCE_KEYS
 
 _UNPUBLISHED_SIGNAL_B_FIELDS = frozenset(
     {
@@ -36,14 +37,21 @@ _UNPUBLISHED_SIGNAL_B_FIELDS = frozenset(
         "live_demo",
         "force_live",
         "allowance",
+        "allowance_cap",
+        "budget",
         "demo_budget",
         "internal_key",
+        "key",
+        "operator_approval",
+        "reservation_state",
+        "reservation_id",
         "acquisition_preference",
         "bypass_limit",
         "allowance_remaining",
     }
     | CLIENT_CONTROL_FIELD_NAMES
     | CLIENT_NEVER_SET_FIELDS
+    | CLIENT_NEVER_SET_ALLOWANCE_KEYS
 )
 
 
