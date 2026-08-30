@@ -124,7 +124,7 @@ test.describe("Phoenix AOI-local replay demo path", () => {
       await expect(map).toHaveAttribute("data-ranked-feature-count", "0");
       await expect(map).toHaveAttribute("data-map-source-count", "25");
       await expect(page.getByTestId("map-layer-label")).toContainText(
-        "CONTEXTUAL PREPAREDNESS PRIORITY — THERMAL DIFFERENTIATION UNAVAILABLE",
+        "Order withheld — night too flat",
       );
       await expect(page.locator("body")).not.toContainText(
         "Geometry and decision cards are not wired yet",
