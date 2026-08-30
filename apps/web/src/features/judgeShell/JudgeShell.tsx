@@ -11,6 +11,7 @@ import { HeroHeader } from "./HeroHeader";
 import { judgeMapLayer } from "./layer";
 import { MapBand } from "./MapBand";
 import { ProvenanceBand } from "./ProvenanceBand";
+import { ResultStoryBand } from "./ResultStoryBand";
 import { RunBand } from "./RunBand";
 import { SelectedZoneBand } from "./SelectedZoneBand";
 import { contextSourceChip } from "./sourceChip";
@@ -110,10 +111,9 @@ export function JudgeShell() {
         submitting={submitting}
         analysisTime={lastRequest?.analysis_time ?? snapshot?.request?.analysis_time}
       />
+      <ResultStoryBand snapshot={snapshot} busy={busy} />
       <ThermalBand
         snapshot={snapshot}
-        rankingState={ranking.state}
-        busy={busy}
         status={snapshot?.status ?? null}
         result={snapshot?.result ?? null}
       />
