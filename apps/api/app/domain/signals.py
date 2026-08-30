@@ -28,6 +28,7 @@ class SignalAvailability(str, Enum):
     FETCHING = "FETCHING"
     FAILED = "FAILED"
     UNAVAILABLE = "UNAVAILABLE"
+    NOT_REQUESTED = "NOT_REQUESTED"
     NOT_PREPARED = "NOT_PREPARED"
     INSUFFICIENT_REFERENCE = "INSUFFICIENT_REFERENCE"
     D8_INSUFFICIENT = "D8_INSUFFICIENT"
@@ -91,6 +92,10 @@ class SelectedTimeSnapshot(BaseModel):
     availability: SignalAvailability
     provenance: SignalProvenance
     zones: list[SelectedTimeSnapshotZone] = Field(default_factory=list)
+    expected_zone_count: int | None = None
+    valid_zone_count: int | None = None
+    missing_zone_ids: list[str] = Field(default_factory=list)
+    geometry_sha256: str | None = None
     quality_flags: list[str] = Field(default_factory=list)
 
     @field_validator("provenance")
@@ -126,3 +131,27 @@ class TwoSignalAvailability(BaseModel):
     historical: HistoricalNormalizedSignalState
     selected_time: SignalAvailability
     combined_score_authorized: Literal[False] = False
+
+
+class TwoSignalAssembly(BaseModel):
+    """Internal aggregate. Not a public AnalysisResult and not a combined score."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    area_id: str
+    historical: HistoricalNormalizedSignalState
+    selected_time: SelectedTimeSnapshot | None = None
+    selected_time_availability: SignalAvailability
+    combined_score_authorized: Literal[False] = False
+
+    @field_validator("selected_time_availability")
+    @classmethod
+    def _availability_matches_payload(cls, value: SignalAvailability, info):
+        snapshot = info.data.get("selected_time")
+        if snapshot is None:
+            if value == SignalAvailability.READY:
+                raise ValueError("READY selected-time availability requires a snapshot")
+            return value
+        if snapshot.availability != value:
+            raise ValueError("selected_time_availability must match snapshot.availability")
+        return value

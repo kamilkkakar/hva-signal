@@ -49,6 +49,7 @@ from app.domain.signals import (
     SignalAvailability,
     SignalProvenance,
     ThermalSignalKind,
+    TwoSignalAssembly,
     TwoSignalAvailability,
 )
 from app.domain.thermal import ThermalObservation, ZoneThermalSeries
@@ -95,6 +96,7 @@ __all__ = [
     "ThermalObservation",
     "ThermalStatistic",
     "TileAssignmentMethod",
+    "TwoSignalAssembly",
     "TwoSignalAvailability",
     "UpstreamPartition",
     "UpstreamTimeSemantics",
