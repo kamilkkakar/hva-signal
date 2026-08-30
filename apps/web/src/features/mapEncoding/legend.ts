@@ -90,7 +90,11 @@ export function legendModeFromInteraction(input: {
   kind: string | null | undefined;
   fillAuthorized: boolean;
   layerActive: boolean;
+  fillKind?: string | null;
 }): LegendMode | null {
+  if (input.fillKind === "context_quantity") {
+    return null;
+  }
   if (input.kind !== "historical_ordering" && input.kind !== "aoi_outline") {
     return null;
   }

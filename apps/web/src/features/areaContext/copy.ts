@@ -2,6 +2,10 @@ export const PANEL_ARIA = "Selected analysis area context";
 export const LIST_ARIA = "Analysis area context without the map";
 export const LIST_CAPTION =
   "Context and inventory values for each analysis area";
+export const LIST_INVENTORY_SUMMARY = "All analysis areas (inventory table)";
+export const GEOID_DETAILS_SUMMARY = "Census tract identifier";
+export const SELECT_AREA_PROMPT =
+  "Select an analysis area on the map to read context for that area.";
 export const KICKER = "Area context";
 export const NOT_A_SCORE = "This is not a vulnerability score.";
 export const MAP_MODE_LABEL: Record<string, string> = {

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { createGeometryLoader } from "@/api/areaGeometry";
 import { SignalBMapStage } from "@/features/analysisMap/SignalBMapStage";
 import type { SignalBGeometryCollection } from "@/features/analysisMap/signalBTypes";
+import { analysisAreaLabel } from "@/features/selectedAreaStory/identity";
+import { GEOID_DETAILS_SUMMARY } from "@/features/selectedAreaStory/copy";
 import {
   CACHED_B_WORDING,
   phoenixDemoCachedSelectedTime,
@@ -58,9 +60,9 @@ export function SignalBCachedPanel({
       <dl className="signal-b-public-facts" data-testid="signal-b-public-facts">
         {facts.selectedLabel ? (
           <div>
-            <dt>Selected zone</dt>
+            <dt>Selected area</dt>
             <dd data-testid="signal-b-selected-zone">
-              {facts.selectedZoneId}: {facts.selectedLabel}
+              {analysisAreaLabel(facts.selectedZoneId) ?? "Selected analysis area"}: {facts.selectedLabel}
             </dd>
           </div>
         ) : null}
@@ -83,6 +85,12 @@ export function SignalBCachedPanel({
           <dd data-testid="signal-b-range">{facts.rangeLabel}</dd>
         </div>
       </dl>
+      {facts.selectedZoneId ? (
+        <details data-testid="signal-b-selected-geoid">
+          <summary>{GEOID_DETAILS_SUMMARY}</summary>
+          <p>{facts.selectedZoneId}</p>
+        </details>
+      ) : null}
       <details className="signal-b-footnote" data-testid="signal-b-footnote">
         <summary>Not a historical order</summary>
         <p>{facts.footnote}</p>

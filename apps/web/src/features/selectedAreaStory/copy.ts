@@ -5,6 +5,7 @@ export const Q_THERMAL = "WHAT ARE THERMAL CONDITIONS HERE?";
 export const Q_DIFFERENT = "WHAT MAKES THIS AREA DIFFERENT?";
 export const Q_SUPPORT = "WHAT SUPPORT IS IDENTIFIED NEARBY?";
 export const Q_VERIFY = "WHAT SHOULD BE VERIFIED BEFORE ACTION?";
+export const GEOID_DETAILS_SUMMARY = "Census tract identifier";
 
 export const B_WORDING = "AVAILABLE NOW — CACHED EVIDENCE" as const;
 export const B_CLOCK = "2025-07-15 03:00" as const;

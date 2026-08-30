@@ -103,6 +103,7 @@ export function presentMapInteraction(input: {
       kind: catalog?.kind,
       fillAuthorized: Boolean(catalog?.fill_authorized),
       layerActive: state.layerActive,
+      fillKind: catalog?.fill_kind,
     }),
     legend: legendFromCatalog(catalog, state.layerActive),
     hover,

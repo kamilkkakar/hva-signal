@@ -1,5 +1,6 @@
 import { MAP_MODE_LABEL } from "@/features/areaContext/copy";
 import type { MapMode } from "@/features/areaContext/types";
+import { GEOID_DETAILS_SUMMARY } from "./copy";
 import type { SelectedAreaDecisionStory } from "./types";
 import "./selectedAreaStory.css";
 
@@ -8,12 +9,16 @@ export type SelectedAreaStoryPanelProps = {
   mode?: MapMode;
 };
 
+const MAX_VISIBLE_FACTS = 6;
+
 export function SelectedAreaStoryPanel({
   story,
   mode = "THERMAL",
 }: SelectedAreaStoryPanelProps) {
   const thermal = story.questions.thermal;
+  const facts = story.questions.different.facts.slice(0, MAX_VISIBLE_FACTS);
   const modeMeta = story.mapModes.find((row) => row.mode === mode) ?? story.mapModes[0];
+  const contextMode = mode !== "THERMAL";
   return (
     <article
       className="selected-area-story"
@@ -23,16 +28,22 @@ export function SelectedAreaStoryPanel({
       aria-label={story.identity.label ?? "Selected analysis area"}
     >
       <p className="kicker">{story.identity.label ?? "Unknown analysis area"}</p>
-      <p data-testid="selected-area-geoid">{story.identity.geoid ?? "no GEOID"}</p>
+      <details data-testid="selected-area-geoid">
+        <summary>{GEOID_DETAILS_SUMMARY}</summary>
+        <p>{story.identity.geoid ?? "Census tract is not available"}</p>
+      </details>
 
       <section data-source="fortyguard" data-testid="story-thermal">
         <h3>{thermal.label}</h3>
-        <p data-testid="story-thermal-status">THERMAL={thermal.status}</p>
-        {thermal.a.hasRealPane ? (
+        {thermal.a.hasRealPane && thermal.a.orderShown ? (
           <p data-testid="story-thermal-a">
-            Signal A: {thermal.a.kind}
-            {thermal.a.orderShown && thermal.a.q_A != null ? ` · q_A ${thermal.a.q_A.toFixed(3)}` : ""}
-            {thermal.a.decision8 ? ` · Decision 8 ${thermal.a.decision8}` : ""}
+            Signal A shows a historical order for this analysis area
+            {thermal.a.q_A != null ? ` (q_A ${thermal.a.q_A.toFixed(3)})` : ""}
+            {thermal.a.decision8 ? `. Decision 8 ${thermal.a.decision8}` : "."}
+          </p>
+        ) : thermal.a.kind === "order_withheld" ? (
+          <p data-testid="story-thermal-a">
+            Signal A historical order is withheld for this analysis area.
           </p>
         ) : (
           <p data-testid="story-thermal-a">Signal A pane is not available for this analysis area.</p>
@@ -43,14 +54,16 @@ export function SelectedAreaStoryPanel({
             {thermal.b.clock} {thermal.b.timezone}
           </p>
         ) : (
-          <p data-testid="story-thermal-b">Cached nighttime temperature is not available for this GEOID.</p>
+          <p data-testid="story-thermal-b">
+            Cached nighttime temperature is not available for this analysis area.
+          </p>
         )}
       </section>
 
       <section data-source="acs-canopy" data-testid="story-different">
         <h3>{story.questions.different.label}</h3>
-        <ul>
-          {story.questions.different.facts.map((fact) => (
+        <ul data-testid="story-facts">
+          {facts.map((fact) => (
             <li key={fact.kind} data-source={fact.sourceFamily} data-comparison={String(fact.comparisonAllowed)}>
               {fact.sentence}
             </li>
@@ -60,7 +73,6 @@ export function SelectedAreaStoryPanel({
 
       <section data-source="mag" data-testid="story-support">
         <h3>{story.questions.support.label}</h3>
-        <p data-testid="story-preparedness-status">{story.questions.support.status}</p>
         {story.questions.support.sentences.map((line) => (
           <p key={line}>{line}</p>
         ))}
@@ -79,7 +91,11 @@ export function SelectedAreaStoryPanel({
       </section>
 
       {modeMeta ? (
-        <p className="story-map-mode" data-testid="story-map-mode">
+        <p
+          className="story-map-mode"
+          data-testid="story-map-mode"
+          data-source-family={contextMode ? "context" : "fortyguard"}
+        >
           {MAP_MODE_LABEL[modeMeta.mode]} · {modeMeta.source} · {modeMeta.year} · {modeMeta.unit}. {modeMeta.meaning}
         </p>
       ) : null}

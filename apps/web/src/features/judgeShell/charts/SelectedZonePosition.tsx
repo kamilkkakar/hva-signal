@@ -1,3 +1,5 @@
+import { analysisAreaLabel } from "@/features/selectedAreaStory/identity";
+import { GEOID_DETAILS_SUMMARY } from "@/features/selectedAreaStory/copy";
 import {
   SELECTED_DETAILS_SUMMARY,
   SELECTED_POSITION_EMPTY,
@@ -30,7 +32,11 @@ export function SelectedZonePosition({
   if (!view.selected || view.selectedExact == null) {
     return (
       <div data-testid="selected-zone-position" data-has-position="false">
-        <p className="judge-card-fact">Zone {selectedZoneId}</p>
+        <p className="judge-card-fact">{analysisAreaLabel(selectedZoneId) ?? "Selected analysis area"}</p>
+        <details data-testid="selected-zone-geoid">
+          <summary>{GEOID_DETAILS_SUMMARY}</summary>
+          <p>{selectedZoneId}</p>
+        </details>
         <p className="judge-card-fact">{SELECTED_POSITION_UNAVAILABLE}</p>
       </div>
     );
@@ -43,7 +49,7 @@ export function SelectedZonePosition({
       data-has-position="true"
     >
       <p className="judge-card-fact" data-testid="selected-zone-id">
-        Zone {view.selected.zoneId}
+        {analysisAreaLabel(view.selected.zoneId) ?? "Selected analysis area"}
       </p>
       <p className="kicker">{SELECTED_POSITION_KICKER}</p>
       <PositionAxis
@@ -56,6 +62,10 @@ export function SelectedZonePosition({
         <span>{view.axisLow}</span>
         <span>{view.axisHigh}</span>
       </p>
+      <details className="hva-pos-details" data-testid="selected-zone-geoid">
+        <summary>{GEOID_DETAILS_SUMMARY}</summary>
+        <p>{view.selected.zoneId}</p>
+      </details>
       <details className="hva-pos-details" data-testid="selected-zone-qa-details">
         <summary>{SELECTED_DETAILS_SUMMARY}</summary>
         <p data-testid="selected-zone-qa-exact">q_A {view.selectedExact}</p>

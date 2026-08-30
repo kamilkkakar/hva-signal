@@ -16,6 +16,18 @@ function withoutWarrant(lines: string[]): string[] {
   return lines.filter((line) => !WARRANT.test(line));
 }
 
+
+export function coolingInventoryLabel(status: string): string {
+  const raw = status.trim().toUpperCase();
+  if (raw === "IDENTIFIED") {
+    return "Identified in the available inventory";
+  }
+  if (raw === "NOT_IDENTIFIED_IN_DATASET") {
+    return "Not identified in this dataset";
+  }
+  return "Inventory status unknown";
+}
+
 /** Context/inventory table. Never labels the columns as thermal or FortyGuard. */
 export function listCaption(mode: MapMode): string {
   if (mode === "THERMAL") {
@@ -83,7 +95,7 @@ export function presentList(document: AreaContextDocument): AreaContextListRow[]
     olderHousing: zone.older_housing_comparison_allowed
       ? zone.share_pre_1980_housing
       : null,
-    coolingStatus: zone.cooling_site_status,
+    coolingStatus: coolingInventoryLabel(zone.cooling_site_status),
   }));
 }
 

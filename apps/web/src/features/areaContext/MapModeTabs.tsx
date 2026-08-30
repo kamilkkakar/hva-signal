@@ -61,7 +61,12 @@ export function MapModeTabs({ mode, onModeChange }: MapModeTabsProps) {
           </button>
         ))}
       </div>
-      <p className="judge-map-legend" data-testid="map-mode-legend" data-mode={mode}>
+      <p
+        className="judge-map-legend"
+        data-testid="map-mode-legend"
+        data-mode={mode}
+        data-source-family={mode === "THERMAL" ? "fortyguard" : "context"}
+      >
         {meta.source} · {meta.year} · {meta.unit}. {meta.meaning}
       </p>
     </div>

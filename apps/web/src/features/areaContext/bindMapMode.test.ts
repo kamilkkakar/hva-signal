@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { catalogFromHistorical } from "@/features/mapInteraction";
-import { highlightFillPaint } from "@/features/mapInteraction/highlight";
+import { highlightFillPaint, highlightHatchPaint } from "@/features/mapInteraction/highlight";
+import { presentMapInteraction } from "@/features/mapInteraction/present";
+import { initialInteractionState } from "@/features/mapInteraction/state";
 import { rankedFillCount } from "@/features/mapInteraction/exclusive";
 import { CONTEXT_FILL_PROPERTY, bindMapModeCatalog, catalogUsesThermalRank, contextFillCount } from "./bindMapMode";
 import { contextFillValue } from "./mapModes";
@@ -83,6 +85,20 @@ describe("MapBand context fill path", () => {
     });
     expect(JSON.stringify(paint["fill-color"])).toContain(CONTEXT_FILL_PROPERTY);
     expect(JSON.stringify(paint["fill-color"])).not.toContain("backend_order");
+    const hatch = highlightHatchPaint(catalog, {
+      hoverId: null,
+      selectedId: null,
+      layerActive: true,
+      fitGeneration: 0,
+    });
+    expect(hatch["fill-opacity"]).toBe(0);
+    const view = presentMapInteraction({
+      enabled: true,
+      catalog,
+      state: initialInteractionState(),
+    });
+    expect(view.positionLegendMode).toBeNull();
+    expect(JSON.stringify(view)).not.toMatch(/Historical position/);
   });
 
   it("does not resurrect thermal rank when D8 is withheld and context mode is on", () => {

@@ -39,6 +39,7 @@ describe("selected area decision story", () => {
     expect(story.questions.thermal.b.wording).toBe("AVAILABLE NOW — CACHED EVIDENCE");
     expect(story.questions.thermal.b.temperatureC).not.toBeNull();
     expect(story.questions.different.facts.length).toBeGreaterThanOrEqual(4);
+    expect(story.questions.different.facts.length).toBeLessThanOrEqual(6);
     expect(story.questions.different.facts[0]?.sentence).toMatch(/plantable ground/);
     expect(story.questions.verify.rules.map((rule) => rule.id)).toContain("R2");
     expect(story.questions.thermal.label).toBe(Q_THERMAL);

@@ -6,6 +6,10 @@ import { clusteredResult, SELECTED_CLUSTERED_ID } from "./fixtures";
 import { presentHistoricalPosition } from "./presentation";
 import { SelectedZonePosition } from "./SelectedZonePosition";
 
+function firstRead(html: string): string {
+  return html.replace(/<details\b[^>]*>[\s\S]*?<\/details>/gi, "");
+}
+
 function render(selectedZoneId: string | null) {
   return renderToStaticMarkup(
     createElement(SelectedZonePosition, {
@@ -30,7 +34,13 @@ describe("SelectedZonePosition", () => {
   it("puts a single marker on the own-history axis and keeps exact q_A in details", () => {
     const html = render(SELECTED_CLUSTERED_ID);
     expect(html).toContain('data-testid="selected-zone-position"');
-    expect(html).toContain(`Zone ${SELECTED_CLUSTERED_ID}`);
+    expect(html).toContain("Selected analysis area");
+    const visible = firstRead(html);
+    expect(visible).not.toMatch(/>04013000000</);
+    const heading = html.match(/data-testid="selected-zone-id"[^>]*>([^<]*)</);
+    expect(heading?.[1]).toBe("Selected analysis area");
+    expect(heading?.[1]).not.toContain(SELECTED_CLUSTERED_ID);
+    expect(html).toContain(SELECTED_CLUSTERED_ID);
     expect(html).toContain("This zone’s historical position");
     expect(html).toContain("LOWER POSITION IN OWN HISTORY");
     const detailsStart = html.indexOf('data-testid="selected-zone-qa-details"');

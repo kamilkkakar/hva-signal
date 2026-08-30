@@ -35,7 +35,8 @@ describe("public Signal B cached panel first-read", () => {
     expect(visible).not.toMatch(/priority map|backend_order/i);
     expect(html).not.toContain('data-testid="signal-b-zones"');
     expect(html).not.toContain('data-testid="signal-b-zone-table"');
-    expect((visible.match(/04013\d{6}/g) ?? []).length).toBeLessThanOrEqual(1);
+    expect((visible.match(/04013\d{6}/g) ?? []).length).toBe(0);
+    expect(visible).toMatch(/Analysis Area/);
     expect(visible).not.toMatch(/\d+\.\d{4,}/);
     expect(html).toContain("not q_A / not Decision 8");
     expect(html).toContain('data-testid="signal-b-footnote"');

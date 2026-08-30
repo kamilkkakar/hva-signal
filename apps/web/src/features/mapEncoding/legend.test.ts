@@ -52,6 +52,14 @@ describe("historical position legend", () => {
         layerActive: true,
       }),
     ).toBeNull();
+    expect(
+      legendModeFromInteraction({
+        kind: "historical_ordering",
+        fillAuthorized: true,
+        layerActive: true,
+        fillKind: "context_quantity",
+      }),
+    ).toBeNull();
     expect(historicalPositionLegend("sufficient").stops.length).toBeGreaterThan(1);
   });
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { AnalysisResultStub } from "@/api/analysisJobs";
 import { composeSelectedAreaStory, SelectedAreaStoryPanel } from "@/features/selectedAreaStory";
 import { AreaContextList } from "./AreaContextList";
+import { SELECT_AREA_PROMPT } from "./copy";
 import { fetchAreaContext } from "./fetchContext";
 import { presentList } from "./present";
 import { isPublicContextEnabled } from "./publicContextGate";
@@ -72,7 +73,11 @@ export function AreaContextBand({
       data-testid="area-context-band"
       aria-label="Analysis area context"
     >
-      {selectedZoneId ? <SelectedAreaStoryPanel story={story} mode={mapMode} /> : null}
+      {selectedZoneId ? (
+        <SelectedAreaStoryPanel story={story} mode={mapMode} />
+      ) : (
+        <p data-testid="area-context-select-prompt">{SELECT_AREA_PROMPT}</p>
+      )}
       <AreaContextList
         rows={presentList(document)}
         mode={mapMode}
