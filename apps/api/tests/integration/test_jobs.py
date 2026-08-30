@@ -22,6 +22,23 @@ def _valid_payload() -> dict:
     }
 
 
+def test_public_job_payload_does_not_publish_two_signal_fields() -> None:
+    created = client.post("/api/v1/analysis/jobs", json=_valid_payload()).json()
+    assert "two_signal" not in created
+    assert "selected_time_snapshot" not in created
+    fetched = client.get(f"/api/v1/analysis/jobs/{created['job_id']}").json()
+    assert "two_signal" not in fetched
+    assert set(created) <= {
+        "job_id",
+        "status",
+        "request",
+        "created_at",
+        "recoverable",
+        "message",
+        "result",
+    }
+
+
 def test_create_job_returns_queued_job() -> None:
     response = client.post("/api/v1/analysis/jobs", json=_valid_payload())
     assert response.status_code == 202
