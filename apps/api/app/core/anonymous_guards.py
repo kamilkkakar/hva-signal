@@ -14,6 +14,8 @@ from time import monotonic
 from typing import Any, Callable, Literal
 from uuid import uuid4
 
+from app.domain.public_safety_fields import CLIENT_CONTROL_FIELD_NAMES
+
 REASON_RATE_LIMITED = "RATE_LIMITED"
 REASON_JOB_QUOTA_IN_FLIGHT = "JOB_QUOTA_IN_FLIGHT"
 REASON_JOB_QUOTA_STORED = "JOB_QUOTA_STORED"
@@ -58,6 +60,7 @@ PUBLIC_SERIALIZER_DENYLIST = frozenset(
         "bypass_limit",
         "operator_override",
     }
+    | CLIENT_CONTROL_FIELD_NAMES
 )
 _DENY_LOWER = frozenset(name.lower() for name in PUBLIC_SERIALIZER_DENYLIST)
 

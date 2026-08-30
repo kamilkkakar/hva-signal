@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.domain.enums import DataMode
+from app.domain.public_safety_fields import CLIENT_CONTROL_FIELD_NAMES
 from app.services.spend_gate import SpendGrant
 
 
@@ -28,6 +29,7 @@ _CLIENT_AUTHORIZATION_KEYS = frozenset(
         "allowance_remaining",
         "authorized_max_units",
     }
+    | CLIENT_CONTROL_FIELD_NAMES
 )
 
 

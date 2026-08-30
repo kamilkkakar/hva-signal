@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.router import api_router, include_health_routes
 from app.core.config import get_settings
+from app.core.public_safety_middleware import PublicSafetyMiddleware
 
 settings = get_settings()
 
@@ -44,6 +45,8 @@ app = FastAPI(
 )
 
 origins = cors_origins_for(settings)
+# Public safety is inner: CORS stays outermost for preflight.
+app.add_middleware(PublicSafetyMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
