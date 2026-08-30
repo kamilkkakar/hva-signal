@@ -69,6 +69,8 @@ P1_PUBLIC_PATHS = {
     "/api/v1/analysis/jobs",
     "/api/v1/analysis/jobs/{job_id}",
     "/api/v1/areas/{area_id}/context",
+    "/api/v1/demo/matched-nighttime-window",
+    "/api/v1/demo/observed-thermal-instants",
 }
 
 UNPUBLISHED_GEOGRAPHY_PATHS = (
