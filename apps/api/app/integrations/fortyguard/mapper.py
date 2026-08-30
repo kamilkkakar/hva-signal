@@ -5,12 +5,16 @@ constructs app.domain.thermal.ThermalObservation when importable.
 
 tcm tile temperatures are Celsius despite the official client docstring (°F).
 exceedance values are hour counts, not degree-hours.
+
+Window temporal modes (hour_range, full_day, day_range, month) are aggregates.
+They never emit statistic=instant and always carry window_aggregate flags so a
+valid_time derived from start_time cannot masquerade as a single-hour instant.
 """
 
 from __future__ import annotations
 
 import importlib
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Any
 
 from app.integrations.fortyguard.transport_models import (
@@ -22,6 +26,17 @@ from app.integrations.fortyguard.transport_models import (
 )
 
 _CELSIUS_FLAG = "tcm_unit:celsius"
+WINDOW_AGGREGATE_FLAG = "window_aggregate"
+_WINDOW_MODES = frozenset({"hour_range", "full_day", "day_range", "month"})
+
+
+def temporal_mode_value(mode: Any) -> str:
+    return mode.value if hasattr(mode, "value") else str(mode)
+
+
+def is_window_temporal_mode(mode: Any) -> bool:
+    """HOUR_RANGE, FULL_DAY, DAY_RANGE, and MONTH are aggregates, not instants."""
+    return temporal_mode_value(mode) in _WINDOW_MODES
 
 
 def requested_valid_time(start_date: str, start_time: str | None) -> datetime:
@@ -39,6 +54,49 @@ def requested_valid_time(start_date: str, start_time: str | None) -> datetime:
     minute = int(parts[1]) if len(parts) > 1 else 0
     second = int(float(parts[2])) if len(parts) > 2 else 0
     return datetime(day.year, day.month, day.day, hour, minute, second)
+
+
+def requested_window_end(request: HeatmapFetchRequest) -> datetime | None:
+    """Requested window end from the fetch envelope. None if the request omitted it."""
+    mode = temporal_mode_value(request.temporal_mode)
+    if mode == "hour_range":
+        if request.end_time is None:
+            return None
+        return requested_valid_time(request.start_date, request.end_time)
+    if mode == "full_day":
+        day = date.fromisoformat(request.start_date)
+        return datetime(day.year, day.month, day.day, 23, 59, 59)
+    end_date = request.end_date
+    if end_date is None and mode == "month":
+        start = date.fromisoformat(request.start_date)
+        end_date = (start + timedelta(days=30)).isoformat()
+    if end_date is None and request.end_time is None:
+        return None
+    return requested_valid_time(end_date or request.start_date, request.end_time)
+
+
+def window_quality_flags(request: HeatmapFetchRequest, base: list[str]) -> list[str]:
+    """Label window aggregates so they cannot masquerade as SINGLE_HOUR instants."""
+    flags = list(base)
+    flags.append(WINDOW_AGGREGATE_FLAG)
+    start = requested_valid_time(request.start_date, request.start_time)
+    flags.append(f"window_start={start.isoformat()}")
+    end = requested_window_end(request)
+    if end is None:
+        flags.append("window_end=unspecified")
+    else:
+        flags.append(f"window_end={end.isoformat()}")
+    return flags
+
+
+def observation_claims_instant(observation: Any) -> bool:
+    """True only for a SINGLE_HOUR instant statistic. Window aggregates never qualify."""
+    statistic = observation.statistic
+    name = statistic.value if hasattr(statistic, "value") else str(statistic)
+    if name != "instant":
+        return False
+    flags = list(getattr(observation, "quality_flags", None) or [])
+    return WINDOW_AGGREGATE_FLAG not in flags
 
 
 def _observation_cls() -> type:
@@ -106,11 +164,8 @@ def map_heatmap_result(
     features = (result.get("map_data") or {}).get("features") or []
     tiles: list[TransportTile] = []
     analytic = request.analytic_type
-    mode = (
-        request.temporal_mode.value
-        if hasattr(request.temporal_mode, "value")
-        else str(request.temporal_mode)
-    )
+    mode = temporal_mode_value(request.temporal_mode)
+    window_mode = is_window_temporal_mode(mode)
 
     for feature in features:
         props = dict(feature.get("properties") or {})
@@ -118,6 +173,8 @@ def map_heatmap_result(
         geometry = feature.get("geometry") or {}
         observations: list[Any] = []
         flags = [_CELSIUS_FLAG] if analytic == "tcm" else []
+        if window_mode:
+            flags = window_quality_flags(request, flags)
         if analytic == "tcm":
             # Pass through Celsius values. Do not convert as if they were °F.
             avg = props.get("average_temperature")
