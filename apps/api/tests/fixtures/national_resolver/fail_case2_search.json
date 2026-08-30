@@ -1,0 +1,1516 @@
+{
+  "strategy": "Download TIGER/Line 2025 place+tract layers for 22 states. Assign eligibility by official internal-point-in-place. Compute rook components for every place with 25\u201380 eligible tracts, every multipart place with >=25 eligible, every place whose AWATER exceeds ALAND with >=25 eligible, and the curated coastal/island/balance watch list.",
+  "states_scanned": [
+    "01",
+    "02",
+    "04",
+    "06",
+    "08",
+    "12",
+    "13",
+    "15",
+    "17",
+    "18",
+    "22",
+    "24",
+    "25",
+    "29",
+    "32",
+    "35",
+    "36",
+    "42",
+    "47",
+    "48",
+    "51",
+    "53"
+  ],
+  "n_candidates_rook_evaluated": 215,
+  "real_connected_lt25_found": true,
+  "found": [
+    {
+      "place_geoid": "0485540",
+      "name": "Yuma city",
+      "statefp": "04",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        20,
+        6
+      ],
+      "largest_component": 20,
+      "n_components": 2,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0812815",
+      "name": "Centennial city",
+      "statefp": "08",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        17,
+        9
+      ],
+      "largest_component": 17,
+      "n_components": 2,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "1212875",
+      "name": "Clearwater city",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 28,
+      "component_sizes": [
+        21,
+        4,
+        3
+      ],
+      "largest_component": 21,
+      "n_components": 3,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "4816432",
+      "name": "Conroe city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 25,
+      "component_sizes": [
+        22,
+        2,
+        1
+      ],
+      "largest_component": 22,
+      "n_components": 3,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    }
+  ],
+  "watch_list": [
+    {
+      "place_geoid": "5157000",
+      "name": "Norfolk city",
+      "state": "VA",
+      "role": "water_separated_midsize"
+    },
+    {
+      "place_geoid": "5164000",
+      "name": "Portsmouth city",
+      "state": "VA",
+      "role": "water_separated_midsize"
+    },
+    {
+      "place_geoid": "5135000",
+      "name": "Hampton city",
+      "state": "VA",
+      "role": "water_heavy_midsize"
+    },
+    {
+      "place_geoid": "5182000",
+      "name": "Virginia Beach city",
+      "state": "VA",
+      "role": "coastal_large"
+    },
+    {
+      "place_geoid": "4828068",
+      "name": "Galveston city",
+      "state": "TX",
+      "role": "barrier_island"
+    },
+    {
+      "place_geoid": "1234132",
+      "name": "Islamorada, Village of Islands village",
+      "state": "FL",
+      "role": "multipart_keys"
+    },
+    {
+      "place_geoid": "1243000",
+      "name": "Marathon city",
+      "state": "FL",
+      "role": "keys_island_chain"
+    },
+    {
+      "place_geoid": "0600562",
+      "name": "Alameda city",
+      "state": "CA",
+      "role": "island_city"
+    },
+    {
+      "place_geoid": "2255000",
+      "name": "New Orleans city",
+      "state": "LA",
+      "role": "river_coastal"
+    },
+    {
+      "place_geoid": "2507000",
+      "name": "Boston city",
+      "state": "MA",
+      "role": "harbor_islands"
+    },
+    {
+      "place_geoid": "5363000",
+      "name": "Seattle city",
+      "state": "WA",
+      "role": "coastal_lakes"
+    },
+    {
+      "place_geoid": "0667000",
+      "name": "San Francisco city",
+      "state": "CA",
+      "role": "peninsula_islands"
+    },
+    {
+      "place_geoid": "0236400",
+      "name": "Juneau city and borough",
+      "state": "AK",
+      "role": "famous_multipart_nonconus"
+    },
+    {
+      "place_geoid": "1571550",
+      "name": "Urban Honolulu CDP",
+      "state": "HI",
+      "role": "nonconus_cdp"
+    },
+    {
+      "place_geoid": "0203000",
+      "name": "Anchorage municipality",
+      "state": "AK",
+      "role": "nonconus_municipality"
+    },
+    {
+      "place_geoid": "4752006",
+      "name": "Nashville-Davidson metropolitan government (balance)",
+      "state": "TN",
+      "role": "consolidated_balance_holes"
+    },
+    {
+      "place_geoid": "1836003",
+      "name": "Indianapolis city (balance)",
+      "state": "IN",
+      "role": "consolidated_balance_holes"
+    },
+    {
+      "place_geoid": "0423620",
+      "name": "Flagstaff city",
+      "state": "AZ",
+      "role": "borderline_count"
+    },
+    {
+      "place_geoid": "3570500",
+      "name": "Santa Fe city",
+      "state": "NM",
+      "role": "borderline_count"
+    }
+  ],
+  "examined_preview": [
+    {
+      "place_geoid": "1234132",
+      "name": "Islamorada, Village of Islands village",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 1,
+      "component_sizes": [
+        1
+      ],
+      "largest_component": 1,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "curated_watch_list"
+    },
+    {
+      "place_geoid": "1243000",
+      "name": "Marathon city",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 4,
+      "component_sizes": [
+        4
+      ],
+      "largest_component": 4,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "curated_watch_list"
+    },
+    {
+      "place_geoid": "0236400",
+      "name": "Juneau city and borough",
+      "statefp": "02",
+      "classfp": "C1",
+      "eligible_count": 6,
+      "component_sizes": [
+        6
+      ],
+      "largest_component": 6,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "LOCAL_AEQD_SEARCH_ONLY",
+      "conus": false,
+      "why_examined": "curated_watch_list"
+    },
+    {
+      "place_geoid": "0423620",
+      "name": "Flagstaff city",
+      "statefp": "04",
+      "classfp": "C1",
+      "eligible_count": 16,
+      "component_sizes": [
+        16
+      ],
+      "largest_component": 16,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "curated_watch_list"
+    },
+    {
+      "place_geoid": "0600562",
+      "name": "Alameda city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 16,
+      "component_sizes": [
+        16
+      ],
+      "largest_component": 16,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "curated_watch_list"
+    },
+    {
+      "place_geoid": "0812815",
+      "name": "Centennial city",
+      "statefp": "08",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        17,
+        9
+      ],
+      "largest_component": 17,
+      "n_components": 2,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "0485540",
+      "name": "Yuma city",
+      "statefp": "04",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        20,
+        6
+      ],
+      "largest_component": 20,
+      "n_components": 2,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "1212875",
+      "name": "Clearwater city",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 28,
+      "component_sizes": [
+        21,
+        4,
+        3
+      ],
+      "largest_component": 21,
+      "n_components": 3,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "4816432",
+      "name": "Conroe city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 25,
+      "component_sizes": [
+        22,
+        2,
+        1
+      ],
+      "largest_component": 22,
+      "n_components": 3,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "4828068",
+      "name": "Galveston city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 24,
+      "component_sizes": [
+        24
+      ],
+      "largest_component": 24,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "curated_watch_list"
+    },
+    {
+      "place_geoid": "0668252",
+      "name": "San Mateo city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 25,
+      "component_sizes": [
+        25
+      ],
+      "largest_component": 25,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0669084",
+      "name": "Santa Clara city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 25,
+      "component_sizes": [
+        25
+      ],
+      "largest_component": 25,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "1239425",
+      "name": "Largo city",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 25,
+      "component_sizes": [
+        25
+      ],
+      "largest_component": 25,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "1372122",
+      "name": "South Fulton city",
+      "statefp": "13",
+      "classfp": "C1",
+      "eligible_count": 25,
+      "component_sizes": [
+        25
+      ],
+      "largest_component": 25,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "2562535",
+      "name": "Somerville city",
+      "statefp": "25",
+      "classfp": "C5",
+      "eligible_count": 25,
+      "component_sizes": [
+        25
+      ],
+      "largest_component": 25,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "2915670",
+      "name": "Columbia city",
+      "statefp": "29",
+      "classfp": "C1",
+      "eligible_count": 25,
+      "component_sizes": [
+        25
+      ],
+      "largest_component": 25,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "4751560",
+      "name": "Murfreesboro city",
+      "statefp": "47",
+      "classfp": "C1",
+      "eligible_count": 25,
+      "component_sizes": [
+        25
+      ],
+      "largest_component": 25,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "5168000",
+      "name": "Roanoke city",
+      "statefp": "51",
+      "classfp": "C7",
+      "eligible_count": 25,
+      "component_sizes": [
+        25
+      ],
+      "largest_component": 25,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "4848072",
+      "name": "Midland city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        25,
+        1
+      ],
+      "largest_component": 25,
+      "n_components": 2,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "4874144",
+      "name": "Tyler city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        25,
+        1
+      ],
+      "largest_component": 25,
+      "n_components": 2,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0471510",
+      "name": "Surprise city",
+      "statefp": "04",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        26
+      ],
+      "largest_component": 26,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0608954",
+      "name": "Burbank city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        26
+      ],
+      "largest_component": 26,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0619766",
+      "name": "Downey city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        26
+      ],
+      "largest_component": 26,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0622804",
+      "name": "Escondido city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        26
+      ],
+      "largest_component": 26,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "0636546",
+      "name": "Inglewood city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        26
+      ],
+      "largest_component": 26,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "0682954",
+      "name": "Visalia city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        26
+      ],
+      "largest_component": 26,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "0883835",
+      "name": "Westminster city",
+      "statefp": "08",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        26
+      ],
+      "largest_component": 26,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "1718823",
+      "name": "Decatur city",
+      "statefp": "17",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        26
+      ],
+      "largest_component": 26,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "1751622",
+      "name": "Naperville city",
+      "statefp": "17",
+      "classfp": "C1",
+      "eligible_count": 26,
+      "component_sizes": [
+        26
+      ],
+      "largest_component": 26,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "2523000",
+      "name": "Fall River city",
+      "statefp": "25",
+      "classfp": "C5",
+      "eligible_count": 26,
+      "component_sizes": [
+        26
+      ],
+      "largest_component": 26,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "2537000",
+      "name": "Lowell city",
+      "statefp": "25",
+      "classfp": "C5",
+      "eligible_count": 26,
+      "component_sizes": [
+        26
+      ],
+      "largest_component": 26,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "3676540",
+      "name": "Utica city",
+      "statefp": "36",
+      "classfp": "C5",
+      "eligible_count": 26,
+      "component_sizes": [
+        26
+      ],
+      "largest_component": 26,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0832155",
+      "name": "Greeley city",
+      "statefp": "08",
+      "classfp": "C1",
+      "eligible_count": 27,
+      "component_sizes": [
+        26,
+        1
+      ],
+      "largest_component": 26,
+      "n_components": 2,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0177256",
+      "name": "Tuscaloosa city",
+      "statefp": "01",
+      "classfp": "C1",
+      "eligible_count": 27,
+      "component_sizes": [
+        27
+      ],
+      "largest_component": 27,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "0616000",
+      "name": "Concord city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 27,
+      "component_sizes": [
+        27
+      ],
+      "largest_component": 27,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0620802",
+      "name": "East Los Angeles CDP",
+      "statefp": "06",
+      "classfp": "U1",
+      "eligible_count": 27,
+      "component_sizes": [
+        27
+      ],
+      "largest_component": 27,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0678582",
+      "name": "Thousand Oaks city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 27,
+      "component_sizes": [
+        27
+      ],
+      "largest_component": 27,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "0681666",
+      "name": "Vallejo city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 27,
+      "component_sizes": [
+        27
+      ],
+      "largest_component": 27,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "1224125",
+      "name": "Fort Myers city",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 27,
+      "component_sizes": [
+        27
+      ],
+      "largest_component": 27,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "2941348",
+      "name": "Lee's Summit city",
+      "statefp": "29",
+      "classfp": "C1",
+      "eligible_count": 27,
+      "component_sizes": [
+        27
+      ],
+      "largest_component": 27,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "4263624",
+      "name": "Reading city",
+      "statefp": "42",
+      "classfp": "C5",
+      "eligible_count": 27,
+      "component_sizes": [
+        27
+      ],
+      "largest_component": 27,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "4269000",
+      "name": "Scranton city",
+      "statefp": "42",
+      "classfp": "C5",
+      "eligible_count": 27,
+      "component_sizes": [
+        27
+      ],
+      "largest_component": 27,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "4815976",
+      "name": "College Station city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 27,
+      "component_sizes": [
+        27
+      ],
+      "largest_component": 27,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "4856348",
+      "name": "Pearland city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 27,
+      "component_sizes": [
+        27
+      ],
+      "largest_component": 27,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "4863500",
+      "name": "Round Rock city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 27,
+      "component_sizes": [
+        27
+      ],
+      "largest_component": 27,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "5335415",
+      "name": "Kent city",
+      "statefp": "53",
+      "classfp": "C1",
+      "eligible_count": 27,
+      "component_sizes": [
+        27
+      ],
+      "largest_component": 27,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "4202000",
+      "name": "Allentown city",
+      "statefp": "42",
+      "classfp": "C5",
+      "eligible_count": 28,
+      "component_sizes": [
+        27,
+        1
+      ],
+      "largest_component": 27,
+      "n_components": 2,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "0629000",
+      "name": "Garden Grove city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 33,
+      "component_sizes": [
+        27,
+        6
+      ],
+      "largest_component": 27,
+      "n_components": 2,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0662938",
+      "name": "Roseville city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 28,
+      "component_sizes": [
+        28
+      ],
+      "largest_component": 28,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "1207300",
+      "name": "Boca Raton city",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 28,
+      "component_sizes": [
+        28
+      ],
+      "largest_component": 28,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "1239925",
+      "name": "Lehigh Acres CDP",
+      "statefp": "12",
+      "classfp": "U1",
+      "eligible_count": 28,
+      "component_sizes": [
+        28
+      ],
+      "largest_component": 28,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "1245025",
+      "name": "Miami Beach city",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 28,
+      "component_sizes": [
+        28
+      ],
+      "largest_component": 28,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "1245060",
+      "name": "Miami Gardens city",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 28,
+      "component_sizes": [
+        28
+      ],
+      "largest_component": 28,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "1258050",
+      "name": "Pompano Beach city",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 28,
+      "component_sizes": [
+        28
+      ],
+      "largest_component": 28,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "1225175",
+      "name": "Gainesville city",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 29,
+      "component_sizes": [
+        28,
+        1
+      ],
+      "largest_component": 28,
+      "n_components": 2,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "0803455",
+      "name": "Arvada city",
+      "statefp": "08",
+      "classfp": "C1",
+      "eligible_count": 29,
+      "component_sizes": [
+        29
+      ],
+      "largest_component": 29,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "3601000",
+      "name": "Albany city",
+      "statefp": "36",
+      "classfp": "C5",
+      "eligible_count": 29,
+      "component_sizes": [
+        29
+      ],
+      "largest_component": 29,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "4813024",
+      "name": "Carrollton city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 29,
+      "component_sizes": [
+        29
+      ],
+      "largest_component": 29,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "4879000",
+      "name": "Wichita Falls city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 29,
+      "component_sizes": [
+        29
+      ],
+      "largest_component": 29,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "4819972",
+      "name": "Denton city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 30,
+      "component_sizes": [
+        29,
+        1
+      ],
+      "largest_component": 29,
+      "n_components": 2,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "1238250",
+      "name": "Lakeland city",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 30,
+      "component_sizes": [
+        30
+      ],
+      "largest_component": 30,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "1759000",
+      "name": "Peoria city",
+      "statefp": "17",
+      "classfp": "C1",
+      "eligible_count": 30,
+      "component_sizes": [
+        30
+      ],
+      "largest_component": 30,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "3570500",
+      "name": "Santa Fe city",
+      "statefp": "35",
+      "classfp": "C1",
+      "eligible_count": 30,
+      "component_sizes": [
+        30
+      ],
+      "largest_component": 30,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "curated_watch_list,eligible_25_to_80"
+    },
+    {
+      "place_geoid": "4839148",
+      "name": "Killeen city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 30,
+      "component_sizes": [
+        30
+      ],
+      "largest_component": 30,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "0628000",
+      "name": "Fullerton city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 31,
+      "component_sizes": [
+        31
+      ],
+      "largest_component": 31,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0664224",
+      "name": "Salinas city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 31,
+      "component_sizes": [
+        31
+      ],
+      "largest_component": 31,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "1255775",
+      "name": "Pembroke Pines city",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 31,
+      "component_sizes": [
+        31
+      ],
+      "largest_component": 31,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "1276600",
+      "name": "West Palm Beach city",
+      "statefp": "12",
+      "classfp": "C1",
+      "eligible_count": 31,
+      "component_sizes": [
+        31
+      ],
+      "largest_component": 31,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "1772000",
+      "name": "Springfield city",
+      "statefp": "17",
+      "classfp": "C1",
+      "eligible_count": 31,
+      "component_sizes": [
+        31
+      ],
+      "largest_component": 31,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "2240735",
+      "name": "Lafayette city",
+      "statefp": "22",
+      "classfp": "C1",
+      "eligible_count": 31,
+      "component_sizes": [
+        31
+      ],
+      "largest_component": 31,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    },
+    {
+      "place_geoid": "2545000",
+      "name": "New Bedford city",
+      "statefp": "25",
+      "classfp": "C5",
+      "eligible_count": 31,
+      "component_sizes": [
+        31
+      ],
+      "largest_component": 31,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "4224000",
+      "name": "Erie city",
+      "statefp": "42",
+      "classfp": "C5",
+      "eligible_count": 31,
+      "component_sizes": [
+        31
+      ],
+      "largest_component": 31,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "5164000",
+      "name": "Portsmouth city",
+      "statefp": "51",
+      "classfp": "C7",
+      "eligible_count": 31,
+      "component_sizes": [
+        31
+      ],
+      "largest_component": 31,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "curated_watch_list,eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0633000",
+      "name": "Hayward city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 32,
+      "component_sizes": [
+        31,
+        1
+      ],
+      "largest_component": 31,
+      "n_components": 2,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "4861796",
+      "name": "Richardson city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 32,
+      "component_sizes": [
+        31,
+        1
+      ],
+      "largest_component": 31,
+      "n_components": 2,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "4876000",
+      "name": "Waco city",
+      "statefp": "48",
+      "classfp": "C1",
+      "eligible_count": 32,
+      "component_sizes": [
+        31,
+        1
+      ],
+      "largest_component": 31,
+      "n_components": 2,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0616350",
+      "name": "Corona city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 32,
+      "component_sizes": [
+        32
+      ],
+      "largest_component": 32,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0622020",
+      "name": "Elk Grove city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 32,
+      "component_sizes": [
+        32
+      ],
+      "largest_component": 32,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "0658072",
+      "name": "Pomona city",
+      "statefp": "06",
+      "classfp": "C1",
+      "eligible_count": 32,
+      "component_sizes": [
+        32
+      ],
+      "largest_component": 32,
+      "n_components": 1,
+      "multipart": false,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80"
+    },
+    {
+      "place_geoid": "1827000",
+      "name": "Gary city",
+      "statefp": "18",
+      "classfp": "C1",
+      "eligible_count": 32,
+      "component_sizes": [
+        32
+      ],
+      "largest_component": 32,
+      "n_components": 1,
+      "multipart": true,
+      "projection": "EPSG:5070",
+      "conus": true,
+      "why_examined": "eligible_25_to_80,multipart_place"
+    }
+  ],
+  "full_examined_path": "workforce/national_resolver/panel_runs/fail2_examined.json"
+}
