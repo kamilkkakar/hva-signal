@@ -1,0 +1,178 @@
+{
+  "note": "Processed phoenix-demo SelectedTimeSnapshot from Prompt-14 validated observations. Zone means only. Not a vendor tile dump. Not Signal A. Not live. Not now.",
+  "activity_id": "9865bd33-43a0-42b0-bc9b-74b27510002d",
+  "snapshot_request_fingerprint": "e620da65034551c300c9b100e264c74597ad12584aefec25d0b8757c6314c027",
+  "identity_version": "hva-signal-b-snapshot-identity-v1",
+  "area_id": "phoenix-demo",
+  "target_timestamp_local": "2024-07-08T21:00:00",
+  "timezone": "America/Phoenix",
+  "units": "celsius",
+  "aggregation_method": "centroid_within_mean",
+  "aggregation_spec_version": "PHX_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN",
+  "availability": "READY",
+  "expected_zone_count": 25,
+  "valid_zone_count": 25,
+  "missing_zone_ids": [],
+  "geometry_sha256": "3f16870fc801da5052b03e0f09c172feb4a1e0d6736452d22ffd6f09bb4e11f0",
+  "geometry_version": "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f",
+  "source": "fortyguard_cached",
+  "data_status": "cached",
+  "source_mode": "cache",
+  "signal_kind": "selected_time_snapshot",
+  "mapped_tile_count": 3749,
+  "quality_flags": [],
+  "temperature_min_c": 38.96946484375,
+  "temperature_max_c": 39.353381,
+  "zones": [
+    {
+      "zone_id": "04013106400",
+      "mean_temperature_c": 39.26000833333333,
+      "tile_count": 264,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013106501",
+      "mean_temperature_c": 39.09946666666667,
+      "tile_count": 132,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013106502",
+      "mean_temperature_c": 39.15665405405405,
+      "tile_count": 148,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013106600",
+      "mean_temperature_c": 39.099183984375,
+      "tile_count": 256,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013106701",
+      "mean_temperature_c": 39.24312307692308,
+      "tile_count": 65,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013106702",
+      "mean_temperature_c": 39.2112609375,
+      "tile_count": 64,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013106703",
+      "mean_temperature_c": 39.2797875,
+      "tile_count": 128,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013107401",
+      "mean_temperature_c": 39.25628125,
+      "tile_count": 128,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013107402",
+      "mean_temperature_c": 39.295378125,
+      "tile_count": 32,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013107403",
+      "mean_temperature_c": 39.29005625,
+      "tile_count": 32,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013107404",
+      "mean_temperature_c": 39.2965765625,
+      "tile_count": 64,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013107500",
+      "mean_temperature_c": 39.09442846153846,
+      "tile_count": 260,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013107601",
+      "mean_temperature_c": 39.10388088235294,
+      "tile_count": 136,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013107602",
+      "mean_temperature_c": 39.1303671875,
+      "tile_count": 128,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013107700",
+      "mean_temperature_c": 39.17688167938932,
+      "tile_count": 262,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013107800",
+      "mean_temperature_c": 39.12348366197183,
+      "tile_count": 355,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013108400",
+      "mean_temperature_c": 38.97853358490566,
+      "tile_count": 265,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013108501",
+      "mean_temperature_c": 38.9795078125,
+      "tile_count": 128,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013108502",
+      "mean_temperature_c": 38.96946484375,
+      "tile_count": 128,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013108601",
+      "mean_temperature_c": 39.19022705882353,
+      "tile_count": 85,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013108602",
+      "mean_temperature_c": 39.148536842105266,
+      "tile_count": 171,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013108802",
+      "mean_temperature_c": 39.16475865384616,
+      "tile_count": 104,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013108901",
+      "mean_temperature_c": 39.353381,
+      "tile_count": 100,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013108902",
+      "mean_temperature_c": 39.348523026315796,
+      "tile_count": 152,
+      "coverage_status": "ok"
+    },
+    {
+      "zone_id": "04013117100",
+      "mean_temperature_c": 39.18398395061728,
+      "tile_count": 162,
+      "coverage_status": "ok"
+    }
+  ]
+}
