@@ -6,7 +6,7 @@ Shows a nighttime heat order only when the thermal field can defend it.
 
 HVA-Signal is an urban heat **decision-support** system. It is not a heat map with two scores, and it is not a Phoenix-city dashboard. On the public path it answers one honest question: for a dated 3 a.m. replay on a 25-zone **analysis window**, is the thermal field differentiated enough to show a zone order — or must that order be withheld?
 
-**Heat** is what is measured. **Vulnerability** is why zone scale matters — it is **not scored** in this build. **Action** means rank or withhold, not a treatment plan and not proof that an intervention worked.
+**Heat** is what is measured. **Vulnerability** is why zone scale matters — it is **not scored** in this build. **Action** is **available now as decision framing**: it translates Decision 8 into authorize or withhold. It is not a treatment plan and not proof that an intervention worked.
 
 This repository is the runnable product, frozen replay evidence, tests, and deploy config. Local research notes and agent coordination live under `workforce/` and are not committed.
 
@@ -97,12 +97,12 @@ flowchart LR
 
 | Stage | Decision question | Public today |
 |---|---|---|
-| **Observe** | What was the zone-mean field, in °C, at a selected hour? | **No** — Signal B unpublished |
+| **Observe** | What was the zone-mean field, in °C, at a selected hour? | **No** — Signal B **integration testing**; no genuine snapshot |
 | **Contextualize** | How unusual was each zone at 3 a.m. versus its own nights, and is the spread large enough to show an order? | **Yes** — Signal A on `phoenix-demo` replay |
 | **Exposure / persistence** | How does heat accumulate or linger after the peak? | **No** — no HeatDose or AfterHeat number |
 | **Environmental stress** | What is wet-bulb globe temperature once complete inputs exist? | **No** — WBGT blocked |
 | **Anticipate** | What is the calibrated chance of a defined event in a defined horizon? | **No** — public probability blocked |
-| **Act** | What does the thermal evidence authorize or withhold? | **Decision ceiling only** — rank or withhold on Signal A. No intervention engine |
+| **Act** | What does the thermal evidence authorize or withhold? | **Yes** — **available now — decision framing** (Decision 8 translate only). No intervention engine |
 
 Capability progression (same questions, product names):
 
@@ -111,7 +111,7 @@ SNAPSHOT → HISTORICAL CONTEXT → EXPOSURE OVER TIME
         → ENVIRONMENTAL STRESS → FORECAST → ACTION
 ```
 
-The public path starts at **historical context**. Snapshot and later stages are not extra gauges on the command center.
+The public path starts at **historical context**, with Action as Decision 8 **decision framing**. Snapshot and later numeric stages are not extra gauges on the command center.
 
 ---
 
@@ -121,9 +121,10 @@ Open the command center. No account. Leave **Data mode** on **Replay**.
 
 | You can | You cannot |
 |---|---|
-| Run Signal A on `phoenix-demo` at 03:00 AOI-local | Pick a U.S. city or Census Place |
+| Run Signal A on `phoenix-demo` at 03:00 AOI-local | Pick a U.S. city or Census Place — place search is **disabled** |
 | See **25 ranked fills** when spatial spread clears the configured floor | Treat fills as °C, harm chance, or “treat here first” |
 | See **25 outlines and 0 fills** when the night is too flat | Read empty outlines as all-clear or low risk |
+| Read Action framing: Decision 8 **supports spatial ordering** or **do not use thermal ranking alone** | Treat framing as a deploy order, harm-reduction percent, or all-clear |
 | Inspect health, readiness, areas, and job status | Submit Signal B, spend, or live-acquire fields on the public job API |
 | Replay two dated nights (see [Demo flow](#20-demo-flow)) | Switch to live vendor acquisition |
 
@@ -139,7 +140,7 @@ HVA-Signal is designed to grow from a spatial thermal-evidence system into a bro
 
 The foundation it is built around can describe the thermal field at a selected time, place nighttime conditions in historical context, and withhold spatial prioritization when the evidence cannot support an order.
 
-**What you can run today** is the historical half of that foundation: the Nighttime Historical Thermal Signal on the frozen `phoenix-demo` window, including the withhold. The selected-time snapshot is the designed companion question — zone-mean °C at a requested hour — and remains **unpublished** on the public job API.
+**What you can run today** is the historical half of that foundation: the Nighttime Historical Thermal Signal on the frozen `phoenix-demo` window, including the withhold, plus Action as **decision framing** of that same Decision 8 result. The selected-time snapshot is the designed companion question — zone-mean °C at a requested hour — and remains **unpublished** on the public job API (**integration testing**; no genuine snapshot).
 
 The next capability layer extends that foundation from **what is happening** to **how heat develops over time**, **how severe environmental conditions become**, **what may happen next**, and **what decisions the evidence can support**.
 
@@ -160,13 +161,13 @@ flowchart LR
 
 | Stage | Capability | User question | Maturity | Public surface |
 |---|---|---|---|---|
-| Observe | Selected-Time Thermal Snapshot (Signal B) | What was each zone’s average temperature, in °C, at the selected hour? | **Integration testing** | **Disabled.** Descriptive °C only. Not a rank. |
+| Observe | Selected-Time Thermal Snapshot (Signal B) | What was each zone’s average temperature, in °C, at the selected hour? | **Integration testing** | **Disabled.** No genuine 25-zone compatible snapshot. Descriptive °C only if ever published. Not a rank. |
 | Contextualize | Nighttime Historical Thermal Signal (Signal A) | How unusual was each zone at 3 a.m. versus its own nights, and is the difference large enough to show an order? | **Available now** | **Yes** — `phoenix-demo` replay at 03:00 AOI-local. Not live. |
 | Exposure | HeatDose | How did **environmental** exposure accumulate over a named window? | **Analytical development in progress** | **Not shown.** No number. Not a personal dose. |
 | Persistence | AfterHeat | How does the outdoor field behave after the daytime peak? | **Active development and validation** | **Not shown.** Not overnight recovery. |
 | Stress | WBGT | What is wet-bulb globe temperature for a **named** form, once complete meteorological inputs exist? | **Integration pathway under evaluation** | **Not shown.** Will **not** approximate from incomplete inputs. |
 | Anticipate | Calibrated probability / forecasting | What is the calibrated chance of a **defined** thermal event within a **defined** horizon? | **Model development and validation** | **Blocked.** No public percent. |
-| Act | Action intelligence | What does the thermal evidence authorize or withhold? | **Active product development** | **Not a shipped Action engine.** Today’s ceiling is Signal A rank-or-withhold. |
+| Act | Action intelligence | What does the thermal evidence authorize or withhold? | **Available now — decision framing** | **Yes** — Decision 8 authorize / withhold translation only. Not an intervention engine. |
 
 ### HeatDose — accumulated exposure over time
 
@@ -186,7 +187,9 @@ A future probability capability may estimate the likelihood of a **clearly defin
 
 ### Action intelligence — translating evidence into decisions
 
-The intended Action layer helps a user see when evidence **supports spatial differentiation**, when more verification is needed, and when thermal ranking should be **withheld**. The defensible ceiling **already true on Signal A** is that binary: authorize a historical nighttime order, or refuse to use thermal ranking alone. That is **not** validated intervention efficacy, not a deploy order, and not harm-reduction percent. `intervention_evidence` remains false. Vulnerability, preparedness, and local operational constraints are **not scored**.
+**Available now — decision framing.** Scope is Decision 8 translate only: the public path restates whether the frozen historical protocol **authorizes a nighttime spatial order** or **refuses thermal ranking alone**. That is the same binary Signal A already computes — not a second score.
+
+It is **not** validated intervention efficacy, not a deploy order, not harm-reduction percent, and not an Action map. `intervention_evidence` remains false. Vulnerability, preparedness, operational constraints, and local context remain necessary for actual intervention decisions and are **not scored**.
 
 ---
 
@@ -275,7 +278,7 @@ flowchart TD
 
 ## 8. Signal B status
 
-**Selected-Time Thermal Snapshot** — **integration testing**. **Not public.**
+**Selected-Time Thermal Snapshot** — **integration testing**. **Not public.** There is **no genuine snapshot** for the public `phoenix-demo` window.
 
 **Question:** What was each zone’s average temperature, in °C, at the selected hour?
 
@@ -291,7 +294,7 @@ Rules if it is ever published:
 
 Public `POST /api/v1/analysis/jobs` is the **legacy Signal A** contract. Unpublished snapshot and spend fields are rejected (**422**). The two-signal sibling route is **not** in the live OpenAPI. Command-center Signal A/B chrome is **not** mounted.
 
-There is no committed public replay seed that would make a snapshot **ready** even if the flag were flipped. Flipping a flag is not a product.
+There is **no genuine** 25-zone compatible snapshot for `phoenix-demo`. Held hourly tiles do not join the analysis window; the reuse store is empty. A schematic fixture is not product evidence. Flipping a flag is not a product.
 
 ---
 
@@ -305,7 +308,7 @@ A 2025 Census Place (incorporated place or CDP, 7-digit GEOID) may later resolve
 | Policy label | **Frozen candidate** — not `FROZEN` |
 | Public `GET /api/v1/areas` | **`phoenix-demo` only** |
 | Public place search | **Disabled** |
-| Public geography resolve | **Disabled** |
+| Public geography resolve | **Disabled** — **L2 timezone** open |
 | City-equivalence (window = municipality) | **Human-open** |
 | Seed uniqueness (this 25-set is “the” geography of the place) | **Human-open** |
 
@@ -314,6 +317,8 @@ Safe wording:
 > 25-zone HVA-Signal analysis geography — an analysis window within {Census NAMELSAD}, generated under resolver policy {policy id}.
 
 Do not say “the city,” “city-wide,” “{place}’s zones,” “supported city,” or “the geography of {place}.” Another seed or policy is a **different** analysis geography.
+
+Public resolve stays **disabled** while the **L2 timezone** gate is open: this image has no shippable zero-vendor lon/lat → IANA lookup. Without an injected lookup, national materialize fails closed (timezone not found). A state table would falsify split-zone borders. That also blocks a national selected-time snapshot.
 
 On a newly resolved window, geography can be ready while **historical reference is not prepared**. Signal A, Decision 8, and thermal ranking stay unavailable. HVA-Signal does not invent a 93-observation history and does not copy the `phoenix-demo` Decision 8 floor onto a new place. A later selected-time snapshot is **not** a substitute for the historical signal.
 
@@ -496,8 +501,8 @@ Why extra surfaces stay off (product blockers, not polish):
 | Reason | Effect |
 |---|---|
 | `phoenix-demo` must not collapse into Census place `0455000` | No “Phoenix” city picker |
-| National snapshot needs a timezone / DST publication gate | No public national Signal B |
-| Search plus thermal chrome would overclaim | Place search stays off |
+| **L2 timezone** — no shippable offline lon/lat → IANA lookup | No public national resolve or national Signal B |
+| Search plus thermal chrome would overclaim | Place search stays **disabled** |
 | Public jobs must not leak spend or live-grant fields | Allowance schemas stay off the P1 API |
 | Signal B must not reuse the Signal A rank map | No snapshot switch on the command center |
 | `NOT_PREPARED` must not read as low risk | No fake “analysis complete” on a new window |
@@ -548,8 +553,9 @@ Presenter or judge, **replay only**. Source banner must stay **REPLAY**. Do not 
 3. Map: **25 outlines, 0 fills**. Unusualness can be computed; the order is withheld because observed spread is about **0.044** versus a **0.10** `q_A` floor.
 4. Change the date to **`2022-06-30`** (time stays 03:00). Submit.
 5. Map: **25 ranked fills**. Observed spread about **0.135**. Fills are historical nighttime order, not °C, not harm probability.
-6. Say the second question out loud if needed: selected-hour °C is descriptive only and **not on this switch**.
-7. Do not demo a national place resolve. If asked: a Census Place can later become a versioned 25-zone **analysis window** inside the place; historical Signal A would stay unprepared until a reference package exists; hosted live is **off**.
+6. Read Action framing on the same nights: 2022-06-30 **supports spatial ordering** (one input, not a deploy order); 2022-07-01 **do not use thermal ranking alone** (withhold is not all-clear). Framing is Decision 8 translate only.
+7. Say the second question out loud if needed: selected-hour °C is descriptive only, **not on this switch**, and has **no genuine snapshot** on this window.
+8. Do not demo a national place resolve. Place search is **disabled**. If asked: **L2 timezone** is still open (no shippable offline lon/lat → IANA lookup); a Census Place can later become a versioned 25-zone **analysis window** inside the place; historical Signal A would stay unprepared until a reference package exists; hosted live is **off**.
 
 If a hosted Free URL is asleep, record or judge from local Compose / Vite and say hosting is a human always-on step.
 
@@ -562,10 +568,11 @@ If a hosted Free URL is asleep, record or judge from local Compose / Vite and sa
 | `phoenix-demo` Signal A replay | **Available now** |
 | Accountless command center | **Available now** |
 | Decision 8 rank-or-withhold | **Available now** (Signal A) |
-| Public Signal B / selected-time snapshot | **Disabled** (integration testing) |
+| Action intelligence | **Available now — decision framing** (Decision 8 translate only) |
+| Public Signal B / selected-time snapshot | **Disabled** (integration testing — **no genuine snapshot**) |
 | Public two-signal job API | **Disabled** |
 | Place search | **Disabled** |
-| Public geography resolve | **Disabled** |
+| Public geography resolve | **Disabled** (**L2 timezone**) |
 | National resolver library | Present · policy **frozen candidate** · no public route |
 | Hosted live | **Disabled** |
 | Demo allowance | **Disabled** |
@@ -584,6 +591,6 @@ If a hosted Free URL is asleep, record or judge from local Compose / Vite and sa
 
 HVA-Signal is built by **3K Labs**.
 
-The name expands to Heat, Vulnerability & Action Signal. Only **Heat** is measured on the public path. Vulnerability explains zone scale and is not scored. Action is the rank-or-withhold decision, not a certified cooling program.
+The name expands to Heat, Vulnerability & Action Signal. Only **Heat** is measured on the public path. Vulnerability explains zone scale and is not scored. Action is **available now as decision framing** from Decision 8, not a certified cooling program.
 
 Contact and hosting for a judged demo are human-owned. This README describes the repository as it runs with **default flags off** and **replay on**.
