@@ -10,18 +10,20 @@
   border: 0;
 }
 
+/* Map-primary stack. No 260 / 1fr / 300 rail. Containment, not overflow-x:hidden. */
 .judge-shell {
   min-height: 100%;
   min-width: 0;
   width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   background: var(--ops-wall);
-  overflow-x: hidden;
 }
 
 .judge-shell > * {
   min-width: 0;
+  max-width: 100%;
 }
 
 .judge-hero,
@@ -33,6 +35,8 @@
 .judge-capability,
 .judge-provenance,
 .judge-run {
+  min-width: 0;
+  max-width: 100%;
   padding: 0.85rem 1.15rem;
   background: var(--panel);
   overflow-wrap: anywhere;
@@ -89,12 +93,16 @@
 }
 
 .judge-chips li {
+  min-width: 0;
+  max-width: 100%;
   padding: 0.22rem 0.5rem;
   background: var(--tape);
   color: var(--plotter);
   font-family: var(--font-mono);
   font-size: 0.72rem;
   letter-spacing: 0.06em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .judge-happening {
@@ -104,12 +112,16 @@
 .judge-stamp {
   display: inline-block;
   margin: 0.35rem 0 0;
+  max-width: 100%;
   padding: 0.35rem 0.5rem;
   border: 2px solid var(--stamp);
   color: var(--stamp);
   font-family: var(--font-display);
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
 }
 
 .judge-stamp-sm {
@@ -122,13 +134,21 @@
 
 .judge-map {
   min-width: 0;
+  max-width: 100%;
   min-height: 28rem;
   position: relative;
 }
 
 .judge-map .map-stage {
+  min-width: 0;
+  max-width: 100%;
   min-height: 28rem;
   height: 28rem;
+}
+
+.judge-map .mapi {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .judge-thermal,
@@ -219,6 +239,8 @@
 }
 
 .judge-run-form input {
+  min-width: 0;
+  max-width: 100%;
   border: 1px solid var(--rule);
   background: #e7eadc;
   padding: 0.35rem 0.45rem;

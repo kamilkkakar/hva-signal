@@ -34,7 +34,7 @@ describe("ResultCard 07-01 face", () => {
 });
 
 describe("ResultColumn 07-01", () => {
-  it("keeps the third column short — Decision 8 stays out of the rail", () => {
+  it("keeps the result band short — Decision 8 stays out of the cards", () => {
     const view = resultCardsFromSnapshot({
       snapshot: replay0701Snapshot,
       rankingState: "INSUFFICIENT_EVIDENCE",

@@ -10,7 +10,7 @@ export type ResultSurfaceProps = {
   busy?: boolean;
 };
 
-/** Isolated overflow harness: 3-col grid + full-width Decision 8 accordion. */
+/** Isolated overflow harness: map-primary stack. No 260 / 1fr / 300 rail. */
 export function ResultSurface({
   snapshot,
   rankingState,
@@ -19,11 +19,8 @@ export function ResultSurface({
   const view = resultCardsFromSnapshot({ snapshot, rankingState, busy });
   return (
     <div className="result-overflow-page" data-testid="result-overflow-page">
-      <div className="result-overflow-grid">
-        <aside className="result-overflow-stub" aria-hidden="true">
-          Query
-        </aside>
-        <div className="result-overflow-stub" aria-hidden="true">
+      <div className="result-map-primary">
+        <div className="result-map-slot" data-testid="result-map-slot" aria-hidden="true">
           Map
         </div>
         <ResultColumn view={view} />

@@ -1,4 +1,4 @@
-/* Result cards. Overflow-safe without editing styles.css. Contain + wrap; do not scroll sideways. */
+/* Map-primary result stack. No 260 / 1fr / 300 rail. Contain + wrap; never overflow-x:auto. */
 
 .result-overflow-page {
   box-sizing: border-box;
@@ -17,22 +17,25 @@
   box-sizing: border-box;
 }
 
-.result-overflow-grid {
+.result-map-primary {
   display: grid;
-  grid-template-columns: minmax(0, 16.25rem) minmax(0, 1fr) minmax(0, 18.75rem);
+  grid-template-columns: minmax(0, 1fr);
   min-width: 0;
   width: 100%;
+  max-width: 100%;
 }
 
-.result-overflow-grid > * {
+.result-map-primary > * {
   min-width: 0;
   max-width: 100%;
 }
 
-.result-overflow-stub {
+.result-map-slot {
   min-width: 0;
+  max-width: 100%;
+  min-height: 8rem;
   padding: 0.75rem;
-  background: var(--panel, #d3d8c6);
+  background: var(--plotter, #c2c8b4);
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -40,10 +43,10 @@
 .result-column {
   min-width: 0;
   max-width: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
   padding: 0.75rem;
   background: var(--panel, #d3d8c6);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .result-cards {
@@ -151,7 +154,7 @@
 
 .result-d8-body {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
   gap: 0.75rem 1.5rem;
   min-width: 0;
   margin-top: 0.7rem;
@@ -163,6 +166,10 @@
   max-width: 100%;
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+.result-d8-panel {
+  grid-column: 1 / -1;
 }
 
 .result-d8-limitation {
