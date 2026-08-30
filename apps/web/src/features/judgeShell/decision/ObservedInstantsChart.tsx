@@ -37,6 +37,9 @@ export function ObservedInstantsChart({ view }: ObservedInstantsChartProps) {
           >
             {points.slice(1).map((point, index) => {
               const prev = points[index];
+              if (prev == null) {
+                return null;
+              }
               return (
                 <g key={`${prev.instantId}-${point.instantId}`}>
                   <line
