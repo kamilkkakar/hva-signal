@@ -77,7 +77,8 @@ test.describe("judge-ready Phoenix sequence", () => {
     await expect(map).toHaveAttribute("data-ranked-feature-count", "25");
     await expect(map).toHaveAttribute("data-geometry-feature-count", "25");
     await expect(page.locator("body")).toContainText(BACKEND_ORDERING_COPY);
-    await expect(page.getByTestId("evidence-state")).toHaveText("READY");
+    await expect(page.getByTestId("happening-stamp")).toHaveText("ORDER SHOWN");
+    await expect(page.getByTestId("evidence-state")).toHaveText("ORDER SHOWN");
     await expect(page.getByTestId("map-hover")).toHaveCount(0);
     const actionOnSufficient = await expectActionFraming(
       page,
@@ -96,9 +97,8 @@ test.describe("judge-ready Phoenix sequence", () => {
     await expect(withheld).toHaveAttribute("data-ranked-feature-count", "0");
     await expect(withheld).toHaveAttribute("data-geometry-feature-count", "25");
     await expect(page.locator("body")).not.toContainText(BACKEND_ORDERING_COPY);
-    await expect(page.getByTestId("evidence-state")).toHaveText(
-      "INSUFFICIENT_EVIDENCE",
-    );
+    await expect(page.getByTestId("happening-stamp")).toHaveText("ORDER WITHHELD");
+    await expect(page.getByTestId("evidence-state")).toHaveText("ORDER WITHHELD");
     await expect(page.getByTestId("map-hover")).toHaveCount(0);
     await expect(page.getByTestId("decision8-suppression-reason")).toBeVisible();
 
