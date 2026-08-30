@@ -5,13 +5,17 @@ type SourceTapeProps = {
   active: SourceBannerLabel;
 };
 
+function sourceTapeLabel(active: SourceBannerLabel): "Replay source" | "Evidence source" {
+  return active === "REPLAY" ? "Replay source" : "Evidence source";
+}
+
 export function SourceTape({ active }: SourceTapeProps) {
   return (
     <div className="source-cluster">
       <p className="source-banner" data-testid="source-banner">
         Thermal source: <strong>{active}</strong>
       </p>
-      <ol className="source-tape" aria-label="FortyGuard provenance tape">
+      <ol className="source-tape" aria-label={sourceTapeLabel(active)}>
         {SOURCE_TAPE_SEGMENTS.map((segment) => {
           const isActive = segment.banner === active;
           return (
