@@ -9,7 +9,11 @@ import type {
   AnalysisJobPayload,
   AnalysisJobRequest,
 } from "@/api/analysisJobs";
-import { shouldKeepPolling, nextStallCount } from "@/utils/jobPolling";
+import {
+  nextStallCount,
+  shouldContinuePolling,
+  shouldKeepPolling,
+} from "@/utils/jobPolling";
 
 export type AnalysisJobApi = {
   createJob: (request: AnalysisJobRequest) => Promise<AnalysisJobPayload>;
@@ -24,6 +28,8 @@ export type JobStoreState = {
   polling: boolean;
   stalled: boolean;
   stallCount: number;
+  observationStartedAt: number | null;
+  consecutiveNetworkErrors: number;
   busy: boolean;
   error: string | null;
   canResubmit: boolean;
@@ -63,6 +69,8 @@ export function createJobStore(api: AnalysisJobApi) {
     polling: false,
     stalled: false,
     stallCount: 0,
+    observationStartedAt: null,
+    consecutiveNetworkErrors: 0,
     busy: false,
     error: null,
     canResubmit: false,
@@ -76,6 +84,8 @@ export function createJobStore(api: AnalysisJobApi) {
         polling: false,
         stalled: false,
         stallCount: 0,
+        observationStartedAt: null,
+        consecutiveNetworkErrors: 0,
         error: null,
         ...derived({
           submitting: true,
@@ -87,7 +97,8 @@ export function createJobStore(api: AnalysisJobApi) {
       });
       try {
         const snapshot = await api.createJob(lastRequest);
-        const polling = shouldKeepPolling(snapshot.status, 0);
+        const observationStartedAt = Date.now();
+        const polling = shouldKeepPolling(snapshot.status, { elapsedMs: 0 });
         set({
           submitting: false,
           jobId: snapshot.job_id,
@@ -95,6 +106,8 @@ export function createJobStore(api: AnalysisJobApi) {
           polling,
           stalled: false,
           stallCount: 0,
+          observationStartedAt,
+          consecutiveNetworkErrors: 0,
           error: null,
           ...derived({
             submitting: false,
@@ -123,11 +136,19 @@ export function createJobStore(api: AnalysisJobApi) {
     },
 
     poll: async () => {
-      const { jobId, lastRequest, snapshot: previous, stallCount: previousStall } =
-        get();
+      const {
+        jobId,
+        lastRequest,
+        snapshot: previous,
+        stallCount: previousStall,
+        observationStartedAt,
+        consecutiveNetworkErrors,
+      } = get();
       if (!jobId) {
         return;
       }
+      const elapsedMs =
+        observationStartedAt == null ? 0 : Date.now() - observationStartedAt;
       try {
         const snapshot = await api.getJob(jobId);
         const stallCount = nextStallCount(
@@ -135,8 +156,13 @@ export function createJobStore(api: AnalysisJobApi) {
           previous?.status ?? null,
           previousStall,
         );
-        const polling = shouldKeepPolling(snapshot.status, stallCount);
-        const stalled = !polling && snapshot.status !== "unknown_job" &&
+        const polling = shouldKeepPolling(snapshot.status, {
+          elapsedMs,
+          consecutiveNetworkErrors: 0,
+        });
+        const stalled =
+          !polling &&
+          snapshot.status !== "unknown_job" &&
           snapshot.status !== "complete" &&
           snapshot.status !== "partial" &&
           snapshot.status !== "failed";
@@ -145,6 +171,7 @@ export function createJobStore(api: AnalysisJobApi) {
           polling,
           stallCount,
           stalled,
+          consecutiveNetworkErrors: 0,
           error: null,
           ...derived({
             submitting: false,
@@ -155,16 +182,23 @@ export function createJobStore(api: AnalysisJobApi) {
           }),
         });
       } catch (err) {
+        const nextErrors = consecutiveNetworkErrors + 1;
+        const stillInFlight = shouldContinuePolling(previous?.status ?? null);
+        const polling = shouldKeepPolling(previous?.status ?? null, {
+          elapsedMs,
+          consecutiveNetworkErrors: nextErrors,
+        });
         set({
-          polling: false,
-          stalled: false,
+          polling,
+          stalled: stillInFlight && !polling,
+          consecutiveNetworkErrors: nextErrors,
           error: errorMessage(err),
           ...derived({
             submitting: false,
-            polling: false,
+            polling,
             lastRequest,
             snapshot: get().snapshot,
-            stalled: false,
+            stalled: stillInFlight && !polling,
           }),
         });
       }

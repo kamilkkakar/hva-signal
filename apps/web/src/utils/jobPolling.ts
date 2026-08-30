@@ -11,7 +11,18 @@ const IN_FLIGHT: ReadonlySet<JobStatus> = new Set([
   "computing",
 ]);
 
-export const MAX_UNCHANGED_IN_FLIGHT_POLLS = 4;
+/** Matches backend FortyGuard poll_timeout. Unchanged in-flight is valid. */
+export const MAX_IN_FLIGHT_OBSERVATION_MS = 600_000;
+export const POLL_INTERVAL_MS = 1500;
+export const MAX_CONSECUTIVE_NETWORK_ERRORS = 3;
+
+/** @deprecated Unchanged in-flight polls no longer stop the client. */
+export const MAX_UNCHANGED_IN_FLIGHT_POLLS = Number.POSITIVE_INFINITY;
+
+export type PollDecisionInput = {
+  elapsedMs?: number;
+  consecutiveNetworkErrors?: number;
+};
 
 export function shouldContinuePolling(status: JobStatus | null): boolean {
   if (status == null) {
@@ -39,12 +50,22 @@ export function nextStallCount(
 
 export function shouldKeepPolling(
   status: JobStatus | null,
-  stallCount: number,
+  stallCountOrOptions: number | PollDecisionInput = 0,
 ): boolean {
-  return (
-    shouldContinuePolling(status) &&
-    stallCount < MAX_UNCHANGED_IN_FLIGHT_POLLS
-  );
+  if (!shouldContinuePolling(status)) {
+    return false;
+  }
+  const options: PollDecisionInput =
+    typeof stallCountOrOptions === "number" ? {} : stallCountOrOptions;
+  if (
+    (options.consecutiveNetworkErrors ?? 0) >= MAX_CONSECUTIVE_NETWORK_ERRORS
+  ) {
+    return false;
+  }
+  if ((options.elapsedMs ?? 0) >= MAX_IN_FLIGHT_OBSERVATION_MS) {
+    return false;
+  }
+  return true;
 }
 
 export function jobProgressLabel(status: JobStatus | null): string {

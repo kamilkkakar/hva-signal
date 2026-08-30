@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { MapStage } from "@/features/map/MapStage";
 import { TimelineBar } from "@/features/timeline/TimelineBar";
 import { useJobStore } from "@/stores/jobStore";
+import { POLL_INTERVAL_MS } from "@/utils/jobPolling";
 import { mapLayerFromLimitations, rankingPresentation } from "@/utils/mapLayer";
 import { sourceBannerLabel } from "@/utils/sourceBanner";
 import { DecisionRail } from "./DecisionRail";
@@ -22,7 +23,7 @@ export function CommandCenterShell() {
     }
     const timer = window.setInterval(() => {
       void poll();
-    }, 1500);
+    }, POLL_INTERVAL_MS);
     return () => window.clearInterval(timer);
   }, [jobId, poll, polling]);
 

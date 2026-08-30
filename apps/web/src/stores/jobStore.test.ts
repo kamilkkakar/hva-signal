@@ -58,16 +58,16 @@ describe("jobStore unknown_job recovery", () => {
     expect(store.getState().jobId).toBe("job_new");
   });
 
-  it("stops polling when a queued job never advances", async () => {
+  it("keeps polling an unchanged in-flight job", async () => {
     const createJob = vi.fn(async (): Promise<AnalysisJobPayload> => ({
       job_id: "job_queued",
       status: "queued",
-      message: "Job accepted. Orchestration is not yet connected.",
+      message: "Job accepted.",
     }));
     const getJob = vi.fn(async (): Promise<AnalysisJobPayload> => ({
       job_id: "job_queued",
       status: "queued",
-      message: "Job accepted. Orchestration is not yet connected.",
+      message: "Job accepted.",
     }));
     const store = createJobStore({ createJob, getJob });
 
@@ -79,10 +79,32 @@ describe("jobStore unknown_job recovery", () => {
     await store.getState().poll();
     await store.getState().poll();
 
-    expect(store.getState().polling).toBe(false);
-    expect(store.getState().busy).toBe(false);
-    expect(store.getState().stalled).toBe(true);
+    expect(store.getState().polling).toBe(true);
+    expect(store.getState().busy).toBe(true);
+    expect(store.getState().stalled).toBe(false);
     expect(store.getState().snapshot?.status).toBe("queued");
+  });
+
+  it("marks a job stalled after the observation horizon", async () => {
+    const createJob = vi.fn(async (): Promise<AnalysisJobPayload> => ({
+      job_id: "job_queued",
+      status: "queued",
+      message: "Job accepted.",
+    }));
+    const getJob = vi.fn(async (): Promise<AnalysisJobPayload> => ({
+      job_id: "job_queued",
+      status: "queued",
+      message: "Job accepted.",
+    }));
+    const store = createJobStore({ createJob, getJob });
+
+    await store.getState().submit(request);
+    store.setState({ observationStartedAt: Date.now() - 600_000 });
+    await store.getState().poll();
+
+    expect(store.getState().polling).toBe(false);
+    expect(store.getState().stalled).toBe(true);
+    expect(store.getState().canResubmit).toBe(true);
   });
 
   it("does not keep polling after failed submit", async () => {
