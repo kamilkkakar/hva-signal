@@ -1,0 +1,19 @@
+{
+  "_not_product_evidence": true,
+  "thermal_product_evidence": false,
+  "invented_mean_temperature_c": false,
+  "source": "I-MAP apps/web/src/features/mapInteraction/fixtures.ts",
+  "note": "Schematic locator cells. Not TIGER and not product-map truth.",
+  "zone_ids": [
+    "FIX-0455000-01",
+    "FIX-0455000-02",
+    "FIX-0455000-03",
+    "FIX-0455000-04",
+    "FIX-0455000-05"
+  ],
+  "contract": {
+    "hover_writes_selection": false,
+    "click_persists_after_hover_leave": true,
+    "same_geoid_click_toggles": true
+  }
+}
