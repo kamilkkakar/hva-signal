@@ -7,8 +7,8 @@ import { defineConfig, devices } from "@playwright/test";
  * CI still starts :8000 / :4173 itself and leaves webServer undefined.
  */
 const isolated = !process.env.CI;
-const apiPort = process.env.PLAYWRIGHT_API_PORT ?? (isolated ? "18003" : "8000");
-const webPort = process.env.PLAYWRIGHT_WEB_PORT ?? (isolated ? "14173" : "4173");
+const apiPort = process.env.PLAYWRIGHT_API_PORT ?? (isolated ? "18031" : "8000");
+const webPort = process.env.PLAYWRIGHT_WEB_PORT ?? (isolated ? "14191" : "4173");
 const apiBase = isolated
   ? `http://127.0.0.1:${apiPort}`
   : (process.env.API_BASE_URL ?? `http://127.0.0.1:${apiPort}`);
@@ -33,7 +33,11 @@ function apiUvicornCommand(): string {
 }
 
 export default defineConfig({
-  testDir: "./tests/e2e",
+  testDir: ".",
+  testMatch: [
+    "tests/e2e/**/*.spec.ts",
+    "apps/web/e2e/judge-ready*.spec.ts",
+  ],
   timeout: 30_000,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["list"]] : "list",

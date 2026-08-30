@@ -1,0 +1,41 @@
+{
+  "note": "Action Intelligence v0 copy lock. Decision 8 framing only. Not efficacy.",
+  "thermal_product_evidence": false,
+  "status": "AVAILABLE NOW — DECISION FRAMING",
+  "scope": "Decision framing from Decision 8 only. Not an intervention recommendation.",
+  "title": "What this evidence supports",
+  "required_context": "Vulnerability, preparedness, operational constraints, and local context remain necessary for actual intervention decisions.",
+  "sufficient": {
+    "oracle_time": "2022-06-30T03:00:00",
+    "kind": "sufficient",
+    "stamp": "SUPPORTS SPATIAL ORDERING",
+    "says": "The thermal field supports spatial ordering under the frozen historical signal protocol.",
+    "supports": "Thermal evidence may be used as one input when deciding where further attention or contextual assessment is needed.",
+    "does_not": "This does not authorize automatic deployment of resources. Vulnerability, preparedness, operational constraints, and local context remain necessary for actual intervention decisions."
+  },
+  "insufficient": {
+    "oracle_time": "2022-07-01T03:00:00",
+    "kind": "insufficient",
+    "stamp": "DO NOT USE THERMAL RANKING ALONE",
+    "says": "The thermal field does not support a defensible spatial ordering.",
+    "supports": "Do not use thermal ranking alone for zone prioritization.",
+    "does_not": "Withholding a rank is not a safety clearance and does not mean zones have equal need. Vulnerability, preparedness, operational constraints, and local context remain necessary for actual intervention decisions."
+  },
+  "forbidden_phrases": [
+    "efficacy",
+    "intervention_evidence",
+    "harm reduction",
+    "reduces harm",
+    "dispatch",
+    "deploy automatically",
+    "all-clear",
+    "all clear",
+    "equal priority",
+    "priorities are equal",
+    "low risk",
+    "low-risk",
+    "hottest",
+    "first to treat",
+    "first to deploy"
+  ]
+}
