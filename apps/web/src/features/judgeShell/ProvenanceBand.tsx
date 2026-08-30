@@ -1,6 +1,7 @@
 import type { AnalysisJobPayload } from "@/api/analysisJobs";
 import {
   CommandCenterProvenanceHeader,
+  HowDetermined,
   PublicProvenanceExperience,
   bindProvenanceFromJob,
 } from "@/features/provenance";
@@ -15,6 +16,7 @@ export function ProvenanceBand({ snapshot }: ProvenanceBandProps) {
 
   return (
     <section className="judge-provenance" aria-label="Provenance">
+      <HowDetermined snapshot={snapshot} />
       <CommandCenterProvenanceHeader job={snapshot} />
       <PublicProvenanceExperience
         historical={bound.historical}

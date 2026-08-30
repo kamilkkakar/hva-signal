@@ -1,6 +1,11 @@
 export { PerSignalProvenance } from "./PerSignalProvenance";
 export { PublicProvenanceExperience } from "./PublicProvenanceExperience";
 export type { PublicProvenanceExperienceProps } from "./PublicProvenanceExperience";
+export { HowDetermined } from "./HowDetermined";
+export type { HowDeterminedProps } from "./HowDetermined";
+export { howDeterminedFromJob, formatPublicSeparation } from "./determination";
+export type { HowDeterminedView } from "./determination";
+export { ADVANCED_SUMMARY, HOW_DETERMINED_TITLE } from "./disclosureCopy";
 export {
   CommandCenterProvenance,
   CommandCenterProvenanceHeader,

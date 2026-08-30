@@ -7,7 +7,8 @@ import {
   evidenceGraphPresentation,
   probabilityFieldsPresentation,
 } from "@/utils/evidencePresentation";
-import { D8_METHOD_NOTE, D8_SUMMARY } from "./copy";
+import { ADVANCED_SUMMARY } from "@/features/provenance/disclosureCopy";
+import { D8_METHOD_NOTE } from "./copy";
 
 export function Decision8AccordionView({
   snapshot,
@@ -29,9 +30,15 @@ export function Decision8AccordionView({
     <details
       className="result-d8 analysis-detail"
       data-testid="analysis-detail"
+      data-disclosure-layer="advanced"
       open={hasLongAnalysis}
     >
-      <summary className="result-d8-summary analysis-detail-summary">{D8_SUMMARY}</summary>
+      <summary
+        className="result-d8-summary analysis-detail-summary"
+        data-testid="advanced-technical-details"
+      >
+        {ADVANCED_SUMMARY}
+      </summary>
       <div className="result-d8-body analysis-detail-body">
         <p className="result-d8-method" data-testid="result-method">
           {D8_METHOD_NOTE}
@@ -123,7 +130,11 @@ export function Decision8AccordionView({
         )}
 
         <p className="result-card-stamp evidence-stamp" data-testid="evidence-graph-state">
-          {graph.state}
+          <CopyableToken
+            value={graph.state}
+            aria-label="Copy evidence graph state"
+            testId="evidence-graph-state-token"
+          />
         </p>
         <p className="result-d8-copy decision-copy">{graph.copy}</p>
 
