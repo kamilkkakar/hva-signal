@@ -12,13 +12,17 @@ import type { PublicSourceChip } from "./sourceChip";
 type ContextBarProps = {
   source: PublicSourceChip;
   clockDate?: string | null;
+  bannerLabel?: string;
 };
 
-export function ContextBar({ source, clockDate }: ContextBarProps) {
+export function ContextBar({ source, clockDate, bannerLabel }: ContextBarProps) {
   const clock = clockDate ? `${clockDate} ${CHIP_CLOCK}` : CHIP_CLOCK;
 
   return (
     <section className="judge-context" aria-label={CONTEXT_ARIA} data-testid="context-bar">
+      <p className="judge-sr" data-testid="source-banner">
+        {bannerLabel ?? "UNAVAILABLE"}
+      </p>
       <ul className="judge-chips">
         <li data-chip="window-id">{CHIP_WINDOW_ID}</li>
         <li data-chip="window">{CHIP_WINDOW}</li>

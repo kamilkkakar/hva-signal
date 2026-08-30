@@ -44,6 +44,7 @@ export function JudgeShell() {
     if (!polling || !jobId) {
       return;
     }
+    void poll();
     const timer = window.setInterval(() => {
       void poll();
     }, POLL_INTERVAL_MS);
@@ -86,7 +87,11 @@ export function JudgeShell() {
   return (
     <div className="judge-shell" data-testid="judge-shell">
       <HeroHeader />
-      <ContextBar source={source} clockDate={clockDate} />
+      <ContextBar
+        source={source}
+        clockDate={clockDate}
+        bannerLabel={snapshot == null ? "UNAVAILABLE" : source}
+      />
       <HappeningBand
         happening={happening}
         busy={busy}
@@ -103,12 +108,19 @@ export function JudgeShell() {
         jobStatus={snapshot?.status ?? null}
         result={snapshot?.result ?? null}
         submitting={submitting}
+        analysisTime={lastRequest?.analysis_time ?? snapshot?.request?.analysis_time}
       />
-      <ThermalBand stamp={happening.stamp} />
+      <ThermalBand
+        snapshot={snapshot}
+        rankingState={ranking.state}
+        busy={busy}
+        status={snapshot?.status ?? null}
+        result={snapshot?.result ?? null}
+      />
       <SelectedZoneBand />
-      <SupportsBand />
+      <SupportsBand status={snapshot?.status ?? null} result={snapshot?.result ?? null} />
       <CapabilityBand />
-      <ProvenanceBand source={source} clockDate={clockDate} />
+      <ProvenanceBand snapshot={snapshot} />
       <RunBand />
     </div>
   );

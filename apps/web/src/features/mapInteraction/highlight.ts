@@ -45,7 +45,7 @@ export function highlightFillPaint(
   };
 }
 
-export function highlightLinePaint(state: InteractionState): InteractionLinePaint {
+export function highlightLinePaint(_state: InteractionState): InteractionLinePaint {
   return {
     "line-color": [
       "case",

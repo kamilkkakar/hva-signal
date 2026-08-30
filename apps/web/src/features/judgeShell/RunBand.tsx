@@ -2,7 +2,9 @@ import { useState, type FormEvent } from "react";
 import { useJobStore } from "@/stores/jobStore";
 import {
   PHOENIX_DEMO_DEFAULT_DATE,
+  PHOENIX_DEMO_DEFAULT_DATETIME_LOCAL,
   phoenixAoiLocalAnalysisTime,
+  phoenixAoiLocalDatetimeLocalValue,
 } from "@/utils/phoenixAoiLocalTime";
 import {
   INSUFFICIENT_NIGHT_DATE,
@@ -10,7 +12,6 @@ import {
   RUN_INSUFFICIENT,
   RUN_KICKER,
   RUN_RESUBMIT,
-  RUN_SUBMIT,
   RUN_SUFFICIENT,
   SUFFICIENT_NIGHT_DATE,
 } from "./copy";
@@ -45,11 +46,19 @@ export function RunBand() {
   const canResubmit = useJobStore((state) => state.canResubmit);
   const error = useJobStore((state) => state.error);
   const [date, setDate] = useState(PHOENIX_DEMO_DEFAULT_DATE);
+  const [analysisTime, setAnalysisTime] = useState(
+    PHOENIX_DEMO_DEFAULT_DATETIME_LOCAL,
+  );
   const [formError, setFormError] = useState<string | null>(null);
 
   async function runDate(nextDate: string) {
     setFormError(null);
     setDate(nextDate);
+    try {
+      setAnalysisTime(phoenixAoiLocalDatetimeLocalValue(`${nextDate}T03:00`));
+    } catch {
+      setAnalysisTime(`${nextDate}T03:00`);
+    }
     try {
       await submitNight(submit, nextDate);
     } catch (err) {
@@ -59,7 +68,21 @@ export function RunBand() {
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await runDate(date);
+    setFormError(null);
+    const nextDate = analysisTime.slice(0, 10) || date;
+    setDate(nextDate);
+    try {
+      await submit({
+        area_id: AREA_ID,
+        analysis_time: phoenixAoiLocalAnalysisTime(analysisTime),
+        analysis_mode: "retrospective",
+        horizon_hours: 12,
+        granularity_m: 100,
+        data_mode: "replay",
+      });
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Submit failed.");
+    }
   }
 
   return (
@@ -88,6 +111,24 @@ export function RunBand() {
       </div>
       <form className="judge-run-form" onSubmit={(event) => void onSubmit(event)}>
         <label>
+          Analysis time
+          <input
+            type="datetime-local"
+            name="analysis_time"
+            value={analysisTime}
+            onChange={(event) => {
+              const value = event.target.value;
+              try {
+                setAnalysisTime(phoenixAoiLocalDatetimeLocalValue(value));
+                setDate(phoenixAoiLocalDatetimeLocalValue(value).slice(0, 10));
+              } catch {
+                setAnalysisTime(value);
+              }
+            }}
+            required
+          />
+        </label>
+        <label>
           Date
           <input
             type="date"
@@ -98,7 +139,7 @@ export function RunBand() {
           />
         </label>
         <button type="submit" className="submit-btn" disabled={submitting}>
-          {submitting ? "Submitting" : RUN_SUBMIT}
+          {submitting ? "Submitting" : "Submit analysis"}
         </button>
         {canResubmit && (
           <button

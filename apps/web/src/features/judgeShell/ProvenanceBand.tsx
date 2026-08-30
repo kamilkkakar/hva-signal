@@ -1,36 +1,36 @@
-import { AnalysisDetail } from "@/features/command-center/AnalysisDetail";
+import type { AnalysisJobPayload } from "@/api/analysisJobs";
 import {
-  CHIP_CLOCK,
-  CHIP_WINDOW,
-  CHIP_WINDOW_ID,
-  PROVENANCE_L1_ARIA,
-  PROVENANCE_L2_SUMMARY,
-} from "./copy";
-import type { PublicSourceChip } from "./sourceChip";
+  CommandCenterProvenanceHeader,
+  PublicProvenanceExperience,
+  bindProvenanceFromJob,
+} from "@/features/provenance";
+import { Decision8AccordionView } from "./results";
 
 type ProvenanceBandProps = {
-  source: PublicSourceChip;
-  clockDate?: string | null;
+  snapshot: AnalysisJobPayload | null;
 };
 
-export function ProvenanceBand({ source, clockDate }: ProvenanceBandProps) {
-  const clock = clockDate ? `${clockDate} ${CHIP_CLOCK}` : `${CHIP_CLOCK} AOI-local`;
+export function ProvenanceBand({ snapshot }: ProvenanceBandProps) {
+  const bound = bindProvenanceFromJob({ job: snapshot });
 
   return (
-    <section className="judge-provenance" aria-label={PROVENANCE_L1_ARIA}>
-      <ul className="judge-chips" data-testid="provenance-l1">
-        <li>source {source}</li>
-        <li>clock {clock}</li>
-        <li>
-          window {CHIP_WINDOW_ID} · {CHIP_WINDOW}
-        </li>
-        <li>coverage analysis window</li>
-        <li>mode historical unusualness</li>
-      </ul>
-      <details className="judge-provenance-l2" data-testid="provenance-l2">
-        <summary>{PROVENANCE_L2_SUMMARY}</summary>
-        <AnalysisDetail />
-      </details>
+    <section className="judge-provenance" aria-label="Provenance">
+      <CommandCenterProvenanceHeader job={snapshot} />
+      <PublicProvenanceExperience
+        historical={bound.historical}
+        selectedTime={bound.selectedTime}
+        historicalRequested={bound.historicalRequested}
+        selectedTimeRequested={bound.selectedTimeRequested}
+        historicalCoverage={bound.historicalCoverage}
+        selectedTimeCoverage={bound.selectedTimeCoverage}
+        historicalAreaId={bound.historicalAreaId}
+        selectedTimeAreaId={bound.selectedTimeAreaId}
+        historicalLevel2Extras={bound.historicalLevel2Extras}
+        selectedTimeLevel2Extras={bound.selectedTimeLevel2Extras}
+      />
+      <aside role="complementary" aria-label="Decision panel">
+        <Decision8AccordionView snapshot={snapshot} />
+      </aside>
     </section>
   );
 }
