@@ -48,6 +48,7 @@ class DemoAllowanceDecisionCode(str, Enum):
 class AllowanceDurability(str, Enum):
     J0_PROCESS_LOCAL_NOT_DURABLE = "J0_PROCESS_LOCAL_NOT_DURABLE"
     J3_LOCAL_SQLITE_DURABLE = "J3_LOCAL_SQLITE_DURABLE"
+    J3_SQLITE_LOCAL_FILE_NOT_HOSTED_LIVE = "J3_SQLITE_LOCAL_FILE_NOT_HOSTED_LIVE"
 
 
 class ReservationState(str, Enum):
