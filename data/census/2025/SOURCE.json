@@ -1,0 +1,9 @@
+{
+  "artifact": "2025_Gaz_place_national.zip",
+  "identity_vintage": "US_CENSUS_GAZETTEER.PLACE.2025",
+  "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2025_Gazetteer/2025_Gaz_place_national.zip",
+  "content_length": 1214053,
+  "sha256": null,
+  "row_count_national": 32350,
+  "scope_default": "conus_plus_dc"
+}
