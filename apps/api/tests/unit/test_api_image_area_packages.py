@@ -32,6 +32,8 @@ REQUIRED_DATA_COPIES = (
     ("data/phoenix/reference", "/hackathon/data/phoenix/reference"),
     ("data/areas", "/hackathon/data/areas"),
     ("data/context/phoenix-demo", "/hackathon/data/context/phoenix-demo"),
+    ("data/context/cross-city", "/hackathon/data/context/cross-city"),
+    ("data/acquisitions/cross-city", "/hackathon/data/acquisitions/cross-city"),
     ("data/phoenix/snapshots", "/hackathon/data/phoenix/snapshots"),
 )
 
@@ -45,6 +47,8 @@ def test_dockerfile_copies_tracked_area_packages() -> None:
     assert "COPY data/demo/phoenix" in dockerfile
     assert "COPY data/phoenix/reference" in dockerfile
     assert "COPY data/areas" in dockerfile
+    assert "COPY data/context/cross-city" in dockerfile
+    assert "COPY data/acquisitions/cross-city" in dockerfile
     assert "workforce" not in dockerfile
 
 
@@ -158,9 +162,41 @@ def test_observed_instants_assemble_from_image_filesystem_layout(
     assert "workforce" not in str(seq.as_dict())
 
 
-def test_context_and_temporal_routes_read_image_filesystem_layout(
+def test_cross_city_metrics_read_image_filesystem_layout(
     tmp_path: Path, monkeypatch
 ) -> None:
+    image_root = _image_root_from_dockerfile(tmp_path)
+    _point_loaders_at_image(monkeypatch, image_root)
+    monkeypatch.setattr(
+        "app.api.routes.multicity._repo_root", lambda: image_root
+    )
+    monkeypatch.setattr(
+        "app.domain.multicity.cross_city_acs._repo_root", lambda: image_root
+    )
+    monkeypatch.setattr(
+        "app.domain.multicity.cross_city_canopy._repo_root", lambda: image_root
+    )
+    monkeypatch.setattr(
+        "app.domain.multicity.cross_city_thermal._repo_root", lambda: image_root
+    )
+    from app.domain.multicity.cross_city_acs import load_city_acs
+    from app.domain.multicity.cross_city_canopy import load_city_canopy
+    from app.domain.multicity.cross_city_thermal import load_city_thermal_zones
+
+    load_city_acs.cache_clear()
+    load_city_canopy.cache_clear()
+    load_city_thermal_zones.cache_clear()
+    from app.main import app
+
+    client = TestClient(app)
+    response = client.get("/api/v1/cross-city/metrics")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert len(body["rows"]) == 100
+    assert body["summary"]["included_count"] >= 99
+    assert all(row["temperature_c"] is not None for row in body["rows"])
+    assert all(row["tree_canopy_pct"] is not None for row in body["rows"])
+
     image_root = _image_root_from_dockerfile(tmp_path)
     _point_loaders_at_image(monkeypatch, image_root)
     from app.main import app
