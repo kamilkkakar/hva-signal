@@ -137,3 +137,41 @@ def test_preflight_gate_approved_matched_instant(acq):
         gate["preflight"]["request_fingerprint"]
         == "88b650171311db6759d10430adf5c966a44542e6db4e396d7a007d7b5ba1c57c"
     )
+
+
+def test_peek_vendor_cache_hit_no_http(acq, tmp_path):
+    """Operator acquire helper: seeded vendor cache must short-circuit before submit."""
+    from app.integrations.fortyguard.cache import FortyGuardCache
+    from app.integrations.fortyguard.transport_models import (
+        DataMode,
+        HeatmapFetchRequest,
+        HeatmapTemporalMode,
+    )
+
+    from app.domain.multicity.city_catalog import resolve_city_aoi
+
+    cfg = resolve_city_aoi("Los Angeles")
+    request = HeatmapFetchRequest(
+        polygon_aoi=cfg.polygon_aoi,
+        start_date="2024-07-08",
+        start_time="03:00",
+        temporal_mode=HeatmapTemporalMode.SINGLE_HOUR,
+        granularity=100,
+        analytic_type="tcm",
+        data_mode=DataMode.LIVE,
+    )
+    fingerprint = acq.vendor_cache_fingerprint_for_request(request)
+    cache = FortyGuardCache(tmp_path / "vendor_cache")
+    cache.put(
+        fingerprint,
+        {
+            "activity_id": "seeded-activity-no-new-submit",
+            "result": {"map_data": {"type": "FeatureCollection", "features": []}},
+        },
+    )
+    peeked = acq.peek_vendor_cache(tmp_path / "vendor_cache", request)
+    assert peeked is not None
+    fp, body = peeked
+    assert fp == fingerprint
+    assert body["activity_id"] == "seeded-activity-no-new-submit"
+    assert acq.peek_vendor_cache(tmp_path / "empty", request) is None

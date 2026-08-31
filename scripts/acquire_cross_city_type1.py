@@ -36,11 +36,14 @@ from app.domain.multicity.validation_package import (  # noqa: E402
     build_cross_city_validation_package,
 )
 from app.integrations.fortyguard.adapter import FortyGuardAdapter  # noqa: E402
-from app.integrations.fortyguard.cache import redact_secrets  # noqa: E402
+from app.integrations.fortyguard.cache import FortyGuardCache, redact_secrets  # noqa: E402
+from app.integrations.fortyguard.fingerprints import heatmap_fingerprint  # noqa: E402
+from app.integrations.fortyguard.partitioning import plan_partitions  # noqa: E402
 from app.integrations.fortyguard.transport_models import (  # noqa: E402
     DataMode,
     HeatmapFetchRequest,
     HeatmapTemporalMode as FgTemporalMode,
+    ThermalDataSource,
 )
 from app.services.orchestrator import assembly_tiles_to_geojson  # noqa: E402
 from app.services.zone_aggregator import aggregate_tiles_to_zones  # noqa: E402
@@ -131,6 +134,28 @@ DEBIT_NORMAL_MIN = 3800
 DEBIT_NORMAL_MAX = 4700
 DEBIT_REVIEW_MAX = 5000  # 4701–5000 = review but may continue if explained
 DEBIT_HARD_STOP = 5000  # >5000 hard stop
+
+
+def vendor_cache_fingerprint_for_request(request: HeatmapFetchRequest) -> str:
+    """Adapter partition fingerprint used by FortyGuardCache / DataMode.LIVE."""
+    plans = plan_partitions(request.polygon_aoi)
+    if not plans:
+        raise SystemExit("STOP: AOI produced zero partitions")
+    return heatmap_fingerprint(request, aoi=plans[0].geometry)
+
+
+def peek_vendor_cache(
+    cache_dir: Path | str, request: HeatmapFetchRequest
+) -> tuple[str, dict[str, Any]] | None:
+    """Return (fingerprint, bundled_payload) on hit; None on miss. No HTTP."""
+    fingerprint = vendor_cache_fingerprint_for_request(request)
+    hit = FortyGuardCache(cache_dir).get(fingerprint)
+    if hit is None:
+        return None
+    body, _tier = hit
+    if not isinstance(body, dict):
+        return fingerprint, {"result": body}
+    return fingerprint, body
 
 
 def _load_key_alias() -> tuple[str, str, str]:
@@ -449,6 +474,50 @@ def acquire_city(
         )
         return report
 
+    request = HeatmapFetchRequest(
+        polygon_aoi=gate["cfg"].polygon_aoi,
+        start_date=local.strftime("%Y-%m-%d"),
+        start_time=local.strftime("%H:%M"),
+        temporal_mode=FgTemporalMode.SINGLE_HOUR,
+        granularity=100,
+        analytic_type="tcm",
+        data_mode=DataMode.LIVE,
+    )
+    # Hard cache-first: identical fingerprint never reaches usage or heatmap submit.
+    cached = peek_vendor_cache(cache_dir, request)
+    if cached is not None:
+        adapter_fp, raw_payload = cached
+        activity_id = raw_payload.get("activity_id")
+        report.update(
+            {
+                "status": "cache_hit",
+                "vendor_attempted": False,
+                "debit": 0,
+                "debit_source": "cache_reuse_no_new_debit",
+                "activity_id": activity_id,
+                "adapter_fingerprint": adapter_fp,
+                "acquisition_timestamp": datetime.now(timezone.utc).isoformat(),
+                "provider_status": "cache_hit",
+                "http_status": None,
+            }
+        )
+        (out_root / "provenance.json").write_text(
+            json.dumps(redact_secrets(report), indent=2, default=str), encoding="utf-8"
+        )
+        print(
+            json.dumps(
+                {
+                    "status": "cache_hit",
+                    "city": city_name,
+                    "vendor_attempted": False,
+                    "debit": 0,
+                    "activity_id": activity_id,
+                    "adapter_fingerprint": adapter_fp,
+                }
+            )
+        )
+        return report
+
     usage_before = _usage_remaining(api_key, base_url)
     report["usage_before"] = {
         "http_status": usage_before["http_status"],
@@ -465,15 +534,6 @@ def acquire_city(
         cache_dir=cache_dir,
         poll_interval=3.0,
         poll_timeout=900.0,
-    )
-    request = HeatmapFetchRequest(
-        polygon_aoi=gate["cfg"].polygon_aoi,
-        start_date=local.strftime("%Y-%m-%d"),
-        start_time=local.strftime("%H:%M"),
-        temporal_mode=FgTemporalMode.SINGLE_HOUR,
-        granularity=100,
-        analytic_type="tcm",
-        data_mode=DataMode.LIVE,
     )
     acquired_at = datetime.now(timezone.utc).isoformat()
     print(
@@ -499,6 +559,48 @@ def acquire_city(
             json.dumps(redact_secrets(report), indent=2), encoding="utf-8"
         )
         print(json.dumps({"status": "failed", "error": type(exc).__name__}))
+        return report
+
+    source_value = (
+        assembly.source.value
+        if hasattr(assembly.source, "value")
+        else str(assembly.source)
+    )
+    # Defense: adapter LIVE is cache-first; treat any cached assembly as zero debit.
+    if source_value == ThermalDataSource.FORTYGUARD_CACHED.value:
+        cache_hit = adapter.cache.get(assembly.fingerprint)
+        raw_cached = cache_hit[0] if cache_hit else {}
+        activity_cached = (
+            raw_cached.get("activity_id") if isinstance(raw_cached, dict) else None
+        )
+        report.update(
+            {
+                "status": "cache_hit",
+                "vendor_attempted": False,
+                "debit": 0,
+                "debit_source": "adapter_cache_reuse_no_new_debit",
+                "activity_id": activity_cached,
+                "adapter_fingerprint": assembly.fingerprint,
+                "acquisition_timestamp": acquired_at,
+                "provider_status": "cache_hit",
+                "http_status": http_status,
+                "source": source_value,
+            }
+        )
+        (out_root / "provenance.json").write_text(
+            json.dumps(redact_secrets(report), indent=2, default=str), encoding="utf-8"
+        )
+        print(
+            json.dumps(
+                {
+                    "status": "cache_hit",
+                    "city": city_name,
+                    "vendor_attempted": False,
+                    "debit": 0,
+                    "activity_id": activity_cached,
+                }
+            )
+        )
         return report
 
     cache_hit = adapter.cache.get(assembly.fingerprint)

@@ -1,32 +1,61 @@
 {
-  "status": "WAVE_COMPLETE",
-  "authorized_calls_program": 4,
-  "actual_calls_program": 4,
-  "authorized_new_calls_this_wave": 3,
-  "actual_new_calls_this_wave": 3,
-  "completed_cities": ["los_angeles", "las_vegas", "phoenix", "tucson"],
-  "la": {
-    "activity_id": "d3433426-e627-4d12-b535-f49268b7fc5c",
-    "debit": 4220,
-    "reacquired": false
+  "status": "STOPPED_DUPLICATE_SPEND",
+  "stopped_at": "2026-08-31T18:23:00Z",
+  "reason": "Identical LA 2024-07-08T03:00:00 cache-proof attempt used DataMode.LIVE which bypasses disk cache and submitted a second Type-1",
+  "prior_wave": {
+    "observation_contract": "CROSS_CITY_OBSERVATION_V1",
+    "clock": "2024-07-08T15:00:00",
+    "cities": 4,
+    "debit_each": 4220
   },
-  "las_vegas": {
-    "activity_id": "5d9b16ed-1257-42fb-8d07-7dbb1c80a3a8",
-    "debit": 4220
+  "this_wave": {
+    "authorized_new_type1_max": 12,
+    "actual_new_type1": 2,
+    "intentional_success": [
+      {
+        "city_id": "los_angeles",
+        "local_datetime": "2024-07-08T03:00:00",
+        "timezone": "America/Los_Angeles",
+        "provider_utc": "2024-07-08T10:00:00Z",
+        "request_fingerprint": "30243c803c8b6ecec0074dc93f8551e35e9b19ddd7d70f20816a384e9d62ecbf",
+        "cache_fingerprint": "69fd1a4c413441e0d9b2bd404835a8aba89bd8a2c70aeb35135f4f5510a5c3ff",
+        "activity_id": "0ab0d92f-0c13-4b5e-993d-b393278ff411",
+        "debit": 4220,
+        "tiles": 1727,
+        "usable_zones": 25,
+        "artifact": "data/acquisitions/cross-city/los_angeles/matched/20240708T030000/"
+      }
+    ],
+    "duplicate_spend": [
+      {
+        "city_id": "los_angeles",
+        "local_datetime": "2024-07-08T03:00:00",
+        "activity_id_submitted": "eea72b19-1efd-4814-bcbd-e5db8e52a0b7",
+        "debit": 4220,
+        "cause": "operator cache-proof used FortyGuardAdapter DataMode.LIVE (always submits; ignores vendor_cache)",
+        "note": "acquire_cross_city_type1.py correctly refused second paid run via provenance gate"
+      }
+    ],
+    "total_debit": 8440,
+    "forecast_calls": 0
   },
-  "phoenix": {
-    "activity_id": "28ae2aad-b0f9-4bb2-a93f-23200d353aa0",
-    "debit": 4220,
-    "local_reuse_avoided": true
-  },
-  "tucson": {
-    "activity_id": "d6336b48-fc75-4571-b86c-2dcc56e3d84f",
-    "debit": 4220
-  },
-  "debit_model": "TYPE1_SINGLE_PARTITION_EMPIRICAL_DEBIT_V1",
-  "flat_4220_hypothesis": "SUPPORTED",
   "additional_fortyguard_calls_authorized": false,
+  "remaining_matrix_rows": 11,
+  "acquisition_path_used": "scripts/acquire_cross_city_type1.py (operator; local key file)",
+  "production_bounded_route": {
+    "BOUNDED_SELECTED_TIME_LIVE_ENABLED_observed": "ON (no 503)",
+    "Phase1_construct_deployed": false,
+    "can_pay_on_production": false,
+    "vendor_attempted_on_probes": false,
+    "required_human_action": "Set BOUNDED_SELECTED_TIME_LIVE_ENABLED=false immediately"
+  },
   "hosted_live": false,
   "public_real_vendor": false,
-  "public_allowance": 0
+  "HOSTED_LIVE_REAL_VENDOR_ENABLED": false,
+  "may_construct_real_vendor": false,
+  "merge_blocked": true,
+  "forecast_status": "BLOCKED",
+  "time_lens": "NOT_ENABLED",
+  "package_CROSS_CITY_MATCHED_INSTANTS_V1": "NOT_BUILT",
+  "decision": "STOP_ACQUISITION — KEEP product shell / no UI rollback required"
 }

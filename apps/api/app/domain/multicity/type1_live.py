@@ -40,6 +40,7 @@ from app.integrations.fortyguard.transport_models import (
     DataMode,
     HeatmapFetchRequest,
     HeatmapTemporalMode,
+    ThermalDataSource,
 )
 
 TYPE1_LIVE_CONTRACT_VERSION: Final = "MULTICITY_TYPE1_LIVE_V1"
@@ -504,6 +505,12 @@ def _bounded_selected_time_acquire(
             pass
 
     assert assembly is not None
+    source_value = (
+        assembly.source.value
+        if hasattr(assembly.source, "value")
+        else str(assembly.source)
+    )
+    from_vendor_cache = source_value == ThermalDataSource.FORTYGUARD_CACHED.value
     vendor_cache_hit = adapter.cache.get(assembly.fingerprint)
     raw_payload = vendor_cache_hit[0] if vendor_cache_hit else {}
     if not isinstance(raw_payload, dict):
@@ -519,6 +526,14 @@ def _bounded_selected_time_acquire(
         "contract": "BOUNDED_SELECTED_TIME_LIVE_V1",
     }
     seeded = seed_type1_live_cache(parsed, payload=record_payload, cache=cache)
+    if from_vendor_cache:
+        return {
+            "status": "cache_hit",
+            "vendor_attempted": False,
+            "cache_tier": "vendor_disk",
+            "preflight": preflight,
+            "result": _sanitize_public_payload(seeded),
+        }
     return {
         "status": "live_acquired",
         "vendor_attempted": True,

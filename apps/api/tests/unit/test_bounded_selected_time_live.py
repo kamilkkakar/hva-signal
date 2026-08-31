@@ -282,6 +282,84 @@ def test_run_type1_live_bounded_auth_acquires_with_mock_transport(
     assert calls["post"] == 1
 
 
+def test_run_type1_live_vendor_disk_cache_hit_zero_http(
+    tmp_path,
+) -> None:
+    """Bounded path: seeded adapter vendor cache → no HTTP on identical LIVE."""
+    calls = {"post": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.method == "POST" and request.url.path == "/v1/heatmap":
+            calls["post"] += 1
+            return httpx.Response(200, json={"data": {"activity_id": "should-not-fire"}})
+        return httpx.Response(500, text="unexpected")
+
+    settings = Settings.model_construct(
+        bounded_selected_time_live_enabled=True,
+        fortyguard_api_key=SECRET_VALUE,
+        fortyguard_base_url="https://api.fortyguard.com",
+        cache_dir=str(tmp_path / "cache"),
+    )
+    type1_cache = FortyGuardCache(tmp_path / "type1")
+    vendor_cache = FortyGuardCache(tmp_path / "cache" / "bounded_selected_time_vendor")
+
+    # First acquire with mock transport to populate vendor disk cache.
+    first = run_type1_live(
+        Type1LiveClientRequest(
+            city="Phoenix",
+            target_local=datetime(2024, 7, 8, 3, 0, 0),
+        ),
+        cache=FortyGuardCache(tmp_path / "type1-first"),
+        settings=settings,
+        bounded_selected_time_authorized=True,
+        vendor_transport=httpx.MockTransport(
+            lambda request: (
+                httpx.Response(200, json={"data": {"activity_id": "act-seed"}})
+                if request.method == "POST" and request.url.path == "/v1/heatmap"
+                else httpx.Response(
+                    200,
+                    json={
+                        "data": {
+                            "status": "succeeded",
+                            "result": {
+                                "map_data": {
+                                    "type": "FeatureCollection",
+                                    "features": [],
+                                },
+                                "stats_data": {},
+                            },
+                        }
+                    },
+                )
+                if "/v1/status/act-seed" in str(request.url.path)
+                else httpx.Response(500, text="unexpected")
+            )
+        ),
+        poll_interval=0.0,
+        poll_timeout=5.0,
+    )
+    assert first["status"] == "live_acquired"
+    assert first["vendor_attempted"] is True
+
+    # Drop type1_live cache so the miss path must consult vendor disk cache.
+    assert any(vendor_cache.disk_dir.rglob("*"))
+    second = run_type1_live(
+        Type1LiveClientRequest(
+            city="Phoenix",
+            target_local=datetime(2024, 7, 8, 3, 0, 0),
+        ),
+        cache=type1_cache,
+        settings=settings,
+        bounded_selected_time_authorized=True,
+        vendor_transport=httpx.MockTransport(handler),
+        poll_interval=0.0,
+        poll_timeout=5.0,
+    )
+    assert second["status"] == "cache_hit"
+    assert second["vendor_attempted"] is False
+    assert calls["post"] == 0
+
+
 def test_secret_never_serialized_on_live_route(
     monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:

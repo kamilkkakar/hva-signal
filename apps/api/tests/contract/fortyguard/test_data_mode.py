@@ -142,3 +142,68 @@ def test_live_mode_does_not_silently_use_replay(
         adapter.fetch_heatmap(
             request_from_fixture(hourly_tcm_fixture, data_mode=DataMode.LIVE)
         )
+
+
+def test_live_mode_cache_hit_zero_http_no_new_activity(
+    hourly_tcm_fixture: dict, fixture_dir: Path, tmp_path: Path
+) -> None:
+    """Regression: DataMode.LIVE must be cache-first (duplicate-spend fix)."""
+    calls = {"post": 0, "status": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.method == "POST" and request.url.path == "/v1/heatmap":
+            calls["post"] += 1
+            return httpx.Response(200, json={"data": {"activity_id": "live-seed-1"}})
+        if request.url.path == "/v1/status/live-seed-1":
+            calls["status"] += 1
+            return httpx.Response(
+                200,
+                json={
+                    "data": {
+                        "status": "succeeded",
+                        "result": hourly_tcm_fixture["result"],
+                    }
+                },
+            )
+        return httpx.Response(500, text="unexpected")
+
+    cache = FortyGuardCache(tmp_path / "fg-cache")
+    adapter = FortyGuardAdapter(
+        api_key="test-key-not-real",
+        fixture_dir=fixture_dir,
+        cache=cache,
+        transport=httpx.MockTransport(handler),
+        poll_interval=0.0,
+        sleep=lambda _dt: None,
+    )
+    first = adapter.fetch_heatmap(
+        request_from_fixture(hourly_tcm_fixture, data_mode=DataMode.LIVE)
+    )
+    assert first.source == ThermalDataSource.FORTYGUARD_LIVE
+    assert calls["post"] == 1
+    assert calls["status"] == 1
+
+    # Identical LIVE request with seeded cache: zero new HTTP / no new activity.
+    second = adapter.fetch_heatmap(
+        request_from_fixture(hourly_tcm_fixture, data_mode=DataMode.LIVE)
+    )
+    assert second.source == ThermalDataSource.FORTYGUARD_CACHED
+    assert second.data_status == DataStatus.CACHED
+    assert calls["post"] == 1
+    assert calls["status"] == 1
+
+    # Fresh adapter instance sharing the same cache still must not submit.
+    other = FortyGuardAdapter(
+        api_key="test-key-not-real",
+        fixture_dir=fixture_dir,
+        cache=cache,
+        transport=httpx.MockTransport(handler),
+        poll_interval=0.0,
+        sleep=lambda _dt: None,
+    )
+    third = other.fetch_heatmap(
+        request_from_fixture(hourly_tcm_fixture, data_mode=DataMode.LIVE)
+    )
+    assert third.source == ThermalDataSource.FORTYGUARD_CACHED
+    assert calls["post"] == 1
+    assert calls["status"] == 1

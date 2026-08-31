@@ -103,6 +103,15 @@ class FortyGuardAdapter:
     ) -> tuple[dict[str, Any], ThermalDataSource]:
         mode_value = mode.value if hasattr(mode, "value") else str(mode)
 
+        # Cache-first for LIVE and AUTO. Identical fingerprint must never
+        # re-submit Type-1 / heatmap; DataMode.LIVE previously bypassed cache
+        # and always called _fetch_live (duplicate-spend failure mode).
+        if mode_value in (DataMode.LIVE.value, DataMode.AUTO.value):
+            cached = self.cache.get(fingerprint)
+            if cached is not None:
+                body, _layer = cached
+                return body, ThermalDataSource.FORTYGUARD_CACHED
+
         if mode_value == DataMode.LIVE.value:
             bundled = self._fetch_live(payload)
             self.cache.put(
@@ -116,11 +125,7 @@ class FortyGuardAdapter:
             doc = self.replay.require(fingerprint)
             return self._from_replay_doc(doc), ThermalDataSource.REPLAY
 
-        cached = self.cache.get(fingerprint)
-        if cached is not None:
-            body, _layer = cached
-            return body, ThermalDataSource.FORTYGUARD_CACHED
-
+        # AUTO: miss path (cache already checked above)
         if self._has_key():
             try:
                 bundled = self._fetch_live(payload)
