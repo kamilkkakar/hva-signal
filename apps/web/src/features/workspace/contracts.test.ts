@@ -84,7 +84,9 @@ describe("workspace contracts", () => {
     expect(rail).toContain("hva-story-rail");
     expect(rail).toContain("hva-stage-heat");
     expect(outlook).toContain("hva-outlook-panel");
-    expect(outlook).toContain("forecast contract");
+    expect(outlook).toContain("What to watch next");
+    expect(outlook).toContain("Forecast remains blocked");
+    expect(outlook).toContain("Forecast contract");
   });
 
   it("action engine caps at 3 evidence-linked actions", () => {
