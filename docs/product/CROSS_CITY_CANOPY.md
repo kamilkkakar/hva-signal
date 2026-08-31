@@ -1,6 +1,12 @@
 # CROSS_CITY_CANOPY
 
-## Source Selected
+## Status
+
+- CONTRACT STATUS: `MATERIALIZED` under `CROSS_CITY_CANOPY_CONTRACT_V1`
+- Artifact root: `data/context/cross-city/canopy/`
+- Coverage: 25/25 tracts for Phoenix, Las Vegas, Tucson, Los Angeles
+- Phoenix OHR `TREE_PCT_N` is not used
+
 
 - SOURCE SELECTED: `NLCD / USDA Forest Service Percent Tree Canopy Cover (Tree Canopy Cover, CONUS)`
 - Why selected: it is nationally consistent across the conterminous U.S., covers Arizona, Nevada, and California, and is easier to defend across Phoenix, Las Vegas, Tucson, and Los Angeles than community-specific canopy products.

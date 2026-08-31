@@ -90,28 +90,21 @@ def test_cross_city_metrics_returns_real_phoenix_rows_and_disclosed_gaps() -> No
     response = client.get("/api/v1/cross-city/metrics")
     assert response.status_code == 200
     body = response.json()
-    assert body["summary"] == {
-        "included_count": 25,
-        "omitted_axis_count": 3,
-        "missing_fill_count": 25,
-    }
+    assert body["summary"]["included_count"] == 0
+    assert len(body["rows"]) == 100
     phoenix_rows = [row for row in body["rows"] if row["city_id"] == "phoenix"]
     assert len(phoenix_rows) == 25
-    seed = next(row for row in phoenix_rows if row["zone_id"] == "04013107401")
-    assert seed["label"] == "Census Tract 1074.01"
-    assert seed["temperature_c"] == 42.32812109375
+    seed = phoenix_rows[0]
+    assert seed["temperature_c"] is None
     assert seed["median_household_income"] is not None
     assert seed["population"] is not None
-    assert seed["tree_canopy_pct"] is None
-    assert seed["comparison_clock"] == {
-        "local_date": "2024-07-08",
-        "local_time": "15:00",
-        "policy": "same_local_date_time",
-    }
-    assert "not reused" in seed["missing_reasons"]["tree_canopy_pct"]
-    missing_city = next(row for row in body["rows"] if row["city_id"] == "las_vegas")
-    assert missing_city["zone_id"] is None
-    assert "not packaged" in missing_city["missing_reasons"]["temperature_c"]
+    assert seed["tree_canopy_pct"] is not None
+    assert seed["comparison_clock"]["policy"] == "CROSS_CITY_OBSERVATION_V1"
+    assert "not published" in seed["missing_reasons"]["temperature_c"].lower()
+    vegas_rows = [row for row in body["rows"] if row["city_id"] == "las_vegas"]
+    assert len(vegas_rows) == 25
+    assert vegas_rows[0]["zone_id"] is not None
+    assert vegas_rows[0]["population"] is not None
 
 
 def test_cross_city_query_validates_axes() -> None:
@@ -119,13 +112,14 @@ def test_cross_city_query_validates_axes() -> None:
     ok = client.get(
         "/api/v1/cross-city/query",
         params={
-            "x": "temperature_c",
-            "y": "median_household_income",
+            "x": "median_household_income",
+            "y": "population",
             "size": "population",
-            "fill": "temperature_c",
+            "fill": "tree_canopy_pct",
         },
     )
     assert ok.status_code == 200
+    assert ok.json()["summary"]["included_count"] >= 99
     assert ok.json()["summary"]["missing_fill_count"] == 0
 
     bad = client.get(

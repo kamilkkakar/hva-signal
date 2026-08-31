@@ -4,33 +4,37 @@ from __future__ import annotations
 
 import json
 from enum import StrEnum
+from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.core.area_registry import PHOENIX_DEMO_AREA_ID, resolve_area_geography
 from app.domain.multicity.capabilities import negotiate_capabilities
 from app.domain.multicity.catalog import get_city, list_cities
 from app.domain.multicity.city_config import CityConfig, CityId
-from app.domain.observed_thermal_instants.assemble import load_tracked_snapshots
-from app.services.vulnerability_preparedness.cache import (
-    ContextCacheError,
-    load_context_bundle_cached,
+from app.domain.multicity.cross_city_acs import acs_metric
+from app.domain.multicity.cross_city_canopy import canopy_pct_for
+from app.domain.multicity.observation_clock import (
+    CROSS_CITY_OBSERVATION_V1,
+    resolve_city_observation_clock,
 )
 
 router = APIRouter()
 
 _COMPARISON_DATE = "2024-07-08"
 _COMPARISON_TIME = "15:00"
-_COMPARISON_POLICY = "same_local_date_time"
-_CROSS_CITY_CANOPY_MISSING = (
-    "Cross-city canopy is not packaged yet; Phoenix local canopy is intentionally "
-    "not reused for cross-city comparison."
+_COMPARISON_POLICY = CROSS_CITY_OBSERVATION_V1
+_MISSING_THERMAL = (
+    "Selected-time temperature is not published for this cross-city geography yet; "
+    "synthetic temperatures are refused."
 )
-_UNPACKAGED_CITY_REASON = (
-    "Comparable multi-city analysis tracts are not packaged for this city yet."
-)
+_CITY_ID_TO_DIR = {
+    CityId.PHOENIX: "phoenix",
+    CityId.LAS_VEGAS: "las_vegas",
+    CityId.TUCSON: "tucson",
+    CityId.LOS_ANGELES: "los_angeles",
+}
 
 
 class CapabilityView(BaseModel):
@@ -46,6 +50,9 @@ class ComparisonClock(BaseModel):
     local_date: str
     local_time: str
     policy: str
+    timezone: str | None = None
+    utc_timestamp: str | None = None
+    dst_active: bool | None = None
 
 
 class MetricAxis(StrEnum):
@@ -53,6 +60,7 @@ class MetricAxis(StrEnum):
     MEDIAN_HOUSEHOLD_INCOME = "median_household_income"
     POPULATION = "population"
     TREE_CANOPY_PCT = "tree_canopy_pct"
+    OLDER_HOUSING = "homes_built_before_1980"
 
 
 class CrossCityMetricRow(BaseModel):
@@ -66,6 +74,7 @@ class CrossCityMetricRow(BaseModel):
     median_household_income: float | None = None
     population: int | None = None
     tree_canopy_pct: float | None = None
+    homes_built_before_1980: float | None = None
     coverage_flags: dict[str, bool]
     missing_reasons: dict[str, str]
     comparison_clock: ComparisonClock
@@ -96,6 +105,11 @@ class CrossCityMetricsResponse(BaseModel):
     summary: CrossCitySummary
 
 
+def _repo_root() -> Path:
+    # apps/api/app/api/routes/multicity.py → repo root
+    return Path(__file__).resolve().parents[5]
+
+
 def _city_or_404(city_id: str) -> CityConfig:
     try:
         return get_city(city_id)
@@ -103,136 +117,67 @@ def _city_or_404(city_id: str) -> CityConfig:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-def _comparison_clock() -> ComparisonClock:
+def _comparison_clock(city_id: CityId) -> ComparisonClock:
+    clock = resolve_city_observation_clock(_CITY_ID_TO_DIR[city_id])
     return ComparisonClock(
         local_date=_COMPARISON_DATE,
         local_time=_COMPARISON_TIME,
         policy=_COMPARISON_POLICY,
+        timezone=clock.timezone,
+        utc_timestamp=clock.utc_timestamp,
+        dst_active=clock.dst_active,
     )
 
 
-def _phoenix_temperature_by_zone() -> dict[str, float | None]:
-    snapshot = load_tracked_snapshots()["15:00"]
-    return {
-        str(row["zone_id"]).zfill(11): (
-            float(row["mean_temperature_c"])
-            if row.get("mean_temperature_c") is not None
-            else None
-        )
-        for row in snapshot["zones"]
-    }
-
-
-def _acs_geo_id(geoid: str) -> str:
-    return f"1400000US{geoid}"
-
-
-def _bundle_acs_value(
-    bundle: dict[str, Any] | None,
-    *,
-    table: str,
-    geoid: str,
-    field: str,
-) -> float | None:
-    if bundle is None:
-        return None
-    rows = (((bundle.get("acs") or {}).get(table) or {}).get("rows") or {})
-    row = rows.get(_acs_geo_id(geoid))
-    if not isinstance(row, dict):
-        return None
-    value = row.get(field)
-    if value is None:
-        return None
-    return float(value)
-
-
-def _phoenix_rows() -> list[CrossCityMetricRow]:
-    geography = resolve_area_geography(PHOENIX_DEMO_AREA_ID)
-    geometry = json.loads(geography.geometry_body.decode("utf-8"))
-    try:
-        bundle = load_context_bundle_cached()
-    except ContextCacheError:
-        bundle = None
-    temperatures = _phoenix_temperature_by_zone()
+def _city_rows(city: CityConfig) -> list[CrossCityMetricRow]:
+    city_dir = _CITY_ID_TO_DIR[city.city_id]
+    geometry_path = (
+        _repo_root() / "data" / "areas" / "cross-city" / city_dir / "geometry.geojson"
+    )
+    if not geometry_path.is_file():
+        return []
+    geometry = json.loads(geometry_path.read_text(encoding="utf-8"))
     rows: list[CrossCityMetricRow] = []
     for feature in geometry["features"]:
         props = feature["properties"]
         geoid = str(props["GEOID"]).zfill(11)
-        income = _bundle_acs_value(bundle, table="B19013", geoid=geoid, field="B19013_E001")
-        population_value = _bundle_acs_value(
-            bundle,
-            table="B01001",
-            geoid=geoid,
-            field="B01001_E001",
-        )
+        income = acs_metric(city_dir, geoid, "median_household_income")
+        population_value = acs_metric(city_dir, geoid, "population")
+        older = acs_metric(city_dir, geoid, "homes_built_before_1980")
+        canopy = canopy_pct_for(city_dir, geoid)
         missing_reasons: dict[str, str] = {
-            "tree_canopy_pct": _CROSS_CITY_CANOPY_MISSING,
+            "temperature_c": _MISSING_THERMAL,
         }
-        if geoid not in temperatures or temperatures[geoid] is None:
-            missing_reasons["temperature_c"] = (
-                "Phoenix 2024-07-08 15:00 tracked snapshot did not contain this tract."
-            )
         if income is None:
-            missing_reasons["median_household_income"] = (
-                "Phoenix ACS context is missing or this tract has no income row in the "
-                "cached context bundle."
-            )
+            missing_reasons["median_household_income"] = "ACS income estimate missing."
         if population_value is None:
-            missing_reasons["population"] = (
-                "Phoenix ACS context is missing or this tract has no population row in the "
-                "cached context bundle."
-            )
-        rows.append(
-            CrossCityMetricRow(
-                city_id=CityId.PHOENIX,
-                zone_id=geoid,
-                geoid=geoid,
-                label=str(props.get("NAMELSAD") or props.get("NAME") or geoid),
-                temperature_c=temperatures.get(geoid),
-                median_household_income=income,
-                population=(
-                    int(round(population_value))
-                    if population_value is not None
-                    else None
-                ),
-                tree_canopy_pct=None,
-                coverage_flags={
-                    "temperature_c": temperatures.get(geoid) is not None,
-                    "median_household_income": income is not None,
-                    "population": population_value is not None,
-                    "tree_canopy_pct": False,
-                },
-                missing_reasons=missing_reasons,
-                comparison_clock=_comparison_clock(),
-            )
-        )
-    return rows
-
-
-def _placeholder_rows() -> list[CrossCityMetricRow]:
-    rows: list[CrossCityMetricRow] = []
-    for city in list_cities():
-        if city.city_id == CityId.PHOENIX:
-            continue
+            missing_reasons["population"] = "ACS population estimate missing."
+        if canopy is None:
+            missing_reasons["tree_canopy_pct"] = "National canopy value missing."
+        if older is None:
+            missing_reasons["homes_built_before_1980"] = "ACS older-housing estimate missing."
         rows.append(
             CrossCityMetricRow(
                 city_id=city.city_id,
-                zone_id=None,
-                geoid=None,
-                label=city.display_name,
+                zone_id=geoid,
+                geoid=geoid,
+                label=str(props.get("NAMELSAD") or props.get("NAME") or geoid),
+                temperature_c=None,
+                median_household_income=income,
+                population=(
+                    int(round(population_value)) if population_value is not None else None
+                ),
+                tree_canopy_pct=canopy,
+                homes_built_before_1980=older,
                 coverage_flags={
                     "temperature_c": False,
-                    "median_household_income": False,
-                    "population": False,
-                    "tree_canopy_pct": False,
+                    "median_household_income": income is not None,
+                    "population": population_value is not None,
+                    "tree_canopy_pct": canopy is not None,
+                    "homes_built_before_1980": older is not None,
                 },
-                missing_reasons={
-                    "temperature_c": _UNPACKAGED_CITY_REASON,
-                    "median_household_income": _UNPACKAGED_CITY_REASON,
-                    "population": _UNPACKAGED_CITY_REASON,
-                    "tree_canopy_pct": _UNPACKAGED_CITY_REASON,
-                },
-                comparison_clock=_comparison_clock(),
+                missing_reasons=missing_reasons,
+                comparison_clock=_comparison_clock(city.city_id),
             )
         )
     return rows
@@ -243,7 +188,9 @@ def _axis_value(row: CrossCityMetricRow, axis: MetricAxis) -> float | int | None
 
 
 def _build_metrics_response(*, axes: CrossCityAxes) -> CrossCityMetricsResponse:
-    rows = _phoenix_rows() + _placeholder_rows()
+    rows: list[CrossCityMetricRow] = []
+    for city in list_cities():
+        rows.extend(_city_rows(city))
     included_count = sum(
         1
         for row in rows
@@ -296,8 +243,8 @@ def get_city_capabilities(city_id: str) -> CapabilityView:
 def get_cross_city_metrics() -> CrossCityMetricsResponse:
     return _build_metrics_response(
         axes=CrossCityAxes(
-            x=MetricAxis.MEDIAN_HOUSEHOLD_INCOME,
-            y=MetricAxis.TEMPERATURE_C,
+            x=MetricAxis.TEMPERATURE_C,
+            y=MetricAxis.MEDIAN_HOUSEHOLD_INCOME,
             size=MetricAxis.POPULATION,
             fill=MetricAxis.TREE_CANOPY_PCT,
         )
@@ -312,4 +259,3 @@ def query_cross_city_metrics(
     fill: MetricAxis = Query(...),
 ) -> CrossCityMetricsResponse:
     return _build_metrics_response(axes=CrossCityAxes(x=x, y=y, size=size, fill=fill))
-

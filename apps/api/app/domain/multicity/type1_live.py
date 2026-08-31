@@ -27,7 +27,10 @@ from app.integrations.fortyguard.fingerprints import fingerprint_request
 from app.integrations.fortyguard.partitioning import plan_partitions, polygon_area_km2
 
 TYPE1_LIVE_CONTRACT_VERSION: Final = "MULTICITY_TYPE1_LIVE_V1"
-TYPE1_LIVE_CREDIT_ESTIMATE_VERSION: Final = "ESTIMATE_NOT_VENDOR_QUOTE_V1"
+TYPE1_LIVE_COST_MODEL_VERSION: Final = "LOCAL_COMPLEXITY_HEURISTIC_V2"
+# Legacy alias retained only so imports fail closed on the new name in tests.
+TYPE1_LIVE_CREDIT_ESTIMATE_VERSION: Final = TYPE1_LIVE_COST_MODEL_VERSION
+TYPE1_LOCAL_COMPLEXITY_LABEL: Final = "LOCAL_COMPLEXITY_UNITS_NOT_VENDOR_CREDITS"
 TYPE1_ENDPOINT: Final = "/v1/heatmap"
 TYPE1_TEMPORAL_MODE: Final = "single_hour"
 TYPE1_FILTER_TYPE: Final = 1
@@ -204,9 +207,26 @@ def cache_fingerprint_for(request: Type1LiveClientRequest | Mapping[str, Any]) -
     )
 
 
-def estimate_type1_credits(*, partition_count: int, expected_tiles_estimate: int) -> int:
-    """Heuristic only: partition overhead plus coarse tile-volume scaling."""
+def estimate_type1_local_complexity_units(
+    *, partition_count: int, expected_tiles_estimate: int
+) -> int:
+    """Local complexity heuristic — NOT FortyGuard credits / debit.
+
+    Units: dimensionless local complexity units (LCU).
+    Formula: partition_count + ceil(expected_tiles_estimate / 5000).
+    This is a request-shape complexity score for preflight UX only. It must not
+    be labelled or compared as vendor credits. Empirical Phoenix debit (~4220 for
+    3749 tiles) does not calibrate this formula into a credit quote.
+    """
     return max(1, partition_count + math.ceil(expected_tiles_estimate / 5000.0))
+
+
+def estimate_type1_credits(*, partition_count: int, expected_tiles_estimate: int) -> int:
+    """Deprecated alias. Returns local complexity units, not credits."""
+    return estimate_type1_local_complexity_units(
+        partition_count=partition_count,
+        expected_tiles_estimate=expected_tiles_estimate,
+    )
 
 
 def spend_gate_check(
@@ -233,7 +253,8 @@ def spend_gate_check(
         "reason": "hosted_live_disabled" if not hosted_live_enabled else "real_vendor_refused",
         "request_fingerprint": preflight["request_fingerprint"],
         "cache_fingerprint": preflight["cache_fingerprint"],
-        "estimated_credits": preflight["estimated_credits"],
+        "local_complexity_estimate": preflight["local_complexity_estimate"],
+        "estimated_credits": preflight["local_complexity_estimate"],
         "rollback_behavior": preflight["rollback_behavior"],
     }
 
@@ -258,10 +279,21 @@ def dry_run_type1_preflight(
     )
     request_fp = request_fingerprint_for(parsed)
     cache_fp = cache_fingerprint_for(parsed)
-    estimated_credits = estimate_type1_credits(
+    local_complexity_units = estimate_type1_local_complexity_units(
         partition_count=len(partitions),
         expected_tiles_estimate=expected_tiles,
     )
+    complexity = {
+        "value": local_complexity_units,
+        "variable_name": "local_complexity_units",
+        "units": "dimensionless_local_complexity_units",
+        "heuristic_version": TYPE1_LIVE_COST_MODEL_VERSION,
+        "label": TYPE1_LOCAL_COMPLEXITY_LABEL,
+        "formula": "partition_count + ceil(expected_tiles_estimate / 5000)",
+        "mislabelled_as_credits_historically": True,
+        "estimate_type": "LOCAL_MODEL",
+        "not_vendor_credits": True,
+    }
     hosted_live_enabled = resolve_hosted_live(settings=settings)
     real_vendor_enabled = may_construct_real_vendor(settings)
     return {
@@ -269,6 +301,7 @@ def dry_run_type1_preflight(
         "city": city_config.city,
         "city_config_version": city_config.city_config_version,
         "analysis_geography_version": city_config.analysis_geography_version,
+        "comparison_geography_version": city_config.comparison_geography_version,
         "local_time": parsed.target_local.isoformat(timespec="seconds"),
         "provider_resolved_time": {
             "provider_payload_local_valid_time": built["local_valid_time"],
@@ -283,12 +316,9 @@ def dry_run_type1_preflight(
         "resolution": "100m",
         "metric": TYPE1_METRIC,
         "expected_tiles_estimate": expected_tiles,
-        "estimated_credits": {
-            "value": estimated_credits,
-            "heuristic_version": TYPE1_LIVE_CREDIT_ESTIMATE_VERSION,
-            "label": "ESTIMATE_NOT_VENDOR_QUOTE",
-            "formula": "partition_count + ceil(expected_tiles_estimate / 5000)",
-        },
+        "local_complexity_estimate": complexity,
+        # Compatibility key retained but explicitly not credits.
+        "estimated_credits": complexity,
         "cache_fingerprint": cache_fp,
         "request_fingerprint": request_fp,
         "key_alias": parsed.key_alias,
@@ -397,7 +427,9 @@ __all__ = [
     "HostedLiveDisabledError",
     "TYPE1_FILTER_TYPE",
     "TYPE1_LIVE_CONTRACT_VERSION",
+    "TYPE1_LIVE_COST_MODEL_VERSION",
     "TYPE1_LIVE_CREDIT_ESTIMATE_VERSION",
+    "TYPE1_LOCAL_COMPLEXITY_LABEL",
     "TYPE1_METRIC",
     "TYPE1_RESOLUTION_M",
     "TYPE1_ROLLBACK_BEHAVIOR",
@@ -408,6 +440,7 @@ __all__ = [
     "default_cache_root",
     "dry_run_type1_preflight",
     "estimate_type1_credits",
+    "estimate_type1_local_complexity_units",
     "hosted_live_defaults_are_off",
     "request_fingerprint_for",
     "run_type1_live",

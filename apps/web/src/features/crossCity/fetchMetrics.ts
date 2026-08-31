@@ -12,7 +12,10 @@ type FlatAreaDto = {
   city?: string;
   city_label?: string;
   area_id?: string;
+  zone_id?: string;
+  geoid?: string;
   area_label?: string;
+  label?: string;
   selected_time_temperature_c?: unknown;
   temperature_c?: unknown;
   median_household_income?: unknown;
@@ -32,6 +35,7 @@ type NestedCityDto = {
 type CrossCityMetricsDto = {
   comparison_clock_local?: unknown;
   areas?: FlatAreaDto[];
+  rows?: FlatAreaDto[];
   cities?: NestedCityDto[];
 };
 
@@ -76,8 +80,8 @@ function normalizeAreaRecord(
   if (!cityId) {
     return null;
   }
-  const areaId = String(area.area_id ?? "").trim();
-  const areaLabel = String(area.area_label ?? areaId).trim();
+  const areaId = String(area.area_id ?? area.zone_id ?? area.geoid ?? "").trim();
+  const areaLabel = String(area.area_label ?? area.label ?? areaId).trim();
   if (!areaId || !areaLabel) {
     return null;
   }
@@ -106,7 +110,7 @@ export function normalizeCrossCityMetrics(body: unknown): CrossCityMetricsRespon
   const dto = body as CrossCityMetricsDto;
   const areas: CrossCityAreaRecord[] = [];
 
-  for (const area of dto.areas ?? []) {
+  for (const area of [...(dto.areas ?? []), ...(dto.rows ?? [])]) {
     const normalized = normalizeAreaRecord(area);
     if (normalized) {
       areas.push(normalized);

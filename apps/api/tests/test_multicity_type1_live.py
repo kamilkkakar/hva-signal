@@ -25,7 +25,6 @@ from app.domain.multicity.type1_live import (
 )
 from app.domain.multicity.validation_package import (
     CALLS_ACTUALLY_MADE,
-    PHOENIX_REUSE_ACTIVITY_ID,
     build_cross_city_validation_package,
     render_cross_city_validation_package_markdown,
 )
@@ -60,7 +59,7 @@ def test_dry_run_preflight_shape() -> None:
     assert preflight["resolution"] == "100m"
     assert preflight["metric"] == "TCM mean"
     assert preflight["key_alias"] == "VALIDATION_B"
-    assert preflight["estimated_credits"]["label"] == "ESTIMATE_NOT_VENDOR_QUOTE"
+    assert preflight["local_complexity_estimate"]["label"] == "LOCAL_COMPLEXITY_UNITS_NOT_VENDOR_CREDITS"
     assert preflight["partition_count"] >= 1
     assert preflight["expected_tiles_estimate"] >= preflight["partition_count"]
     assert "UTC" in preflight["provider_resolved_time"]["note"]
@@ -151,6 +150,8 @@ def test_validation_package_is_preflight_only() -> None:
     package = build_cross_city_validation_package()
     markdown = render_cross_city_validation_package_markdown(package)
     assert package["calls_actually_made"] == CALLS_ACTUALLY_MADE == 0
-    assert package["cities"][0]["activity_id"] == PHOENIX_REUSE_ACTIVITY_ID
-    assert package["total_projected_credits"]["label"] == "ESTIMATE_NOT_VENDOR_QUOTE"
+    assert package["package_version"] == "CROSS_CITY_VALIDATION_PACKAGE_V2"
+    assert package["total_new_calls_required"] == 4
+    assert package["phoenix_reuse_proof"]["reusable"] == "NO"
     assert "PROPOSED new Type-1" in markdown
+    assert "local complexity units" in markdown.lower()
