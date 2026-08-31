@@ -11,9 +11,12 @@ ENV VITE_HVA_PUBLIC_CONTEXT=1
 ENV VITE_HVA_PLACE_SEARCH=0
 ENV VITE_HVA_PLACE_SEARCH_API=0
 ENV VITE_HVA_LIVE_DEMO_CONFIRMATION=0
+# Hardcoded (not ARG): Render dashboard VITE_HVA_JUDGE_SHELL=0 must not win.
+ENV VITE_HVA_JUDGE_SHELL=1
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
+ENV VITE_HVA_JUDGE_SHELL=1
 RUN npm run build
 
 FROM nginx:1.27-alpine

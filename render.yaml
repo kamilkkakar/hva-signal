@@ -84,6 +84,8 @@ services:
           name: urban-thermal-api
           type: web
           envVarKey: RENDER_EXTERNAL_URL
+      - key: VITE_HVA_JUDGE_SHELL
+        value: "1"
       - key: WEB_PUBLIC_URL
         fromService:
           name: urban-thermal-web
