@@ -44,7 +44,7 @@ function toNumber(value: unknown): number | null {
 }
 
 function normalizeCityId(value: string | null | undefined): CrossCityId | null {
-  const raw = (value ?? "").trim().toLowerCase();
+  const raw = (value ?? "").trim().toLowerCase().replace(/_/g, " ");
   if (!raw) {
     return null;
   }
@@ -57,7 +57,12 @@ function normalizeCityId(value: string | null | undefined): CrossCityId | null {
   if (raw.includes("tucson")) {
     return "tucson-az";
   }
-  if (raw.includes("losangeles") || raw.includes("los-angeles") || raw.includes("los angeles")) {
+  if (
+    raw.includes("los angeles") ||
+    raw.includes("los-angeles") ||
+    raw.replace(/\s+/g, "") === "losangeles" ||
+    raw === "la"
+  ) {
     return "los-angeles-ca";
   }
   return null;

@@ -70,4 +70,23 @@ describe("cross-city metrics client", () => {
     expect(payload.areas[0]?.cityId).toBe("tucson-az");
     expect(payload.areas[0]?.metrics.treeCanopyPct).toBeNull();
   });
+
+  it("accepts API city_id los_angeles with underscore", () => {
+    const payload = normalizeCrossCityMetrics({
+      rows: [
+        {
+          city_id: "los_angeles",
+          zone_id: "06037271803",
+          label: "Comparison Area 1",
+          temperature_c: 23.4,
+          median_household_income: 90000,
+          population: 3000,
+          tree_canopy_pct: 5.2,
+        },
+      ],
+    });
+    expect(payload.areas).toHaveLength(1);
+    expect(payload.areas[0]?.cityId).toBe("los-angeles-ca");
+    expect(payload.areas[0]?.metrics.selectedTimeTemperatureC).toBe(23.4);
+  });
 });
