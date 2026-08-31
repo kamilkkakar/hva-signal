@@ -31,7 +31,7 @@ export function SectionNav() {
   return (
     <nav className="hx-section-nav" aria-label="Evidence sections" data-testid="section-nav">
       <div className="hx-section-nav-compact" data-testid="section-nav-compact">
-        <p className="hx-section-nav-index">
+        <p className="hx-section-nav-index" data-testid="section-nav-index">
           <span className="hx-section-num">
             {current.num} / {String(total).padStart(2, "0")}
           </span>
@@ -44,6 +44,8 @@ export function SectionNav() {
             type="button"
             data-testid="section-nav-prev"
             disabled={index === 0}
+            hidden={index === 0}
+            aria-hidden={index === 0}
             onClick={() => setIndex((value) => Math.max(0, value - 1))}
           >
             Previous
@@ -52,6 +54,8 @@ export function SectionNav() {
             type="button"
             data-testid="section-nav-next"
             disabled={index >= total - 1}
+            hidden={index >= total - 1}
+            aria-hidden={index >= total - 1}
             onClick={() => setIndex((value) => Math.min(total - 1, value + 1))}
           >
             Next

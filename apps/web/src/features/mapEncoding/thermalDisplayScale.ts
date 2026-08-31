@@ -1,5 +1,10 @@
 /**
- * THERMAL_DISPLAY_SCALE_V1 — stable cross-city absolute °C display policy.
+ * THERMAL_DISPLAY_SCALE_V1 — HVA DISPLAY POLICY for absolute °C map/legend encoding.
+ *
+ * This is NOT a vendor physical measurement range and does not claim the
+ * upstream TCM product only returns 15–60 °C. It is the product's fixed
+ * display envelope so colors stay comparable across cities and times without
+ * stretching to the current request AOI.
  *
  * Independent of the current request's AOI min/max.
  * Does not encode Phoenix, America/Phoenix, or analysis-area count.
@@ -11,7 +16,7 @@
  * - Prior 25–45 was summer-fit only — too narrow for cooler nights /
  *   cooler cities and leaves little headroom above hot desert afternoons
  *
- * Chosen envelope 15–60 °C:
+ * Chosen envelope 15–60 °C (display policy endcaps ≤15 / ≥60):
  * - Lower: cooler supported cities / cooler nights can land in mid-teens
  * - Upper: hotter desert afternoons need headroom above ~45 toward 55–60
  * - Out-of-domain: end-cap colors (≤15 / ≥60), never silent AOI stretch

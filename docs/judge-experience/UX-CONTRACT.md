@@ -6,7 +6,7 @@ Classification: bind-only. No invented fields.
 |---|---|---|---|
 | Selected area | Client catalog `ANALYSIS_AREA_GEOIDS` | GEOID, Analysis Area N label | Identity only |
 | Map geometry | `GET /api/v1/areas/{area_id}/geometry` | GeoJSON FeatureCollection, `GEOID`, polygon coordinates | Real Phoenix AOI polygons + neutral paper geographic context (no external basemap tiles) |
-| Selected-time thermal (map + hero) | Cached seed `cachedPhoenixSnapshot.json` via `phoenixDemoCachedSelectedTime()` | `zone_id`, `mean_temperature_c`, `coverage_status` | Absolute °C; **THERMAL_DISPLAY_SCALE_V1 (15–60) by default**; optional enhance-local-contrast OFF |
+| Selected-time thermal (map + hero) | Cached seed `cachedPhoenixSnapshot.json` via `phoenixDemoCachedSelectedTime()` | `zone_id`, `mean_temperature_c`, `coverage_status` | Absolute °C; **THERMAL_DISPLAY_SCALE_V1 is HVA display policy (fixed 15–60 °C envelope with ≤15/≥60 endcaps)** — not a FortyGuard physical range; no AOI stretch; optional enhance-local-contrast OFF |
 | Dominant evidence pattern | `synthesizeNarrative` rule engine | spatial_diff, matched change, context, preparedness | Typed pattern — not a score |
 | Historical position | Job `result.zones[].q_A` when D8 sufficient | q_A ∈ [0,1] → percent language | Own-area only; separated from spatial ranking |
 | Spatial comparison | `thermal_differentiation_state` / ordering | withheld vs supported | Separate card from historical position |

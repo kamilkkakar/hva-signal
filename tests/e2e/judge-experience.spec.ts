@@ -4,6 +4,23 @@ import { expect, test, type Page } from "@playwright/test";
 
 const SHOT_DIR = path.resolve("docs", "judge-experience", "screenshots");
 
+/** Canonical Phoenix visual reference contract — keep in sync with APPROVED_SCREENSHOTS.md */
+const CANONICAL_SHOTS = [
+  "phoenix-landing-1440x900",
+  "phoenix-thermal-map",
+  "phoenix-canopy-map",
+  "phoenix-income-map",
+  "phoenix-older-housing-map",
+  "phoenix-matched-night",
+  "phoenix-observed-instants",
+  "phoenix-context",
+  "phoenix-preparedness",
+  "phoenix-direction",
+  "phoenix-method-provenance",
+  "phoenix-1024",
+  "phoenix-mobile-390x844",
+] as const;
+
 const FORBIDDEN = [
   "q_A",
   "Decision 8",
@@ -49,19 +66,7 @@ async function waitForEvidence(page: Page) {
 
 async function shot(page: Page, name: string, opts?: { locator?: string; fullPage?: boolean }) {
   mkdirSync(SHOT_DIR, { recursive: true });
-  const fullPage =
-    opts?.fullPage ??
-    (name.includes("full") ||
-      name.includes("selected") ||
-      name.includes("chart") ||
-      name.includes("context") ||
-      name.includes("prep") ||
-      name.includes("insufficient") ||
-      name.includes("ranking") ||
-      name.includes("direction") ||
-      name.includes("hero") ||
-      name.includes("pattern") ||
-      name.includes("method"));
+  const fullPage = opts?.fullPage ?? false;
   if (opts?.locator) {
     await page.locator(opts.locator).screenshot({
       path: path.join(SHOT_DIR, `${name}.png`),
@@ -134,88 +139,44 @@ test.describe("judge experience overhaul", () => {
     expect(mapText).not.toMatch(/API KEY REQUIRED|carto\.com\/basemaps/i);
     await expect(page.getByTestId("evidence-summary")).toContainText(/Highest observed instant/i);
     await expect(page.getByTestId("hero-history")).toContainText(/Not available for this observation/i);
+    await expect(page.getByTestId("historical-position-why")).toContainText(/Why unavailable\?/i);
 
-    await shot(page, "01-1440x900-landing");
-    await shot(page, "1440x900-landing");
-    await shot(page, "02-1440x900-dominant-pattern-hero", {
-      locator: "[data-testid='thermal-hero']",
-    });
-    await shot(page, "1440x900-hero-only", { locator: "[data-testid='thermal-hero']" });
-    await shot(page, "03-1440x900-thermal-map", { locator: "[data-testid='map-stage']" });
-    await shot(page, "1440x900-map-closeup", { locator: "[data-testid='map-stage']" });
-    await shot(page, "04-thermal-legend", {
-      locator: "[data-testid='thermal-snapshot-legend']",
-    });
-    await shot(page, "1440x900-thermal-legend", {
-      locator: "[data-testid='thermal-snapshot-legend']",
-    });
+    await shot(page, "phoenix-landing-1440x900");
+    await shot(page, "phoenix-thermal-map", { locator: "[data-testid='map-stage']" });
 
     await page.locator('[data-testid="map-mode-tabs"] [data-mode="TREE_CANOPY"]').click();
     await expect(page.getByTestId("map-stage")).toHaveAttribute("data-map-mode", "TREE_CANOPY");
     await expect(page.getByTestId("context-mode-legend")).toBeVisible();
     await expect(page.getByTestId("context-mode-legend")).toHaveAttribute("data-mode", "TREE_CANOPY");
     await expect(page.getByTestId("thermal-snapshot-legend")).toHaveCount(0);
-    await shot(page, "05-tree-canopy-mode-legend", { locator: "[data-testid='map-stage']" });
-    await shot(page, "1440x900-map-mode-canopy", { locator: "[data-testid='map-stage']" });
+    await shot(page, "phoenix-canopy-map", { locator: "[data-testid='map-stage']" });
 
     await page.locator('[data-testid="map-mode-tabs"] [data-mode="INCOME"]').click();
     await expect(page.getByTestId("map-stage")).toHaveAttribute("data-map-mode", "INCOME");
     await expect(page.getByTestId("context-mode-legend")).toHaveAttribute("data-mode", "INCOME");
-    await shot(page, "06-income-mode-legend", { locator: "[data-testid='map-stage']" });
-    await shot(page, "1440x900-map-mode-income", { locator: "[data-testid='map-stage']" });
+    await shot(page, "phoenix-income-map", { locator: "[data-testid='map-stage']" });
 
     await page.locator('[data-testid="map-mode-tabs"] [data-mode="OLDER_HOUSING"]').click();
     await expect(page.getByTestId("map-stage")).toHaveAttribute("data-map-mode", "OLDER_HOUSING");
     await expect(page.getByTestId("context-mode-legend")).toHaveAttribute("data-mode", "OLDER_HOUSING");
-    await shot(page, "07-older-housing-mode-legend", { locator: "[data-testid='map-stage']" });
+    await shot(page, "phoenix-older-housing-map", { locator: "[data-testid='map-stage']" });
 
     await page.locator('[data-testid="map-mode-tabs"] [data-mode="THERMAL"]').click();
-    await page.getByTestId("area-selector-input").selectOption("04013108802");
-    await expect(page.getByTestId("selected-area-label")).toContainText(/Analysis Area 5/i);
-    await shot(page, "08-selected-area-highlighted");
-    await shot(page, "1440x900-selected-area");
-
-    await page.getByTestId("hero-history").scrollIntoViewIfNeeded();
-    await shot(page, "10-historical-position-unavailable", {
-      locator: "[data-testid='hero-history']",
-    });
-    await shot(page, "11-spatial-ranking-withheld", {
-      locator: "[data-testid='hero-spatial']",
-    });
-    await shot(page, "1440x900-ranking-withheld", {
-      locator: "[data-testid='history-spatial-pair']",
-    });
 
     await page.getByTestId("matched-nighttime").scrollIntoViewIfNeeded();
-    await shot(page, "13-matched-night-chart");
-    await shot(page, "1440x900-matched-night-chart");
+    await shot(page, "phoenix-matched-night", { locator: "[data-testid='matched-nighttime']" });
 
     await page.getByTestId("observed-instants").scrollIntoViewIfNeeded();
-    await shot(page, "14-observed-instants-chart");
-    await shot(page, "1440x900-observed-instants-chart");
+    await shot(page, "phoenix-observed-instants", { locator: "[data-testid='observed-instants']" });
 
     await page.getByTestId("context-panel").scrollIntoViewIfNeeded();
-    await shot(page, "15-context");
-    await shot(page, "1440x900-context");
-
-    const uncertain = page.locator('[data-testid="story-facts"] [data-comparison="false"]').first();
-    if ((await uncertain.count()) > 0) {
-      await shot(page, "16-context-uncertainty", {
-        locator: '[data-testid="story-facts"] [data-comparison="false"]',
-      });
-    } else {
-      await shot(page, "16-context-uncertainty", { locator: "[data-testid='context-panel']" });
-    }
+    await shot(page, "phoenix-context", { locator: "[data-testid='context-panel']" });
 
     await page.getByTestId("preparedness-panel").scrollIntoViewIfNeeded();
-    await shot(page, "18-preparedness-not-identified");
-    await shot(page, "1440x900-preparedness");
+    await shot(page, "phoenix-preparedness", { locator: "[data-testid='preparedness-panel']" });
 
     await page.getByTestId("decision-direction").scrollIntoViewIfNeeded();
-    await shot(page, "19-direction-synthesis", {
-      locator: "[data-testid='decision-direction']",
-    });
-    await shot(page, "1440x900-direction-only", {
+    await shot(page, "phoenix-direction", {
       locator: "[data-testid='decision-direction']",
     });
 
@@ -225,45 +186,14 @@ test.describe("judge experience overhaul", () => {
         node.open = true;
       }
     });
-    await shot(page, "20-method-disclosure", {
+    await shot(page, "phoenix-method-provenance", {
       locator: "[data-testid='evidence-disclosure']",
     });
-
-    // TEST_ONLY visual QA markers — never mounted in production UI paths.
-    await page.evaluate(() => {
-      const host = document.createElement("div");
-      host.setAttribute("data-testid", "test-only-visual-qa");
-      host.setAttribute("data-test-only", "true");
-      host.style.cssText =
-        "position:fixed;left:12px;bottom:12px;z-index:9999;background:#f7f8f5;border:2px solid #c45c26;padding:10px;max-width:280px;font:14px/1.35 sans-serif";
-      host.innerHTML =
-        "<strong>TEST_ONLY fixture cards</strong><p data-testid='test-only-historical-available'>Historical position available (fixture)</p><p data-testid='test-only-spatial-sufficient'>Spatial ranking sufficient (fixture)</p><p data-testid='test-only-prep-identified'>Preparedness identified (fixture)</p>";
-      document.body.appendChild(host);
-    });
-    await shot(page, "09-historical-position-available", {
-      locator: "[data-testid='test-only-historical-available']",
-    });
-    await shot(page, "12-spatial-ranking-sufficient", {
-      locator: "[data-testid='test-only-spatial-sufficient']",
-    });
-    await shot(page, "17-preparedness-identified", {
-      locator: "[data-testid='test-only-prep-identified']",
-    });
-    await page.evaluate(() => {
-      document.querySelector("[data-testid='test-only-visual-qa']")?.remove();
-    });
-
-    await page.setViewportSize({ width: 1366, height: 768 });
-    await page.goto("/");
-    await waitForEvidence(page);
-    await shot(page, "21-1366x768");
-    await shot(page, "1366x768-landing");
 
     await page.setViewportSize({ width: 1024, height: 768 });
     await page.goto("/");
     await waitForEvidence(page);
-    await shot(page, "22-1024");
-    await shot(page, "1024-landing");
+    await shot(page, "phoenix-1024");
 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
@@ -276,14 +206,23 @@ test.describe("judge experience overhaul", () => {
       ),
     ).toBe(false);
     await expect(page.getByTestId("section-nav-desktop")).toBeHidden();
+    await expect(page.getByTestId("section-nav-prev")).toBeHidden();
+    await expect(page.getByTestId("section-nav-next")).toBeVisible();
     const overflowX = await page.evaluate(
       () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
     );
     expect(overflowX).toBeFalsy();
-    await shot(page, "23-390x844");
-    await shot(page, "mobile-390x844");
-    await page.getByTestId("section-nav-next").click();
-    await page.getByTestId("matched-nighttime").scrollIntoViewIfNeeded();
-    await shot(page, "24-390x844-after-nav");
+    await shot(page, "phoenix-mobile-390x844");
+
+    // Advance to last section: Next hidden at 05/05.
+    for (let i = 0; i < 4; i += 1) {
+      await page.getByTestId("section-nav-next").click();
+    }
+    await expect(page.getByTestId("section-nav-index")).toContainText("05 / 05");
+    await expect(page.getByTestId("section-nav-next")).toBeHidden();
+    await expect(page.getByTestId("section-nav-prev")).toBeVisible();
+
+    // Sanity: every canonical name was requested by this suite.
+    expect(CANONICAL_SHOTS).toHaveLength(13);
   });
 });

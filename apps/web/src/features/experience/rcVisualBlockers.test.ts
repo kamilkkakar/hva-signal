@@ -61,7 +61,17 @@ describe("RC visual blockers", () => {
     expect(html).not.toMatch(/<details[^>]*open[^>]*data-testid="section-nav-all"/i);
   });
 
-  it("compresses historical unavailable behind Why? and uses highest observed instant wording", () => {
+  it("hides Previous at 01/05 and Next at 05/05 in compact nav markup", () => {
+    const html = renderToStaticMarkup(createElement(SectionNav));
+    expect(html).toMatch(/data-testid="section-nav-prev"[^>]*\bdisabled\b/);
+    expect(html).toMatch(/data-testid="section-nav-prev"[^>]*\bhidden=""/);
+    expect(html).toMatch(
+      /data-testid="section-nav-next"(?![^>]*\bdisabled\b)[^>]*>Next<\/button>/,
+    );
+    expect(html).not.toMatch(/data-testid="section-nav-next"[^>]*\bhidden=""/);
+  });
+
+  it("compresses historical unavailable behind Why unavailable? and uses highest observed instant wording", () => {
     const html = renderToStaticMarkup(
       createElement(ThermalHero, {
         selectedZoneId: "04013107401",
@@ -92,7 +102,8 @@ describe("RC visual blockers", () => {
       }),
     );
     expect(html).toContain("Not available for this observation.");
-    expect(html).toContain("Why?");
+    expect(html).toContain("Why unavailable?");
+    expect(html).not.toMatch(/>Why\?</);
     expect(html).toContain("Highest observed instant");
     expect(html).toContain("Not identified");
     expect(html).not.toMatch(/no row/i);

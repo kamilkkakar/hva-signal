@@ -37,7 +37,7 @@ export const HISTORY_UNAVAILABLE =
   "Not available for this observation.";
 export const HISTORY_UNAVAILABLE_REASON =
   "A comparable own-area 03:00 historical position is not published for this case.";
-export const HISTORY_UNAVAILABLE_WHY = "Why?";
+export const HISTORY_UNAVAILABLE_WHY = "Why unavailable?";
 export const HISTORY_CARD_TITLE = "Historical position";
 export const HISTORY_WITHHELD =
   "The differences across the analysis areas are too small to support a defensible ordering for this observation.";

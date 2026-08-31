@@ -778,6 +778,11 @@
   color: var(--hx-ink);
 }
 
+.hx-section-nav-controls button[hidden],
+.hx-section-nav-controls button:disabled {
+  display: none;
+}
+
 .hx-section-nav-all {
   display: none;
   margin: 0;

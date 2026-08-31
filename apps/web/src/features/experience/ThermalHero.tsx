@@ -5,6 +5,7 @@ import { AreaSelector } from "./AreaSelector";
 import {
   GEOID_SECONDARY,
   HISTORY_CARD_TITLE,
+  HISTORY_UNAVAILABLE_WHY,
   METRIC_CHANGE,
   METRIC_CHANGE_WINDOW,
   METRIC_TEMP,
@@ -120,7 +121,7 @@ export function ThermalHero({
               <p data-testid="historical-position-sentence">{history.sentence}</p>
               {history.reason ? (
                 <details className="hx-history-why" data-testid="historical-position-why">
-                  <summary>Why?</summary>
+                  <summary>{HISTORY_UNAVAILABLE_WHY}</summary>
                   <p data-testid="historical-position-reason">{history.reason}</p>
                 </details>
               ) : null}
