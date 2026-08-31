@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import maplibregl, { type GeoJSONSource } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./mapInteraction.css";
@@ -23,6 +23,8 @@ const EMPTY_COLLECTION = {
   type: "FeatureCollection" as const,
   features: [],
 };
+const BASEMAP_SOURCE_ID = "hva-basemap-carto";
+const BASEMAP_LAYER_ID = "hva-basemap-carto-raster";
 
 export type MapInteractionStageProps = {
   enabled?: boolean;
@@ -94,19 +96,53 @@ function ensureLayers(map: maplibregl.Map): GeoJSONSource | null {
   return (map.getSource(SOURCE_ID) as GeoJSONSource | undefined) ?? null;
 }
 
+function ensureBasemap(map: maplibregl.Map): void {
+  if (!map.isStyleLoaded()) {
+    return;
+  }
+  if (!map.getSource(BASEMAP_SOURCE_ID)) {
+    map.addSource(BASEMAP_SOURCE_ID, {
+      type: "raster",
+      tiles: [
+        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      ],
+      tileSize: 256,
+      attribution: "© OpenStreetMap contributors",
+      maxzoom: 19,
+    });
+  }
+  if (!map.getLayer(BASEMAP_LAYER_ID)) {
+    map.addLayer(
+      {
+        id: BASEMAP_LAYER_ID,
+        type: "raster",
+        source: BASEMAP_SOURCE_ID,
+        paint: {
+          "raster-opacity": 0.38,
+          "raster-saturation": -0.45,
+          "raster-contrast": -0.15,
+        },
+      },
+      FILL_LAYER_ID,
+    );
+  }
+}
+
 function applyCatalog(
   map: maplibregl.Map,
   catalog: InteractionCatalog | null,
   state: InteractionState,
   canvasAllowed: boolean,
+  enhanceLocalContrast = false,
 ): boolean {
   const source = ensureLayers(map);
   if (!source) {
     return false;
   }
+  ensureBasemap(map);
   const payload = canvasAllowed && catalog ? catalog.collection : EMPTY_COLLECTION;
   source.setData(payload as GeoJSON.FeatureCollection);
-  const fill = highlightFillPaint(catalog, state);
+  const fill = highlightFillPaint(catalog, state, { enhanceLocalContrast });
   const hatch = highlightHatchPaint(catalog, state);
   const line = highlightLinePaint(catalog, state);
   map.setPaintProperty(FILL_LAYER_ID, "fill-color", fill["fill-color"]);
@@ -150,6 +186,7 @@ export function MapInteractionStage({
   onSelectedIdChange,
 }: MapInteractionStageProps) {
   const gatedOn = mapInteractionIsEnabled(enabled);
+  const [enhanceLocalContrast, setEnhanceLocalContrast] = useState(false);
   const [state, dispatch] = useReducer(
     (current: InteractionState, event: InteractionEvent) =>
       reduceInteraction(current, event, catalog),
@@ -162,11 +199,13 @@ export function MapInteractionStage({
   const catalogRef = useRef(catalog);
   const stateRef = useRef(state);
   const viewRef = useRef(view);
+  const enhanceRef = useRef(enhanceLocalContrast);
   const lastFit = useRef(0);
 
   catalogRef.current = catalog;
   stateRef.current = state;
   viewRef.current = view;
+  enhanceRef.current = enhanceLocalContrast;
 
   const selectedOut = state.layerActive ? state.selectedId : null;
   useEffect(() => {
@@ -213,7 +252,13 @@ export function MapInteractionStage({
       return String(props.GEOID);
     };
     const onReady = () => {
-      applyCatalog(map, catalogRef.current, stateRef.current, viewRef.current.canvasAllowed);
+      applyCatalog(
+        map,
+        catalogRef.current,
+        stateRef.current,
+        viewRef.current.canvasAllowed,
+        enhanceRef.current,
+      );
       fitCatalog(map, catalogRef.current);
     };
     const onMove = (event: maplibregl.MapLayerMouseEvent) => {
@@ -263,7 +308,7 @@ export function MapInteractionStage({
     let attempts = 0;
     let frame = 0;
     const tryApply = () => {
-      if (applyCatalog(map, catalog, state, view.canvasAllowed)) {
+      if (applyCatalog(map, catalog, state, view.canvasAllowed, enhanceLocalContrast)) {
         if (state.fitGeneration !== lastFit.current) {
           lastFit.current = state.fitGeneration;
           fitCatalog(map, catalog);
@@ -280,7 +325,7 @@ export function MapInteractionStage({
     return () => {
       window.cancelAnimationFrame(frame);
     };
-  }, [catalog, gatedOn, state, view.canvasAllowed]);
+  }, [catalog, enhanceLocalContrast, gatedOn, state, view.canvasAllowed]);
 
   return (
     <section
@@ -333,8 +378,12 @@ export function MapInteractionStage({
             dispatch={dispatch}
             catalogKind={catalog?.kind}
             fillKind={catalog?.fill_kind}
+            layerTitle={catalog?.layer_title ?? view.layerTitle}
+            layerMeaning={catalog?.meaning ?? view.meaningCopy}
             observedMinC={observedThermalSpan(catalog)?.minC ?? null}
             observedMaxC={observedThermalSpan(catalog)?.maxC ?? null}
+            enhanceLocalContrast={enhanceLocalContrast}
+            onEnhanceLocalContrastChange={setEnhanceLocalContrast}
           />
         </>
       )}

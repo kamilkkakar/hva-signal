@@ -1,4 +1,7 @@
 import {
+  CANOPY_STOPS,
+  HOUSING_STOPS,
+  INCOME_STOPS,
   SIGNAL_A_FILL_OPACITY,
   SIGNAL_A_HALO,
   SIGNAL_A_HALO_WIDTH,
@@ -12,7 +15,6 @@ import {
   SIGNAL_A_LINE,
   SIGNAL_A_LINE_WIDTH,
   SIGNAL_A_POS_STOPS,
-  THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C,
   THERMAL_C_LOCAL_HIGH,
   THERMAL_C_LOCAL_LOW,
   THERMAL_C_STOPS,
@@ -128,6 +130,8 @@ export function signalAHaloPaint(authorized: boolean): SignalALinePaint {
 export type SignalBThermalFillInput = {
   observedMinC: number;
   observedMaxC: number;
+  /** OFF by default. Only stretch when the analyst opts in. */
+  enhanceLocalContrast?: boolean;
 };
 
 function fixedThermalFillPaint(): SignalAFillPaint["fill-color"] {
@@ -139,16 +143,18 @@ function fixedThermalFillPaint(): SignalAFillPaint["fill-color"] {
   ];
 }
 
-/** Selected-time absolute °C. Narrow observed spans use local contrast within min–max. */
+/** Selected-time absolute °C. Default = true fixed 25–45 scale. */
 export function signalBThermalFillPaint(input?: SignalBThermalFillInput): SignalAFillPaint {
   const lo = input?.observedMinC;
   const hi = input?.observedMaxC;
-  const span =
-    lo != null && hi != null && Number.isFinite(lo) && Number.isFinite(hi)
-      ? Math.max(0, hi - lo)
-      : null;
+  const enhance = input?.enhanceLocalContrast === true;
   const useLocalContrast =
-    span != null && span > 0 && span < THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C && lo != null && hi != null;
+    enhance &&
+    lo != null &&
+    hi != null &&
+    Number.isFinite(lo) &&
+    Number.isFinite(hi) &&
+    hi > lo;
 
   return {
     "fill-color": useLocalContrast
@@ -173,20 +179,46 @@ export function signalBThermalFillPaint(input?: SignalBThermalFillInput): Signal
 
 export const CONTEXT_FILL_PROPERTY = "context_fill_value";
 
-export function contextQuantityFillPaint(min: number, max: number): {
+export type ContextPaletteId = "canopy" | "income" | "housing" | "default";
+
+export function contextPaletteStops(palette: ContextPaletteId): readonly string[] {
+  if (palette === "canopy") return CANOPY_STOPS;
+  if (palette === "income") return INCOME_STOPS;
+  if (palette === "housing") return HOUSING_STOPS;
+  return SIGNAL_A_POS_STOPS;
+}
+
+export function contextQuantityFillPaint(
+  min: number,
+  max: number,
+  palette: ContextPaletteId = "default",
+): {
   "fill-color": unknown;
   "fill-opacity": unknown;
 } {
   const lo = Math.min(min, max);
   const hi = Math.max(min, max);
   const top = hi === lo ? lo + 1 : hi;
-  const low = SIGNAL_A_POS_STOPS[0] ?? SIGNAL_A_INSUFFICIENT_FILL;
-  const high = SIGNAL_A_POS_STOPS[SIGNAL_A_POS_STOPS.length - 1] ?? low;
+  const stops = contextPaletteStops(palette);
+  const low = stops[0] ?? SIGNAL_A_INSUFFICIENT_FILL;
+  const high = stops[stops.length - 1] ?? low;
+  const mid = stops[Math.floor(stops.length / 2)] ?? high;
+  const midValue = lo + (top - lo) / 2;
   return {
     "fill-color": [
       "case",
       ["==", ["typeof", ["get", CONTEXT_FILL_PROPERTY]], "number"],
-      ["interpolate", ["linear"], ["get", CONTEXT_FILL_PROPERTY], lo, low, top, high],
+      [
+        "interpolate",
+        ["linear"],
+        ["get", CONTEXT_FILL_PROPERTY],
+        lo,
+        low,
+        midValue,
+        mid,
+        top,
+        high,
+      ],
       SIGNAL_A_INSUFFICIENT_FILL,
     ],
     "fill-opacity": [

@@ -1,4 +1,8 @@
-import { HistoricalPositionLegend, ThermalSnapshotLegend } from "@/features/mapEncoding";
+import {
+  ContextModeLegend,
+  HistoricalPositionLegend,
+  ThermalSnapshotLegend,
+} from "@/features/mapEncoding";
 import {
   CLEAR_LAYER_LABEL,
   CLEAR_SELECTION_LABEL,
@@ -21,26 +25,76 @@ export type MapInteractionChromeProps = {
   dispatch: (event: InteractionEvent) => void;
   catalogKind?: string | null;
   fillKind?: string | null;
+  layerTitle?: string | null;
+  layerMeaning?: string | null;
   observedMinC?: number | null;
   observedMaxC?: number | null;
+  enhanceLocalContrast?: boolean;
+  onEnhanceLocalContrastChange?: (next: boolean) => void;
 };
+
+function contextModeFromTitle(title: string, meaning: string): {
+  mode: string;
+  unit: string;
+  sourceLine: string;
+} {
+  const blob = `${title} ${meaning}`.toLowerCase();
+  if (blob.includes("canopy") || blob.includes("tree")) {
+    return {
+      mode: "TREE_CANOPY",
+      unit: "% of plantable ground",
+      sourceLine: meaning || "Phoenix shade study · tree canopy",
+    };
+  }
+  if (blob.includes("income")) {
+    return {
+      mode: "INCOME",
+      unit: "USD · ACS 2020–2024",
+      sourceLine: meaning || "ACS 5-year median household income",
+    };
+  }
+  return {
+    mode: "OLDER_HOUSING",
+    unit: "% homes built before 1980",
+    sourceLine: meaning || "ACS 5-year older housing share",
+  };
+}
 
 export function MapInteractionChrome({
   view,
   dispatch,
-  catalogKind = null,
+  catalogKind: _catalogKind = null,
   fillKind = null,
+  layerTitle = null,
+  layerMeaning = null,
   observedMinC = null,
   observedMaxC = null,
+  enhanceLocalContrast = false,
+  onEnhanceLocalContrastChange,
 }: MapInteractionChromeProps) {
+  void _catalogKind;
+  const contextMeta =
+    fillKind === "context_quantity"
+      ? contextModeFromTitle(layerTitle ?? view.layerTitle, layerMeaning ?? view.meaningCopy)
+      : null;
+
   return (
     <div className="mapi-chrome" data-testid="map-interaction-chrome">
       <section className="mapi-legend" aria-label="Map legend" data-testid="map-interaction-legend">
         <h3>Legend</h3>
-        {fillKind === "thermal_absolute" || catalogKind === "selected_time_snapshot" ? (
+        {fillKind === "thermal_absolute" ? (
           <ThermalSnapshotLegend
             observedMinC={observedMinC}
             observedMaxC={observedMaxC}
+            enhanceLocalContrast={enhanceLocalContrast}
+            onEnhanceLocalContrastChange={onEnhanceLocalContrastChange}
+          />
+        ) : fillKind === "context_quantity" && contextMeta ? (
+          <ContextModeLegend
+            mode={contextMeta.mode}
+            title={layerTitle ?? view.layerTitle}
+            unit={contextMeta.unit}
+            sourceLine={contextMeta.sourceLine}
           />
         ) : view.positionLegendMode === "sufficient" ||
           view.positionLegendMode === "insufficient" ? (

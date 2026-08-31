@@ -13,7 +13,7 @@ describe("observedThermalSpan", () => {
     expect(span?.spreadC).toBeGreaterThan(0);
   });
 
-  it("uses local contrast fill when the observed spread is narrow", () => {
+  it("keeps fixed 25–45 thermal scale by default even when spread is narrow", () => {
     const catalog = snapshotCatalog();
     catalog.collection.features.forEach((feature, index) => {
       feature.properties.mean_temperature_c = 33.5 + index * 0.04;
@@ -25,9 +25,23 @@ describe("observedThermalSpan", () => {
       layerActive: true,
     });
     const encoded = JSON.stringify(fill["fill-color"]);
-    expect(encoded).toContain("33.5");
-    expect(encoded).toContain("#b8c4a8");
-    expect(encoded).toContain("#4e5648");
+    expect(encoded).toContain("25");
+    expect(encoded).toContain("45");
+    expect(encoded).not.toContain("33.5");
     expect(encoded).not.toContain("backend_order");
+  });
+
+  it("only expands local contrast when explicitly enhanced", () => {
+    const catalog = snapshotCatalog();
+    catalog.collection.features.forEach((feature, index) => {
+      feature.properties.mean_temperature_c = 33.5 + index * 0.04;
+    });
+    const fill = highlightFillPaint(
+      catalog,
+      { ...initialInteractionState(), layerActive: true },
+      { enhanceLocalContrast: true },
+    );
+    const encoded = JSON.stringify(fill["fill-color"]);
+    expect(encoded).toContain("33.5");
   });
 });

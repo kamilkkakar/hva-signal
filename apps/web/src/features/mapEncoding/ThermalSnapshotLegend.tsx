@@ -2,9 +2,10 @@ import {
   THERMAL_C_AXIS,
   THERMAL_C_DENIAL,
   THERMAL_C_HIGH_LABEL,
-  THERMAL_C_LOCAL_CONTRAST_NOTE,
+  THERMAL_C_LOCAL_CONTRAST_WARNING,
   THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C,
   THERMAL_C_LOW_LABEL,
+  THERMAL_C_NARROW_NOTE,
   THERMAL_C_STOPS,
   thermalObservedSpanNote,
 } from "./tokens";
@@ -13,11 +14,15 @@ import "./legend.css";
 export type ThermalSnapshotLegendProps = {
   observedMinC?: number | null;
   observedMaxC?: number | null;
+  enhanceLocalContrast?: boolean;
+  onEnhanceLocalContrastChange?: (next: boolean) => void;
 };
 
 export function ThermalSnapshotLegend({
   observedMinC = null,
   observedMaxC = null,
+  enhanceLocalContrast = false,
+  onEnhanceLocalContrastChange,
 }: ThermalSnapshotLegendProps) {
   const colors = THERMAL_C_STOPS.filter((_, index) => index % 2 === 1) as string[];
   const hasObservedSpan =
@@ -27,7 +32,7 @@ export function ThermalSnapshotLegend({
     Number.isFinite(observedMaxC) &&
     observedMaxC >= observedMinC;
   const spreadC = hasObservedSpan ? observedMaxC - observedMinC : null;
-  const localContrast =
+  const lowVariation =
     spreadC != null && spreadC > 0 && spreadC < THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C;
   const bandLeft =
     hasObservedSpan && spreadC != null && spreadC > 0
@@ -43,10 +48,11 @@ export function ThermalSnapshotLegend({
       className="hva-pos-legend hva-thermal-legend"
       aria-label="Selected-time thermal legend"
       data-testid="thermal-snapshot-legend"
-      data-local-contrast={localContrast ? "yes" : "no"}
+      data-local-contrast={enhanceLocalContrast ? "yes" : "no"}
+      data-fixed-scale="yes"
       data-b-public="yes"
     >
-      <h3>Selected-time thermal</h3>
+      <h3>Selected-time temperature</h3>
       <div className="hva-pos-ramp-block">
         <div
           className="hva-pos-ramp"
@@ -65,35 +71,55 @@ export function ThermalSnapshotLegend({
           ) : null}
         </div>
         <p className="hva-pos-axis">
-          <span>{THERMAL_C_LOW_LABEL}</span>
-          <span aria-hidden="true">↔</span>
-          <span>{THERMAL_C_HIGH_LABEL}</span>
+          <span>25</span>
+          <span>30</span>
+          <span>35</span>
+          <span>40</span>
+          <span>45</span>
         </p>
       </div>
       <p className="hva-pos-denial">{THERMAL_C_AXIS}</p>
-      <p className="hva-pos-denial">{THERMAL_C_DENIAL}</p>
       {hasObservedSpan ? (
         <p className="hva-pos-hatch-note" data-testid="thermal-observed-span-note">
           {thermalObservedSpanNote(observedMinC, observedMaxC)}
         </p>
       ) : null}
-      {localContrast ? (
-        <p className="hva-pos-hatch-note" data-testid="thermal-local-contrast-note">
-          {THERMAL_C_LOCAL_CONTRAST_NOTE}
+      {lowVariation ? (
+        <p className="hva-pos-hatch-note" data-testid="thermal-low-variation">
+          Low spatial variation. {THERMAL_C_NARROW_NOTE}
         </p>
       ) : null}
-      <p className="hva-pos-outline">
-        <span className="hva-pos-outline-swatch" style={{ borderColor: "#4e5748" }} aria-hidden="true" />
-        Missing zone mean — outline only
-      </p>
-      <p className="hva-pos-outline">
-        <span
-          className="hva-pos-outline-swatch"
-          style={{ borderColor: "#c45c26", borderWidth: "2px" }}
-          aria-hidden="true"
-        />
-        Selected analysis area
-      </p>
+      {onEnhanceLocalContrastChange && lowVariation ? (
+        <label className="hva-contrast-toggle" data-testid="thermal-contrast-toggle">
+          <input
+            type="checkbox"
+            checked={enhanceLocalContrast}
+            onChange={(event) => onEnhanceLocalContrastChange(event.target.checked)}
+          />
+          Enhance local contrast
+        </label>
+      ) : null}
+      {enhanceLocalContrast ? (
+        <p className="hva-pos-hatch-note" data-testid="thermal-local-contrast-note">
+          {THERMAL_C_LOCAL_CONTRAST_WARNING}
+        </p>
+      ) : null}
+      <details className="hva-legend-about">
+        <summary>About this layer</summary>
+        <p className="hva-pos-denial">{THERMAL_C_DENIAL}</p>
+        <p className="hva-pos-outline">
+          <span className="hva-pos-outline-swatch" style={{ borderColor: "#4e5748" }} aria-hidden="true" />
+          Missing
+        </p>
+        <p className="hva-pos-outline">
+          <span
+            className="hva-pos-outline-swatch"
+            style={{ borderColor: "#c45c26", borderWidth: "2px" }}
+            aria-hidden="true"
+          />
+          Selected area
+        </p>
+      </details>
     </aside>
   );
 }

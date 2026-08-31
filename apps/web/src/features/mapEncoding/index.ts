@@ -23,8 +23,12 @@ export {
   THERMAL_C_AXIS,
   THERMAL_C_DENIAL,
   THERMAL_C_LOCAL_CONTRAST_NOTE,
+  THERMAL_C_LOCAL_CONTRAST_WARNING,
   THERMAL_C_NARROW_NOTE,
   thermalObservedSpanNote,
+  CANOPY_STOPS,
+  INCOME_STOPS,
+  HOUSING_STOPS,
 } from "./tokens";
 export {
   signalAFillPaint,
@@ -34,10 +38,17 @@ export {
   signalAColorStops,
   signalAHatchSteps,
   contextQuantityFillPaint,
+  contextPaletteStops,
   signalBThermalFillPaint,
   CONTEXT_FILL_PROPERTY,
 } from "./paint";
-export type { SignalAHatchPaint, SignalAFillPaint, SignalALinePaint } from "./paint";
+export type {
+  SignalAHatchPaint,
+  SignalAFillPaint,
+  SignalALinePaint,
+  ContextPaletteId,
+  SignalBThermalFillInput,
+} from "./paint";
 export { hatchImage, allHatchImages, hatchImageId } from "./hatch";
 export {
   historicalPositionLegend,
@@ -49,4 +60,6 @@ export { HistoricalPositionLegend } from "./HistoricalPositionLegend";
 export type { HistoricalPositionLegendProps } from "./HistoricalPositionLegend";
 export { ThermalSnapshotLegend } from "./ThermalSnapshotLegend";
 export type { ThermalSnapshotLegendProps } from "./ThermalSnapshotLegend";
+export { ContextModeLegend } from "./ContextModeLegend";
+export type { ContextModeLegendProps } from "./ContextModeLegend";
 export { contrastRatio, relativeLuminance, blendOnto } from "./contrast";

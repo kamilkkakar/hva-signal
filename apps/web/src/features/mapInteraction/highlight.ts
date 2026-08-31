@@ -4,9 +4,9 @@ import {
   signalAHatchPaint,
   signalALinePaint,
   signalBThermalFillPaint,
+  type ContextPaletteId,
   type SignalAHatchPaint,
 } from "@/features/mapEncoding";
-import { THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C } from "@/features/mapEncoding/tokens";
 import { observedThermalSpan } from "./thermalSpan";
 import {
   INTERACTION_HOVER_LINE,
@@ -39,10 +39,6 @@ function maxAuthorizedOrder(catalog: InteractionCatalog): number {
   return max > 0 ? max : 25;
 }
 
-/**
- * Authorized fills use RESCUE-E historical-position tokens.
- * Insufficient / unauthorized stays outline-only (opacity 0).
- */
 function contextRange(catalog: InteractionCatalog): { min: number; max: number } {
   const values = catalog.collection.features
     .map((feature) => feature.properties.context_fill_value)
@@ -53,13 +49,29 @@ function contextRange(catalog: InteractionCatalog): { min: number; max: number }
   return { min: Math.min(...values), max: Math.max(...values) };
 }
 
+function paletteFromCatalog(catalog: InteractionCatalog): ContextPaletteId {
+  const title = `${catalog.layer_title} ${catalog.meaning}`.toLowerCase();
+  if (title.includes("canopy") || title.includes("tree")) return "canopy";
+  if (title.includes("income")) return "income";
+  if (title.includes("housing") || title.includes("1980") || title.includes("homes")) {
+    return "housing";
+  }
+  return "default";
+}
+
+/**
+ * Authorized fills use RESCUE-E historical-position tokens.
+ * Insufficient / unauthorized stays outline-only (opacity 0).
+ * Thermal default = fixed 25–45 °C unless enhanceLocalContrast is opted in.
+ */
 export function highlightFillPaint(
   catalog: InteractionCatalog | null,
   state: InteractionState,
+  options?: { enhanceLocalContrast?: boolean },
 ): InteractionFillPaint {
   if (catalog?.fill_kind === "context_quantity" && state.layerActive) {
     const { min, max } = contextRange(catalog);
-    return contextQuantityFillPaint(min, max);
+    return contextQuantityFillPaint(min, max, paletteFromCatalog(catalog));
   }
   if (
     catalog?.fill_kind === "thermal_absolute" &&
@@ -67,14 +79,11 @@ export function highlightFillPaint(
     state.layerActive
   ) {
     const span = observedThermalSpan(catalog);
-    if (
-      span &&
-      span.spreadC > 0 &&
-      span.spreadC < THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C
-    ) {
+    if (options?.enhanceLocalContrast && span && span.spreadC > 0) {
       return signalBThermalFillPaint({
         observedMinC: span.minC,
         observedMaxC: span.maxC,
+        enhanceLocalContrast: true,
       });
     }
     return signalBThermalFillPaint();

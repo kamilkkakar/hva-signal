@@ -58,35 +58,42 @@ export const SIGNAL_B_HOLD_ENCODING = "neutral_numeric_hold" as const;
 
 /** Fixed Phoenix summer thermal scale. Not request-local min/max stretch. */
 export const THERMAL_C_STOPS = [
-  25, "#b8c4a8",
-  30, "#8a9278",
-  35, "#6c7462",
-  40, "#4e5648",
-  45, "#32382e",
+  25, "#f3e6c8",
+  30, "#e4b27a",
+  35, "#d07840",
+  40, "#b84f2a",
+  45, "#6f2414",
 ] as const;
 
 export const THERMAL_C_LOW_LABEL = "25 °C";
 export const THERMAL_C_HIGH_LABEL = "45 °C";
-export const THERMAL_C_AXIS = "Zone mean temperature (°C)";
+export const THERMAL_C_AXIS = "Zone mean · °C";
 export const THERMAL_C_DENIAL =
-  "Absolute zone-mean °C at the selected observation time. Fixed scale — not stretched to this night's narrow range.";
+  "Absolute zone-mean °C at the selected observation time. Fixed 25–45 °C scale.";
 export const THERMAL_C_NARROW_NOTE =
-  "When zone means cluster tightly, color differences stay subtle. Read exact values in labels.";
+  "When zone means cluster tightly, the map stays nearly uniform — that is correct.";
 
 /** Local-contrast endpoints on the fixed thermal palette — not a new scale. */
 export const THERMAL_C_LOCAL_LOW = THERMAL_C_STOPS[1];
 export const THERMAL_C_LOCAL_HIGH = THERMAL_C_STOPS[7];
 
 export const THERMAL_C_LOCAL_CONTRAST_NOTE =
-  "Fill contrast expanded within the observed span for visibility on the fixed reference scale. Absolute differences remain small.";
+  "Visual enhancement only. Absolute thermal differences remain small.";
+export const THERMAL_C_LOCAL_CONTRAST_WARNING =
+  "Enhance local contrast stretches fill within the observed span for visibility. Absolute differences remain small.";
 
 export function thermalObservedSpanNote(minC: number, maxC: number): string {
   const spread = Math.max(0, maxC - minC);
-  return `Observed span ${minC.toFixed(1)}–${maxC.toFixed(1)} °C (~${spread.toFixed(1)} °C spread) on fixed 25–45 °C reference scale.`;
+  return `Observed range: ${minC.toFixed(1)}–${maxC.toFixed(1)} °C · Approximate spread: ${spread.toFixed(1)} °C.`;
 }
 
-/** Span below this uses local contrast within observed min–max. */
+/** Span below this may optionally use local contrast (OFF by default). */
 export const THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C = 2;
+
+/** Context mode sequential palettes — distinct from thermal. */
+export const CANOPY_STOPS = ["#e8f2e4", "#b7d6a8", "#6fa86a", "#3d7a45", "#1f4d2c"] as const;
+export const INCOME_STOPS = ["#edf1f7", "#b7c6de", "#6f86b5", "#3f567f", "#243552"] as const;
+export const HOUSING_STOPS = ["#f4ecdf", "#e0c49a", "#c48f4f", "#8f5a2a", "#5a3516"] as const;
 
 export const CURRENT_AOI_AUTOSTRETCH = false;
 export const PERCENTILE_AUTOSTRETCH = false;
