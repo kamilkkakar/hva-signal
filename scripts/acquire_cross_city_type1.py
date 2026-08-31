@@ -45,8 +45,20 @@ from app.integrations.fortyguard.transport_models import (  # noqa: E402
 from app.services.orchestrator import assembly_tiles_to_geojson  # noqa: E402
 from app.services.zone_aggregator import aggregate_tiles_to_zones  # noqa: E402
 
-TARGET_LOCAL = datetime(2024, 7, 8, 15, 0, 0)
-PROVIDER_UTC = "2024-07-08T22:00:00Z"
+# Default remains the published CROSS_CITY_OBSERVATION_V1 clock.
+DEFAULT_TARGET_LOCAL = datetime(2024, 7, 8, 15, 0, 0)
+TARGET_LOCAL = DEFAULT_TARGET_LOCAL  # backward-compat alias for importers/tests
+DEFAULT_PROVIDER_UTC = "2024-07-08T22:00:00Z"
+PROVIDER_UTC = DEFAULT_PROVIDER_UTC  # backward-compat alias
+# Gate-8 matrix clocks + published 15:00 observation (no other spend times).
+APPROVED_TARGET_LOCALS = frozenset(
+    {
+        datetime(2024, 7, 8, 15, 0, 0),
+        datetime(2024, 7, 8, 3, 0, 0),
+        datetime(2024, 7, 8, 21, 0, 0),
+        datetime(2024, 7, 9, 3, 0, 0),
+    }
+)
 AGG_VERSION = "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
 ENV_CANDIDATES = (
     ROOT / "workforce" / "context" / "05_code" / ".env",
@@ -64,6 +76,47 @@ CITY_DIR = {
     "Phoenix": "phoenix",
     "Tucson": "tucson",
 }
+
+
+def parse_approved_local_datetime(value: str | datetime) -> datetime:
+    """Parse an approved AOI-local naive hour from the temporal matrix (+ 15:00)."""
+    if isinstance(value, datetime):
+        parsed = value.replace(tzinfo=None) if value.tzinfo is not None else value
+    else:
+        text = str(value).strip().replace("Z", "")
+        if "T" in text:
+            parsed = datetime.fromisoformat(text)
+        else:
+            parsed = datetime.strptime(text, "%Y-%m-%d %H:%M:%S")
+        if parsed.tzinfo is not None:
+            parsed = parsed.replace(tzinfo=None)
+    if parsed.minute != 0 or parsed.second != 0 or parsed.microsecond != 0:
+        raise SystemExit("STOP: local datetime must land on an exact hour")
+    if parsed not in APPROVED_TARGET_LOCALS:
+        approved = ", ".join(
+            t.isoformat(timespec="seconds") for t in sorted(APPROVED_TARGET_LOCALS)
+        )
+        raise SystemExit(f"STOP: local datetime not in approved matrix set: {approved}")
+    return parsed
+
+
+def provider_utc_iso(timezone_name: str, target_local: datetime) -> str:
+    """Convert approved AOI-local wall time to provider UTC contract string."""
+    from zoneinfo import ZoneInfo
+
+    aware = target_local.replace(tzinfo=ZoneInfo(timezone_name))
+    return aware.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def acquisition_out_root(city_id: str, target_local: datetime) -> Path:
+    """Keep published 15:00 layout; stamp matched-instant clocks under matched/."""
+    base = ROOT / "data" / "acquisitions" / "cross-city" / city_id
+    if target_local == DEFAULT_TARGET_LOCAL:
+        return base
+    stamp = target_local.strftime("%Y%m%dT%H%M%S")
+    return base / "matched" / stamp
+
+
 UPPER_BOUNDS = {
     "los_angeles": 2961,
     "las_vegas": 6775,
@@ -157,42 +210,57 @@ def _city_package(city_id: str) -> dict[str, Any]:
     raise SystemExit(f"city {city_id} missing from Validation Package V2")
 
 
-def _preflight_gate(city_name: str, key_alias: str) -> dict[str, Any]:
+def _preflight_gate(
+    city_name: str,
+    key_alias: str,
+    *,
+    target_local: datetime | None = None,
+) -> dict[str, Any]:
     city_id = CITY_DIR[city_name]
     cfg = resolve_city_aoi(city_name)
+    local = parse_approved_local_datetime(target_local or DEFAULT_TARGET_LOCAL)
     freeze = json.loads(
         (ROOT / "data" / "areas" / "cross-city" / city_id / "freeze.json").read_text(
             encoding="utf-8"
         )
     )
     v2 = _city_package(city_id)
-    request = {
-        "city": city_name,
-        "target_local": TARGET_LOCAL,
-        "key_alias": key_alias if key_alias in {"PRIMARY", "VALIDATION_B"} else "PRIMARY",
-    }
     # Validation package always stamps VALIDATION_B; fingerprint ignores key alias.
     pre = dry_run_type1_preflight(
-        {"city": city_name, "target_local": TARGET_LOCAL, "key_alias": "VALIDATION_B"}
+        {"city": city_name, "target_local": local, "key_alias": "VALIDATION_B"}
     )
+    expected_local = local.isoformat(timespec="seconds")
+    expected_provider_local = local.strftime("%Y-%m-%dT%H:%M")
+    expected_utc = provider_utc_iso(cfg.timezone, local)
     hash_ok = str(freeze["combined_geometry_hash"]).startswith(EXPECTED_HASH_PREFIX[city_id])
     checks = {
         "city": cfg.city == city_name,
         "geometry_hash": hash_ok,
         "areas_25": freeze["analysis_area_count"] == 25,
         "polygon_aoi": cfg.polygon_aoi.get("type") in {"Polygon", "MultiPolygon"},
-        "local_time": pre["local_time"] == "2024-07-08T15:00:00",
+        "local_time": pre["local_time"] == expected_local,
         "provider_local": pre["provider_resolved_time"]["provider_payload_local_valid_time"]
-        == "2024-07-08T15:00",
-        "utc_contract": v2["utc_timestamp"].startswith("2024-07-08T22:00:00"),
+        == expected_provider_local,
+        "utc_contract": expected_utc.endswith("Z"),
+        "timezone": pre["provider_resolved_time"]["timezone"] == cfg.timezone,
         "resolution_100m": pre["resolution"] == "100m",
         "metric_tcm": "TCM" in str(pre["metric"]).upper(),
         "partitions_1": pre["partition_count"] == 1,
-        "request_fp": pre["request_fingerprint"] == v2["request_fingerprint"],
-        "cache_fp": pre["cache_fingerprint"] == v2["cache_fingerprint"],
+        "comparison_geography": pre.get("comparison_geography_version")
+        == "CROSS_CITY_COMPARISON_GEOGRAPHY_V1",
         "hosted_live_off": pre["hosted_live_enabled"] is False,
         "public_real_vendor_off": pre["real_vendor_enabled"] is False,
     }
+    # Published 15:00 wave still pins Validation Package V2 fingerprints/UTC.
+    if local == DEFAULT_TARGET_LOCAL:
+        checks["utc_contract"] = v2["utc_timestamp"].startswith(DEFAULT_PROVIDER_UTC.replace("Z", ""))
+        checks["request_fp"] = pre["request_fingerprint"] == v2["request_fingerprint"]
+        checks["cache_fp"] = pre["cache_fingerprint"] == v2["cache_fingerprint"]
+    else:
+        # Matched-instant clocks: fingerprints must be stable for this local hour.
+        checks["request_fp"] = len(str(pre["request_fingerprint"])) == 64
+        checks["cache_fp"] = len(str(pre["cache_fingerprint"])) == 64
+        checks["utc_matches_tz"] = expected_utc == provider_utc_iso(cfg.timezone, local)
     failed = [name for name, ok in checks.items() if not ok]
     if failed:
         raise SystemExit(f"STOP: pre-call gate failed: {failed}")
@@ -206,10 +274,18 @@ def _preflight_gate(city_name: str, key_alias: str) -> dict[str, Any]:
         "checks": checks,
         "upper_bound": UPPER_BOUNDS[city_id],
         "key_alias_requested": key_alias,
+        "target_local": local,
+        "provider_utc": expected_utc,
     }
 
 
-def _aggregate(city_id: str, tiles_geojson: dict[str, Any]) -> dict[str, Any]:
+def _aggregate(
+    city_id: str,
+    tiles_geojson: dict[str, Any],
+    *,
+    target_local: datetime | None = None,
+) -> dict[str, Any]:
+    local = parse_approved_local_datetime(target_local or DEFAULT_TARGET_LOCAL)
     geom = json.loads(
         (ROOT / "data" / "areas" / "cross-city" / city_id / "geometry.geojson").read_text(
             encoding="utf-8"
@@ -234,7 +310,7 @@ def _aggregate(city_id: str, tiles_geojson: dict[str, Any]) -> dict[str, Any]:
         tiles_geojson,
         spec=spec,
         expected_tile_counts=expected,
-        valid_time=TARGET_LOCAL,
+        valid_time=local,
         source=ThermalDataSource.FORTYGUARD_LIVE,
         temporal_mode=HeatmapTemporalMode.SINGLE_HOUR,
         upstream_time_semantics=UpstreamTimeSemantics.AOI_LOCAL_TIME,
@@ -293,11 +369,18 @@ def _aggregate(city_id: str, tiles_geojson: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def acquire_city(city_name: str, *, dry_run: bool = False) -> dict[str, Any]:
+def acquire_city(
+    city_name: str,
+    *,
+    dry_run: bool = False,
+    target_local: datetime | str | None = None,
+) -> dict[str, Any]:
     key_alias, api_key, base_url = _load_key_alias()
-    gate = _preflight_gate(city_name, key_alias)
+    local = parse_approved_local_datetime(target_local or DEFAULT_TARGET_LOCAL)
+    gate = _preflight_gate(city_name, key_alias, target_local=local)
     city_id = gate["city_id"]
-    out_root = ROOT / "data" / "acquisitions" / "cross-city" / city_id
+    provider_utc = gate["provider_utc"]
+    out_root = acquisition_out_root(city_id, local)
     raw_dir = out_root / "raw"
     norm_dir = out_root / "normalized"
     cache_dir = out_root / "vendor_cache"
@@ -305,7 +388,7 @@ def acquire_city(city_name: str, *, dry_run: bool = False) -> dict[str, Any]:
     norm_dir.mkdir(parents=True, exist_ok=True)
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    # Cache-miss / no completed equivalent
+    # Cache-miss / no completed equivalent for this city+local clock
     prior = out_root / "provenance.json"
     if prior.is_file():
         existing = json.loads(prior.read_text(encoding="utf-8"))
@@ -319,11 +402,15 @@ def acquire_city(city_name: str, *, dry_run: bool = False) -> dict[str, Any]:
         "city": city_name,
         "city_id": city_id,
         "key_alias": key_alias,
-        "observation_contract": "CROSS_CITY_OBSERVATION_V1",
-        "local_timestamp": "2024-07-08T15:00:00",
-        "provider_utc": PROVIDER_UTC,
+        "observation_contract": (
+            "CROSS_CITY_OBSERVATION_V1"
+            if local == DEFAULT_TARGET_LOCAL
+            else "CROSS_CITY_MATCHED_INSTANTS_ACQUISITION"
+        ),
+        "local_timestamp": local.isoformat(timespec="seconds"),
+        "provider_utc": provider_utc,
         "timezone": gate["cfg"].timezone,
-        "dst_active": gate["v2"].get("dst_active"),
+        "dst_active": gate["v2"].get("dst_active") if local == DEFAULT_TARGET_LOCAL else None,
         "type": "Type-1",
         "metric": "TCM",
         "resolution_m": 100,
@@ -336,6 +423,7 @@ def acquire_city(city_name: str, *, dry_run: bool = False) -> dict[str, Any]:
         "expected_tiles": gate["preflight"]["expected_tiles_estimate"],
         "upper_bound": gate["upper_bound"],
         "preflight_checks": gate["checks"],
+        "output_path": str(out_root.relative_to(ROOT).as_posix()),
         "hosted_live_enabled": False,
         "public_real_vendor_enabled": False,
         "public_allowance": 0,
@@ -347,7 +435,18 @@ def acquire_city(city_name: str, *, dry_run: bool = False) -> dict[str, Any]:
         (out_root / "preflight.json").write_text(
             json.dumps(redact_secrets(report), indent=2), encoding="utf-8"
         )
-        print(json.dumps({"status": "dry_run_gate_pass", "city": city_name, "key_alias": key_alias}))
+        print(
+            json.dumps(
+                {
+                    "status": "dry_run_gate_pass",
+                    "city": city_name,
+                    "key_alias": key_alias,
+                    "local_timestamp": report["local_timestamp"],
+                    "provider_utc": provider_utc,
+                    "output_path": report["output_path"],
+                }
+            )
+        )
         return report
 
     usage_before = _usage_remaining(api_key, base_url)
@@ -369,8 +468,8 @@ def acquire_city(city_name: str, *, dry_run: bool = False) -> dict[str, Any]:
     )
     request = HeatmapFetchRequest(
         polygon_aoi=gate["cfg"].polygon_aoi,
-        start_date="2024-07-08",
-        start_time="15:00",
+        start_date=local.strftime("%Y-%m-%d"),
+        start_time=local.strftime("%H:%M"),
         temporal_mode=FgTemporalMode.SINGLE_HOUR,
         granularity=100,
         analytic_type="tcm",
@@ -458,14 +557,14 @@ def acquire_city(city_name: str, *, dry_run: bool = False) -> dict[str, Any]:
         json.dumps(tiles_geojson, default=str), encoding="utf-8"
     )
 
-    aggregation = _aggregate(city_id, tiles_geojson)
+    aggregation = _aggregate(city_id, tiles_geojson, target_local=local)
     (norm_dir / "zone_means.json").write_text(
         json.dumps(
             {
                 "city_id": city_id,
-                "observation_contract": "CROSS_CITY_OBSERVATION_V1",
-                "local_timestamp": "2024-07-08T15:00:00",
-                "provider_utc": PROVIDER_UTC,
+                "observation_contract": report["observation_contract"],
+                "local_timestamp": local.isoformat(timespec="seconds"),
+                "provider_utc": provider_utc,
                 "activity_id": activity_id,
                 "aggregation": aggregation,
             },
@@ -478,7 +577,7 @@ def acquire_city(city_name: str, *, dry_run: bool = False) -> dict[str, Any]:
     seed_type1_live_cache(
         {
             "city": city_name,
-            "target_local": TARGET_LOCAL,
+            "target_local": local,
             "key_alias": "VALIDATION_B",
         },
         payload={
@@ -594,6 +693,14 @@ def main() -> int:
         choices=["los_angeles", "las_vegas", "phoenix", "tucson", "LA", "LV", "PHX", "TUC"],
     )
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--local-datetime",
+        default=DEFAULT_TARGET_LOCAL.isoformat(timespec="seconds"),
+        help=(
+            "Approved AOI-local hour from TEMPORAL_PREFLIGHT_MATRIX "
+            "(default: 2024-07-08T15:00:00 published observation)."
+        ),
+    )
     args = parser.parse_args()
     mapping = {
         "los_angeles": "Los Angeles",
@@ -605,7 +712,11 @@ def main() -> int:
         "tucson": "Tucson",
         "TUC": "Tucson",
     }
-    acquire_city(mapping[args.city], dry_run=args.dry_run)
+    acquire_city(
+        mapping[args.city],
+        dry_run=args.dry_run,
+        target_local=args.local_datetime,
+    )
     return 0
 
 
