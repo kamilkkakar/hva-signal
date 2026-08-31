@@ -67,6 +67,12 @@ test.describe("core product shell never disappears", () => {
     await page.getByTestId("mode-compare").click();
     await expect(page.getByTestId("compare-cities")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId("cross-city-section")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("compare-lens-tabs")).toBeVisible();
+    await expect(page.getByTestId("compare-snapshot-lens")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("compare-shared-scale")).toBeVisible();
+
+    // Context lens preserves scatter + axis/fill controls
+    await page.getByTestId("compare-lens-context").click();
     await expect(page.getByTestId("cross-city-bubble-explorer")).toBeVisible({
       timeout: 60_000,
     });
