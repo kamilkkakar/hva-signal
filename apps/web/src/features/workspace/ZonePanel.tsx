@@ -4,6 +4,7 @@ type SpatialState = {
   supported: boolean;
   label: string;
   sentence: string;
+  loading?: boolean;
 };
 
 type ZonePanelProps = {
@@ -11,7 +12,7 @@ type ZonePanelProps = {
   rangeLabel: string | null;
   spatialState: SpatialState | null;
   nextActions: readonly string[];
-  phoenixDeep?: boolean;
+  hasLocalAnalysis?: boolean;
 };
 
 function formatC(value: number | null): string {
@@ -24,7 +25,7 @@ export function ZonePanel({
   rangeLabel,
   spatialState,
   nextActions,
-  phoenixDeep,
+  hasLocalAnalysis,
 }: ZonePanelProps) {
   if (!zone) {
     return (
@@ -68,12 +69,19 @@ export function ZonePanel({
             <dd>${zone.incomeUsd.toLocaleString()}</dd>
           </div>
         ) : null}
+        {zone.olderHousingPct != null ? (
+          <div className="ws-metric-row">
+            <dt>Older housing</dt>
+            <dd>{zone.olderHousingPct.toFixed(0)}%</dd>
+          </div>
+        ) : null}
       </dl>
 
       {spatialState ? (
         <div
           className="ws-spatial-gate"
           data-supported={spatialState.supported ? "true" : "false"}
+          data-loading={spatialState.loading ? "true" : "false"}
           data-testid="spatial-gate"
         >
           <p className="ws-gate-label">{spatialState.label}</p>
@@ -92,16 +100,16 @@ export function ZonePanel({
         </nav>
       ) : null}
 
-      {phoenixDeep ? (
-        <details className="ws-methods-disclosure" data-testid="zone-methods">
-          <summary>Methods &amp; provenance</summary>
-          <p>
-            FortyGuard Type-1 TCM · 100 m resolution · cached observation.
-            Census Tract geography from US Census Bureau TIGER/Line 2025.
-            Context from ACS 5-year estimates and NLCD 2021.
-          </p>
-        </details>
-      ) : null}
+      <details className="ws-methods-disclosure" data-testid="zone-methods">
+        <summary>Methods &amp; provenance</summary>
+        <p>
+          {hasLocalAnalysis
+            ? "FortyGuard Type-1 TCM · 100 m resolution · cached observation."
+            : "Comparison-mode context uses published cross-city metrics for the selected observation only."}{" "}
+          Census Tract geography from US Census Bureau TIGER/Line 2025.
+          Context from ACS 5-year estimates and NLCD 2021.
+        </p>
+      </details>
     </aside>
   );
 }
