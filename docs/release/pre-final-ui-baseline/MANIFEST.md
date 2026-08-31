@@ -9,7 +9,7 @@
 | `explore-phoenix-1440x900.png` | 1440x900 | Explore Phoenix | workspace-header, explore-city, map-stage, zone-panel, city-selector |
 | `explore-phoenix-1366x768.png` | 1366x768 | Explore Phoenix laptop | workspace-header, explore-city, map-stage, zone-panel |
 | `explore-phoenix-1024.png` | 1024x768 | Explore Phoenix 1024 | workspace-header, explore-city, map-stage, zone-panel |
-| `explore-phoenix-mobile-390x844.png` | 390x844 | mobile Explore | workspace-header, explore-city, map-stage |
+| `explore-phoenix-mobile.png` | 390x844 | mobile Explore | workspace-header, explore-city, map-stage |
 | `explore-las-vegas-1440x900.png` | 1440x900 | Explore Las Vegas | explore-city, map-stage, zone-panel |
 | `explore-phoenix-tree-canopy-1440x900.png` | 1440x900 | tree canopy | map-stage, map-mode-tabs |
 | `explore-phoenix-selected-zone-1440x900.png` | 1440x900 | selected Zone | zone-panel, zone-name, zone-temp |

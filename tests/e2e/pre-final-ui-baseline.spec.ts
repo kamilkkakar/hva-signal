@@ -36,7 +36,7 @@ const SHOTS: Shot[] = [
     expected: ["workspace-header", "explore-city", "map-stage", "zone-panel"],
   },
   {
-    file: "explore-phoenix-mobile-390x844",
+    file: "explore-phoenix-mobile",
     viewport: { width: 390, height: 844 },
     screen: "mobile Explore",
     expected: ["workspace-header", "explore-city", "map-stage"],
@@ -112,7 +112,7 @@ test.describe("pre-final UI baseline screenshots", () => {
     await shot(page, "explore-phoenix-1440x900");
 
     // laptop / 1024 / mobile phoenix
-    for (const s of ["explore-phoenix-1366x768", "explore-phoenix-1024", "explore-phoenix-mobile-390x844"] as const) {
+    for (const s of ["explore-phoenix-1366x768", "explore-phoenix-1024", "explore-phoenix-mobile"] as const) {
       const meta = SHOTS.find((x) => x.file === s)!;
       await page.setViewportSize(meta.viewport);
       await page.waitForTimeout(300);

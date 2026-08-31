@@ -12,11 +12,12 @@ describe("cross-city section copy", () => {
     expect(blob).not.toContain("best city");
   });
 
-  it("mounts with the comparison clock and Phoenix area-analysis path by default", () => {
+  it("mounts with the comparison clock, snapshot lens, and loading state by default", () => {
     const html = renderToStaticMarkup(createElement(CrossCitySection));
     expect(html).toContain("2024-07-08 15:00");
-    expect(html).toContain('href="#happening"');
-    expect(html).toContain("Open area analysis");
+    expect(html).toContain('data-testid="compare-lens-tabs"');
+    expect(html).toContain('data-testid="compare-lens-snapshot"');
+    expect(html).toContain('aria-selected="true"');
     expect(html).toContain('data-testid="cross-city-loading"');
   });
 });
