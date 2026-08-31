@@ -1,0 +1,10 @@
+{
+  "activity_id": "92086c4c-1550-4263-8ac8-9a6c9e030bc4",
+  "reusable": "NO",
+  "tracts_fully_covered": "0 / 25",
+  "tracts_partially_covered": 0,
+  "tracts_not_covered": 25,
+  "approx_100m_cell_coverage_ratio": 0.0,
+  "new_phoenix_call_needed": true,
+  "reason": "Existing phoenix-demo surface and CROSS_CITY_COMPARISON_GEOGRAPHY_V1 Phoenix share zero tracts and zero spatial overlap."
+}

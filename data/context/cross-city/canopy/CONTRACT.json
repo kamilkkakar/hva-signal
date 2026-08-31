@@ -1,0 +1,59 @@
+{
+  "aggregation_to_tracts": "Pixel-center mean inside tract polygon from NLCD TCC 2021 WCS window.",
+  "all_four_cities_supported": true,
+  "cities": [
+    {
+      "city_id": "phoenix",
+      "covered_count": 25,
+      "missing": 0,
+      "path": "data/context/cross-city/canopy/phoenix.json",
+      "range": {
+        "max": 4.446,
+        "min": 0.301
+      },
+      "tract_count": 25
+    },
+    {
+      "city_id": "las_vegas",
+      "covered_count": 25,
+      "missing": 0,
+      "path": "data/context/cross-city/canopy/las_vegas.json",
+      "range": {
+        "max": 3.722,
+        "min": 0.1
+      },
+      "tract_count": 25
+    },
+    {
+      "city_id": "tucson",
+      "covered_count": 25,
+      "missing": 0,
+      "path": "data/context/cross-city/canopy/tucson.json",
+      "range": {
+        "max": 0.667,
+        "min": 0.01
+      },
+      "tract_count": 25
+    },
+    {
+      "city_id": "los_angeles",
+      "covered_count": 25,
+      "missing": 0,
+      "path": "data/context/cross-city/canopy/los_angeles.json",
+      "range": {
+        "max": 11.606,
+        "min": 0.91
+      },
+      "tract_count": 25
+    }
+  ],
+  "comparison_defensible": true,
+  "contract_version": "CROSS_CITY_CANOPY_CONTRACT_V1",
+  "definition": "Percent of each 30 m raster cell covered by tree canopy; tract value is mean of WCS pixel centers falling inside the tract polygon.",
+  "phoenix_local_canopy_difference": "Phoenix local canopy uses OHR shade-study TREE_PCT_N over plantable ground; not reused here.",
+  "resolution": "30 m source; WCS window nearest-neighbor export",
+  "silent_substitute_forbidden": true,
+  "source_selected": "NLCD / USDA Forest Service Percent Tree Canopy Cover (CONUS) via MRLC WCS mrlc_download:nlcd_tcc_conus_2021_v2021-4",
+  "status": "MATERIALIZED",
+  "vintage": "2021 NLCD TCC for comparable four-city baseline"
+}

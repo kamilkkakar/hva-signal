@@ -1,0 +1,1583 @@
+{
+  "city_id": "tucson",
+  "missing_population_geoids": [],
+  "place_geoid": "0477000",
+  "rows": {
+    "04019003302": {
+      "geoid": "04019003302",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 1770.0,
+        "moe": 310.033869117553,
+        "share_of_units": 0.9698630136986301,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1825.0,
+        "total_units_moe": 239.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 75968.0,
+        "moe": 15706.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 575.0,
+        "moe": 222.0,
+        "share_of_households": 0.32122905027932963,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1790.0,
+        "total_households_moe": 241.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 4177.0,
+        "moe": 527.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019003502": {
+      "geoid": "04019003502",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 1432.0,
+        "moe": 237.80454158825478,
+        "share_of_units": 0.7690655209452202,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1862.0,
+        "total_units_moe": 132.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 48824.0,
+        "moe": 9707.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 679.0,
+        "moe": 152.0,
+        "share_of_households": 0.3911290322580645,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1736.0,
+        "total_households_moe": 151.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 3896.0,
+        "moe": 457.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019003503": {
+      "geoid": "04019003503",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 1526.0,
+        "moe": 234.89997871434556,
+        "share_of_units": 0.8366228070175439,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1824.0,
+        "total_units_moe": 164.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 40557.0,
+        "moe": 6315.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 523.0,
+        "moe": 124.0,
+        "share_of_households": 0.3137372525494901,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1667.0,
+        "total_households_moe": 194.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 4606.0,
+        "moe": 818.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019003504": {
+      "geoid": "04019003504",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 904.0,
+        "moe": 168.55562879951532,
+        "share_of_units": 0.8071428571428572,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1120.0,
+        "total_units_moe": 130.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 80785.0,
+        "moe": 10127.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 251.0,
+        "moe": 100.0,
+        "share_of_households": 0.2311233885819521,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1086.0,
+        "total_households_moe": 148.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 3012.0,
+        "moe": 599.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019003505": {
+      "geoid": "04019003505",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 1448.0,
+        "moe": 263.4881401505578,
+        "share_of_units": 0.6961538461538461,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 2080.0,
+        "total_units_moe": 333.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 40897.0,
+        "moe": 5150.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 504.0,
+        "moe": 135.0,
+        "share_of_households": 0.26995179432244243,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1867.0,
+        "total_households_moe": 359.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 4780.0,
+        "moe": 1082.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019003506": {
+      "geoid": "04019003506",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 1093.0,
+        "moe": 272.027572131944,
+        "share_of_units": 0.6068850638534148,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1801.0,
+        "total_units_moe": 162.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 40077.0,
+        "moe": 14111.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 394.0,
+        "moe": 135.0,
+        "share_of_households": 0.2532133676092545,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1556.0,
+        "total_households_moe": 177.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 3799.0,
+        "moe": 532.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019003601": {
+      "geoid": "04019003601",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 316.0,
+        "moe": 115.56816170554933,
+        "share_of_units": 0.21959694232105628,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1439.0,
+        "total_units_moe": 180.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 63624.0,
+        "moe": 5002.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 213.0,
+        "moe": 84.0,
+        "share_of_households": 0.15192582025677603,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1402.0,
+        "total_households_moe": 183.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 4890.0,
+        "moe": 482.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004008": {
+      "geoid": "04019004008",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 1897.0,
+        "moe": 256.6924229501136,
+        "share_of_units": 0.8847947761194029,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 2144.0,
+        "total_units_moe": 232.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 71713.0,
+        "moe": 5982.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 709.0,
+        "moe": 193.0,
+        "share_of_households": 0.3413577274915744,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 2077.0,
+        "total_households_moe": 237.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 4623.0,
+        "moe": 513.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004010": {
+      "geoid": "04019004010",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 1254.0,
+        "moe": 256.46247288833507,
+        "share_of_units": 0.7240184757505773,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1732.0,
+        "total_units_moe": 210.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 63594.0,
+        "moe": 9546.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 694.0,
+        "moe": 154.0,
+        "share_of_households": 0.40561075394506135,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1711.0,
+        "total_households_moe": 213.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 3691.0,
+        "moe": 657.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004029": {
+      "geoid": "04019004029",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 1665.0,
+        "moe": 252.3430205097815,
+        "share_of_units": 0.9229490022172949,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1804.0,
+        "total_units_moe": 210.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 55933.0,
+        "moe": 6122.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 561.0,
+        "moe": 180.0,
+        "share_of_households": 0.3229706390328152,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1737.0,
+        "total_households_moe": 221.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 4208.0,
+        "moe": 683.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004033": {
+      "geoid": "04019004033",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 967.0,
+        "moe": 240.05624340974762,
+        "share_of_units": 0.4782393669634026,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 2022.0,
+        "total_units_moe": 248.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 32889.0,
+        "moe": 16287.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 897.0,
+        "moe": 253.0,
+        "share_of_households": 0.4726027397260274,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1898.0,
+        "total_households_moe": 251.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 4110.0,
+        "moe": 555.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004034": {
+      "geoid": "04019004034",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 1012.0,
+        "moe": 189.3752887786577,
+        "share_of_units": 0.6945778997940975,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1457.0,
+        "total_units_moe": 133.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 48368.0,
+        "moe": 7742.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 398.0,
+        "moe": 132.0,
+        "share_of_households": 0.29947328818660646,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1329.0,
+        "total_households_moe": 168.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 3845.0,
+        "moe": 545.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004035": {
+      "geoid": "04019004035",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 869.0,
+        "moe": 131.77632564311392,
+        "share_of_units": 0.4568874868559411,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1902.0,
+        "total_units_moe": 115.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 53926.0,
+        "moe": 7374.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 603.0,
+        "moe": 142.0,
+        "share_of_households": 0.34319863403528744,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1757.0,
+        "total_households_moe": 167.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 3942.0,
+        "moe": 520.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004036": {
+      "geoid": "04019004036",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 789.0,
+        "moe": 193.0932417253385,
+        "share_of_units": 0.6347546259050684,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1243.0,
+        "total_units_moe": 145.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 67500.0,
+        "moe": 10490.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 163.0,
+        "moe": 75.0,
+        "share_of_households": 0.14173913043478262,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1150.0,
+        "total_households_moe": 160.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 3201.0,
+        "moe": 527.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004037": {
+      "geoid": "04019004037",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 763.0,
+        "moe": 147.83774890061062,
+        "share_of_units": 0.6153225806451613,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1240.0,
+        "total_units_moe": 117.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 57143.0,
+        "moe": 15179.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 484.0,
+        "moe": 140.0,
+        "share_of_households": 0.3980263157894737,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1216.0,
+        "total_households_moe": 123.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 2727.0,
+        "moe": 365.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004038": {
+      "geoid": "04019004038",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 998.0,
+        "moe": 170.9766065869831,
+        "share_of_units": 0.9147571035747021,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1091.0,
+        "total_units_moe": 133.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 65472.0,
+        "moe": 13164.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 208.0,
+        "moe": 83.0,
+        "share_of_households": 0.2017458777885548,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1031.0,
+        "total_households_moe": 139.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 3036.0,
+        "moe": 553.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004056": {
+      "geoid": "04019004056",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 646.0,
+        "moe": 149.10734388352574,
+        "share_of_units": 0.6743215031315241,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 958.0,
+        "total_units_moe": 125.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 77917.0,
+        "moe": 20934.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 285.0,
+        "moe": 88.0,
+        "share_of_households": 0.3177257525083612,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 897.0,
+        "total_households_moe": 124.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 2148.0,
+        "moe": 248.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004057": {
+      "geoid": "04019004057",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 714.0,
+        "moe": 180.0361074895811,
+        "share_of_units": 0.4056818181818182,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1760.0,
+        "total_units_moe": 98.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 81403.0,
+        "moe": 12634.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 416.0,
+        "moe": 112.0,
+        "share_of_households": 0.25075346594333936,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1659.0,
+        "total_households_moe": 121.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 4393.0,
+        "moe": 322.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004058": {
+      "geoid": "04019004058",
+      "homes_built_before_1980": {
+        "comparison_eligible": false,
+        "estimate": 108.0,
+        "moe": 63.57672530100933,
+        "share_of_units": 0.048,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 2250.0,
+        "total_units_moe": 248.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 66326.0,
+        "moe": 5102.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 662.0,
+        "moe": 112.0,
+        "share_of_households": 0.3087686567164179,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 2144.0,
+        "total_households_moe": 246.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 4959.0,
+        "moe": 748.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004063": {
+      "geoid": "04019004063",
+      "homes_built_before_1980": {
+        "comparison_eligible": false,
+        "estimate": 18.0,
+        "moe": 48.25971404805462,
+        "share_of_units": 0.006187693365417669,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 2909.0,
+        "total_units_moe": 249.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 111528.0,
+        "moe": 8814.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 686.0,
+        "moe": 207.0,
+        "share_of_households": 0.24206069160197602,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 2834.0,
+        "total_households_moe": 260.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 7968.0,
+        "moe": 839.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004075": {
+      "geoid": "04019004075",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 390.0,
+        "moe": 152.88557812952797,
+        "share_of_units": 0.29191616766467066,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1336.0,
+        "total_units_moe": 138.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 51250.0,
+        "moe": 11509.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 536.0,
+        "moe": 155.0,
+        "share_of_households": 0.43260694108151737,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1239.0,
+        "total_households_moe": 130.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 2654.0,
+        "moe": 437.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004076": {
+      "geoid": "04019004076",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 1531.0,
+        "moe": 279.3886182363197,
+        "share_of_units": 0.7087962962962963,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 2160.0,
+        "total_units_moe": 308.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 60232.0,
+        "moe": 10528.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": false,
+        "estimate": 597.0,
+        "moe": 317.0,
+        "share_of_households": 0.30868665977249227,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1934.0,
+        "total_households_moe": 315.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 4784.0,
+        "moe": 815.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004077": {
+      "geoid": "04019004077",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 907.0,
+        "moe": 204.71687766278578,
+        "share_of_units": 0.7141732283464567,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1270.0,
+        "total_units_moe": 146.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 90817.0,
+        "moe": 12546.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 232.0,
+        "moe": 71.0,
+        "share_of_households": 0.19269102990033224,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1204.0,
+        "total_households_moe": 159.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 3261.0,
+        "moe": 644.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019004078": {
+      "geoid": "04019004078",
+      "homes_built_before_1980": {
+        "comparison_eligible": true,
+        "estimate": 1176.0,
+        "moe": 309.399418228283,
+        "share_of_units": 0.7223587223587223,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 1628.0,
+        "total_units_moe": 326.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": true,
+        "estimate": 66635.0,
+        "moe": 23655.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": true,
+        "estimate": 558.0,
+        "moe": 197.0,
+        "share_of_households": 0.3747481531229013,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 1489.0,
+        "total_households_moe": 286.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": true,
+        "estimate": 3448.0,
+        "moe": 864.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    },
+    "04019980300": {
+      "geoid": "04019980300",
+      "homes_built_before_1980": {
+        "comparison_eligible": false,
+        "estimate": 0.0,
+        "moe": 31.304951684997057,
+        "share_of_units": null,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_units_estimate": 0.0,
+        "total_units_moe": 14.0,
+        "variables": [
+          "B25034_E007",
+          "B25034_E008",
+          "B25034_E009",
+          "B25034_E010",
+          "B25034_E011"
+        ],
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "median_household_income": {
+        "comparison_eligible": false,
+        "estimate": null,
+        "moe": null,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B19013_001",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "one_person_households": {
+        "comparison_eligible": false,
+        "estimate": 0.0,
+        "moe": 14.0,
+        "share_of_households": null,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "total_households_estimate": 0.0,
+        "total_households_moe": 14.0,
+        "variable": "B11001_008",
+        "vintage": "ACS 5-year 2020-2024"
+      },
+      "population": {
+        "comparison_eligible": false,
+        "estimate": 3.0,
+        "moe": 3.0,
+        "source": {
+          "dataset": "acsdt5y2024",
+          "url_base": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+          "vintage": "ACS 5-year 2020-2024"
+        },
+        "variable": "B01001_001",
+        "vintage": "ACS 5-year 2020-2024"
+      }
+    }
+  },
+  "tract_count": 25
+}

@@ -1,0 +1,115 @@
+{
+  "aggregation": "Mean of NLCD TCC 2021 WCS pixel centers inside each tract polygon",
+  "city_id": "phoenix",
+  "coverage_id": "mrlc_download:nlcd_tcc_conus_2021_v2021-4",
+  "covered_count": 25,
+  "missing_geoids": [],
+  "place_geoid": "0455000",
+  "range": {
+    "max": 2.965,
+    "min": 0.284
+  },
+  "rows": {
+    "04013103604": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.709
+    },
+    "04013103605": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 1.242
+    },
+    "04013103608": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.814
+    },
+    "04013103609": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 1.141
+    },
+    "04013103612": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 1.143
+    },
+    "04013103614": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.859
+    },
+    "04013103615": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.573
+    },
+    "04013103900": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.635
+    },
+    "04013104401": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.574
+    },
+    "04013104402": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.553
+    },
+    "04013104501": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.701
+    },
+    "04013104502": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.37
+    },
+    "04013104600": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.57
+    },
+    "04013105300": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 2.736
+    },
+    "04013105400": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 2.965
+    },
+    "04013105501": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.598
+    },
+    "04013105502": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.753
+    },
+    "04013105503": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.284
+    },
+    "04013105601": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.474
+    },
+    "04013105602": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.584
+    },
+    "04013618600": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.414
+    },
+    "04013618700": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.53
+    },
+    "04013618800": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.521
+    },
+    "04013618900": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.484
+    },
+    "04013619100": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.488
+    }
+  },
+  "tract_count": 25
+}

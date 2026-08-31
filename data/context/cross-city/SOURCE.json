@@ -1,0 +1,35 @@
+{
+  "cities": [
+    {
+      "city_id": "phoenix",
+      "missing_population": 0,
+      "path": "data/context/cross-city/phoenix.json",
+      "tract_count": 25
+    },
+    {
+      "city_id": "las_vegas",
+      "missing_population": 0,
+      "path": "data/context/cross-city/las_vegas.json",
+      "tract_count": 25
+    },
+    {
+      "city_id": "tucson",
+      "missing_population": 0,
+      "path": "data/context/cross-city/tucson.json",
+      "tract_count": 25
+    },
+    {
+      "city_id": "los_angeles",
+      "missing_population": 0,
+      "path": "data/context/cross-city/los_angeles.json",
+      "tract_count": 25
+    }
+  ],
+  "contract_version": "CROSS_CITY_ACS_CONTEXT_V1",
+  "mixed_vintage": false,
+  "requested_vintage": "ACS 5-year 2020-2024",
+  "resolved_vintage": "ACS 5-year 2020-2024",
+  "resolved_year": 2024,
+  "source": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData",
+  "vintage_matches_request": true
+}

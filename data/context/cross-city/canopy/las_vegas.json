@@ -1,0 +1,115 @@
+{
+  "aggregation": "Mean of NLCD TCC 2021 WCS pixel centers inside each tract polygon",
+  "city_id": "las_vegas",
+  "coverage_id": "mrlc_download:nlcd_tcc_conus_2021_v2021-4",
+  "covered_count": 25,
+  "missing_geoids": [],
+  "place_geoid": "3240000",
+  "range": {
+    "max": 1.93,
+    "min": 0.131
+  },
+  "rows": {
+    "32003003003": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.325
+    },
+    "32003003004": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.21
+    },
+    "32003003005": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.199
+    },
+    "32003003102": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.498
+    },
+    "32003003103": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.418
+    },
+    "32003003104": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.375
+    },
+    "32003003215": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 1.121
+    },
+    "32003003219": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 1.93
+    },
+    "32003003220": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 1.149
+    },
+    "32003003245": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.131
+    },
+    "32003003246": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.351
+    },
+    "32003003247": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 1.027
+    },
+    "32003003248": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 1.262
+    },
+    "32003003253": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.507
+    },
+    "32003003254": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.194
+    },
+    "32003003408": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.352
+    },
+    "32003003409": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.223
+    },
+    "32003003411": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.408
+    },
+    "32003003412": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.555
+    },
+    "32003003415": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.47
+    },
+    "32003003416": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.189
+    },
+    "32003003418": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.3
+    },
+    "32003003419": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.357
+    },
+    "32003003421": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.25
+    },
+    "32003003422": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.358
+    }
+  },
+  "tract_count": 25
+}

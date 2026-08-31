@@ -1,0 +1,121 @@
+{
+  "aggregation": "Mean of NLCD TCC 2021 WCS pixel centers inside each tract polygon",
+  "city_id": "los_angeles",
+  "coverage_id": "mrlc_download:nlcd_tcc_conus_2021_v2021-4",
+  "covered_count": 25,
+  "export_extent": {
+    "max_lat": 34.0581748,
+    "max_lon": -118.3864552,
+    "min_lat": 34.002493199999996,
+    "min_lon": -118.4543048
+  },
+  "missing_geoids": [],
+  "place_geoid": "0644000",
+  "range": {
+    "max": 11.606,
+    "min": 0.91
+  },
+  "rows": {
+    "06037267800": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 3.399
+    },
+    "06037267902": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 5.804
+    },
+    "06037269000": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 9.224
+    },
+    "06037269300": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 9.91
+    },
+    "06037269903": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 5.955
+    },
+    "06037269905": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 6.787
+    },
+    "06037269906": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 2.424
+    },
+    "06037269907": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 1.353
+    },
+    "06037269908": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 3.386
+    },
+    "06037269909": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 0.91
+    },
+    "06037270101": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 2.367
+    },
+    "06037270102": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 3.015
+    },
+    "06037271100": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 7.214
+    },
+    "06037271200": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 2.362
+    },
+    "06037271300": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 6.818
+    },
+    "06037271500": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 8.189
+    },
+    "06037271600": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 11.606
+    },
+    "06037271702": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 5.168
+    },
+    "06037271703": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 9.295
+    },
+    "06037271704": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 9.099
+    },
+    "06037271801": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 4.72
+    },
+    "06037271803": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 3.938
+    },
+    "06037271804": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 2.269
+    },
+    "06037271901": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 6.857
+    },
+    "06037271902": {
+      "coverage": "ok",
+      "cross_city_tree_canopy_pct": 4.527
+    }
+  },
+  "tract_count": 25
+}
