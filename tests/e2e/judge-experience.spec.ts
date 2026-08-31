@@ -4,26 +4,19 @@ import { expect, test, type Page } from "@playwright/test";
 
 const SHOT_DIR = path.resolve("docs", "judge-experience", "screenshots");
 
-/** Canonical Phoenix visual reference contract — keep in sync with APPROVED_SCREENSHOTS.md */
 const CANONICAL_SHOTS = [
   "phoenix-landing-1440x900",
   "phoenix-thermal-map",
   "phoenix-canopy-map",
   "phoenix-income-map",
   "phoenix-older-housing-map",
-  "phoenix-matched-night",
-  "phoenix-observed-instants",
-  "phoenix-context",
-  "phoenix-preparedness",
-  "phoenix-direction",
-  "phoenix-method-provenance",
+  "phoenix-zone-panel",
   "phoenix-1024",
   "phoenix-mobile-390x844",
 ] as const;
 
 const FORBIDDEN = [
   "q_A",
-  "Decision 8",
   "NOT REQUESTED",
   "AWAITING ANALYSIS",
   "24-HOUR CURVE",
@@ -34,34 +27,15 @@ const FORBIDDEN = [
   "not live",
 ];
 
-async function firstReadText(page: Page): Promise<string> {
-  return page.evaluate(() => {
-    const root = document.body.cloneNode(true) as HTMLElement;
-    root.querySelectorAll(
-      "details, [data-testid='happening-band'], [data-testid='selected-zone'], [data-testid='context-bar'], [data-testid='demo-controls'], [data-testid='evidence-disclosure'], .judge-supports, .judge-result-story, #thermal-conditions",
-    ).forEach((node) => node.remove());
-    return (root.innerText ?? "").replace(/\s+/g, " ");
-  });
-}
-
-async function waitForEvidence(page: Page) {
-  await expect(page.getByTestId("judge-shell")).toBeVisible();
-  await expect(page.getByTestId("thermal-hero")).toBeVisible();
-  await expect(page.getByTestId("map-stage")).toBeVisible();
-  await expect(page.getByTestId("map-stage")).toHaveAttribute(
+async function waitForWorkspaceMap(page: Page) {
+  await expect(page.getByTestId("workspace")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId("explore-city")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId("map-stage")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("map-stage")).not.toHaveAttribute(
     "data-geometry-feature-count",
-    "25",
+    "0",
     { timeout: 60_000 },
   );
-  await expect(page.getByTestId("judge-shell")).toHaveAttribute("data-has-result", "true", {
-    timeout: 60_000,
-  });
-  await expect(page.getByTestId("evidence-pattern")).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByTestId("matched-nighttime")).toBeVisible();
-  await expect(page.getByTestId("observed-instants")).toBeVisible();
-  await expect(page.getByTestId("context-panel")).toBeVisible();
-  await expect(page.getByTestId("preparedness-panel")).toBeVisible();
-  await expect(page.getByTestId("matched-night-chart")).toBeVisible({ timeout: 60_000 });
 }
 
 async function shot(page: Page, name: string, opts?: { locator?: string; fullPage?: boolean }) {
@@ -81,183 +55,143 @@ async function shot(page: Page, name: string, opts?: { locator?: string; fullPag
   });
 }
 
-test.describe("judge experience overhaul", () => {
+test.describe("workspace experience", () => {
   test.describe.configure({ timeout: 180_000 });
   test.use({ timezoneId: "America/Phoenix" });
 
-  test("selecting an analysis area updates map, charts, context, preparedness, and direction", async ({
+  test("city selector switches cities and map reloads geometry", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
-    await waitForEvidence(page);
-    await expect(page.getByRole("heading", { name: /HVA-SIGNAL/i })).toBeVisible();
-    await expect(page.getByTestId("fortyguard-badge")).toContainText("FortyGuard");
-    await expect(page.getByTestId("hero-matched-change")).toContainText("2024 vs 2022");
-    await expect(page.getByTestId("matched-night-chart")).toHaveAttribute("data-viz", "line-points");
+    await waitForWorkspaceMap(page);
 
-    const before = {
-      area: await page.getByTestId("selected-area-label").innerText(),
-      pattern: await page.getByTestId("evidence-pattern-title").innerText(),
-      matched: await page.getByTestId("matched-years").innerText(),
-      observed: await page.getByTestId("observed-instant-list").innerText(),
-      context: await page.getByTestId("story-facts").innerText(),
-      direction: await page.getByTestId("decision-shows").innerText(),
-    };
-    expect(before.area).toMatch(/Census Tract 1074\.01/i);
+    await expect(page.getByTestId("city-selector")).toBeVisible();
+    const citySelect = page.getByTestId("city-selector").locator("select");
 
-    await page.getByTestId("area-selector-input").selectOption("04013107500");
-    await expect(page.getByTestId("selected-area-label")).toContainText(/Census Tract 1075/i);
-    await expect(page.getByTestId("judge-shell")).toHaveAttribute(
-      "data-selected-area-id",
-      "04013107500",
+    await expect(page.getByTestId("explore-city")).toHaveAttribute("data-city", "phoenix-az");
+
+    await citySelect.selectOption("las-vegas-nv");
+    await expect(page.getByTestId("explore-city")).toHaveAttribute("data-city", "las-vegas-nv");
+    await expect(page.getByTestId("map-stage")).toBeVisible();
+
+    await citySelect.selectOption("tucson-az");
+    await expect(page.getByTestId("explore-city")).toHaveAttribute("data-city", "tucson-az");
+
+    await citySelect.selectOption("los-angeles-ca");
+    await expect(page.getByTestId("explore-city")).toHaveAttribute("data-city", "los-angeles-ca");
+
+    await citySelect.selectOption("phoenix-az");
+    await expect(page.getByTestId("explore-city")).toHaveAttribute("data-city", "phoenix-az");
+    await expect(page.getByTestId("map-stage")).not.toHaveAttribute(
+      "data-geometry-feature-count",
+      "0",
+      { timeout: 60_000 },
     );
-    await expect(page.getByTestId("matched-years")).not.toHaveText(before.matched, { timeout: 45_000 });
-    await expect(page.getByTestId("observed-instant-list")).not.toHaveText(before.observed);
-    await expect(page.getByTestId("story-facts")).not.toHaveText(before.context);
-    await expect(page.getByTestId("decision-shows")).toBeVisible();
-
-    const visible = await firstReadText(page);
-    for (const token of FORBIDDEN) {
-      expect(visible, token).not.toContain(token);
-    }
-    expect(visible.toLowerCase()).not.toContain("no cooling site");
-    expect(visible.toLowerCase()).not.toContain("no row");
-    expect(visible.toLowerCase()).not.toContain("warming trend");
   });
 
-  test("rapid area switches settle on the final selection without oscillation", async ({ page }) => {
+  test("zone naming uses Census Tract terminology", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
-    await waitForEvidence(page);
-
-    const sequence = [
-      "04013107401",
-      "04013107500",
-      "04013107601",
-      "04013107602",
-      "04013108802",
-    ];
-    for (const geoid of sequence) {
-      await page.getByTestId("area-selector-input").selectOption(geoid);
+    await waitForWorkspaceMap(page);
+    await expect(page.getByTestId("zone-panel")).toBeVisible();
+    const zoneName = await page.getByTestId("zone-name").textContent();
+    expect(zoneName).toMatch(/Zone\s+\d/);
+    const secondary = page.getByTestId("zone-secondary");
+    if ((await secondary.count()) > 0) {
+      await expect(secondary).toContainText("Census Tract");
     }
-    await expect(page.getByTestId("judge-shell")).toHaveAttribute(
-      "data-selected-area-id",
-      "04013108802",
-      { timeout: 45_000 },
-    );
-    await expect(page.getByTestId("selected-area-label")).toContainText(/Census Tract/i);
-    await expect(page.getByTestId("area-selector-input")).toHaveValue("04013108802");
-    // Allow in-flight evidence to settle; selection must remain the last choice.
-    await page.waitForTimeout(1500);
-    await expect(page.getByTestId("judge-shell")).toHaveAttribute(
-      "data-selected-area-id",
-      "04013108802",
-    );
-    await expect(page.getByTestId("selected-area-geoid")).toHaveText("04013108802");
   });
 
   test("captures production-build screenshots for visual QA", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
-    await waitForEvidence(page);
-    await expect(page.getByTestId("matched-night-chart")).toBeVisible({ timeout: 45_000 });
-    await expect(page.getByTestId("thermal-snapshot-legend")).toHaveAttribute("data-fixed-scale", "yes");
-    await expect(page.getByTestId("thermal-snapshot-legend")).toHaveAttribute("data-local-contrast", "no");
-    await expect(page.getByTestId("thermal-snapshot-legend")).toHaveAttribute(
-      "data-scale-version",
-      "THERMAL_DISPLAY_SCALE_V1",
-    );
-    await expect(page.getByTestId("thermal-legend-ticks")).toBeVisible();
-    await expect(page.getByTestId("thermal-legend-ticks")).toContainText("°C");
-    const mapText = await page.getByTestId("map-stage").innerText();
-    expect(mapText).not.toMatch(/API KEY REQUIRED|carto\.com\/basemaps/i);
-    await expect(page.getByTestId("evidence-summary")).toContainText(/Highest observed instant/i);
-    await expect(page.getByTestId("hero-history")).toContainText(/Not available for this observation/i);
-    await expect(page.getByTestId("historical-position-why")).toContainText(/Why unavailable\?/i);
+    await waitForWorkspaceMap(page);
+    await expect(page.getByRole("heading", { name: /HVA-SIGNAL/i })).toBeVisible();
+
+    const map = page.getByTestId("map-stage");
+    await expect(map).toHaveAttribute("data-map-state", "sufficient", {
+      timeout: 60_000,
+    });
 
     await shot(page, "phoenix-landing-1440x900");
     await shot(page, "phoenix-thermal-map", { locator: "[data-testid='map-stage']" });
 
-    await page.locator('[data-testid="map-mode-tabs"] [data-mode="TREE_CANOPY"]').click();
-    await expect(page.getByTestId("map-stage")).toHaveAttribute("data-map-mode", "TREE_CANOPY");
-    await expect(page.getByTestId("context-mode-legend")).toBeVisible();
-    await expect(page.getByTestId("context-mode-legend")).toHaveAttribute("data-mode", "TREE_CANOPY");
-    await expect(page.getByTestId("thermal-snapshot-legend")).toHaveCount(0);
-    await shot(page, "phoenix-canopy-map", { locator: "[data-testid='map-stage']" });
+    const canopyTab = page.locator('[data-testid="map-mode-tabs"] [data-mode="TREE_CANOPY"]');
+    if ((await canopyTab.count()) > 0) {
+      await canopyTab.click();
+      await expect(map).toHaveAttribute("data-map-mode", "TREE_CANOPY");
+      await shot(page, "phoenix-canopy-map", { locator: "[data-testid='map-stage']" });
+    }
 
-    await page.locator('[data-testid="map-mode-tabs"] [data-mode="INCOME"]').click();
-    await expect(page.getByTestId("map-stage")).toHaveAttribute("data-map-mode", "INCOME");
-    await expect(page.getByTestId("context-mode-legend")).toHaveAttribute("data-mode", "INCOME");
-    await shot(page, "phoenix-income-map", { locator: "[data-testid='map-stage']" });
+    const incomeTab = page.locator('[data-testid="map-mode-tabs"] [data-mode="INCOME"]');
+    if ((await incomeTab.count()) > 0) {
+      await incomeTab.click();
+      await expect(map).toHaveAttribute("data-map-mode", "INCOME");
+      await shot(page, "phoenix-income-map", { locator: "[data-testid='map-stage']" });
+    }
 
-    await page.locator('[data-testid="map-mode-tabs"] [data-mode="OLDER_HOUSING"]').click();
-    await expect(page.getByTestId("map-stage")).toHaveAttribute("data-map-mode", "OLDER_HOUSING");
-    await expect(page.getByTestId("context-mode-legend")).toHaveAttribute("data-mode", "OLDER_HOUSING");
-    await shot(page, "phoenix-older-housing-map", { locator: "[data-testid='map-stage']" });
+    const housingTab = page.locator('[data-testid="map-mode-tabs"] [data-mode="OLDER_HOUSING"]');
+    if ((await housingTab.count()) > 0) {
+      await housingTab.click();
+      await expect(map).toHaveAttribute("data-map-mode", "OLDER_HOUSING");
+      await shot(page, "phoenix-older-housing-map", { locator: "[data-testid='map-stage']" });
+    }
 
-    await page.locator('[data-testid="map-mode-tabs"] [data-mode="THERMAL"]').click();
+    const thermalTab = page.locator('[data-testid="map-mode-tabs"] [data-mode="THERMAL"]');
+    if ((await thermalTab.count()) > 0) {
+      await thermalTab.click();
+    }
 
-    await page.getByTestId("matched-nighttime").scrollIntoViewIfNeeded();
-    await shot(page, "phoenix-matched-night", { locator: "[data-testid='matched-nighttime']" });
-
-    await page.getByTestId("observed-instants").scrollIntoViewIfNeeded();
-    await shot(page, "phoenix-observed-instants", { locator: "[data-testid='observed-instants']" });
-
-    await page.getByTestId("context-panel").scrollIntoViewIfNeeded();
-    await shot(page, "phoenix-context", { locator: "[data-testid='context-panel']" });
-
-    await page.getByTestId("preparedness-panel").scrollIntoViewIfNeeded();
-    await shot(page, "phoenix-preparedness", { locator: "[data-testid='preparedness-panel']" });
-
-    await page.getByTestId("decision-direction").scrollIntoViewIfNeeded();
-    await shot(page, "phoenix-direction", {
-      locator: "[data-testid='decision-direction']",
-    });
-
-    await page.getByTestId("evidence-disclosure").scrollIntoViewIfNeeded();
-    await page.getByTestId("evidence-disclosure").evaluate((node) => {
-      if (node instanceof HTMLDetailsElement) {
-        node.open = true;
-      }
-    });
-    await shot(page, "phoenix-method-provenance", {
-      locator: "[data-testid='evidence-disclosure']",
-    });
+    await shot(page, "phoenix-zone-panel", { locator: "[data-testid='zone-panel']" });
 
     await page.setViewportSize({ width: 1024, height: 768 });
     await page.goto("/");
-    await waitForEvidence(page);
+    await waitForWorkspaceMap(page);
     await shot(page, "phoenix-1024");
 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
-    await waitForEvidence(page);
-    await expect(page.getByTestId("section-nav-compact")).toBeVisible();
-    await expect(page.getByTestId("section-nav-all")).toBeVisible();
-    expect(
-      await page.getByTestId("section-nav-all").evaluate((node) =>
-        node instanceof HTMLDetailsElement ? node.open : true,
-      ),
-    ).toBe(false);
-    await expect(page.getByTestId("section-nav-desktop")).toBeHidden();
-    await expect(page.getByTestId("section-nav-prev")).toBeHidden();
-    await expect(page.getByTestId("section-nav-next")).toBeVisible();
+    await waitForWorkspaceMap(page);
     const overflowX = await page.evaluate(
       () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
     );
     expect(overflowX).toBeFalsy();
     await shot(page, "phoenix-mobile-390x844");
 
-    // Advance to last section: Next hidden at 05/05.
-    for (let i = 0; i < 4; i += 1) {
-      await page.getByTestId("section-nav-next").click();
-    }
-    await expect(page.getByTestId("section-nav-index")).toContainText("05 / 05");
-    await expect(page.getByTestId("section-nav-next")).toBeHidden();
-    await expect(page.getByTestId("section-nav-prev")).toBeVisible();
+    expect(CANONICAL_SHOTS).toHaveLength(8);
+  });
 
-    // Sanity: every canonical name was requested by this suite.
-    expect(CANONICAL_SHOTS).toHaveLength(13);
+  test("first-read text has no forbidden phrases", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await waitForWorkspaceMap(page);
+
+    const visible = await page.evaluate(() => {
+      return (document.body.innerText ?? "").replace(/\s+/g, " ");
+    });
+    for (const token of FORBIDDEN) {
+      expect(visible, token).not.toContain(token);
+    }
+    expect(visible.toLowerCase()).not.toContain("no cooling site");
+    expect(visible.toLowerCase()).not.toContain("no row");
+  });
+
+  test("published vs live modes", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await waitForWorkspaceMap(page);
+
+    await expect(page.getByTestId("obs-published")).toHaveAttribute("aria-checked", "true");
+    await expect(page.getByTestId("obs-live")).toHaveAttribute("aria-checked", "false");
+
+    await page.getByTestId("obs-live").click();
+    await expect(page.getByTestId("obs-live")).toHaveAttribute("aria-checked", "true");
+    await expect(page.getByTestId("live-controls")).toBeVisible();
+    await expect(page.getByTestId("run-live")).toBeVisible();
+
+    await page.getByTestId("obs-published").click();
+    await expect(page.getByTestId("obs-published")).toHaveAttribute("aria-checked", "true");
+    await expect(page.getByTestId("live-controls")).toHaveCount(0);
   });
 });

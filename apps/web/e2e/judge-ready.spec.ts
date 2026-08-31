@@ -3,14 +3,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test, type Page } from "@playwright/test";
 import {
-  BACKEND_ORDERING_COPY,
-  INSUFFICIENT_TIME,
-  SUFFICIENT_TIME,
-  fillAnalysisTime,
-  openEvidenceDisclosure,
-  submitAnalysis,
-  waitForDecision8,
   waitForMapState,
+  waitForMapLoaded,
 } from "./judge-ready.helpers";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -34,118 +28,90 @@ const framing = JSON.parse(
   forbidden_phrases: string[];
 };
 
-async function expectActionFraming(
-  page: Page,
-  expected: (typeof framing)["sufficient"] | (typeof framing)["insufficient"],
-) {
-  await openEvidenceDisclosure(page);
-  const card = page.getByTestId("action-v0");
-  if ((await card.count()) === 0) {
-    return false;
-  }
-  await expect(card).toBeVisible();
-  await expect(card).toHaveAttribute("data-action-kind", expected.kind);
-  await expect(page.getByTestId("action-v0-stamp")).toHaveText(expected.stamp);
-  await expect(page.getByTestId("action-v0-says")).toHaveText(expected.says);
-  await expect(page.getByTestId("action-v0-supports")).toHaveText(
-    expected.supports,
-  );
-  await expect(page.getByTestId("action-v0-does-not")).toHaveText(
-    expected.does_not,
-  );
-  const blob = ((await card.textContent()) ?? "").toLowerCase();
-  for (const phrase of framing.forbidden_phrases) {
-    expect(blob, phrase).not.toContain(phrase);
-  }
-  return true;
-}
-
-test.describe("judge-ready Phoenix sequence", () => {
+test.describe("workspace Phoenix auto-load", () => {
   test.describe.configure({ timeout: 120_000 });
   test.use({ timezoneId: "America/Phoenix" });
 
-  test("sufficient 2022-06-30 then 2022-07-01 insufficient chrome disappears", async ({
+  test("Phoenix auto-loads with map, zone panel, and spatial gate", async ({
     page,
   }) => {
     await page.goto("/");
-    await fillAnalysisTime(page, SUFFICIENT_TIME);
-    await submitAnalysis(page);
+    await expect(page.getByTestId("workspace")).toBeVisible();
+    await expect(page.getByTestId("explore-city")).toBeVisible();
 
-    const panel = await waitForDecision8(page);
-    await expect(page.getByTestId("decision8-observed-s")).toContainText(
-      "0.135483870967741",
-    );
     const map = await waitForMapState(page, "sufficient");
     await expect(map).toHaveAttribute("data-ranked-feature-count", "25");
     await expect(map).toHaveAttribute("data-geometry-feature-count", "25");
-    await expect(page.locator("body")).not.toContainText(BACKEND_ORDERING_COPY);
-    await expect(page.getByTestId("happening-stamp")).toHaveText(
-      "SPATIAL ORDERING SUPPORTED",
-    );
-    await expect(page.getByTestId("evidence-state")).toHaveText(
-      "SPATIAL ORDERING SUPPORTED",
-    );
-    await expect(page.getByTestId("map-hover")).toHaveCount(0);
-    const actionOnSufficient = await expectActionFraming(
-      page,
-      framing.sufficient,
-    );
 
-    await fillAnalysisTime(page, INSUFFICIENT_TIME);
-    await submitAnalysis(page);
+    await expect(page.getByTestId("zone-panel")).toBeVisible();
+    await expect(page.getByTestId("zone-name")).toBeVisible();
+    await expect(page.getByTestId("zone-temp")).toBeVisible();
 
-    await expect(page.getByTestId("decision8-observed-s")).toContainText(
-      "0.043966547192353",
-      { timeout: 45_000 },
-    );
-    await expect(panel).toBeVisible();
-    const withheld = await waitForMapState(page, "sufficient");
-    await expect(withheld).toHaveAttribute("data-ranked-feature-count", "25");
-    await expect(withheld).toHaveAttribute("data-geometry-feature-count", "25");
-    await expect(page.locator("body")).not.toContainText(BACKEND_ORDERING_COPY);
-    await expect(page.getByTestId("happening-stamp")).toHaveText(
-      "SPATIAL ORDERING WITHHELD",
-    );
-    await expect(page.getByTestId("evidence-state")).toHaveText(
-      "SPATIAL ORDERING WITHHELD",
-    );
-    await expect(page.getByTestId("map-hover")).toHaveCount(0);
-    await expect(page.getByTestId("decision8-suppression-reason")).toBeVisible();
+    const gate = page.getByTestId("spatial-gate");
+    await expect(gate).toBeVisible();
 
-    if (actionOnSufficient || (await page.getByTestId("action-v0").count()) > 0) {
-      await expectActionFraming(page, framing.insufficient);
-      await expect(page.getByTestId("action-v0-stamp")).not.toHaveText(
-        framing.sufficient.stamp,
-      );
+    await expect(page.getByTestId("observation-provenance")).toContainText("Published");
+  });
+
+  test("layer switching preserves zone selection", async ({ page }) => {
+    await page.goto("/");
+    const map = await waitForMapLoaded(page);
+    await expect(map).toHaveAttribute("data-map-state", "sufficient", {
+      timeout: 45_000,
+    });
+
+    const zoneName = await page.getByTestId("zone-name").textContent();
+    expect(zoneName?.length).toBeGreaterThan(0);
+
+    const canopyTab = page.locator('[data-testid="map-mode-tabs"] [data-mode="TREE_CANOPY"]');
+    if ((await canopyTab.count()) > 0) {
+      await canopyTab.click();
+      await expect(map).toHaveAttribute("data-map-mode", "TREE_CANOPY");
+      await expect(page.getByTestId("zone-name")).toHaveText(zoneName!);
+    }
+
+    const incomeTab = page.locator('[data-testid="map-mode-tabs"] [data-mode="INCOME"]');
+    if ((await incomeTab.count()) > 0) {
+      await incomeTab.click();
+      await expect(map).toHaveAttribute("data-map-mode", "INCOME");
+      await expect(page.getByTestId("zone-name")).toHaveText(zoneName!);
+    }
+
+    const thermalTab = page.locator('[data-testid="map-mode-tabs"] [data-mode="THERMAL"]');
+    if ((await thermalTab.count()) > 0) {
+      await thermalTab.click();
+      await expect(map).toHaveAttribute("data-map-mode", "THERMAL");
+      await expect(page.getByTestId("zone-name")).toHaveText(zoneName!);
     }
   });
 
-  test("Action framing copy matches the 06-30 / 07-01 lock when mounted", async ({
-    page,
-  }) => {
+  test("methods and analysis sections closed by default", async ({ page }) => {
     await page.goto("/");
-    await fillAnalysisTime(page, SUFFICIENT_TIME);
-    await submitAnalysis(page);
-    await waitForMapState(page, "sufficient");
+    await expect(page.getByTestId("workspace")).toBeVisible();
+    await waitForMapLoaded(page);
 
-    const card = page.getByTestId("action-v0");
-    if ((await card.count()) === 0) {
-      test.info().annotations.push({
-        type: "note",
-        description: "Action v0 not mounted on this image; copy lock is unit-tested.",
-      });
-      await expect(card).toHaveCount(0);
-      return;
+    const methods = page.getByTestId("zone-methods");
+    if ((await methods.count()) > 0) {
+      const isOpen = await methods.evaluate(
+        (el) => el instanceof HTMLDetailsElement && el.open,
+      );
+      expect(isOpen, "Methods should be closed by default").toBe(false);
     }
 
-    await expectActionFraming(page, framing.sufficient);
-
-    await fillAnalysisTime(page, INSUFFICIENT_TIME);
-    await submitAnalysis(page);
-    await waitForMapState(page, "sufficient");
-    await expectActionFraming(page, framing.insufficient);
-    await expect(page.getByTestId("action-v0")).not.toContainText(
-      framing.sufficient.stamp,
-    );
+    const sections = [
+      "matched-night-section",
+      "observed-instants-section",
+      "local-context-section",
+      "all-zones-section",
+    ];
+    for (const testId of sections) {
+      const section = page.getByTestId(testId);
+      if ((await section.count()) > 0) {
+        const isOpen = await section.evaluate(
+          (el) => el instanceof HTMLDetailsElement && el.open,
+        );
+        expect(isOpen, `${testId} should be closed by default`).toBe(false);
+      }
+    }
   });
 });

@@ -2,12 +2,16 @@ import { test, expect } from "@playwright/test";
 
 const apiBase = process.env.API_BASE_URL ?? "http://127.0.0.1:8000";
 
-test("web shell loads command center", async ({ page }) => {
+test("web workspace loads with HVA-Signal heading and published observation", async ({ page }) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "HVA-Signal" }),
+    page.getByRole("heading", { name: /HVA-SIGNAL/i }),
   ).toBeVisible();
-  await expect(page.getByTestId("source-banner")).toContainText("REPLAY");
+  await expect(page.getByTestId("workspace")).toBeVisible();
+  await expect(page.getByTestId("explore-city")).toBeVisible();
+  const provenance = page.getByTestId("observation-provenance");
+  await expect(provenance).toBeVisible({ timeout: 15_000 });
+  await expect(provenance).toContainText("Published");
 });
 
 test("API /health and /ready respond in replay mode", async ({ request }) => {

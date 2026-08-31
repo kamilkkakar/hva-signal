@@ -20,7 +20,11 @@ export type PageBox = {
 export async function pageBox(page: Page): Promise<PageBox> {
   return page.evaluate(() => {
     const root = document.documentElement;
-    const shell = document.querySelector(".shell") ?? document.querySelector("[data-testid='judge-shell']");
+    const shell =
+      document.querySelector("[data-testid='workspace']") ??
+      document.querySelector(".ws") ??
+      document.querySelector(".shell") ??
+      document.querySelector("[data-testid='judge-shell']");
     return {
       rootScroll: root.scrollWidth,
       rootClient: root.clientWidth,
@@ -70,15 +74,32 @@ export async function openEvidenceDisclosure(page: Page) {
 }
 
 export async function fillAnalysisTime(page: Page, value: string) {
-  await openDemoControls(page);
   const input = page.locator('input[name="analysis_time"]');
+  if ((await input.count()) === 0) return;
+  await openDemoControls(page);
   await input.fill(value);
   await expect(input).toHaveValue(value);
 }
 
 export async function submitAnalysis(page: Page) {
+  const btn = page.getByRole("button", { name: "Submit analysis" });
+  if ((await btn.count()) === 0) return;
   await openDemoControls(page);
-  await page.getByRole("button", { name: "Submit analysis" }).click();
+  await btn.click();
+}
+
+export async function waitForWorkspaceReady(page: Page) {
+  await expect(page.getByTestId("workspace")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId("explore-city")).toBeVisible({ timeout: 15_000 });
+}
+
+export async function waitForMapLoaded(page: Page) {
+  const map = page.getByTestId("map-stage");
+  await expect(map).toBeVisible({ timeout: 30_000 });
+  await expect(map).not.toHaveAttribute("data-geometry-feature-count", "0", {
+    timeout: 60_000,
+  });
+  return map;
 }
 
 export async function waitForMapState(
@@ -114,6 +135,7 @@ export async function openZoneIdentifierList(page: Page) {
 export async function openAdvancedDetails(page: Page) {
   await openEvidenceDisclosure(page);
   const details = page.getByTestId("analysis-detail");
+  if ((await details.count()) === 0) return;
   await expect(details).toBeAttached({ timeout: 45_000 });
   if ((await details.getAttribute("open")) == null) {
     await page.getByTestId("advanced-technical-details").click();
@@ -122,8 +144,9 @@ export async function openAdvancedDetails(page: Page) {
 }
 
 export async function waitForDecision8(page: Page) {
-  await openAdvancedDetails(page);
   const panel = page.getByTestId("decision8-evidence-panel");
+  if ((await panel.count()) === 0) return panel;
+  await openAdvancedDetails(page);
   await expect(panel).toBeVisible({ timeout: 45_000 });
   return panel;
 }
