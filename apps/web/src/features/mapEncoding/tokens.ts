@@ -73,6 +73,21 @@ export const THERMAL_C_DENIAL =
 export const THERMAL_C_NARROW_NOTE =
   "When zone means cluster tightly, color differences stay subtle. Read exact values in labels.";
 
+/** Local-contrast endpoints on the fixed thermal palette — not a new scale. */
+export const THERMAL_C_LOCAL_LOW = THERMAL_C_STOPS[1];
+export const THERMAL_C_LOCAL_HIGH = THERMAL_C_STOPS[7];
+
+export const THERMAL_C_LOCAL_CONTRAST_NOTE =
+  "Fill contrast expanded within the observed span for visibility on the fixed reference scale. Absolute differences remain small.";
+
+export function thermalObservedSpanNote(minC: number, maxC: number): string {
+  const spread = Math.max(0, maxC - minC);
+  return `Observed span ${minC.toFixed(1)}–${maxC.toFixed(1)} °C (~${spread.toFixed(1)} °C spread) on fixed 25–45 °C reference scale.`;
+}
+
+/** Span below this uses local contrast within observed min–max. */
+export const THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C = 2;
+
 export const CURRENT_AOI_AUTOSTRETCH = false;
 export const PERCENTILE_AUTOSTRETCH = false;
 export const RANK_FOR_B = false;

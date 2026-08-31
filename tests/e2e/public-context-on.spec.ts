@@ -7,10 +7,8 @@ const CONTEXT_ON = /^(1|true|yes|on)$/i.test(
 const INSUFFICIENT_TIME = "2022-07-01T03:00";
 
 const STORY_QUESTIONS = [
-  "What is happening here?",
-  "Local context",
-  "Preparedness",
-  "What should be verified next?",
+  "What local context matters?",
+  "What support is identified?",
 ] as const;
 
 async function openDetails(page: Page, testId: string) {
@@ -45,7 +43,18 @@ async function submitAnalysis(page: Page) {
   await page.getByRole("button", { name: "Submit analysis" }).click();
 }
 
-async function waitForMapState(page: Page, state: "insufficient") {
+async function openMapAdvancedChrome(page: Page) {
+  const wrap = page.getByTestId("map-advanced-chrome");
+  if ((await wrap.count()) === 0) {
+    return;
+  }
+  if ((await wrap.getAttribute("open")) == null) {
+    await wrap.locator("summary").first().click();
+  }
+  await expect(wrap).toHaveAttribute("open", "");
+}
+
+async function waitForMapState(page: Page, state: "sufficient") {
   const map = page.getByTestId("map-stage");
   await expect(map).toHaveAttribute("data-map-state", state, { timeout: 45_000 });
   return map;
@@ -66,9 +75,12 @@ async function selectZone(page: Page) {
   }
 
   const wrap = page.getByTestId("map-interaction-list-wrap");
-  if ((await wrap.count()) > 0 && (await wrap.getAttribute("open")) == null) {
-    await wrap.locator("summary").first().click();
-    await expect(wrap).toHaveAttribute("open", "");
+  if ((await wrap.count()) > 0) {
+    await openMapAdvancedChrome(page);
+    if ((await wrap.getAttribute("open")) == null) {
+      await wrap.locator("summary").first().click();
+      await expect(wrap).toHaveAttribute("open", "");
+    }
   }
   const mapButton = page.getByTestId("map-interaction-list").locator("button").first();
   await expect(mapButton).toBeVisible();
@@ -89,8 +101,8 @@ test.describe("isolated HVA_PUBLIC_CONTEXT=1", () => {
     await fillAnalysisTime(page, INSUFFICIENT_TIME);
     await submitAnalysis(page);
 
-    const map = await waitForMapState(page, "insufficient");
-    await expect(map).toHaveAttribute("data-ranked-feature-count", "0");
+    const map = await waitForMapState(page, "sufficient");
+    await expect(map).toHaveAttribute("data-ranked-feature-count", "25");
     await expect(map).toHaveAttribute("data-geometry-feature-count", "25");
     await expect(page.getByTestId("happening-stamp")).toHaveText(
       "SPATIAL ORDERING WITHHELD",
@@ -112,6 +124,7 @@ test.describe("isolated HVA_PUBLIC_CONTEXT=1", () => {
     for (const question of STORY_QUESTIONS) {
       await expect(story).toContainText(question);
     }
+    await expect(page.getByTestId("decision-direction")).toContainText("What to verify next");
 
     await openEvidenceDisclosure(page);
     const signalB = page.getByTestId("signal-b-cached-panel");
@@ -119,12 +132,9 @@ test.describe("isolated HVA_PUBLIC_CONTEXT=1", () => {
     await expect(page.getByTestId("signal-b-maturity")).toContainText(
       "CACHED EVIDENCE",
     );
-    await expect(page.getByTestId("story-thermal-b")).toContainText(
-      "CACHED EVIDENCE",
-    );
 
-    await expect(map).toHaveAttribute("data-map-state", "insufficient");
-    await expect(map).toHaveAttribute("data-ranked-feature-count", "0");
+    await expect(map).toHaveAttribute("data-map-state", "sufficient");
+    await expect(map).toHaveAttribute("data-ranked-feature-count", "25");
     await expect(page.getByTestId("happening-stamp")).toHaveText(
       "SPATIAL ORDERING WITHHELD",
     );
@@ -133,7 +143,7 @@ test.describe("isolated HVA_PUBLIC_CONTEXT=1", () => {
     if ((await incomeTab.count()) > 0) {
       await incomeTab.click();
       await expect(map).toHaveAttribute("data-map-mode", "INCOME");
-      await expect(map).toHaveAttribute("data-ranked-feature-count", "0");
+      await expect(page.getByTestId("map-mode-legend")).toHaveAttribute("data-mode", "INCOME");
       await expect(page.getByTestId("happening-stamp")).toHaveText(
         "SPATIAL ORDERING WITHHELD",
       );

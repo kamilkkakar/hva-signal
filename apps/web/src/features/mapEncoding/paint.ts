@@ -12,6 +12,9 @@ import {
   SIGNAL_A_LINE,
   SIGNAL_A_LINE_WIDTH,
   SIGNAL_A_POS_STOPS,
+  THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C,
+  THERMAL_C_LOCAL_HIGH,
+  THERMAL_C_LOCAL_LOW,
   THERMAL_C_STOPS,
 } from "./tokens";
 
@@ -122,19 +125,47 @@ export function signalAHaloPaint(authorized: boolean): SignalALinePaint {
   };
 }
 
-/** Selected-time absolute °C on a fixed semantic scale. Missing zones stay outline-only. */
-export function signalBThermalFillPaint(): SignalAFillPaint {
+export type SignalBThermalFillInput = {
+  observedMinC: number;
+  observedMaxC: number;
+};
+
+function fixedThermalFillPaint(): SignalAFillPaint["fill-color"] {
+  return [
+    "interpolate",
+    ["linear"],
+    ["get", "mean_temperature_c"],
+    ...THERMAL_C_STOPS,
+  ];
+}
+
+/** Selected-time absolute °C. Narrow observed spans use local contrast within min–max. */
+export function signalBThermalFillPaint(input?: SignalBThermalFillInput): SignalAFillPaint {
+  const lo = input?.observedMinC;
+  const hi = input?.observedMaxC;
+  const span =
+    lo != null && hi != null && Number.isFinite(lo) && Number.isFinite(hi)
+      ? Math.max(0, hi - lo)
+      : null;
+  const useLocalContrast =
+    span != null && span > 0 && span < THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C && lo != null && hi != null;
+
   return {
-    "fill-color": [
-      "interpolate",
-      ["linear"],
-      ["get", "mean_temperature_c"],
-      ...THERMAL_C_STOPS,
-    ],
+    "fill-color": useLocalContrast
+      ? [
+          "interpolate",
+          ["linear"],
+          ["get", "mean_temperature_c"],
+          lo,
+          THERMAL_C_LOCAL_LOW,
+          hi,
+          THERMAL_C_LOCAL_HIGH,
+        ]
+      : fixedThermalFillPaint(),
     "fill-opacity": [
       "case",
       ["==", ["get", "has_semantic_fill"], true],
-      0.78,
+      0.82,
       0,
     ] as unknown as number,
   };

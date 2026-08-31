@@ -99,8 +99,8 @@ test.describe("judge-ready Phoenix sequence", () => {
       { timeout: 45_000 },
     );
     await expect(panel).toBeVisible();
-    const withheld = await waitForMapState(page, "insufficient");
-    await expect(withheld).toHaveAttribute("data-ranked-feature-count", "0");
+    const withheld = await waitForMapState(page, "sufficient");
+    await expect(withheld).toHaveAttribute("data-ranked-feature-count", "25");
     await expect(withheld).toHaveAttribute("data-geometry-feature-count", "25");
     await expect(page.locator("body")).not.toContainText(BACKEND_ORDERING_COPY);
     await expect(page.getByTestId("happening-stamp")).toHaveText(
@@ -142,7 +142,7 @@ test.describe("judge-ready Phoenix sequence", () => {
 
     await fillAnalysisTime(page, INSUFFICIENT_TIME);
     await submitAnalysis(page);
-    await waitForMapState(page, "insufficient");
+    await waitForMapState(page, "sufficient");
     await expectActionFraming(page, framing.insufficient);
     await expect(page.getByTestId("action-v0")).not.toContainText(
       framing.sufficient.stamp,

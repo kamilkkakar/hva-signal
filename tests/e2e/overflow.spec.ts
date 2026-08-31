@@ -59,6 +59,11 @@ test.describe("result layout overflow", () => {
     }
     await page.getByRole("button", { name: "Submit analysis" }).click();
 
+    await page.getByTestId("evidence-disclosure").evaluate((node) => {
+      if (node instanceof HTMLDetailsElement) {
+        node.open = true;
+      }
+    });
     const details = page.getByTestId("analysis-detail");
     await expect(details).toBeAttached({ timeout: 45_000 });
     if ((await details.getAttribute("open")) == null) {

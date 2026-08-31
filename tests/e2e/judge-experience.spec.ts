@@ -46,11 +46,29 @@ async function waitForEvidence(page: Page) {
   await expect(page.getByTestId("matched-night-chart")).toBeVisible({ timeout: 60_000 });
 }
 
-async function shot(page: Page, name: string) {
+async function shot(page: Page, name: string, opts?: { locator?: string; fullPage?: boolean }) {
   mkdirSync(SHOT_DIR, { recursive: true });
+  const fullPage =
+    opts?.fullPage ??
+    (name.includes("full") ||
+      name.includes("selected") ||
+      name.includes("chart") ||
+      name.includes("context") ||
+      name.includes("prep") ||
+      name.includes("insufficient") ||
+      name.includes("ranking") ||
+      name.includes("direction") ||
+      name.includes("hero"));
+  if (opts?.locator) {
+    await page.locator(opts.locator).screenshot({
+      path: path.join(SHOT_DIR, `${name}.png`),
+      animations: "disabled",
+    });
+    return;
+  }
   await page.screenshot({
     path: path.join(SHOT_DIR, `${name}.png`),
-    fullPage: name.includes("full") || name.includes("selected") || name.includes("chart") || name.includes("context") || name.includes("prep") || name.includes("insufficient") || name.includes("ranking"),
+    fullPage,
     animations: "disabled",
   });
 }
@@ -112,6 +130,22 @@ test.describe("judge experience overhaul", () => {
     await expect(page.getByTestId("matched-night-chart")).toBeVisible({ timeout: 45_000 });
     await shot(page, "1440x900-landing");
 
+    await shot(page, "1440x900-map-closeup", { locator: "[data-testid='map-stage']" });
+    await shot(page, "1440x900-thermal-legend", {
+      locator: "[data-testid='thermal-snapshot-legend']",
+    });
+    await shot(page, "1440x900-hero-only", { locator: "[data-testid='thermal-hero']" });
+
+    await page.locator('[data-testid="map-mode-tabs"] [data-mode="TREE_CANOPY"]').click();
+    await expect(page.getByTestId("map-stage")).toHaveAttribute("data-map-mode", "TREE_CANOPY");
+    await shot(page, "1440x900-map-mode-canopy", { locator: "[data-testid='map-stage']" });
+
+    await page.locator('[data-testid="map-mode-tabs"] [data-mode="INCOME"]').click();
+    await expect(page.getByTestId("map-stage")).toHaveAttribute("data-map-mode", "INCOME");
+    await shot(page, "1440x900-map-mode-income", { locator: "[data-testid='map-stage']" });
+
+    await page.locator('[data-testid="map-mode-tabs"] [data-mode="THERMAL"]').click();
+
     await page.getByTestId("area-selector-input").selectOption("04013108802");
     await expect(page.getByTestId("selected-area-label")).toContainText(/Analysis Area 5/i);
     await expect(page.getByTestId("matched-night-chart")).toBeVisible();
@@ -128,6 +162,9 @@ test.describe("judge experience overhaul", () => {
 
     await page.getByTestId("preparedness-panel").scrollIntoViewIfNeeded();
     await shot(page, "1440x900-preparedness");
+
+    await page.getByTestId("decision-direction").scrollIntoViewIfNeeded();
+    await shot(page, "1440x900-direction-only", { locator: "[data-testid='decision-direction']" });
 
     await page.getByTestId("evidence-summary").scrollIntoViewIfNeeded();
     await shot(page, "1440x900-ranking-withheld");

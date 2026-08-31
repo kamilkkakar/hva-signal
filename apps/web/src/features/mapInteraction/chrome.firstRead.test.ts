@@ -26,6 +26,7 @@ describe("map interaction first-read chrome", () => {
       }),
     );
     expect(html).toContain("<details");
+    expect(html).toContain('data-testid="map-advanced-chrome"');
     expect(html).toContain("Zone identifiers (advanced)");
     expect(html).toContain('data-testid="map-interaction-list-wrap"');
     expect(html).not.toMatch(/<details[^>]*\sopen[\s>]/);

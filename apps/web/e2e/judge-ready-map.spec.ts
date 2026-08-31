@@ -5,6 +5,7 @@ import { expect, test } from "@playwright/test";
 import {
   SUFFICIENT_TIME,
   fillAnalysisTime,
+  openMapAdvancedChrome,
   openZoneIdentifierList,
   submitAnalysis,
   waitForMapState,
@@ -42,6 +43,7 @@ test.describe("judge-ready map hover/click", () => {
     await expect(map).toHaveAttribute("data-ranked-feature-count", "25");
 
     const chrome = page.getByTestId("map-interaction-chrome");
+    await openMapAdvancedChrome(page);
     const table = page.getByTestId("map-interaction-table");
     if ((await chrome.count()) === 0 || (await table.count()) === 0) {
       test.info().annotations.push({

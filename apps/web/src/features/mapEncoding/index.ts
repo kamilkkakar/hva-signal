@@ -22,7 +22,9 @@ export {
   THERMAL_C_HIGH_LABEL,
   THERMAL_C_AXIS,
   THERMAL_C_DENIAL,
+  THERMAL_C_LOCAL_CONTRAST_NOTE,
   THERMAL_C_NARROW_NOTE,
+  thermalObservedSpanNote,
 } from "./tokens";
 export {
   signalAFillPaint,

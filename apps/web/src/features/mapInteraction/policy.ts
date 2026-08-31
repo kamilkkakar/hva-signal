@@ -53,6 +53,7 @@ export const EMPTY_CATALOG_COPY =
   "No bindable zones. The map is withheld so it cannot be read as an empty product field.";
 export const SELECT_PROMPT = "Select a zone on the map or in the zone list.";
 export const MAP_TOOLS_SUMMARY = "Map tools";
+export const MAP_ADVANCED_SUMMARY = "Map tools & zone details";
 export const FIT_AOI_LABEL = "Fit geography";
 export const RESET_AOI_LABEL = "Reset view";
 export const CLEAR_LAYER_LABEL = "Clear active layer";

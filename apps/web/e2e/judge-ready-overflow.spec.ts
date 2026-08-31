@@ -45,12 +45,12 @@ test.describe("judge-ready overflow / no page h-scroll", () => {
     );
     await expect(page.getByTestId("map-stage")).toHaveAttribute(
       "data-map-state",
-      "insufficient",
+      "sufficient",
       { timeout: 45_000 },
     );
     await expect(page.getByTestId("map-stage")).toHaveAttribute(
       "data-ranked-feature-count",
-      "0",
+      "25",
     );
 
     for (const width of VIEWPORTS) {

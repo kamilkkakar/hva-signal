@@ -389,3 +389,44 @@
   margin-top: 0.45rem;
 }
 
+.mapi-advanced {
+  margin-top: 0.35rem;
+}
+
+.mapi-advanced > summary {
+  cursor: pointer;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #4e5849;
+}
+
+.mapi-advanced > summary:focus-visible {
+  outline: 2px solid #10140e;
+  outline-offset: 2px;
+}
+
+.mapi[data-layout="map-primary"] {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 14.5rem);
+}
+
+.mapi[data-layout="map-primary"] .mapi-chrome {
+  padding: 0.55rem 0.65rem 0.7rem;
+}
+
+.mapi[data-layout="map-primary"] .mapi-legend h3 {
+  margin-bottom: 0.25rem;
+}
+
+.mapi[data-layout="map-primary"] .mapi-legend .hva-pos-legend {
+  padding: 0.45rem 0.5rem 0.5rem;
+}
+
+.mapi[data-layout="map-primary"] .mapi-advanced .mapi-detail,
+.mapi[data-layout="map-primary"] .mapi-advanced .mapi-tools,
+.mapi[data-layout="map-primary"] .mapi-advanced .mapi-list-wrap,
+.mapi[data-layout="map-primary"] .mapi-advanced .mapi-table-wrap {
+  margin-top: 0.55rem;
+}
+

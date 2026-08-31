@@ -6,6 +6,8 @@ import {
   signalBThermalFillPaint,
   type SignalAHatchPaint,
 } from "@/features/mapEncoding";
+import { THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C } from "@/features/mapEncoding/tokens";
+import { observedThermalSpan } from "./thermalSpan";
 import {
   INTERACTION_HOVER_LINE,
   INTERACTION_HOVER_LINE_WIDTH,
@@ -64,6 +66,17 @@ export function highlightFillPaint(
     catalog.kind === "selected_time_snapshot" &&
     state.layerActive
   ) {
+    const span = observedThermalSpan(catalog);
+    if (
+      span &&
+      span.spreadC > 0 &&
+      span.spreadC < THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C
+    ) {
+      return signalBThermalFillPaint({
+        observedMinC: span.minC,
+        observedMaxC: span.maxC,
+      });
+    }
     return signalBThermalFillPaint();
   }
   const authorized = Boolean(
