@@ -15,6 +15,7 @@ from app.domain.multicity.catalog import get_city, list_cities
 from app.domain.multicity.city_config import CityConfig, CityId
 from app.domain.multicity.cross_city_acs import acs_metric
 from app.domain.multicity.cross_city_canopy import canopy_pct_for
+from app.domain.multicity.cross_city_thermal import thermal_mean_c_for
 from app.domain.multicity.observation_clock import (
     CROSS_CITY_OBSERVATION_V1,
     resolve_city_observation_clock,
@@ -138,16 +139,17 @@ def _city_rows(city: CityConfig) -> list[CrossCityMetricRow]:
         return []
     geometry = json.loads(geometry_path.read_text(encoding="utf-8"))
     rows: list[CrossCityMetricRow] = []
-    for feature in geometry["features"]:
+    for index, feature in enumerate(geometry["features"], start=1):
         props = feature["properties"]
         geoid = str(props["GEOID"]).zfill(11)
         income = acs_metric(city_dir, geoid, "median_household_income")
         population_value = acs_metric(city_dir, geoid, "population")
         older = acs_metric(city_dir, geoid, "homes_built_before_1980")
         canopy = canopy_pct_for(city_dir, geoid)
-        missing_reasons: dict[str, str] = {
-            "temperature_c": _MISSING_THERMAL,
-        }
+        temperature = thermal_mean_c_for(city_dir, geoid)
+        missing_reasons: dict[str, str] = {}
+        if temperature is None:
+            missing_reasons["temperature_c"] = _MISSING_THERMAL
         if income is None:
             missing_reasons["median_household_income"] = "ACS income estimate missing."
         if population_value is None:
@@ -161,8 +163,9 @@ def _city_rows(city: CityConfig) -> list[CrossCityMetricRow]:
                 city_id=city.city_id,
                 zone_id=geoid,
                 geoid=geoid,
-                label=str(props.get("NAMELSAD") or props.get("NAME") or geoid),
-                temperature_c=None,
+                # Prefer Comparison Area N to avoid collision with Phoenix local tract names.
+                label=f"Comparison Area {index}",
+                temperature_c=temperature,
                 median_household_income=income,
                 population=(
                     int(round(population_value)) if population_value is not None else None
@@ -170,7 +173,7 @@ def _city_rows(city: CityConfig) -> list[CrossCityMetricRow]:
                 tree_canopy_pct=canopy,
                 homes_built_before_1980=older,
                 coverage_flags={
-                    "temperature_c": False,
+                    "temperature_c": temperature is not None,
                     "median_household_income": income is not None,
                     "population": population_value is not None,
                     "tree_canopy_pct": canopy is not None,

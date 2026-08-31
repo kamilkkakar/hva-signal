@@ -90,7 +90,8 @@ def test_cross_city_metrics_returns_real_phoenix_rows_and_disclosed_gaps() -> No
     response = client.get("/api/v1/cross-city/metrics")
     assert response.status_code == 200
     body = response.json()
-    assert body["summary"]["included_count"] == 0
+    # LA acquired; other cities still disclose missing thermal.
+    assert body["summary"]["included_count"] >= 20
     assert len(body["rows"]) == 100
     phoenix_rows = [row for row in body["rows"] if row["city_id"] == "phoenix"]
     assert len(phoenix_rows) == 25
@@ -101,10 +102,15 @@ def test_cross_city_metrics_returns_real_phoenix_rows_and_disclosed_gaps() -> No
     assert seed["tree_canopy_pct"] is not None
     assert seed["comparison_clock"]["policy"] == "CROSS_CITY_OBSERVATION_V1"
     assert "not published" in seed["missing_reasons"]["temperature_c"].lower()
+    assert seed["label"].startswith("Comparison Area ")
     vegas_rows = [row for row in body["rows"] if row["city_id"] == "las_vegas"]
     assert len(vegas_rows) == 25
     assert vegas_rows[0]["zone_id"] is not None
     assert vegas_rows[0]["population"] is not None
+    la_rows = [row for row in body["rows"] if row["city_id"] == "los_angeles"]
+    assert len(la_rows) == 25
+    assert all(row["temperature_c"] is not None for row in la_rows)
+    assert all(row["coverage_flags"]["temperature_c"] for row in la_rows)
 
 
 def test_cross_city_query_validates_axes() -> None:

@@ -41,6 +41,8 @@ pnpm-debug.log*
 apps/api/.cache/
 data/cache/
 data/tmp/
+data/acquisitions/cross-city/*/raw/
+data/acquisitions/cross-city/*/vendor_cache/
 *.log
 
 # Test / e2e artifacts
