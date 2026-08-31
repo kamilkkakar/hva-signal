@@ -97,5 +97,9 @@ export function catalogFromSnapshot(input: {
     time_label,
     source_label,
     fill_authorized: true,
+    fill_kind: "thermal_absolute",
+    layer_title: "Selected-time thermal conditions",
+    meaning:
+      "Zone-mean absolute °C at the cached observation time. Fixed thermal scale — not stretched to this night's range.",
   });
 }

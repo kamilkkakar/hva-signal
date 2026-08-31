@@ -56,6 +56,23 @@ export const SIGNAL_B_HOLD_LINE = "#10140e";
 export const SIGNAL_B_HOLD_OPACITY = 0.38;
 export const SIGNAL_B_HOLD_ENCODING = "neutral_numeric_hold" as const;
 
+/** Fixed Phoenix summer thermal scale. Not request-local min/max stretch. */
+export const THERMAL_C_STOPS = [
+  25, "#b8c4a8",
+  30, "#8a9278",
+  35, "#6c7462",
+  40, "#4e5648",
+  45, "#32382e",
+] as const;
+
+export const THERMAL_C_LOW_LABEL = "25 °C";
+export const THERMAL_C_HIGH_LABEL = "45 °C";
+export const THERMAL_C_AXIS = "Zone mean temperature (°C)";
+export const THERMAL_C_DENIAL =
+  "Absolute zone-mean °C at the selected observation time. Fixed scale — not stretched to this night's narrow range.";
+export const THERMAL_C_NARROW_NOTE =
+  "When zone means cluster tightly, color differences stay subtle. Read exact values in labels.";
+
 export const CURRENT_AOI_AUTOSTRETCH = false;
 export const PERCENTILE_AUTOSTRETCH = false;
 export const RANK_FOR_B = false;

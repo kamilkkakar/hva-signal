@@ -3,6 +3,7 @@ import {
   signalAFillPaint,
   signalAHatchPaint,
   signalALinePaint,
+  signalBThermalFillPaint,
   type SignalAHatchPaint,
 } from "@/features/mapEncoding";
 import {
@@ -58,8 +59,15 @@ export function highlightFillPaint(
     const { min, max } = contextRange(catalog);
     return contextQuantityFillPaint(min, max);
   }
+  if (
+    catalog?.fill_kind === "thermal_absolute" &&
+    catalog.kind === "selected_time_snapshot" &&
+    state.layerActive
+  ) {
+    return signalBThermalFillPaint();
+  }
   const authorized = Boolean(
-    state.layerActive && catalog?.fill_authorized && catalog.fill_kind !== "context_quantity",
+    state.layerActive && catalog?.fill_authorized && catalog.fill_kind === "thermal_order",
   );
   return signalAFillPaint({
     authorized,
@@ -72,7 +80,7 @@ export function highlightHatchPaint(
   catalog: InteractionCatalog | null,
   state: InteractionState,
 ): SignalAHatchPaint {
-  if (catalog?.fill_kind === "context_quantity") {
+  if (catalog?.fill_kind === "context_quantity" || catalog?.fill_kind === "thermal_absolute") {
     return signalAHatchPaint({ authorized: false, maxOrder: 25 });
   }
   const authorized = Boolean(state.layerActive && catalog?.fill_authorized);

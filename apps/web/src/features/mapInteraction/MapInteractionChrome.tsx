@@ -1,4 +1,4 @@
-import { HistoricalPositionLegend } from "@/features/mapEncoding";
+import { HistoricalPositionLegend, ThermalSnapshotLegend } from "@/features/mapEncoding";
 import {
   CLEAR_LAYER_LABEL,
   CLEAR_SELECTION_LABEL,
@@ -18,9 +18,18 @@ import type { InteractionEvent, MapInteractionView } from "./types";
 export type MapInteractionChromeProps = {
   view: MapInteractionView;
   dispatch: (event: InteractionEvent) => void;
+  catalogKind?: string | null;
+  fillKind?: string | null;
+  narrowThermalRange?: boolean;
 };
 
-export function MapInteractionChrome({ view, dispatch }: MapInteractionChromeProps) {
+export function MapInteractionChrome({
+  view,
+  dispatch,
+  catalogKind = null,
+  fillKind = null,
+  narrowThermalRange = false,
+}: MapInteractionChromeProps) {
   return (
     <div className="mapi-chrome" data-testid="map-interaction-chrome">
       <details className="mapi-tools" data-testid="map-tools">
@@ -77,8 +86,10 @@ export function MapInteractionChrome({ view, dispatch }: MapInteractionChromePro
 
       <section className="mapi-legend" aria-label="Map legend" data-testid="map-interaction-legend">
         <h3>Legend</h3>
-        {view.positionLegendMode === "sufficient" ||
-        view.positionLegendMode === "insufficient" ? (
+        {fillKind === "thermal_absolute" || catalogKind === "selected_time_snapshot" ? (
+          <ThermalSnapshotLegend narrowRange={narrowThermalRange} />
+        ) : view.positionLegendMode === "sufficient" ||
+          view.positionLegendMode === "insufficient" ? (
           <HistoricalPositionLegend mode={view.positionLegendMode} />
         ) : (
           <ul>

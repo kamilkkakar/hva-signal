@@ -64,9 +64,8 @@ export function MapBand(props: MapBandProps) {
         result: props.result,
         jobStatus: props.jobStatus,
         analysisTime: props.analysisTime,
-        fillAuthorized: props.ranking.state === "READY",
       }),
-    [areaId, geometry, props.analysisTime, props.jobStatus, props.ranking.state, props.result],
+    [areaId, geometry, props.analysisTime, props.jobStatus, props.result],
   );
 
   const modeCatalog = useMemo(

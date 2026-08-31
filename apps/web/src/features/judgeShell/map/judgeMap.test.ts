@@ -13,7 +13,7 @@ describe("judgeShell/map", () => {
     expect(ORDER_WITHHELD_TITLE).toBe("Nighttime historical thermal pattern");
   });
 
-  it("never places the B snapshot on the A rank map", () => {
+  it("never places a separate B snapshot on the A rank map when both exist", () => {
     const bound = bindExclusiveMapLayer({
       lane: "A",
       historical: historicalCatalog(true),
@@ -21,6 +21,15 @@ describe("judgeShell/map", () => {
     });
     expect(bound?.kind).not.toBe("selected_time_snapshot");
     expect(bound?.kind).toBe("historical_ordering");
+  });
+
+  it("allows selected-time snapshot on lane A when it is the primary catalog", () => {
+    const bound = bindExclusiveMapLayer({
+      lane: "A",
+      historical: snapshotCatalog(),
+      snapshot: null,
+    });
+    expect(bound?.kind).toBe("selected_time_snapshot");
   });
 
   it("reports 0 fills on the withheld A catalog", () => {

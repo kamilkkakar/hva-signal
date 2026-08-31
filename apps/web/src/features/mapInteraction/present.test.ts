@@ -71,9 +71,9 @@ describe("presentMapInteraction", () => {
     expect(hoverFromState(state, catalog)).toBeNull();
   });
 
-  it("binds the snapshot legend to shared-fill semantics, not a temperature ramp", () => {
+  it("binds the snapshot legend to fixed-scale thermal semantics", () => {
     const legend = legendFromCatalog(snapshotCatalog(), true);
-    expect(legend.map((item) => item.id)).toEqual(["valid", "missing"]);
+    expect(legend.map((item) => item.id)).toEqual(["scale", "valid", "missing"]);
     expect(legend[0]?.meaning).toMatch(/not stretched/i);
   });
 

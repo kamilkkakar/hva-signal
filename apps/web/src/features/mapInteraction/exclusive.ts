@@ -30,6 +30,9 @@ export function bindExclusiveMapLayer(input: {
   snapshot: InteractionCatalog | null;
 }): InteractionCatalog | null {
   if (input.lane === "A") {
+    if (input.historical?.kind === "selected_time_snapshot") {
+      return input.historical;
+    }
     return catalogForHistoricalRankMap(input.historical);
   }
   if (input.snapshot?.kind === "historical_ordering") {

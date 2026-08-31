@@ -80,7 +80,7 @@ describe("B layer is not on the A rank map", () => {
       snapshot: snapshotCatalog(),
     });
     expect(bound?.kind).toBe("selected_time_snapshot");
-    expect(bound?.layer_title).toBe("Selected-Time Thermal Snapshot");
+    expect(bound?.layer_title).toBe("Selected-time thermal conditions");
   });
 
   it("refuses to treat a historical catalog as a B snapshot", () => {

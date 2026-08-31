@@ -52,7 +52,13 @@ export function buildCatalog(input: {
     time_label: input.time_label,
     source_label: input.source_label,
     fill_authorized: input.fill_authorized,
-    fill_kind: input.fill_kind ?? (input.fill_authorized ? "thermal_order" : "none"),
+    fill_kind:
+      input.fill_kind ??
+      (input.kind === "selected_time_snapshot"
+        ? "thermal_absolute"
+        : input.fill_authorized
+          ? "thermal_order"
+          : "none"),
     zones,
     collection,
   };

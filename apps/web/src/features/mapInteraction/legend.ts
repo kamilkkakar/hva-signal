@@ -55,9 +55,15 @@ export function legendFromCatalog(
   if (catalog.kind === "selected_time_snapshot") {
     return [
       {
+        id: "scale",
+        label: "Fixed thermal scale",
+        meaning: "Zone-mean absolute °C. 25–45 °C semantic scale — not stretched to this snapshot.",
+        swatch: null,
+      },
+      {
         id: "valid",
-        label: "Valid zone mean",
-        meaning: "Shared fill. Color is not stretched to the snapshot min/max.",
+        label: "Observed zone mean",
+        meaning: "Filled polygon encodes °C on the fixed scale. Hover for the exact value.",
         swatch: INTERACTION_SHARED_FILL,
       },
       {

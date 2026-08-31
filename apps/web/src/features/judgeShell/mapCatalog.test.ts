@@ -14,85 +14,80 @@ function geometry(geoids: string[]): AreaGeometryPayload {
       features: geoids.map((GEOID) => ({
         type: "Feature",
         properties: { GEOID },
-        geometry: { type: "Polygon", coordinates: [] },
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [-112.1, 33.4],
+              [-112.09, 33.4],
+              [-112.09, 33.41],
+              [-112.1, 33.41],
+              [-112.1, 33.4],
+            ],
+          ],
+        },
       })),
     },
   };
 }
 
 describe("exploreMapState", () => {
-  it("keeps outlines in loading until the analysis result is ready", () => {
+  it("marks sufficient when selected-time snapshot fills are authorized", () => {
     const catalog = buildJudgeMapCatalog({
       geometry: geometry(["04013107401"]),
       areaId: "phoenix-demo",
       result: null,
-      jobStatus: null,
-      fillAuthorized: false,
+      jobStatus: "complete",
     });
-    expect(catalog?.collection.features).toHaveLength(1);
+    expect(catalog?.kind).toBe("selected_time_snapshot");
+    expect(exploreMapState({
+      submitting: false,
+      jobStatus: "complete",
+      catalog,
+      rankingState: "INSUFFICIENT_EVIDENCE",
+    })).toBe("sufficient");
+  });
+
+  it("keeps loading until geometry exists", () => {
     expect(exploreMapState({
       submitting: true,
       jobStatus: "queued",
-      catalog,
+      catalog: null,
       rankingState: "INSUFFICIENT_EVIDENCE",
     })).toBe("loading");
-  });
-
-  it("marks insufficient when the completed night cannot support ranking", () => {
-    expect(
-      exploreMapState({
-        submitting: false,
-        jobStatus: "complete",
-        catalog: buildJudgeMapCatalog({
-          geometry: geometry(["04013107401"]),
-          areaId: "phoenix-demo",
-          result: null,
-          jobStatus: "complete",
-          fillAuthorized: false,
-        }),
-        rankingState: "INSUFFICIENT_EVIDENCE",
-      }),
-    ).toBe("insufficient");
   });
 });
 
 describe("buildJudgeMapCatalog", () => {
-  it("shows geometry outlines before a job result exists", () => {
+  it("binds cached Signal B means to real polygon geometry", () => {
     const catalog = buildJudgeMapCatalog({
       geometry: geometry(["04013107401", "04013107500"]),
       areaId: "phoenix-demo",
       result: null,
       jobStatus: null,
-      fillAuthorized: false,
     });
-    expect(catalog?.kind).toBe("aoi_outline");
-    expect(catalog?.fill_authorized).toBe(false);
-    expect(catalog?.collection.features).toHaveLength(2);
-    expect(catalog?.zones.every((zone) => zone.has_semantic_fill === false)).toBe(true);
+    expect(catalog?.kind).toBe("selected_time_snapshot");
+    expect(catalog?.fill_kind).toBe("thermal_absolute");
+    expect(catalog?.fill_authorized).toBe(true);
+    expect(catalog?.collection.features).toHaveLength(25);
+    expect(catalog?.collection.features.some((feature) => feature.geometry != null)).toBe(true);
+    expect(catalog?.zones.every((zone) => zone.value_kind === "mean_c")).toBe(true);
+    expect(catalog?.zones.some((zone) => zone.has_semantic_fill)).toBe(true);
   });
 
-  it("joins a ready result and authorizes fill only when ranking is ready", () => {
+  it("does not fall back to rectangular tile grid catalog kinds", () => {
     const catalog = buildJudgeMapCatalog({
       geometry: geometry(["04013107401"]),
       areaId: "phoenix-demo",
       jobStatus: "complete",
-      fillAuthorized: true,
       result: {
-        thermal_differentiation_state: "SUFFICIENT",
+        thermal_differentiation_state: "INSUFFICIENT",
         versions: { zone_geometry_version: VERSION },
-        zones: [
-          {
-            zone_id: "04013107401",
-            ranked: true,
-            thermal_ordering_permitted: true,
-            q_A: 0.42,
-          },
-        ],
+        zones: [],
       },
     });
+    expect(catalog?.kind).not.toBe("aoi_outline");
+    expect(catalog?.kind).toBe("selected_time_snapshot");
     expect(resultIsReady("complete")).toBe(true);
-    expect(catalog?.kind).toBe("historical_ordering");
-    expect(catalog?.fill_authorized).toBe(true);
-    expect(catalog?.zones[0]?.has_semantic_fill).toBe(true);
   });
 });

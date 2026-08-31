@@ -12,6 +12,7 @@ import {
   SIGNAL_A_LINE,
   SIGNAL_A_LINE_WIDTH,
   SIGNAL_A_POS_STOPS,
+  THERMAL_C_STOPS,
 } from "./tokens";
 
 export type SignalAFillPaint = {
@@ -121,6 +122,23 @@ export function signalAHaloPaint(authorized: boolean): SignalALinePaint {
   };
 }
 
+/** Selected-time absolute °C on a fixed semantic scale. Missing zones stay outline-only. */
+export function signalBThermalFillPaint(): SignalAFillPaint {
+  return {
+    "fill-color": [
+      "interpolate",
+      ["linear"],
+      ["get", "mean_temperature_c"],
+      ...THERMAL_C_STOPS,
+    ],
+    "fill-opacity": [
+      "case",
+      ["==", ["get", "has_semantic_fill"], true],
+      0.78,
+      0,
+    ] as unknown as number,
+  };
+}
 
 export const CONTEXT_FILL_PROPERTY = "context_fill_value";
 

@@ -26,10 +26,7 @@ export function bindMapModeCatalog(input: {
     return null;
   }
   if (input.mode === "THERMAL") {
-    return {
-      ...historical,
-      fill_kind: historical.fill_authorized ? "thermal_order" : "none",
-    };
+    return historical;
   }
 
   const meta = mapModeMeta(input.mode);

@@ -17,6 +17,12 @@ export {
   CURRENT_AOI_AUTOSTRETCH,
   PERCENTILE_AUTOSTRETCH,
   RANK_FOR_B,
+  THERMAL_C_STOPS,
+  THERMAL_C_LOW_LABEL,
+  THERMAL_C_HIGH_LABEL,
+  THERMAL_C_AXIS,
+  THERMAL_C_DENIAL,
+  THERMAL_C_NARROW_NOTE,
 } from "./tokens";
 export {
   signalAFillPaint,
@@ -26,6 +32,7 @@ export {
   signalAColorStops,
   signalAHatchSteps,
   contextQuantityFillPaint,
+  signalBThermalFillPaint,
   CONTEXT_FILL_PROPERTY,
 } from "./paint";
 export type { SignalAHatchPaint, SignalAFillPaint, SignalALinePaint } from "./paint";
@@ -38,4 +45,6 @@ export {
 export type { LegendMode, HistoricalPositionLegendView } from "./legend";
 export { HistoricalPositionLegend } from "./HistoricalPositionLegend";
 export type { HistoricalPositionLegendProps } from "./HistoricalPositionLegend";
+export { ThermalSnapshotLegend } from "./ThermalSnapshotLegend";
+export type { ThermalSnapshotLegendProps } from "./ThermalSnapshotLegend";
 export { contrastRatio, relativeLuminance, blendOnto } from "./contrast";

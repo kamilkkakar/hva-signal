@@ -6,7 +6,7 @@ export type MapLayerKind =
   | "historical_ordering"
   | "selected_time_snapshot";
 
-export type CatalogFillKind = "thermal_order" | "context_quantity" | "none";
+export type CatalogFillKind = "thermal_order" | "thermal_absolute" | "context_quantity" | "none";
 
 export type InteractionValueKind = "q_A" | "order" | "mean_c" | "none";
 

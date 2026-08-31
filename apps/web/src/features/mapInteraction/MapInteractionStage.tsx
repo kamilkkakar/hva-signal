@@ -327,7 +327,30 @@ export function MapInteractionStage({
               {view.meaningCopy}
             </p>
           )}
-          <MapInteractionChrome view={view} dispatch={dispatch} />
+          <MapInteractionChrome
+            view={view}
+            dispatch={dispatch}
+            catalogKind={catalog?.kind}
+            fillKind={catalog?.fill_kind}
+            narrowThermalRange={
+              catalog?.kind === "selected_time_snapshot" &&
+              catalog.zones.filter((zone) => zone.has_semantic_fill).length >= 2
+                ? (() => {
+                    const values = catalog.zones
+                      .map((zone) => {
+                        const feature = catalog.collection.features.find(
+                          (row) => row.properties.GEOID === zone.geoid,
+                        );
+                        const value = feature?.properties.mean_temperature_c;
+                        return typeof value === "number" ? value : null;
+                      })
+                      .filter((value): value is number => value != null);
+                    if (values.length < 2) return false;
+                    return Math.max(...values) - Math.min(...values) < 2;
+                  })()
+                : false
+            }
+          />
         </>
       )}
     </section>
