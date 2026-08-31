@@ -175,3 +175,47 @@ def test_peek_vendor_cache_hit_no_http(acq, tmp_path):
     assert fp == fingerprint
     assert body["activity_id"] == "seeded-activity-no-new-submit"
     assert acq.peek_vendor_cache(tmp_path / "empty", request) is None
+
+
+def test_ambiguous_failed_prior_does_not_blind_retry(acq, monkeypatch):
+    """Timeout/disconnect provenance must refuse silent re-submit."""
+    import json
+    import shutil
+
+    out_root = (
+        acq.ROOT
+        / "data"
+        / "acquisitions"
+        / "cross-city"
+        / "_tmp_ambiguous_gate_test"
+        / "matched"
+        / "20240708T030000"
+    )
+    if out_root.exists():
+        shutil.rmtree(out_root.parent.parent)
+    out_root.mkdir(parents=True)
+    (out_root / "raw").mkdir()
+    (out_root / "normalized").mkdir()
+    (out_root / "vendor_cache").mkdir()
+    (out_root / "provenance.json").write_text(
+        json.dumps(
+            {
+                "status": "failed",
+                "vendor_attempted": True,
+                "error_type": "TimeoutError",
+                "activity_id": None,
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(acq, "acquisition_out_root", lambda *_a, **_k: out_root)
+    monkeypatch.setattr(
+        acq,
+        "_load_key_alias",
+        lambda: ("VALIDATION_B", "test-key-not-real", "https://example.invalid"),
+    )
+    try:
+        with pytest.raises(SystemExit, match="ambiguous prior execution"):
+            acq.acquire_city("Los Angeles", target_local="2024-07-08T03:00:00")
+    finally:
+        shutil.rmtree(out_root.parent.parent, ignore_errors=True)

@@ -413,16 +413,6 @@ def acquire_city(
     norm_dir.mkdir(parents=True, exist_ok=True)
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    # Cache-miss / no completed equivalent for this city+local clock
-    prior = out_root / "provenance.json"
-    if prior.is_file():
-        existing = json.loads(prior.read_text(encoding="utf-8"))
-        if existing.get("status") == "succeeded" and existing.get("activity_id"):
-            raise SystemExit(
-                f"STOP: completed equivalent activity already retained "
-                f"({existing.get('activity_id')}); no second paid request"
-            )
-
     report: dict[str, Any] = {
         "city": city_name,
         "city_id": city_id,
@@ -473,6 +463,44 @@ def acquire_city(
             )
         )
         return report
+
+    # Paid path only: ambiguous / completed prior must never silently re-submit.
+    # Inspect fingerprint cache, raw artifact, activity_id, normalized result.
+    prior = out_root / "provenance.json"
+    if prior.is_file():
+        existing = json.loads(prior.read_text(encoding="utf-8"))
+        prior_status = existing.get("status")
+        prior_activity = existing.get("activity_id")
+        prior_attempted = bool(existing.get("vendor_attempted"))
+        if prior_status == "succeeded" and prior_activity:
+            raise SystemExit(
+                f"STOP: completed equivalent activity already retained "
+                f"({prior_activity}); no second paid request"
+            )
+        # Timeout/disconnect/failed after vendor window: reconcile only.
+        # Do not assume "failed" means the vendor never accepted a submit.
+        if prior_attempted or prior_status in {
+            "failed",
+            "unknown",
+            "unknown_vendor_state",
+            "recovery_required",
+        }:
+            raw_activity = None
+            raw_audit = out_root / "raw" / "vendor_payload_redacted.json"
+            if raw_audit.is_file():
+                try:
+                    raw_doc = json.loads(raw_audit.read_text(encoding="utf-8"))
+                    if isinstance(raw_doc, dict):
+                        raw_activity = raw_doc.get("activity_id")
+                except json.JSONDecodeError:
+                    raw_activity = None
+            raise SystemExit(
+                "STOP: ambiguous prior execution — do not blind retry. "
+                f"Inspect vendor_cache fingerprint under {cache_dir}, "
+                f"raw artifact activity_id={raw_activity!r}, "
+                f"provenance activity_id={prior_activity!r} status={prior_status!r}, "
+                f"normalized under {norm_dir}. Reconcile via activity_id/cache only."
+            )
 
     request = HeatmapFetchRequest(
         polygon_aoi=gate["cfg"].polygon_aoi,
