@@ -4,7 +4,7 @@ Classification: bind-only. No invented fields.
 
 | Surface | Route / source | Keys used | Units / semantics |
 |---|---|---|---|
-| Selected area | Client catalog `ANALYSIS_AREA_GEOIDS` | GEOID, Analysis Area N label | Identity only |
+| Selected area | Client catalog `ANALYSIS_AREA_GEOIDS` | GEOID, Census Tract display_name (AREA_IDENTITY_V1) | Identity only |
 | Map geometry | `GET /api/v1/areas/{area_id}/geometry` | GeoJSON FeatureCollection, `GEOID`, polygon coordinates | Real Phoenix AOI polygons + neutral paper geographic context (no external basemap tiles) |
 | Selected-time thermal (map + hero) | Cached seed `cachedPhoenixSnapshot.json` via `phoenixDemoCachedSelectedTime()` | `zone_id`, `mean_temperature_c`, `coverage_status` | Absolute °C; **THERMAL_DISPLAY_SCALE_V1 is HVA display policy (fixed 15–60 °C envelope with ≤15/≥60 endcaps)** — not a FortyGuard physical range; no AOI stretch; optional enhance-local-contrast OFF |
 | Dominant evidence pattern | `synthesizeNarrative` rule engine | spatial_diff, matched change, context, preparedness | Typed pattern — not a score |

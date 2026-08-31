@@ -1,4 +1,4 @@
-import { analysisAreaLabel } from "@/features/selectedAreaStory/identity";
+import { analysisAreaLabel, resolveIdentity } from "@/features/selectedAreaStory/identity";
 import { formatDeltaC, formatTempC } from "./format";
 import type { HistoricalPositionView, SpatialDifferentiationView } from "./historicalPosition";
 import { AreaSelector } from "./AreaSelector";
@@ -43,6 +43,9 @@ export function ThermalHero({
   evidenceSignals,
 }: ThermalHeroProps) {
   const label = analysisAreaLabel(selectedZoneId) ?? "Select an analysis area";
+  const secondary = selectedZoneId
+    ? (resolveIdentity(selectedZoneId).secondaryLabel ?? null)
+    : null;
   const localStamp = observationDateLabel ?? observationStamp ?? null;
   return (
     <section
@@ -54,6 +57,11 @@ export function ThermalHero({
       <div className="hx-hero-identity">
         <p className="hx-kicker">01 · What's happening here?</p>
         <h2 data-testid="selected-area-label">{label}</h2>
+        {secondary ? (
+          <p className="hx-note" data-testid="selected-area-secondary">
+            {secondary}
+          </p>
+        ) : null}
         <AreaSelector selectedZoneId={selectedZoneId} onSelect={onSelect} />
         {selectedZoneId ? (
           <details className="hx-geoid">

@@ -104,10 +104,14 @@ test.describe("judge experience overhaul", () => {
       context: await page.getByTestId("story-facts").innerText(),
       direction: await page.getByTestId("decision-shows").innerText(),
     };
-    expect(before.area).toMatch(/Analysis Area 1/i);
+    expect(before.area).toMatch(/Census Tract 1074\.01/i);
 
     await page.getByTestId("area-selector-input").selectOption("04013107500");
-    await expect(page.getByTestId("selected-area-label")).toContainText(/Analysis Area 2/i);
+    await expect(page.getByTestId("selected-area-label")).toContainText(/Census Tract 1075/i);
+    await expect(page.getByTestId("judge-shell")).toHaveAttribute(
+      "data-selected-area-id",
+      "04013107500",
+    );
     await expect(page.getByTestId("matched-years")).not.toHaveText(before.matched, { timeout: 45_000 });
     await expect(page.getByTestId("observed-instant-list")).not.toHaveText(before.observed);
     await expect(page.getByTestId("story-facts")).not.toHaveText(before.context);
@@ -120,6 +124,37 @@ test.describe("judge experience overhaul", () => {
     expect(visible.toLowerCase()).not.toContain("no cooling site");
     expect(visible.toLowerCase()).not.toContain("no row");
     expect(visible.toLowerCase()).not.toContain("warming trend");
+  });
+
+  test("rapid area switches settle on the final selection without oscillation", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await waitForEvidence(page);
+
+    const sequence = [
+      "04013107401",
+      "04013107500",
+      "04013107601",
+      "04013107602",
+      "04013108802",
+    ];
+    for (const geoid of sequence) {
+      await page.getByTestId("area-selector-input").selectOption(geoid);
+    }
+    await expect(page.getByTestId("judge-shell")).toHaveAttribute(
+      "data-selected-area-id",
+      "04013108802",
+      { timeout: 45_000 },
+    );
+    await expect(page.getByTestId("selected-area-label")).toContainText(/Census Tract/i);
+    await expect(page.getByTestId("area-selector-input")).toHaveValue("04013108802");
+    // Allow in-flight evidence to settle; selection must remain the last choice.
+    await page.waitForTimeout(1500);
+    await expect(page.getByTestId("judge-shell")).toHaveAttribute(
+      "data-selected-area-id",
+      "04013108802",
+    );
+    await expect(page.getByTestId("selected-area-geoid")).toHaveText("04013108802");
   });
 
   test("captures production-build screenshots for visual QA", async ({ page }) => {

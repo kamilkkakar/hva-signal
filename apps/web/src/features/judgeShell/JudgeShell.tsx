@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useJobStore } from "@/stores/jobStore";
 import { POLL_INTERVAL_MS } from "@/utils/jobPolling";
 import { mapLayerFromLimitations, rankingPresentation } from "@/utils/mapLayer";
@@ -49,6 +49,7 @@ import { CrossCitySection } from "../crossCity";
 import "./judgeShell.css";
 
 const EMPTY_LIMITATIONS: readonly string[] = [];
+/** Authoritative default only when no valid selection exists. */
 const DEFAULT_AREA = ANALYSIS_AREA_GEOIDS[0];
 
 function clockDateFromAnalysisTime(value: string | null | undefined): string | null {
@@ -89,6 +90,10 @@ function spatialStatusFrom(
   if (status === "withheld") return "INSUFFICIENT";
   if (status === "supported") return "SUFFICIENT";
   return "UNKNOWN";
+}
+
+function isCatalogGeoid(geoid: string | null | undefined): geoid is string {
+  return Boolean(geoid && (ANALYSIS_AREA_GEOIDS as readonly string[]).includes(geoid));
 }
 
 export function JudgeShell() {
@@ -172,17 +177,36 @@ export function JudgeShell() {
     lastRequest?.analysis_time ?? snapshot?.request?.analysis_time,
   );
   const showRecovery = snapshot?.status === "unknown_job" || stalled;
-  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(DEFAULT_AREA);
+
+  // Single source of truth for the selected analysis area.
+  const [selectedAreaId, setSelectedAreaId] = useState<string | null>(DEFAULT_AREA);
+  const defaultInitDone = useRef(false);
+  useEffect(() => {
+    if (defaultInitDone.current) {
+      return;
+    }
+    defaultInitDone.current = true;
+    if (!isCatalogGeoid(selectedAreaId)) {
+      setSelectedAreaId(DEFAULT_AREA);
+    }
+  }, [selectedAreaId]);
+
+  const selectArea = useCallback((geoid: string | null) => {
+    if (isCatalogGeoid(geoid)) {
+      setSelectedAreaId(geoid);
+    }
+  }, []);
+
   const [mapMode, setMapMode] = useState<MapMode>("THERMAL");
   const [contextZones, setContextZones] = useState<ZoneMapProperties[]>([]);
-  const evidence = useAreaEvidence(selectedZoneId);
-  const thermalB = presentThermalB(selectedZoneId);
-  const history = presentHistoricalPosition(snapshot?.result, selectedZoneId);
-  const spatial = presentSpatialDifferentiation(snapshot?.result, selectedZoneId);
+  const evidence = useAreaEvidence(selectedAreaId);
+  const thermalB = presentThermalB(selectedAreaId);
+  const history = presentHistoricalPosition(snapshot?.result, selectedAreaId);
+  const spatial = presentSpatialDifferentiation(snapshot?.result, selectedAreaId);
   const observationStamp = `${B_CLOCK} ${B_TIMEZONE}`;
   const observationDate = observationDateLabel(B_CLOCK);
   const story = composeSelectedAreaStory({
-    selectedGeoid: selectedZoneId,
+    selectedGeoid: selectedAreaId,
     result: snapshot?.result ?? null,
     context: evidence.context?.selected ?? null,
     document: evidence.context,
@@ -202,7 +226,7 @@ export function JudgeShell() {
   const synthesis = useMemo(
     () =>
       synthesizeNarrative({
-        areaLabel: analysisAreaLabel(selectedZoneId),
+        areaLabel: analysisAreaLabel(selectedAreaId),
         analysisAreaCount,
         selectedTemperatureC: thermalB.temperatureC,
         observationStamp: observationDate,
@@ -234,7 +258,7 @@ export function JudgeShell() {
       observedHigh.label,
       observedHigh.value,
       prepStatus,
-      selectedZoneId,
+      selectedAreaId,
       spatial.status,
       thermalB.temperatureC,
     ],
@@ -246,6 +270,7 @@ export function JudgeShell() {
       data-testid="judge-shell"
       data-has-result={snapshot?.result != null ? "true" : "false"}
       data-dominant-pattern={synthesis.dominantPattern}
+      data-selected-area-id={selectedAreaId ?? ""}
     >
       <AppShell observationStamp={observationStamp} />
       <SectionNav />
@@ -256,8 +281,8 @@ export function JudgeShell() {
         showChips={false}
       />
       <ThermalHero
-        selectedZoneId={selectedZoneId}
-        onSelect={setSelectedZoneId}
+        selectedZoneId={selectedAreaId}
+        onSelect={selectArea}
         temperatureC={thermalB.temperatureC}
         observationStamp={observationStamp}
         observationDateLabel={observationDate}
@@ -286,12 +311,8 @@ export function JudgeShell() {
             mapMode={mapMode}
             onMapModeChange={setMapMode}
             contextZones={contextZones}
-            selectedZoneId={selectedZoneId}
-            onSelectedIdChange={(geoid) => {
-              if (geoid) {
-                setSelectedZoneId(geoid);
-              }
-            }}
+            selectedZoneId={selectedAreaId}
+            onSelectedIdChange={selectArea}
           />
           <p className="hx-temporal-cue">
             <a href="#matched-night-title">How nighttime conditions changed</a>
@@ -305,16 +326,16 @@ export function JudgeShell() {
       <div className="hx-temporal-pair" data-testid="temporal-pair">
         <MatchedNightChart
           view={evidence.matched}
-          areaLabel={analysisAreaLabel(selectedZoneId)}
+          areaLabel={analysisAreaLabel(selectedAreaId)}
           analysisAreaCount={analysisAreaCount}
         />
         <ObservedInstantsChart
           view={evidence.observed}
-          areaLabel={analysisAreaLabel(selectedZoneId)}
+          areaLabel={analysisAreaLabel(selectedAreaId)}
         />
       </div>
       <div data-testid="selected-area-story">
-        <ContextPanel comparisons={comparisons} selectedZoneId={selectedZoneId} />
+        <ContextPanel comparisons={comparisons} selectedZoneId={selectedAreaId} />
         <PreparednessPanel
           status={prepStatus}
           sentences={story.questions.support.sentences}
@@ -323,7 +344,7 @@ export function JudgeShell() {
       </div>
       <DecisionDirection
         synthesis={synthesis}
-        areaLabel={analysisAreaLabel(selectedZoneId)}
+        areaLabel={analysisAreaLabel(selectedAreaId)}
       />
       <CrossCitySection />
       <HappeningBand
@@ -336,10 +357,10 @@ export function JudgeShell() {
       <div id="area-different">
         <AreaContextBand
           areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? "phoenix-demo"}
-          selectedZoneId={selectedZoneId}
+          selectedZoneId={selectedAreaId}
           result={snapshot?.result ?? null}
           mapMode={mapMode}
-          onSelectTract={setSelectedZoneId}
+          onSelectTract={selectArea}
           onContextZones={setContextZones}
         />
       </div>
@@ -351,13 +372,13 @@ export function JudgeShell() {
             snapshot={snapshot}
             status={snapshot?.status ?? null}
             result={snapshot?.result ?? null}
-            selectedZoneId={selectedZoneId}
+            selectedZoneId={selectedAreaId}
           />
         </div>
         <div id="own-history">
           <SelectedZoneBand
             result={snapshot?.result ?? null}
-            selectedZoneId={selectedZoneId}
+            selectedZoneId={selectedAreaId}
           />
         </div>
         <div id="nearby-support">

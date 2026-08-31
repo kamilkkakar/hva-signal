@@ -97,6 +97,8 @@ export type SelectedAreaIdentity = {
   areaNumber: number | null;
   label: string | null;
   inCatalog: boolean;
+  secondaryLabel?: string | null;
+  nameSource?: string | null;
 };
 
 export type SelectedAreaDecisionStory = {

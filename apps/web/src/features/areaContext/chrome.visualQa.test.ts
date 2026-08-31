@@ -25,7 +25,7 @@ describe("V2-N context chrome", () => {
     expect(isPublicContextEnabled("0")).toBe(false);
   });
 
-  it("shows Analysis Area N and 4-6 facts, with GEOID only in closed details", () => {
+  it("shows Census Tract labels and 4-6 facts, with GEOID only in closed details", () => {
     const story = composeSelectedAreaStory({
       selectedGeoid: AREA_1,
       result: sufficientResult(),
@@ -38,7 +38,8 @@ describe("V2-N context chrome", () => {
       createElement(SelectedAreaStoryPanel, { story, mode: "TREE_CANOPY" }),
     );
     const visible = firstRead(html);
-    expect(visible).toContain("Analysis Area 1");
+    expect(visible).toContain("Census Tract 1074.01");
+    expect(visible).not.toContain("Analysis Area 1");
     expect(visible).toContain("What is happening here?");
     expect(visible).toContain("What makes this area different?");
     expect(visible).not.toContain(AREA_1);
@@ -70,7 +71,8 @@ describe("V2-N context chrome", () => {
     expect(visible).not.toContain(AREA_1);
     expect(visible).not.toContain("NOT_IDENTIFIED_IN_DATASET");
     expect(visible).not.toContain("THERMAL=");
-    expect(html).toContain("Analysis Area 1");
+    expect(html).toContain("Census Tract 1074.01");
+    expect(html).not.toContain("Analysis Area 1");
   });
 
   it("keeps context map-mode legends off FortyGuard historical-position chrome", () => {

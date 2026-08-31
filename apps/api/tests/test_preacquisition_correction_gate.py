@@ -168,7 +168,7 @@ def test_cross_city_metrics_binds_non_thermal_for_all_cities() -> None:
         assert all(row["population"] is not None for row in rows)
         assert sum(row["median_household_income"] is not None for row in rows) >= 20
         assert all(row["tree_canopy_pct"] is not None for row in rows)
-        assert all(row["label"].startswith("Comparison Area ") for row in rows)
+        assert all(row["label"].startswith("Census Tract ") for row in rows)
         assert all(row["temperature_c"] is not None for row in rows)
         # Older housing is share of units (%), not raw ACS count.
         older = [row["homes_built_before_1980"] for row in rows]
@@ -196,4 +196,4 @@ def test_missing_thermal_is_disclosed_not_fabricated() -> None:
     assert all(row["temperature_c"] is not None for row in rows)
     assert all(row["coverage_flags"]["temperature_c"] for row in rows)
     assert all("temperature_c" not in row["missing_reasons"] for row in rows)
-    assert all(row["label"].startswith("Comparison Area ") for row in rows)
+    assert all(row["label"].startswith("Census Tract ") for row in rows)

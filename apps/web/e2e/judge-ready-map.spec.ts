@@ -80,11 +80,13 @@ test.describe("judge-ready map hover/click", () => {
       expect(selectedId.length).toBeGreaterThan(0);
       await page.mouse.move(0, 0);
       await expect(page.getByTestId("detail-geoid")).toHaveText(selectedId);
+      // Controlled SSOT: re-clicking the selected zone keeps the parent selection.
       await liveButton.click();
       await expect(page.getByTestId("map-interaction-detail")).toHaveAttribute(
         "data-has-selection",
-        "false",
+        "true",
       );
+      await expect(page.getByTestId("detail-geoid")).toHaveText(selectedId);
       return;
     }
 
@@ -98,10 +100,12 @@ test.describe("judge-ready map hover/click", () => {
     await page.mouse.move(0, 0);
     await expect(page.getByTestId("detail-geoid")).toHaveText(first);
 
+    // Controlled SSOT: same-GEOID click does not clear the authoritative selection.
     await firstRow.locator("button").click();
     await expect(page.getByTestId("map-interaction-detail")).toHaveAttribute(
       "data-has-selection",
-      "false",
+      "true",
     );
+    await expect(page.getByTestId("detail-geoid")).toHaveText(first);
   });
 });

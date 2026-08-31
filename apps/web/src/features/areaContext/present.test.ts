@@ -108,7 +108,7 @@ describe("area context presentation", () => {
     const rows = presentList(document);
     expect(rows[0]?.canopy).toBe(0.15);
     expect(rows[0]?.income).toBeNull();
-    expect(rows[0]?.areaLabel).toMatch(/Analysis Area/i);
+    expect(rows[0]?.areaLabel).toMatch(/Census Tract/i);
     expect(rows[0]?.coolingStatus).toBe("Not identified in this dataset");
     expect(rows[0]?.coolingStatus).not.toMatch(/NOT_IDENTIFIED_IN_DATASET|NO COOLING SITE/);
     expect(rows[0]?.coolingStatus).not.toMatch(/\bIDENTIFIED\b/);

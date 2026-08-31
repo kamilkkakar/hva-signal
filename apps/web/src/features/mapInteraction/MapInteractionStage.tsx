@@ -4,6 +4,10 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "./mapInteraction.css";
 import { allHatchImages, signalAFillPaint, signalAHatchPaint } from "@/features/mapEncoding";
 import { featureCollectionBounds } from "./bounds";
+import {
+  applyParentSelectionToMap,
+  useStableSelectionHandler,
+} from "./controlledSelection";
 import { mapInteractionIsEnabled } from "./flags";
 import { highlightFillPaint, highlightHatchPaint, highlightLinePaint } from "./highlight";
 import { MapInteractionChrome } from "./MapInteractionChrome";
@@ -196,13 +200,33 @@ export function MapInteractionStage({
   viewRef.current = view;
   enhanceRef.current = enhanceLocalContrast;
 
-  const selectedOut = state.layerActive ? state.selectedId : null;
-  useEffect(() => {
-    onSelectedIdChange?.(selectedOut);
-  }, [onSelectedIdChange, selectedOut]);
+  const notifyParent = useStableSelectionHandler(onSelectedIdChange);
+  const notifyParentRef = useRef(notifyParent);
+  const selectedIdRef = useRef(selectedId);
+  notifyParentRef.current = notifyParent;
+  selectedIdRef.current = selectedId;
 
+  const dispatchControlled = (event: InteractionEvent) => {
+    if (event.type === "select") {
+      // Controlled: set (do not toggle-deselect) so parent SSOT cannot flap null→id.
+      dispatch({ type: "set_selected", geoid: event.geoid });
+      notifyParentRef.current(event.geoid, "user_select");
+      return;
+    }
+    dispatch(event);
+    if (
+      (event.type === "clear_selection" || event.type === "restore_layer") &&
+      selectedIdRef.current
+    ) {
+      // Keep map mirror aligned with authoritative parent selection.
+      dispatch(applyParentSelectionToMap(selectedIdRef.current));
+    }
+  };
+
+  // Parent selectedAreaId is authoritative. Mirror inbound only — never echo
+  // map mirror state back on callback identity churn (A→B→A flicker).
   useEffect(() => {
-    dispatch({ type: "set_selected", geoid: selectedId });
+    dispatch(applyParentSelectionToMap(selectedId));
   }, [selectedId]);
 
   useEffect(() => {
@@ -262,7 +286,8 @@ export function MapInteractionStage({
     const onClick = (event: maplibregl.MapLayerMouseEvent) => {
       const geoid = geoidFromEvent(event);
       if (geoid) {
-        dispatch({ type: "select", geoid });
+        dispatch({ type: "set_selected", geoid });
+        notifyParentRef.current(geoid, "user_select");
       }
     };
     if (map.loaded()) {
@@ -335,6 +360,7 @@ export function MapInteractionStage({
       data-hatch-layer="hva-map-interaction-hatch"
       data-position-legend={view.positionLegendMode ?? "none"}
       data-decorative="false"
+      data-selected-area-id={state.layerActive ? state.selectedId ?? "" : ""}
     >
       {!gatedOn ? (
         <p className="mapi-gated" data-testid="map-interaction-gated">
@@ -364,7 +390,7 @@ export function MapInteractionStage({
           )}
           <MapInteractionChrome
             view={view}
-            dispatch={dispatch}
+            dispatch={dispatchControlled}
             catalogKind={catalog?.kind}
             fillKind={catalog?.fill_kind}
             layerTitle={catalog?.layer_title ?? view.layerTitle}

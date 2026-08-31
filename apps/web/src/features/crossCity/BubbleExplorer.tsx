@@ -145,9 +145,13 @@ export function bubbleTooltipLines(point: CrossCityAreaRecord): string[] {
   if (point.metrics.population == null) {
     missing.push("Population is not published, so bubble size uses a fallback marker.");
   }
+  const secondary =
+    point.secondaryLabel ??
+    `Comparison area · ${point.cityLabel}`;
   return [
     point.areaLabel,
     point.cityLabel,
+    secondary,
     `Temp: ${formatTemperature(point.metrics.selectedTimeTemperatureC)}`,
     `Canopy: ${formatCanopy(point.metrics.treeCanopyPct)}`,
     `Pop: ${formatPopulation(point.metrics.population)}`,

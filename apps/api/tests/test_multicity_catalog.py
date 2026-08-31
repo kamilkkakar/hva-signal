@@ -101,7 +101,8 @@ def test_cross_city_metrics_returns_real_phoenix_rows_and_disclosed_gaps() -> No
     assert seed["population"] is not None
     assert seed["tree_canopy_pct"] is not None
     assert seed["comparison_clock"]["policy"] == "CROSS_CITY_OBSERVATION_V1"
-    assert seed["label"].startswith("Comparison Area ")
+    assert seed["label"].startswith("Census Tract ")
+    assert "Comparison Area " not in seed["label"]
     assert "temperature_c" not in seed["missing_reasons"]
     vegas_rows = [row for row in body["rows"] if row["city_id"] == "las_vegas"]
     assert len(vegas_rows) == 25

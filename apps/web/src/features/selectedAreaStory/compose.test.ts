@@ -31,7 +31,7 @@ describe("selected area decision story", () => {
       context,
       document: documentFor(context),
     });
-    expect(story.identity.label).toBe("Analysis Area 1");
+    expect(story.identity.label).toBe("Census Tract 1074.01");
     expect(story.questions.thermal.status).toBe("AVAILABLE");
     expect(story.questions.thermal.a.kind).toBe("order_shown");
     expect(story.questions.thermal.a.q_A).toBe(0.812);

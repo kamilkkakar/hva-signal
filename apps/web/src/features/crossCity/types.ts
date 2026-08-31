@@ -105,6 +105,7 @@ export type CrossCityAreaRecord = {
   cityLabel: string;
   areaId: string;
   areaLabel: string;
+  secondaryLabel?: string;
   metrics: CrossCityMetrics;
 };
 

@@ -1,0 +1,12 @@
+{
+  "schema": "AREA_IDENTITY_V1",
+  "packages": [
+    "phoenix-local",
+    "cross-city/phoenix",
+    "cross-city/las_vegas",
+    "cross-city/tucson",
+    "cross-city/los_angeles"
+  ],
+  "materialized_at": "2026-08-31T13:04:34Z",
+  "notes": "Offline replay package. No live reverse-geocoding. FortyGuard is thermal evidence source only."
+}

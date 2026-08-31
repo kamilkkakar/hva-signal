@@ -1,4 +1,5 @@
 import { apiUrl } from "@/api/baseUrl";
+import { crossCityDisplayName, crossCitySecondaryLabel } from "@/features/areaIdentity";
 import {
   CROSS_CITY_CITY_ALLOWLIST,
   CROSS_CITY_COMPARISON_CLOCK_LOCAL,
@@ -84,6 +85,10 @@ function cityLabel(cityId: CrossCityId, fallback: string | null | undefined): st
   );
 }
 
+function looksLikeGeoid(value: string): boolean {
+  return /^\d{11}$/.test(value);
+}
+
 function normalizeAreaRecord(
   area: FlatAreaDto,
   inheritedCityId?: string,
@@ -94,8 +99,24 @@ function normalizeAreaRecord(
     return null;
   }
   const areaId = String(area.area_id ?? area.zone_id ?? area.geoid ?? "").trim();
-  const areaLabel = String(area.area_label ?? area.label ?? areaId).trim();
-  if (!areaId || !areaLabel) {
+  if (!areaId) {
+    return null;
+  }
+  const rawLabel = String(area.area_label ?? area.label ?? "").trim();
+  const genericNumbered = /^(Analysis|Comparison) Area \d+$/i.test(rawLabel);
+  let areaLabel: string;
+  let secondaryLabel: string | undefined;
+  if (looksLikeGeoid(areaId)) {
+    areaLabel = crossCityDisplayName(cityId, areaId);
+    secondaryLabel = crossCitySecondaryLabel(cityId, areaId) ?? undefined;
+  } else if (rawLabel && !genericNumbered) {
+    areaLabel = rawLabel;
+  } else if (rawLabel) {
+    areaLabel = rawLabel;
+  } else {
+    areaLabel = areaId;
+  }
+  if (!areaLabel) {
     return null;
   }
   return {
@@ -103,6 +124,7 @@ function normalizeAreaRecord(
     cityLabel: cityLabel(cityId, area.city_label ?? inheritedCityLabel),
     areaId,
     areaLabel,
+    secondaryLabel,
     metrics: {
       selectedTimeTemperatureC: toNumber(
         area.selected_time_temperature_c ?? area.temperature_c,

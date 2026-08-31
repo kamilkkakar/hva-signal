@@ -35,7 +35,7 @@ this surface (no clean people/km² provenance wired for release).
   optional **Use comparison scale**).
 - Show all restores the common cross-city axis scale.
 - Fill metric changes shade intensity only — never a universal palette.
-- Hover / focus tooltip: Comparison Area N; City, State; Temp; Canopy; Pop;
+- Hover / focus tooltip: Census Tract label; City, State; Comparison area · City, State; Temp; Canopy; Pop;
   Income; Open area analysis → (Phoenix only).
 
 ## Guardrails

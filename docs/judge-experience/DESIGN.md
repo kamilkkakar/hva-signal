@@ -13,7 +13,7 @@ Classification: architectural UI overhaul. Implementation is authorized by the p
 
 | Surface | Source | Fields used |
 |---|---|---|
-| Selected area | Catalog GEOID order | `Analysis Area N`, GEOID secondary |
+| Selected area | Catalog GEOID order | `Census Tract NNNN.NN` primary, local/comparison secondary |
 | Signal A / historical position | Job `result.zones[].q_A` only when D8 `SUFFICIENT` and ordering permitted | Percent language from q_A ∈ [0,1]. Never print `q_A` on first-read |
 | Spatial ranking | `thermal_differentiation_state` / limitations | Supported vs withheld. Withhold is a feature |
 | Signal B snapshot | Cached phoenix seed | Absolute °C, 2025-07-15 03:00 America/Phoenix, 25/25 |
@@ -28,7 +28,7 @@ Not invented: combined score, vulnerability score, HeatDose, AfterHeat, WBGT, cl
 ## IA (20-second path)
 
 1. Brand + one sentence + FortyGuard cached badge
-2. Selected Analysis Area + key °C + historical position or withhold + 2024 vs 2022
+2. Selected Census Tract + key °C + historical position or withhold + 2024 vs 2022
 3. Large map (clickable polygons + compact selector)
 4. Matched-night chart
 5. Observed-instant chart
@@ -47,4 +47,4 @@ Mineral civic desk, not a research notebook.
 
 ## Selection
 
-One GEOID drives map, hero, charts, context, preparedness, and direction. Default Analysis Area 1. Default replay is the existing 2022-07-01 03:00 window (ranking withheld is the honest first state).
+One GEOID drives map, hero, charts, context, preparedness, and direction. Default is the first catalog tract (Census Tract 1074.01). Default replay is the existing 2022-07-01 03:00 window (ranking withheld is the honest first state).

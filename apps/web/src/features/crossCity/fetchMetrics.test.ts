@@ -88,6 +88,8 @@ describe("cross-city metrics client", () => {
     });
     expect(payload.areas).toHaveLength(1);
     expect(payload.areas[0]?.cityId).toBe("los-angeles-ca");
+    expect(payload.areas[0]?.areaLabel).toBe("Census Tract 2718.03");
+    expect(payload.areas[0]?.secondaryLabel).toMatch(/Comparison area/);
     expect(payload.areas[0]?.metrics.selectedTimeTemperatureC).toBe(23.4);
   });
 });

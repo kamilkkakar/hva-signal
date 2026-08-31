@@ -19,4 +19,4 @@ Canonical visual QA set for `CROSS_CITY_OBSERVATION_V1` on `feat/multicity-explo
 - Captured from the production web build against real acquired thermal + ACS + NLCD canopy.
 - Never mix these files into `docs/judge-experience/screenshots/` (Phoenix design contract).
 - Do not rename or replace approved `phoenix-*.png` baselines unless a true Phoenix regression is found and reviewed.
-- Labels use **Comparison Area N** for the cross-city geography only.
+- Labels use **Census Tract** geographic names for the cross-city geography (AREA_IDENTITY_V1). Generic Comparison Area N is method-detail only.

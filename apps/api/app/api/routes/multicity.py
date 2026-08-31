@@ -118,6 +118,15 @@ def _city_or_404(city_id: str) -> CityConfig:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
+def _tract_display_name(geoid: str) -> str:
+    """Census tract public label from GEOID (AREA_IDENTITY_V1 fallback level 3)."""
+    padded = str(geoid).zfill(11)
+    tractce = padded[-6:]
+    suffix = tractce[-2:]
+    prefix = tractce[:-2].lstrip("0") or "0"
+    return f"Census Tract {prefix}.{suffix}"
+
+
 def _comparison_clock(city_id: CityId) -> ComparisonClock:
     clock = resolve_city_observation_clock(_CITY_ID_TO_DIR[city_id])
     return ComparisonClock(
@@ -139,7 +148,7 @@ def _city_rows(city: CityConfig) -> list[CrossCityMetricRow]:
         return []
     geometry = json.loads(geometry_path.read_text(encoding="utf-8"))
     rows: list[CrossCityMetricRow] = []
-    for index, feature in enumerate(geometry["features"], start=1):
+    for _index, feature in enumerate(geometry["features"], start=1):
         props = feature["properties"]
         geoid = str(props["GEOID"]).zfill(11)
         income = acs_metric(city_dir, geoid, "median_household_income")
@@ -165,8 +174,8 @@ def _city_rows(city: CityConfig) -> list[CrossCityMetricRow]:
                 city_id=city.city_id,
                 zone_id=geoid,
                 geoid=geoid,
-                # Prefer Comparison Area N to avoid collision with Phoenix local tract names.
-                label=f"Comparison Area {index}",
+                # AREA_IDENTITY_V1: Census tract label (not Comparison Area N).
+                label=_tract_display_name(geoid),
                 temperature_c=temperature,
                 median_household_income=income,
                 population=(
