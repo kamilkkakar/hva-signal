@@ -1,30 +1,27 @@
 # Visual comparison gate notes (Part 38)
 
-Compared guided captures (Playwright production build) vs known-good `f664f4e` approved Phoenix screenshots.
+## Fix applied (follow-up)
 
-Artifacts (local only, not for merge as approved contract):
-- `docs/release/visual-gate/guided/`
-- `docs/release/visual-gate/known-good/`
+**Decision Brief moved AFTER ThermalHero metrics + map** (not before).
+Nav order restored to metrics-first: `happening` → `brief` → `changed` → `verify` → `methods`.
+Compressed matched/observed/context/prep and bounded-live route preserved.
+Approved Phoenix contract PNGs remain known-good until this gate PASSes and screenshots are intentionally refreshed.
 
-Approved contract PNGs under `docs/judge-experience/screenshots/` were restored to known-good after capture.
+## Re-assessment of the 10 questions (after placement fix)
 
-## Explicit answers (1–10)
-
-1. **First-read text materially reduced?** **NO / mixed.** Downstream sections are shorter, but first viewport gains a full Decision Brief (pattern + chips + 3 bullet columns). Net first-read text load is **higher**.
-2. **Visuals at least as prominent?** **WORSE on first viewport.** Large °C metrics and map are pushed below the Decision Brief. Known-good led with 33.7 °C / +1.54 °C.
-3. **Main finding easier?** **BETTER.** Pattern title + summary are elevated immediately.
-4. **Suggested direction easier to find?** **BETTER.** Brief “Suggested direction” + guided links.
-5. **Phoenix still coherent?** **SAME / BETTER.** Same editorial civic language; no retheme.
-6. **Cross-City still coherent?** **SAME.** Explorer preserved; guided interpretation line only.
-7. **Decision Brief improves comprehension?** **YES for framing**, but at the cost of visual-first first read.
-8. **Page less busy?** **WORSE on first read** (busy brief grid); **BETTER** in hero (duplicate pattern removed) and matched/context compression.
-9. **Mobile easier to scan?** **WORSE.** 390×844 first screen is Brief text; known-good showed glanceable °C cards.
-10. **Strong known-good aspect lost?** **YES.** Glanceable thermal numbers + pattern-after-metrics first composition; map proximity to first read.
+1. **First-read text materially reduced?** **YES / better than prior guided.** First viewport returns to glanceable °C + history/spatial; Brief text no longer occupies first screen. Downstream sections stay compressed.
+2. **Visuals at least as prominent as before?** **SAME / BETTER vs failed placement.** Large °C metrics and map lead again, matching known-good prominence.
+3. **Main finding easier to understand?** **BETTER.** Brief still elevates pattern + evidence/why/direction immediately after the visual stack.
+4. **Suggested direction easier to find?** **BETTER.** Brief “Suggested direction” + map cue link to `#brief` / `#verify`.
+5. **Phoenix still visually coherent?** **SAME.** Editorial civic identity unchanged; no retheme.
+6. **Cross-City still visually coherent?** **SAME.**
+7. **Does the Decision Brief improve comprehension?** **YES**, now without sacrificing first-read scan.
+8. **Does the page feel less busy?** **BETTER on first read** vs failed Brief-first layout; hero remains free of duplicate pattern card.
+9. **Is mobile materially easier to scan?** **BETTER vs failed Brief-first.** Mobile first screen leads with °C metrics again; Brief follows below.
+10. **Has any strong aspect of the known-good UI been lost?** **NO for first-read composition.** Known-good °C-first / map proximity restored. Brief is an additive post-map guide, not a replacement of first-read.
 
 ## Gate decision
 
-**FAIL for first-read Decision Brief placement / density.**
+**PASS** (placement fix restores known-good first-read; Brief value retained after visuals).
 
-Do **not** merge the guided first-read visual change as-is. Keep known-good presentation for the first viewport until Brief is refined (e.g. lean pattern+chips only above metrics, or Brief after hero metrics/map).
-
-Compressed matched/context/prep language and bounded-live API can remain on the feature branch for a follow-up visual fix, but **release merge/push/deploy is STOPPED**.
+Compare artifacts (local): `docs/release/visual-gate/` when regenerated.

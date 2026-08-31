@@ -13,7 +13,7 @@ type DecisionBriefProps = {
   areaLabel: string | null;
 };
 
-/** Top-of-page guided brief: evidence → why → suggested direction. */
+/** Post-map guided brief: evidence → why → suggested direction (after glanceable °C). */
 export function DecisionBrief({ synthesis, areaLabel }: DecisionBriefProps) {
   const evidence = synthesis.whatEvidenceShows.slice(0, 3);
   const why = synthesis.whyItMatters.slice(0, 2);

@@ -281,10 +281,6 @@ export function JudgeShell() {
         bannerLabel={source}
         showChips={false}
       />
-      <DecisionBrief
-        synthesis={synthesis}
-        areaLabel={analysisAreaLabel(selectedAreaId)}
-      />
       <ThermalHero
         selectedZoneId={selectedAreaId}
         onSelect={selectArea}
@@ -317,6 +313,8 @@ export function JudgeShell() {
             onSelectedIdChange={selectArea}
           />
           <p className="hx-temporal-cue" data-testid="guided-next-cues">
+            <a href="#brief">Decision brief</a>
+            {" · "}
             <a href="#changed">{MAP_CUE_MATCHED}</a>
             {" · "}
             <a href="#context">{MAP_CUE_CONTEXT}</a>
@@ -325,6 +323,10 @@ export function JudgeShell() {
           </p>
         </div>
       </div>
+      <DecisionBrief
+        synthesis={synthesis}
+        areaLabel={analysisAreaLabel(selectedAreaId)}
+      />
       <details className="hx-demo-controls" data-testid="demo-controls">
         <summary>{DEMO_CONTROLS}</summary>
         <RunBand />

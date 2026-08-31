@@ -48,7 +48,7 @@ export function ThermalHero({
       aria-label="Selected analysis area summary"
     >
       <div className="hx-hero-identity">
-        <p className="hx-kicker">02 · What did HVA-Signal find?</p>
+        <p className="hx-kicker">01 · What did HVA-Signal find?</p>
         <h2 data-testid="selected-area-label">{label}</h2>
         {secondary ? (
           <p className="hx-note" data-testid="selected-area-secondary">

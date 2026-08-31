@@ -18,16 +18,16 @@ export const SELECTOR_SEARCH = "Find an analysis area";
 export const GEOID_SECONDARY = "Census tract";
 export const DEMO_CONTROLS = "Explore another observation";
 
-/** Guidance → visual → interpretation → action → methods. */
+/** Visual metrics/map first → Decision Brief → interpretation → action → methods. */
 export const SECTION_NAV = [
-  { id: "brief", num: "01", title: "What are we seeing?" },
-  { id: "happening", num: "02", title: "What did HVA-Signal find?" },
+  { id: "happening", num: "01", title: "What did HVA-Signal find?" },
+  { id: "brief", num: "02", title: "What are we seeing?" },
   { id: "changed", num: "03", title: "Why does it matter?" },
   { id: "verify", num: "04", title: "What should I investigate next?" },
   { id: "methods", num: "05", title: "Methods & provenance" },
 ] as const;
 
-export const BRIEF_KICKER = "01 · Decision brief";
+export const BRIEF_KICKER = "02 · Decision brief";
 export const BRIEF_TITLE = "What are we seeing?";
 export const BRIEF_EVIDENCE = "Evidence";
 export const BRIEF_WHY = "Why it matters";
