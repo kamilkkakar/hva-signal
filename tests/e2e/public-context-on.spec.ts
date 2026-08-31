@@ -8,18 +8,40 @@ const INSUFFICIENT_TIME = "2022-07-01T03:00";
 
 const STORY_QUESTIONS = [
   "What is happening here?",
-  "What makes this area different?",
-  "What support is identified?",
+  "Local context",
+  "Preparedness",
   "What should be verified next?",
 ] as const;
 
+async function openDetails(page: Page, testId: string) {
+  const details = page.getByTestId(testId);
+  if ((await details.count()) === 0) {
+    return;
+  }
+  await details.evaluate((node) => {
+    if (node instanceof HTMLDetailsElement) {
+      node.open = true;
+    }
+  });
+}
+
+async function openDemoControls(page: Page) {
+  await openDetails(page, "demo-controls");
+}
+
+async function openEvidenceDisclosure(page: Page) {
+  await openDetails(page, "evidence-disclosure");
+}
+
 async function fillAnalysisTime(page: Page, value: string) {
+  await openDemoControls(page);
   const input = page.locator('input[name="analysis_time"]');
   await input.fill(value);
   await expect(input).toHaveValue(value);
 }
 
 async function submitAnalysis(page: Page) {
+  await openDemoControls(page);
   await page.getByRole("button", { name: "Submit analysis" }).click();
 }
 
@@ -91,6 +113,7 @@ test.describe("isolated HVA_PUBLIC_CONTEXT=1", () => {
       await expect(story).toContainText(question);
     }
 
+    await openEvidenceDisclosure(page);
     const signalB = page.getByTestId("signal-b-cached-panel");
     await expect(signalB).toBeVisible();
     await expect(page.getByTestId("signal-b-maturity")).toContainText(

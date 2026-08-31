@@ -23,9 +23,7 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
 
   return (
     <section className="hx-section" data-testid="observed-instants" aria-labelledby="observed-instants-title">
-      <p className="hx-kicker">Observed instants</p>
       <h2 id="observed-instants-title">{INSTANTS_TITLE}</h2>
-      <p className="hx-section-lead">{INSTANTS_SUBTITLE}</p>
       {view.status !== "AVAILABLE" ? (
         <p className="hx-missing">{view.reason ?? INSTANTS_SELECT}</p>
       ) : (
@@ -89,6 +87,10 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
               </li>
             ))}
           </ul>
+          <details className="hx-method">
+            <summary>About these observations</summary>
+            <p>{INSTANTS_SUBTITLE}</p>
+          </details>
         </>
       )}
     </section>

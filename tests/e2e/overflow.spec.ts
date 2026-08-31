@@ -49,6 +49,14 @@ test.describe("result layout overflow", () => {
     test.setTimeout(90_000);
     await page.setViewportSize({ width: 1024, height: 900 });
     await page.goto("/");
+    const demo = page.getByTestId("demo-controls");
+    if ((await demo.count()) > 0) {
+      await demo.evaluate((node) => {
+        if (node instanceof HTMLDetailsElement) {
+          node.open = true;
+        }
+      });
+    }
     await page.getByRole("button", { name: "Submit analysis" }).click();
 
     const details = page.getByTestId("analysis-detail");

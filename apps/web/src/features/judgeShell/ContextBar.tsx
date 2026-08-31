@@ -13,9 +13,15 @@ type ContextBarProps = {
   source: PublicSourceChip;
   clockDate?: string | null;
   bannerLabel?: string;
+  showChips?: boolean;
 };
 
-export function ContextBar({ source, clockDate, bannerLabel }: ContextBarProps) {
+export function ContextBar({
+  source,
+  clockDate,
+  bannerLabel,
+  showChips = true,
+}: ContextBarProps) {
   const clock = clockDate ? `${clockDate} ${CHIP_CLOCK}` : CHIP_CLOCK;
 
   return (
@@ -23,6 +29,7 @@ export function ContextBar({ source, clockDate, bannerLabel }: ContextBarProps) 
       <p className="judge-sr" data-testid="source-banner">
         {bannerLabel ?? "UNAVAILABLE"}
       </p>
+      {showChips ? (
       <ul className="judge-chips">
         <li data-chip="window-id">{CHIP_WINDOW_ID}</li>
         <li data-chip="window">{CHIP_WINDOW}</li>
@@ -33,6 +40,7 @@ export function ContextBar({ source, clockDate, bannerLabel }: ContextBarProps) 
         </li>
         <li data-chip="not-live">{CHIP_NOT_LIVE}</li>
       </ul>
+      ) : null}
     </section>
   );
 }

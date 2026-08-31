@@ -59,8 +59,7 @@
 }
 
 .hx-hero-line {
-  margin: 0;
-  grid-column: 1;
+  margin: 0.45rem 0 0;
   max-width: 38rem;
   font-size: 1.05rem;
   line-height: 1.35;
@@ -75,6 +74,16 @@
   gap: 0.35rem;
   justify-items: end;
   text-align: right;
+}
+
+.hx-product-badge {
+  margin: 0;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--hx-field);
+  color: var(--hx-field);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .hx-badge {
@@ -95,9 +104,9 @@
 
 .hx-hero {
   display: grid;
-  grid-template-columns: minmax(16rem, 20rem) minmax(0, 1fr);
-  gap: 1rem;
-  padding: 0.75rem 1.25rem;
+  grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
+  gap: 1rem 1.5rem;
+  padding: 0.75rem 1.25rem 0.35rem;
   background: var(--hx-paper);
 }
 
@@ -133,7 +142,7 @@
 
 .hx-metrics {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
   margin: 0;
 }
@@ -153,9 +162,23 @@
 }
 
 .hx-metrics dd {
-  margin: 0;
-  font-size: 0.98rem;
-  line-height: 1.35;
+  margin: 0 0 0.25rem;
+  font-size: 1.85rem;
+  font-family: var(--font-display);
+  line-height: 1.1;
+}
+
+.hx-hero > [data-testid="evidence-summary"],
+.hx-trust-note {
+  grid-column: 1 / -1;
+  padding: 0.55rem 0.75rem;
+  border-left: 3px solid var(--hx-brass);
+  background: var(--hx-card);
+}
+
+.hx-trust-note p {
+  margin: 0.2rem 0 0;
+  max-width: 48rem;
 }
 
 .hx-metric-note {
@@ -172,9 +195,9 @@
 }
 
 .hx-summary {
-  padding: 0.7rem 1.25rem 0.85rem;
-  background: var(--hx-card);
-  border-left: 4px solid var(--hx-brass);
+  padding: 0.45rem 1.25rem 0.55rem;
+  background: var(--hx-paper);
+  border-left: 3px solid var(--hx-brass);
 }
 
 .hx-summary[data-ranking="supported"] {
@@ -299,6 +322,7 @@
 .hx-app .judge-hero,
 .hx-app .judge-capability,
 .hx-app .judge-happening-line,
+.hx-app .judge-map-legend,
 .hx-app .signal-b-cached-panel .signal-b-map,
 .hx-app .signal-b-cached-panel [data-testid="signal-b-map"] {
   display: none;
@@ -310,15 +334,49 @@
   border-bottom: 1px solid var(--hx-line);
 }
 
-.hx-app .judge-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 0.7rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.hx-app .judge-chips,
+.hx-app .judge-context {
+  display: none;
+}
+
+.hx-app .judge-context .judge-sr {
+  display: block;
+}
+
+.hx-demo-controls {
+  position: relative;
+  z-index: 3;
+  margin: 0 1.25rem 0.75rem;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--hx-line);
+  background: var(--hx-card);
+}
+
+.hx-demo-controls summary {
+  cursor: pointer;
   color: var(--hx-muted);
-  font-size: 0.78rem;
+  font-size: 0.9rem;
+}
+
+.hx-temporal-cue {
+  margin: 0;
+  padding: 0.45rem 0.75rem 0.65rem;
+  background: var(--hx-field);
+}
+
+.hx-temporal-cue a {
+  color: #f3efe6;
+  font-size: 0.95rem;
+}
+
+.hx-method {
+  margin-top: 0.65rem;
+  color: var(--hx-muted);
+  font-size: 0.88rem;
+}
+
+.hx-secondary-panel h2 {
+  font-size: 1.15rem;
 }
 
 .hx-cards {

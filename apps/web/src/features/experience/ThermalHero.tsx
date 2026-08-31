@@ -1,6 +1,13 @@
 import { analysisAreaLabel } from "@/features/selectedAreaStory/identity";
-import { GEOID_SECONDARY, METRIC_CHANGE, METRIC_HISTORY, METRIC_TEMP } from "./copy";
-import { formatDeltaC, formatTempC } from "./format";
+import { B_CLOCK } from "@/features/selectedAreaStory/copy";
+import {
+  GEOID_SECONDARY,
+  HISTORY_WITHHELD_TRUST,
+  METRIC_CHANGE,
+  METRIC_TEMP,
+  RANKING_WITHHELD_TITLE,
+} from "./copy";
+import { formatDeltaC, formatLocalObservation, formatTempC } from "./format";
 import type { HistoricalPositionView } from "./historicalPosition";
 import { AreaSelector } from "./AreaSelector";
 
@@ -22,38 +29,54 @@ export function ThermalHero({
   change2024vs2022,
 }: ThermalHeroProps) {
   const label = analysisAreaLabel(selectedZoneId) ?? "Select an analysis area";
+  const localStamp = observationStamp
+    ? formatLocalObservation(B_CLOCK)
+    : null;
   return (
     <section className="hx-hero" data-testid="thermal-hero" aria-label="Selected analysis area summary">
       <div className="hx-hero-identity">
+        <p className="hx-kicker">Selected area</p>
+        <h2 data-testid="selected-area-label">{label}</h2>
         <AreaSelector selectedZoneId={selectedZoneId} onSelect={onSelect} />
-        <div>
-          <p className="hx-kicker">Selected area</p>
-          <h2 data-testid="selected-area-label">{label}</h2>
-          {selectedZoneId ? (
-            <details className="hx-geoid">
-              <summary>{GEOID_SECONDARY}</summary>
-              <p data-testid="selected-area-geoid">{selectedZoneId}</p>
-            </details>
-          ) : null}
-        </div>
+        {selectedZoneId ? (
+          <details className="hx-geoid">
+            <summary>{GEOID_SECONDARY}</summary>
+            <p data-testid="selected-area-geoid">{selectedZoneId}</p>
+          </details>
+        ) : null}
       </div>
       <dl className="hx-metrics">
-        <div data-testid="hero-temperature">
-          <dt>{METRIC_TEMP}</dt>
+        <div data-testid="hero-temperature" className="hx-metric-primary">
           <dd>
             {temperatureC == null ? "—" : formatTempC(temperatureC)}
-            {observationStamp ? <span className="hx-metric-note">{observationStamp}</span> : null}
           </dd>
-        </div>
-        <div data-testid="hero-history">
-          <dt>{METRIC_HISTORY}</dt>
-          <dd data-withheld={history.withheld ? "true" : "false"}>{history.sentence}</dd>
+          <dt>{METRIC_TEMP}</dt>
+          {localStamp ? <span className="hx-metric-note">{localStamp}</span> : null}
         </div>
         <div data-testid="hero-matched-change">
-          <dt>{METRIC_CHANGE}</dt>
           <dd>{change2024vs2022 == null ? "—" : formatDeltaC(change2024vs2022)}</dd>
+          <dt>{METRIC_CHANGE}</dt>
         </div>
       </dl>
+      <div data-testid="evidence-summary">
+        <aside
+          className="hx-trust-note"
+          data-testid="hero-history"
+          data-withheld={history.withheld ? "true" : "false"}
+        >
+          {history.withheld ? (
+            <>
+              <p className="hx-kicker">{RANKING_WITHHELD_TITLE}</p>
+              <p data-testid="ranking-interpretation">{history.sentence}</p>
+              <p data-testid="ranking-next" className="hx-note">
+                {HISTORY_WITHHELD_TRUST}
+              </p>
+            </>
+          ) : (
+            <p data-testid="ranking-interpretation">{history.sentence}</p>
+          )}
+        </aside>
+      </div>
     </section>
   );
 }

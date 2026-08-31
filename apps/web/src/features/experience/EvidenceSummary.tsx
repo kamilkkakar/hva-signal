@@ -33,7 +33,11 @@ export function EvidenceSummary({ withheld, ready, children }: EvidenceSummaryPr
       <p data-testid="ranking-interpretation">
         {withheld ? RANKING_WITHHELD_BODY : RANKING_SUPPORTED_BODY}
       </p>
-      {withheld ? <p data-testid="ranking-next">{RANKING_WITHHELD_NEXT}</p> : null}
+      {withheld ? (
+        <p data-testid="ranking-next" className="hx-note">
+          {RANKING_WITHHELD_NEXT}
+        </p>
+      ) : null}
       {children}
     </section>
   );

@@ -1,5 +1,17 @@
 import { expect, test, type Page } from "@playwright/test";
 
+async function openDemoControls(page: Page) {
+  const details = page.getByTestId("demo-controls");
+  if ((await details.count()) === 0) {
+    return;
+  }
+  await details.evaluate((node) => {
+    if (node instanceof HTMLDetailsElement) {
+      node.open = true;
+    }
+  });
+}
+
 async function openAdvancedDetails(page: Page) {
   const details = page.getByTestId("analysis-detail");
   await expect(details).toBeAttached({ timeout: 45_000 });
@@ -39,6 +51,7 @@ async function submitAndReadJob(
       response.request().method() === "POST" &&
       response.url().includes("/api/v1/analysis/jobs"),
   );
+  await openDemoControls(page);
   await page.getByRole("button", { name: "Submit analysis" }).click();
   const post = await posted;
   const requestTime = JSON.parse(post.request().postData() ?? "{}")
@@ -151,6 +164,7 @@ test.describe("Phoenix AOI-local replay demo path", () => {
     }) => {
       test.setTimeout(60_000);
       await page.goto("/");
+      await openDemoControls(page);
       await page.locator('input[name="analysis_time"]').fill("2022-06-30T03:00");
       await expect(page.locator('input[name="analysis_time"]')).toHaveValue(
         "2022-06-30T03:00",

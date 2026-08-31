@@ -27,7 +27,6 @@ export function DecisionDirection({ story, rankingWithheld }: DecisionDirectionP
 
   return (
     <section className="hx-section hx-decision" data-testid="decision-direction" aria-labelledby="decision-title">
-      <p className="hx-kicker">So what?</p>
       <h2 id="decision-title">{DECISION_TITLE}</h2>
       <div className="hx-decision-grid">
         <article>

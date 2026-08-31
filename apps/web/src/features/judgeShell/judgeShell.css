@@ -23,11 +23,14 @@
 
 .judge-explore {
   display: grid;
-  grid-template-columns: minmax(12.75rem, 15.25rem) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(min(52vh, 34rem), 1fr);
+  height: min(52vh, 34rem);
   min-height: min(52vh, 34rem);
-  flex: 1 1 auto;
+  max-height: min(58vh, 38rem);
+  flex: 0 0 auto;
   min-width: 0;
+  overflow: hidden;
 }
 
 .judge-explore > * {
@@ -45,7 +48,7 @@
 }
 
 .judge-explore .hx-map-stack {
-  grid-column: 2;
+  grid-column: 1;
   grid-row: 1;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
@@ -53,7 +56,8 @@
   min-width: 0;
 }
 
-.judge-explore .hx-map-stack .judge-map {
+.judge-explore .hx-map-stack .judge-map,
+.judge-explore > .judge-map {
   grid-column: 1;
   grid-row: 1;
   min-height: min(46vh, 28rem);
@@ -356,7 +360,9 @@
   }
 
   .judge-explore {
+    height: calc(100vh - 13.5rem);
     min-height: calc(100vh - 13.5rem);
+    max-height: calc(100vh - 13.5rem);
     grid-template-rows: minmax(calc(100vh - 13.5rem), 1fr);
   }
 }
@@ -371,7 +377,9 @@
   .judge-explore {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(20rem, 1fr) auto;
+    height: auto;
     min-height: auto;
+    max-height: none;
   }
 
   .judge-explore .hx-map-stack {

@@ -6,30 +6,34 @@ export const HERO_LINE = "From thermal observations to defensible urban heat dec
 export const HERO_SUPPORT =
   "Explore how heat conditions compare with history, change over time, and intersect with local context and preparedness.";
 export const PLACE_LINE = "Phoenix · 25 analysis areas";
-export const MODE_LINE = "FortyGuard thermal evidence · Cached demonstration";
+export const MODE_LINE = "FortyGuard thermal intelligence";
+export const PRODUCT_BADGE = "Cached demonstration";
 
-export const BADGE_KICKER = "Thermal intelligence";
+export const BADGE_KICKER = "FortyGuard thermal intelligence";
 export const BADGE_PROVIDER = "FortyGuard · 100 m TCM";
-export const BADGE_MODE = "Cached observation";
+export const BADGE_MODE = "Cached demonstration";
 
 export const SELECTOR_LABEL = "Analysis area";
 export const SELECTOR_SEARCH = "Find an analysis area";
 export const GEOID_SECONDARY = "Census tract";
+export const DEMO_CONTROLS = "Explore another observation";
 
 export const METRIC_TEMP = "Selected thermal observation";
 export const METRIC_HISTORY = "Historical 03:00 position";
-export const METRIC_CHANGE = "2024 vs 2022 matched nighttime";
+export const METRIC_CHANGE = "Matched nighttime change vs 2022";
 
 export const HISTORY_UNAVAILABLE =
   "A historical 03:00 position is not published for this observation.";
 export const HISTORY_WITHHELD =
-  "A historical position is not published because thermal differences across the 25 areas are too small to support a defensible spatial ranking.";
+  "The differences across the 25 analysis areas are too small to support a defensible ordering for this observation.";
+export const HISTORY_WITHHELD_TRUST =
+  "HVA-Signal preserves the evidence rather than exaggerating small differences.";
 
 export const RANKING_WITHHELD_TITLE = "Spatial ranking withheld";
 export const RANKING_WITHHELD_BODY =
-  "The thermal differences across these 25 areas are too small to support a defensible ordering for this observation.";
+  "The differences across the 25 analysis areas are too small to support a defensible ordering for this observation.";
 export const RANKING_WITHHELD_NEXT =
-  "Explore the temporal and contextual evidence instead. Use contextual evidence for investigation, not to recreate a hidden thermal ranking.";
+  "Use the temporal and contextual evidence to decide what to verify. Do not recreate a hidden thermal ranking.";
 export const RANKING_SUPPORTED_TITLE = "Spatial comparison available";
 export const RANKING_SUPPORTED_BODY =
   "Nighttime historical positions differ enough across the 25 areas to support a comparison for this observation.";
@@ -45,15 +49,15 @@ export const INSTANTS_SUBTITLE = "Four discrete observations. Hours between them
 export const INSTANTS_GAP = "Interval not observed";
 export const INSTANTS_SELECT = "Select an analysis area to read observed instants.";
 
-export const CONTEXT_TITLE = "What makes this area different?";
-export const PREP_TITLE = "What support is identified?";
+export const CONTEXT_TITLE = "Local context";
+export const PREP_TITLE = "Preparedness";
 export const PREP_IDENTIFIED = "Identified";
 export const PREP_NOT_IDENTIFIED = "Not identified in this dataset";
 export const PREP_UNKNOWN = "Unknown";
 export const PREP_DISCLAIMER =
   "Partial regional inventory. A dataset miss does not establish that no cooling resource exists.";
 
-export const DECISION_TITLE = "What should be verified next?";
+export const DECISION_TITLE = "What to verify next";
 export const DECISION_SHOWS = "What the evidence shows";
 export const DECISION_MATTERS = "Why it matters";
 export const DECISION_NEXT = "What to verify next";
@@ -73,6 +77,10 @@ export const FORBIDDEN_FIRST_READ = [
   "climate trend",
   "NO COOLING SITE",
   "no cooling site",
+  "SUBMIT ANALYSIS",
+  "Submit analysis",
+  "not the municipality",
+  "not live",
 ] as const;
 
 export function historicalPositionSentence(qA: number): string {

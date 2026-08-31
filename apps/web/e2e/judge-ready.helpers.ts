@@ -48,13 +48,36 @@ export async function expectNoPageHorizontalScroll(page: Page, label: string) {
   expectNoPageHScroll(await pageBox(page), label);
 }
 
+async function openDetails(page: Page, testId: string) {
+  const details = page.getByTestId(testId);
+  if ((await details.count()) === 0) {
+    return;
+  }
+  await details.evaluate((node) => {
+    if (node instanceof HTMLDetailsElement) {
+      node.open = true;
+    }
+  });
+  await expect(details).toHaveAttribute("open", "");
+}
+
+export async function openDemoControls(page: Page) {
+  await openDetails(page, "demo-controls");
+}
+
+export async function openEvidenceDisclosure(page: Page) {
+  await openDetails(page, "evidence-disclosure");
+}
+
 export async function fillAnalysisTime(page: Page, value: string) {
+  await openDemoControls(page);
   const input = page.locator('input[name="analysis_time"]');
   await input.fill(value);
   await expect(input).toHaveValue(value);
 }
 
 export async function submitAnalysis(page: Page) {
+  await openDemoControls(page);
   await page.getByRole("button", { name: "Submit analysis" }).click();
 }
 

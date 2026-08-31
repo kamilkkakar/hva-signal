@@ -1,6 +1,6 @@
 import { ANALYSIS_AREA_GEOIDS } from "@/features/selectedAreaStory/types";
 import { analysisAreaLabel } from "@/features/selectedAreaStory/identity";
-import { GEOID_SECONDARY, SELECTOR_LABEL } from "./copy";
+import { SELECTOR_LABEL } from "./copy";
 
 type AreaSelectorProps = {
   selectedZoneId: string | null;
@@ -19,7 +19,7 @@ export function AreaSelector({ selectedZoneId, onSelect }: AreaSelectorProps) {
       >
         {ANALYSIS_AREA_GEOIDS.map((geoid) => (
           <option key={geoid} value={geoid}>
-            {analysisAreaLabel(geoid)} · {GEOID_SECONDARY} {geoid}
+            {analysisAreaLabel(geoid)}
           </option>
         ))}
       </select>

@@ -7,6 +7,7 @@ import {
   INSUFFICIENT_TIME,
   SUFFICIENT_TIME,
   fillAnalysisTime,
+  openEvidenceDisclosure,
   submitAnalysis,
   waitForDecision8,
   waitForMapState,
@@ -37,6 +38,7 @@ async function expectActionFraming(
   page: Page,
   expected: (typeof framing)["sufficient"] | (typeof framing)["insufficient"],
 ) {
+  await openEvidenceDisclosure(page);
   const card = page.getByTestId("action-v0");
   if ((await card.count()) === 0) {
     return false;

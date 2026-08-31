@@ -21,9 +21,7 @@ export function MatchedNightChart({ view, areaLabel }: MatchedNightChartProps) {
 
   return (
     <section className="hx-section" data-testid="matched-nighttime" aria-labelledby="matched-night-title">
-      <p className="hx-kicker">Matched nighttime</p>
       <h2 id="matched-night-title">{MATCHED_TITLE}</h2>
-      <p className="hx-section-lead">{MATCHED_WINDOW}</p>
       {view.status !== "AVAILABLE" ? (
         <p className="hx-missing" data-testid="matched-missing">
           {view.reason ?? MATCHED_SELECT}
@@ -67,7 +65,11 @@ export function MatchedNightChart({ view, areaLabel }: MatchedNightChartProps) {
           <p data-testid="matched-nights">
             Matched nights warmer: {view.nightsWarmer} / {view.nightsTotal}
           </p>
-          <p className="hx-note">{MATCHED_NOT_CLIMATE}</p>
+          <details className="hx-method">
+            <summary>About this comparison</summary>
+            <p>{MATCHED_WINDOW}</p>
+            <p className="hx-note">{MATCHED_NOT_CLIMATE}</p>
+          </details>
         </>
       )}
     </section>

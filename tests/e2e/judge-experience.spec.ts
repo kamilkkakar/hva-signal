@@ -11,13 +11,17 @@ const FORBIDDEN = [
   "AWAITING ANALYSIS",
   "24-HOUR CURVE",
   "climate trend",
+  "SUBMIT ANALYSIS",
+  "Submit analysis",
+  "not the municipality",
+  "not live",
 ];
 
 async function firstReadText(page: Page): Promise<string> {
   return page.evaluate(() => {
     const root = document.body.cloneNode(true) as HTMLElement;
     root.querySelectorAll(
-      "details, [data-testid='happening-band'], [data-testid='selected-zone'], .judge-supports, .judge-result-story",
+      "details, [data-testid='happening-band'], [data-testid='selected-zone'], [data-testid='context-bar'], [data-testid='demo-controls'], [data-testid='evidence-disclosure'], .judge-supports, .judge-result-story, #thermal-conditions",
     ).forEach((node) => node.remove());
     return (root.innerText ?? "").replace(/\s+/g, " ");
   });
@@ -46,7 +50,8 @@ async function shot(page: Page, name: string) {
   mkdirSync(SHOT_DIR, { recursive: true });
   await page.screenshot({
     path: path.join(SHOT_DIR, `${name}.png`),
-    fullPage: name.includes("full") || name.includes("selected") || name.includes("chart") || name.includes("context") || name.includes("prep") || name.includes("insufficient"),
+    fullPage: name.includes("full") || name.includes("selected") || name.includes("chart") || name.includes("context") || name.includes("prep") || name.includes("insufficient") || name.includes("ranking"),
+    animations: "disabled",
   });
 }
 
@@ -125,6 +130,7 @@ test.describe("judge experience overhaul", () => {
     await shot(page, "1440x900-preparedness");
 
     await page.getByTestId("evidence-summary").scrollIntoViewIfNeeded();
+    await shot(page, "1440x900-ranking-withheld");
     await shot(page, "1440x900-insufficient-evidence");
 
     await page.setViewportSize({ width: 1366, height: 768 });

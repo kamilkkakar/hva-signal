@@ -17,12 +17,12 @@ import {
   AppShell,
   DecisionDirection,
   EvidenceDisclosure,
-  EvidenceSummary,
   MatchedNightChart,
   ObservedInstantsChart,
   ThermalHero,
   presentHistoricalHero,
 } from "@/features/experience";
+import { DEMO_CONTROLS } from "@/features/experience/copy";
 import { ContextPanel } from "@/features/experience/ContextPanel";
 import { PreparednessPanel } from "@/features/experience/PreparednessPanel";
 import { Q_THERMAL, Q_VERIFY } from "@/features/selectedAreaStory/copy";
@@ -142,7 +142,6 @@ export function JudgeShell() {
   const thermalB = presentThermalB(selectedZoneId);
   const history = presentHistoricalHero(snapshot?.result, selectedZoneId);
   const observationStamp = `${B_CLOCK} ${B_TIMEZONE}`;
-  const rankingReady = snapshot?.result != null;
   const rankingWithheld = ranking.state !== "READY";
   const story = composeSelectedAreaStory({
     selectedGeoid: selectedZoneId,
@@ -162,6 +161,7 @@ export function JudgeShell() {
         source={source}
         clockDate={clockDate}
         bannerLabel={source}
+        showChips={false}
       />
       <ThermalHero
         selectedZoneId={selectedZoneId}
@@ -196,10 +196,15 @@ export function JudgeShell() {
               }
             }}
           />
-          <EvidenceSummary withheld={rankingWithheld} ready={rankingReady} />
+          <p className="hx-temporal-cue">
+            <a href="#matched-night-title">How nighttime conditions changed</a>
+          </p>
         </div>
-        <RunBand />
       </div>
+      <details className="hx-demo-controls" data-testid="demo-controls">
+        <summary>{DEMO_CONTROLS}</summary>
+        <RunBand />
+      </details>
       <MatchedNightChart
         view={evidence.matched}
         areaLabel={analysisAreaLabel(selectedZoneId)}
@@ -216,20 +221,6 @@ export function JudgeShell() {
         onResubmit={() => void resubmit()}
       />
       <ResultStoryBand snapshot={snapshot} busy={busy} />
-      <div id="thermal-conditions">
-        <ThermalBand
-          snapshot={snapshot}
-          status={snapshot?.status ?? null}
-          result={snapshot?.result ?? null}
-          selectedZoneId={selectedZoneId}
-        />
-      </div>
-      <div id="own-history">
-        <SelectedZoneBand
-          result={snapshot?.result ?? null}
-          selectedZoneId={selectedZoneId}
-        />
-      </div>
       <article
         className="selected-area-story"
         data-testid="selected-area-story"
@@ -258,11 +249,25 @@ export function JudgeShell() {
         />
       </div>
       <DecisionDirection story={story} rankingWithheld={rankingWithheld} />
-      <div id="nearby-support">
-        <SupportsBand status={snapshot?.status ?? null} result={snapshot?.result ?? null} />
-      </div>
       <ProvenanceBand snapshot={snapshot} />
       <EvidenceDisclosure>
+        <div id="thermal-conditions">
+          <ThermalBand
+            snapshot={snapshot}
+            status={snapshot?.status ?? null}
+            result={snapshot?.result ?? null}
+            selectedZoneId={selectedZoneId}
+          />
+        </div>
+        <div id="own-history">
+          <SelectedZoneBand
+            result={snapshot?.result ?? null}
+            selectedZoneId={selectedZoneId}
+          />
+        </div>
+        <div id="nearby-support">
+          <SupportsBand status={snapshot?.status ?? null} result={snapshot?.result ?? null} />
+        </div>
         <CapabilityBand />
       </EvidenceDisclosure>
     </div>
