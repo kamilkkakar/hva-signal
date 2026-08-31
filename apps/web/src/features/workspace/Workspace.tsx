@@ -10,7 +10,13 @@ export function Workspace() {
   const [cityId, setCityId] = useState<CityId>("phoenix-az");
 
   return (
-    <div className="ws" data-testid="workspace" data-mode={mode} data-city={cityId}>
+    <div
+      className="ws"
+      data-testid="workspace"
+      data-core-product-shell="present"
+      data-mode={mode}
+      data-city={cityId}
+    >
       <WorkspaceHeader mode={mode} onModeChange={setMode} />
       {mode === "explore" ? (
         <ExploreCity cityId={cityId} onCityChange={setCityId} />

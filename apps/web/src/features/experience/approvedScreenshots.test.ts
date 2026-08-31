@@ -11,6 +11,7 @@ const CANONICAL = [
   "phoenix-canopy-map.png",
   "phoenix-income-map.png",
   "phoenix-older-housing-map.png",
+  "phoenix-zone-panel.png",
   "phoenix-matched-night.png",
   "phoenix-observed-instants.png",
   "phoenix-context.png",

@@ -31,6 +31,10 @@ async function waitForCrossCity(page: Page) {
   await switchToCompareMode(page);
   await page.locator("#cross-city").scrollIntoViewIfNeeded();
   await expect(page.getByTestId("cross-city-section")).toBeVisible({ timeout: 60_000 });
+  const contextTab = page.getByTestId("compare-lens-context");
+  if ((await contextTab.count()) > 0) {
+    await contextTab.click();
+  }
   await expect(page.getByTestId("cross-city-bubble-explorer")).toBeVisible({
     timeout: 60_000,
   });

@@ -38,6 +38,8 @@ import { fetchCrossCityMetrics } from "@/features/crossCity/fetchMetrics";
 import type { CrossCityMetricsResponse, CrossCityAreaRecord } from "@/features/crossCity/types";
 import { CityControls } from "./CityControls";
 import { ZonePanel } from "./ZonePanel";
+import { buildStoryActions, contextHighlights } from "./actionEngine";
+import { type HvaStage } from "./HvaStoryRail";
 import { cityConfig, type CityId, type ObservationMode, type ZoneInfo } from "./types";
 
 const EMPTY_LIMITATIONS: readonly string[] = [];
@@ -111,6 +113,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
   const [liveTime, setLiveTime] = useState("15:00");
   const [liveRunning, setLiveRunning] = useState(false);
   const [mapMode, setMapMode] = useState<MapMode>("THERMAL");
+  const [storyStage, setStoryStage] = useState<HvaStage>("heat");
   const [contextZones, setContextZones] = useState<ZoneMapProperties[]>([]);
   const [crossCityData, setCrossCityData] = useState<CrossCityMetricsResponse | null>(null);
   const [cityGeometry, setCityGeometry] = useState<CityGeometry | null>(null);
@@ -294,14 +297,36 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
     if (!isPhoenix) return { supported: false, label: "Comparison-level only", sentence: "Full spatial targeting requires the local published analysis." };
     if (spatial.status === "supported") return { supported: true, label: "Spatial targeting supported", sentence: "Thermal differences support a comparison for this observation." };
     if (spatial.status === "withheld") return { supported: false, label: "Spatial targeting not supported", sentence: "Differences are too small to support a defensible ordering." };
-    return { supported: false, label: "Loading\u2026", sentence: "" };
-  }, [isPhoenix, spatial.status]);
+    if (snapshot?.result == null || submitting) {
+      return { supported: false, label: "Loading\u2026", sentence: spatial.sentence, loading: true };
+    }
+    return {
+      supported: false,
+      label: "Spatial comparison status unavailable",
+      sentence: spatial.sentence,
+      loading: false,
+    };
+  }, [isPhoenix, snapshot?.result, spatial.sentence, spatial.status, submitting]);
 
-  const nextActions = useMemo(() => {
-    if (!isPhoenix) return ["Switch to Phoenix for full analysis", "Compare across cities", "Review context layers"];
-    if (spatial.status === "supported") return ["Inspect matched nighttime change", "Review context layers", "Compare across cities"];
-    return ["Use temporal evidence instead", "Review context layers", "Compare across cities"];
-  }, [isPhoenix, spatial.status]);
+  const preparedness = (isPhoenix
+    ? (story.questions.support.status as PreparednessEvidenceStatus)
+    : "UNAVAILABLE") as PreparednessEvidenceStatus;
+
+  const storyActions = useMemo(
+    () =>
+      buildStoryActions({
+        comparisons,
+        preparedness,
+        spatialSupported: isPhoenix && spatial.status === "supported",
+        isPhoenix,
+      }),
+    [comparisons, preparedness, isPhoenix, spatial.status],
+  );
+
+  const highlights = useMemo(
+    () => contextHighlights(comparisons, preparedness),
+    [comparisons, preparedness],
+  );
 
   const provenanceLine = observationMode === "published"
     ? isPhoenix
@@ -345,75 +370,85 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
         provenanceLine={provenanceLine}
       />
       <div className="ws-explore-main">
-        <div className="ws-map-pane">
+        <div className="ws-map-column">
+          <div className="ws-map-pane">
+            {isPhoenix ? (
+              <MapBand
+                layer={layer}
+                ranking={ranking}
+                areaId="phoenix-demo"
+                jobId={jobId}
+                jobStatus={snapshot?.status ?? null}
+                result={snapshot?.result ?? null}
+                submitting={submitting}
+                analysisTime={lastRequest?.analysis_time ?? snapshot?.request?.analysis_time}
+                mapMode={mapMode}
+                onMapModeChange={setMapMode}
+                contextZones={contextZones}
+                selectedZoneId={selectedAreaId}
+                onSelectedIdChange={selectArea}
+              />
+            ) : (
+              <CrossCityMapBand
+                catalog={crossCityCatalog}
+                mapMode={mapMode}
+                onMapModeChange={setMapMode}
+                selectedZoneId={selectedAreaId}
+                onSelectedIdChange={selectArea}
+              />
+            )}
+          </div>
           {isPhoenix ? (
-            <MapBand
-              layer={layer}
-              ranking={ranking}
-              areaId="phoenix-demo"
-              jobId={jobId}
-              jobStatus={snapshot?.status ?? null}
-              result={snapshot?.result ?? null}
-              submitting={submitting}
-              analysisTime={lastRequest?.analysis_time ?? snapshot?.request?.analysis_time}
-              mapMode={mapMode}
-              onMapModeChange={setMapMode}
-              contextZones={contextZones}
-              selectedZoneId={selectedAreaId}
-              onSelectedIdChange={selectArea}
-            />
-          ) : (
-            <CrossCityMapBand
-              catalog={crossCityCatalog}
-              mapMode={mapMode}
-              onMapModeChange={setMapMode}
-              selectedZoneId={selectedAreaId}
-              onSelectedIdChange={selectArea}
-            />
-          )}
+            <div className="ws-below-map">
+              <details className="ws-analysis-section" data-testid="matched-night-section">
+                <summary>Matched nighttime change</summary>
+                <MatchedNightChart
+                  view={evidence.matched}
+                  areaLabel={analysisAreaLabel(selectedAreaId)}
+                  analysisAreaCount={ANALYSIS_AREA_GEOIDS.length}
+                />
+              </details>
+              <details className="ws-analysis-section" data-testid="observed-instants-section">
+                <summary>Observed thermal instants</summary>
+                <ObservedInstantsChart
+                  view={evidence.observed}
+                  areaLabel={analysisAreaLabel(selectedAreaId)}
+                />
+              </details>
+              <details
+                className="ws-analysis-section"
+                data-testid="local-context-section"
+                open={storyStage === "context"}
+              >
+                <summary>Local context</summary>
+                <ContextPanel comparisons={comparisons} selectedZoneId={selectedAreaId} />
+              </details>
+              <details className="ws-analysis-section" data-testid="all-zones-section">
+                <summary>View all zones</summary>
+                <AreaContextBand
+                  areaId="phoenix-demo"
+                  selectedZoneId={selectedAreaId}
+                  result={snapshot?.result ?? null}
+                  mapMode={mapMode}
+                  onSelectTract={selectArea}
+                  onContextZones={setContextZones}
+                />
+              </details>
+            </div>
+          ) : null}
         </div>
         <ZonePanel
           zone={zoneInfo}
           rangeLabel={rangeLabel}
           spatialState={spatialState}
-          nextActions={nextActions}
-          phoenixDeep={isPhoenix}
+          actions={storyActions}
+          highlights={highlights}
+          stage={storyStage}
+          onStageChange={setStoryStage}
+          hasLocalAnalysis={isPhoenix}
+          forecastSupported={false}
         />
       </div>
-      {isPhoenix ? (
-        <div className="ws-below-map">
-          <details className="ws-analysis-section" data-testid="matched-night-section">
-            <summary>Matched nighttime change</summary>
-            <MatchedNightChart
-              view={evidence.matched}
-              areaLabel={analysisAreaLabel(selectedAreaId)}
-              analysisAreaCount={ANALYSIS_AREA_GEOIDS.length}
-            />
-          </details>
-          <details className="ws-analysis-section" data-testid="observed-instants-section">
-            <summary>Observed thermal instants</summary>
-            <ObservedInstantsChart
-              view={evidence.observed}
-              areaLabel={analysisAreaLabel(selectedAreaId)}
-            />
-          </details>
-          <details className="ws-analysis-section" data-testid="local-context-section">
-            <summary>Local context</summary>
-            <ContextPanel comparisons={comparisons} selectedZoneId={selectedAreaId} />
-          </details>
-          <details className="ws-analysis-section" data-testid="all-zones-section">
-            <summary>View all zones</summary>
-            <AreaContextBand
-              areaId="phoenix-demo"
-              selectedZoneId={selectedAreaId}
-              result={snapshot?.result ?? null}
-              mapMode={mapMode}
-              onSelectTract={selectArea}
-              onContextZones={setContextZones}
-            />
-          </details>
-        </div>
-      ) : null}
     </div>
   );
 }

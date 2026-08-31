@@ -30,10 +30,12 @@ export function ContextPanel({ comparisons, selectedZoneId }: ContextPanelProps)
               data-comparison={String(fact.comparisonAllowed)}
               data-tone={fact.tone}
             >
-              <strong className="hx-card-value" data-testid={`context-value-${fact.kind}`}>
-                {fact.valueDisplay}
-              </strong>
-              <span className="hx-card-label">{fact.label}</span>
+              <div className="hx-card-stack">
+                <strong className="hx-card-value" data-testid={`context-value-${fact.kind}`}>
+                  {fact.valueDisplay}
+                </strong>
+                <span className="hx-card-label">{fact.label}</span>
+              </div>
               {fact.comparisonAllowed && fact.comparison ? (
                 <span className="hx-card-cmp">
                   {fact.comparison === "higher"

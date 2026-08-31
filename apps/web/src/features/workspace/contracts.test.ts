@@ -46,6 +46,7 @@ describe("workspace contracts", () => {
     const panel = readSrc("./ZonePanel.tsx");
     expect(panel).toContain("<details");
     expect(panel).toContain("Methods");
+    expect(panel).toContain("Comparison-mode context uses published cross-city metrics");
   });
 
   it("ExploreCity has four-city support", () => {
@@ -77,10 +78,28 @@ describe("workspace contracts", () => {
     }
   });
 
+  it("HVA story rail and outlook panel exist", () => {
+    const rail = readSrc("./HvaStoryRail.tsx");
+    const outlook = readSrc("./OutlookPanel.tsx");
+    expect(rail).toContain("hva-story-rail");
+    expect(rail).toContain("hva-stage-heat");
+    expect(outlook).toContain("hva-outlook-panel");
+    expect(outlook).toContain("What to watch next");
+    expect(outlook).toContain("Forecast remains blocked");
+    expect(outlook).toContain("Forecast contract");
+  });
+
+  it("action engine caps at 3 evidence-linked actions", () => {
+    const engine = readSrc("./actionEngine.ts");
+    expect(engine).toContain("whyShown");
+    expect(engine).toContain(">= 3");
+  });
+
   it("below-map sections are collapsed by default", () => {
     const explore = readSrc("./ExploreCity.tsx");
     const detailsCount = (explore.match(/<details className="ws-analysis-section"/g) || []).length;
     expect(detailsCount).toBeGreaterThanOrEqual(3);
+    expect(explore).toContain("ws-map-column");
   });
 
   it("inventory/methods are behind disclosure not primary surface", () => {
@@ -105,5 +124,26 @@ describe("workspace contracts", () => {
     const css = readFileSync(path.resolve(here, "./workspace.css"), "utf8");
     expect(css).toContain("ws-explore-main");
     expect(css).toContain("22rem");
+    expect(css).toContain("ws-map-column");
+  });
+
+  it("spatial gate uses a stable unavailable label when not loading", () => {
+    const explore = readSrc("./ExploreCity.tsx");
+    expect(explore).toContain("Spatial comparison status unavailable");
+    expect(explore).toContain("snapshot?.result == null || submitting");
+  });
+
+  it("zone panel can show older housing", () => {
+    const panel = readSrc("./ZonePanel.tsx");
+    expect(panel).toContain("Older housing");
+    expect(panel).toContain("olderHousingPct");
+  });
+
+  it("context cards separate value and label blocks", () => {
+    const panel = readSrc("../experience/ContextPanel.tsx");
+    const css = readFileSync(path.resolve(here, "../experience/experience.css"), "utf8");
+    expect(panel).toContain("hx-card-stack");
+    expect(css).toContain(".hx-card-stack");
+    expect(css).toContain("text-transform: uppercase");
   });
 });

@@ -1,0 +1,48 @@
+{
+  "contract_id": "HVA_CORE_UI_CONTRACT_V1",
+  "baseline_sha": "6bfde4afd081386d16aa900093e251d27a0f312b",
+  "spec_ref": "0A.4",
+  "non_destructive": true,
+  "ssot": ["selectedAreaId"],
+  "must_not_delete": [
+    "Workspace",
+    "ExploreCity",
+    "CompareCities",
+    "ZonePanel",
+    "CityControls",
+    "map architecture",
+    "selectedAreaId SSOT"
+  ],
+  "explore_city": {
+    "must_retain": [
+      { "id": "header", "selectors": ["[data-testid='workspace-header']"], "text": "HVA-Signal / HVA-SIGNAL" },
+      { "id": "mode_switch", "selectors": ["[data-testid='mode-explore']", "[data-testid='mode-compare']"] },
+      { "id": "city_selector", "selectors": ["[data-testid='city-selector']"] },
+      { "id": "observation_toggle", "selectors": ["[data-testid='obs-published']", "[data-testid='obs-live']"] },
+      { "id": "cities", "values": ["phoenix-az", "las-vegas-nv", "tucson-az", "los-angeles-ca"] },
+      { "id": "map", "selectors": ["[data-testid='map-stage']"] },
+      { "id": "zone_selection", "selectors": ["[data-testid='zone-panel']", "[data-testid='zone-name']"] },
+      { "id": "zone_terminology", "pattern": "Zone\\s+\\d|Census Tract" },
+      { "id": "thermal_layer", "selectors": ["[data-testid='map-mode-tabs'] [data-mode='THERMAL']"] },
+      { "id": "tree_canopy_layer", "selectors": ["[data-testid='map-mode-tabs'] [data-mode='TREE_CANOPY']"] },
+      { "id": "income_layer", "selectors": ["[data-testid='map-mode-tabs'] [data-mode='INCOME']"] },
+      { "id": "older_housing_layer", "selectors": ["[data-testid='map-mode-tabs'] [data-mode='OLDER_HOUSING']"] },
+      { "id": "selected_zone_panel", "selectors": ["[data-testid='zone-panel']"] },
+      { "id": "methods_access", "selectors": ["[data-testid='zone-methods']"] },
+      { "id": "live_controls_when_live", "selectors": ["[data-testid='live-controls']"], "when": "obs-live selected" }
+    ]
+  },
+  "compare_cities": {
+    "must_retain": [
+      { "id": "mode_access", "selectors": ["[data-testid='mode-compare']", "[data-testid='compare-cities']"] },
+      { "id": "four_cities", "min_cities": 4 },
+      { "id": "existing_scatter", "note": "scatter must remain available" },
+      { "id": "axis_controls", "note": "axis controls preserved" },
+      { "id": "fill_controls", "note": "fill controls preserved" },
+      { "id": "city_focus_isolate", "note": "city focus / isolate preserved" },
+      { "id": "tooltip_behavior", "note": "tooltip behavior preserved" }
+    ]
+  },
+  "anti_lost_ui_testid": "core-product-shell",
+  "playwright_spec": "tests/e2e/core-product-shell.spec.ts"
+}

@@ -1,9 +1,15 @@
 """Bounded selected-time live acquisition — narrow public POST.
 
 Browser may send only city_id + local_datetime. Server owns AOI, partitions,
-fingerprint, spend, vendor identity, and cache. GENERAL arbitrary vendor stays
-OFF via may_construct_real_vendor(). This route serves cache-first and refuses
-vendor construction on miss unless separately authorized in a future gate.
+fingerprint, spend, vendor identity, and cache.
+
+GENERAL arbitrary vendor stays OFF: may_construct_real_vendor() is always False
+and refuse_real_vendor() always raises. HOSTED_LIVE_REAL_VENDOR_ENABLED must
+never authorize construction.
+
+ONLY this route may construct FortyGuardHttpClient, via
+construct_bounded_selected_time_http_client() → Settings.fortyguard_api_key,
+and only when BOUNDED_SELECTED_TIME_LIVE_ENABLED=true (cache-first; miss may pay).
 """
 
 from __future__ import annotations
@@ -120,8 +126,12 @@ def _public_result(raw: dict[str, Any]) -> dict[str, Any]:
     provenance = {
         "acquisition_language": (
             "live_acquisition"
-            if vendor_attempted
-            else ("cache_hit" if status_value == "cache_hit" else "no_vendor_call")
+            if vendor_attempted and status_value == "live_acquired"
+            else (
+                "cache_hit"
+                if status_value == "cache_hit"
+                else "no_vendor_call"
+            )
         ),
         "vendor_attempted": vendor_attempted,
         "cache_tier": raw.get("cache_tier"),
@@ -135,6 +145,12 @@ def _public_result(raw: dict[str, Any]) -> dict[str, Any]:
     if status_value == "cache_hit":
         body["result"] = raw.get("result")
         body["message"] = "Served from server cache. No live FortyGuard acquisition."
+    elif status_value == "live_acquired":
+        body["result"] = raw.get("result")
+        body["message"] = (
+            "Bounded selected-time live acquisition completed. "
+            "GENERAL arbitrary vendor remains OFF."
+        )
     elif status_value == "dry_run_preflight":
         body["preflight"] = {
             "city": raw.get("preflight", {}).get("city"),
@@ -215,14 +231,19 @@ def post_selected_time_live(
 
     def _run() -> dict[str, Any]:
         try:
-            return run_type1_live(type1, cache=cache, settings=settings)
+            return run_type1_live(
+                type1,
+                cache=cache,
+                settings=settings,
+                bounded_selected_time_authorized=True,
+            )
         except HostedLiveDisabledError:
-            # Cache miss + vendor refused: honest thin state, zero paid calls.
+            # Defense: GENERAL refuse path must never become a paid call.
             return {
                 "status": "acquisition_unavailable",
                 "vendor_attempted": False,
                 "message": (
-                    "Cache miss. Live vendor construction is refused in this program. "
+                    "Cache miss. Live vendor construction is refused. "
                     "No FortyGuard Type-1 request was made."
                 ),
             }
@@ -241,8 +262,10 @@ def post_selected_time_live(
             "status": "acquisition_unavailable",
             "capability": "selected_time_thermal",
             "provenance": {
-                "acquisition_language": "no_vendor_call",
-                "vendor_attempted": False,
+                "acquisition_language": "no_vendor_call"
+                if not raw.get("vendor_attempted")
+                else "live_acquisition",
+                "vendor_attempted": bool(raw.get("vendor_attempted")),
                 "contract": "BOUNDED_SELECTED_TIME_LIVE_V1",
             },
             "message": raw.get("message"),

@@ -21,6 +21,130 @@
   background: var(--hx-card);
 }
 
+.hx-cc-lens-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.hx-cc-lens-tab {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--hx-ink);
+  background: var(--hx-paper);
+  color: var(--hx-ink);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.hx-cc-lens-tab[aria-selected="true"] {
+  background: var(--hx-ink);
+  color: var(--hx-paper);
+}
+
+.hx-cc-lens-tab:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.hx-cc-lens-panel {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.hx-cc-controls-compact {
+  margin-top: 0.25rem;
+}
+
+.hx-cc-snapshot {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  background: var(--hx-card);
+}
+
+.hx-cc-snapshot-header h3 {
+  margin: 0.15rem 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.hx-cc-shared-scale-bar {
+  height: 0.55rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f3efe6 0%, #c45c26 55%, #7a1f1f 100%);
+}
+
+.hx-cc-shared-scale-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--hx-muted);
+}
+
+.hx-cc-city-ranges {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.hx-cc-city-ranges li {
+  display: grid;
+  grid-template-columns: 0.65rem 1fr;
+  gap: 0.65rem;
+  align-items: start;
+}
+
+.hx-cc-city-swatch {
+  width: 0.65rem;
+  height: 0.65rem;
+  margin-top: 0.35rem;
+}
+
+.hx-cc-city-range-title {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+}
+
+.hx-cc-city-range-track {
+  position: relative;
+  height: 0.55rem;
+  margin-top: 0.35rem;
+  background: rgba(36, 56, 51, 0.08);
+}
+
+.hx-cc-city-range-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.hx-cc-time-lens {
+  padding: 0.85rem 0.95rem;
+  background: var(--hx-card);
+  display: grid;
+  gap: 0.4rem;
+}
+
+.hx-cc-selector,
+.hx-cc-open-panel,
+.hx-cc-summary,
+.hx-cc-state,
+.hx-cc-legend,
+.hx-cc-chart-shell,
+.hx-cc-tooltip {
+  padding: 0.8rem 0.9rem;
+  background: var(--hx-card);
+}
+
 .hx-cc-selector {
   display: grid;
   gap: 0.35rem;

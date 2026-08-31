@@ -1,0 +1,274 @@
+{
+  "city_id": "los_angeles",
+  "observation_contract": "CROSS_CITY_MATCHED_INSTANTS_ACQUISITION",
+  "local_timestamp": "2024-07-08T03:00:00",
+  "provider_utc": "2024-07-08T10:00:00Z",
+  "activity_id": "0ab0d92f-0c13-4b5e-993d-b393278ff411",
+  "aggregation": {
+    "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN",
+    "usable_count": 25,
+    "missing_count": 0,
+    "missing": [],
+    "rows": [
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037267800",
+        "tract_geoid": "06037267800",
+        "contributing_cells": 116,
+        "mean_tcm_c": 18.530599137931034,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037267902",
+        "tract_geoid": "06037267902",
+        "contributing_cells": 78,
+        "mean_tcm_c": 18.238691025641025,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037269000",
+        "tract_geoid": "06037269000",
+        "contributing_cells": 232,
+        "mean_tcm_c": 18.662313793103447,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037269300",
+        "tract_geoid": "06037269300",
+        "contributing_cells": 220,
+        "mean_tcm_c": 18.525533636363637,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037269903",
+        "tract_geoid": "06037269903",
+        "contributing_cells": 28,
+        "mean_tcm_c": 18.628925000000002,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037269905",
+        "tract_geoid": "06037269905",
+        "contributing_cells": 21,
+        "mean_tcm_c": 18.662266666666667,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037269906",
+        "tract_geoid": "06037269906",
+        "contributing_cells": 22,
+        "mean_tcm_c": 18.6421,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037269907",
+        "tract_geoid": "06037269907",
+        "contributing_cells": 28,
+        "mean_tcm_c": 18.61397857142857,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037269908",
+        "tract_geoid": "06037269908",
+        "contributing_cells": 16,
+        "mean_tcm_c": 18.60129375,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037269909",
+        "tract_geoid": "06037269909",
+        "contributing_cells": 18,
+        "mean_tcm_c": 18.597555555555555,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037270101",
+        "tract_geoid": "06037270101",
+        "contributing_cells": 38,
+        "mean_tcm_c": 18.751307894736843,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037270102",
+        "tract_geoid": "06037270102",
+        "contributing_cells": 19,
+        "mean_tcm_c": 18.71841052631579,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037271100",
+        "tract_geoid": "06037271100",
+        "contributing_cells": 84,
+        "mean_tcm_c": 18.60937738095238,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037271200",
+        "tract_geoid": "06037271200",
+        "contributing_cells": 48,
+        "mean_tcm_c": 18.362735416666666,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037271300",
+        "tract_geoid": "06037271300",
+        "contributing_cells": 144,
+        "mean_tcm_c": 18.38360972222222,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037271500",
+        "tract_geoid": "06037271500",
+        "contributing_cells": 90,
+        "mean_tcm_c": 18.43391777777778,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037271600",
+        "tract_geoid": "06037271600",
+        "contributing_cells": 91,
+        "mean_tcm_c": 18.529485714285713,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037271702",
+        "tract_geoid": "06037271702",
+        "contributing_cells": 70,
+        "mean_tcm_c": 18.616034285714285,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037271703",
+        "tract_geoid": "06037271703",
+        "contributing_cells": 45,
+        "mean_tcm_c": 18.634228888888888,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037271704",
+        "tract_geoid": "06037271704",
+        "contributing_cells": 52,
+        "mean_tcm_c": 18.62891730769231,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037271801",
+        "tract_geoid": "06037271801",
+        "contributing_cells": 48,
+        "mean_tcm_c": 18.631441666666667,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037271803",
+        "tract_geoid": "06037271803",
+        "contributing_cells": 24,
+        "mean_tcm_c": 18.621716666666668,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037271804",
+        "tract_geoid": "06037271804",
+        "contributing_cells": 34,
+        "mean_tcm_c": 18.614438235294116,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037271901",
+        "tract_geoid": "06037271901",
+        "contributing_cells": 68,
+        "mean_tcm_c": 18.65441764705882,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "los_angeles",
+        "area_id": "06037271902",
+        "tract_geoid": "06037271902",
+        "contributing_cells": 93,
+        "mean_tcm_c": 18.687766666666665,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      }
+    ],
+    "qa": {
+      "min_c": 18.238691025641025,
+      "max_c": 18.751307894736843,
+      "mean_of_means_c": 18.58324251737183,
+      "median_c": 18.616034285714285,
+      "spread_c": 0.5126168690958188,
+      "usable": 25,
+      "missing": 0
+    }
+  }
+}
