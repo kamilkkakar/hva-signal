@@ -21,11 +21,15 @@ import {
   ObservedInstantsChart,
   SectionNav,
   ThermalHero,
-  presentHistoricalHero,
+  contextComparisonsFromFacts,
+  presentHistoricalPosition,
+  presentSpatialDifferentiation,
+  synthesizeNarrative,
 } from "@/features/experience";
 import { DEMO_CONTROLS } from "@/features/experience/copy";
 import { ContextPanel } from "@/features/experience/ContextPanel";
 import { PreparednessPanel } from "@/features/experience/PreparednessPanel";
+import type { PreparednessEvidenceStatus, SpatialDiffStatus } from "@/features/experience/narrative";
 import "@/features/experience/experience.css";
 import { CapabilityBand } from "./CapabilityBand";
 import { ContextBar } from "./ContextBar";
@@ -52,6 +56,38 @@ function clockDateFromAnalysisTime(value: string | null | undefined): string | n
   }
   const match = /^(\d{4}-\d{2}-\d{2})/.exec(value);
   return match?.[1] ?? null;
+}
+
+function observationDateLabel(clock: string): string {
+  // B_CLOCK is "2025-07-15 03:00" → "15 Jul 2025 · 03:00"
+  const match = /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}:\d{2})/.exec(clock);
+  if (!match) {
+    return clock;
+  }
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const month = months[Number(match[2]) - 1] ?? match[2];
+  return `${Number(match[3])} ${month} ${match[1]} · ${match[4]}`;
+}
+
+function spatialStatusFrom(
+  status: ReturnType<typeof presentSpatialDifferentiation>["status"],
+): SpatialDiffStatus {
+  if (status === "withheld") return "INSUFFICIENT";
+  if (status === "supported") return "SUFFICIENT";
+  return "UNKNOWN";
 }
 
 export function JudgeShell() {
@@ -140,21 +176,75 @@ export function JudgeShell() {
   const [contextZones, setContextZones] = useState<ZoneMapProperties[]>([]);
   const evidence = useAreaEvidence(selectedZoneId);
   const thermalB = presentThermalB(selectedZoneId);
-  const history = presentHistoricalHero(snapshot?.result, selectedZoneId);
+  const history = presentHistoricalPosition(snapshot?.result, selectedZoneId);
+  const spatial = presentSpatialDifferentiation(snapshot?.result, selectedZoneId);
   const observationStamp = `${B_CLOCK} ${B_TIMEZONE}`;
-  const rankingWithheld = ranking.state !== "READY";
+  const observationDate = observationDateLabel(B_CLOCK);
   const story = composeSelectedAreaStory({
     selectedGeoid: selectedZoneId,
     result: snapshot?.result ?? null,
     context: evidence.context?.selected ?? null,
     document: evidence.context,
   });
+  const comparisons = contextComparisonsFromFacts(story.questions.different.facts);
+  const prepStatus = story.questions.support.status as PreparednessEvidenceStatus;
+  const observedHigh = useMemo(() => {
+    if (evidence.observed.status !== "AVAILABLE" || evidence.observed.instants.length === 0) {
+      return { value: null as number | null, label: null as string | null };
+    }
+    const high = evidence.observed.instants.reduce((best, item) =>
+      item.temperatureC > best.temperatureC ? item : best,
+    );
+    return { value: high.temperatureC, label: high.label };
+  }, [evidence.observed]);
+  const analysisAreaCount = ANALYSIS_AREA_GEOIDS.length;
+  const synthesis = useMemo(
+    () =>
+      synthesizeNarrative({
+        areaLabel: analysisAreaLabel(selectedZoneId),
+        analysisAreaCount,
+        selectedTemperatureC: thermalB.temperatureC,
+        observationStamp: observationDate,
+        spatialDiff: spatialStatusFrom(spatial.status),
+        historicalPosition: {
+          status: history.status === "available" ? "AVAILABLE" : "UNAVAILABLE",
+          percent: history.percent,
+          sentence: history.sentence,
+        },
+        matchedChangeC: evidence.matched.change2024vs2022,
+        geographyMedianChangeC: evidence.matched.medianChange,
+        matchedNightsTotal: evidence.matched.nightsTotal,
+        observedHighC: observedHigh.value,
+        observedHighLabel: observedHigh.label,
+        contextComparisons: comparisons,
+        preparedness: prepStatus,
+        thermalAvailable: thermalB.temperatureC != null,
+      }),
+    [
+      analysisAreaCount,
+      comparisons,
+      evidence.matched.change2024vs2022,
+      evidence.matched.medianChange,
+      evidence.matched.nightsTotal,
+      history.percent,
+      history.sentence,
+      history.status,
+      observationDate,
+      observedHigh.label,
+      observedHigh.value,
+      prepStatus,
+      selectedZoneId,
+      spatial.status,
+      thermalB.temperatureC,
+    ],
+  );
 
   return (
     <div
       className="judge-shell hx-app"
       data-testid="judge-shell"
       data-has-result={snapshot?.result != null ? "true" : "false"}
+      data-dominant-pattern={synthesis.dominantPattern}
     >
       <AppShell observationStamp={observationStamp} />
       <SectionNav />
@@ -169,15 +259,20 @@ export function JudgeShell() {
         onSelect={setSelectedZoneId}
         temperatureC={thermalB.temperatureC}
         observationStamp={observationStamp}
+        observationDateLabel={observationDate}
         history={history}
+        spatial={spatial}
         change2024vs2022={evidence.matched.change2024vs2022}
+        patternTitle={synthesis.patternTitle}
+        patternSummary={synthesis.patternSummary}
+        evidenceSignals={synthesis.evidenceSummary}
       />
       <div
         className="judge-explore"
         data-testid="judge-explore"
         data-layout="map-primary"
       >
-        <div className="hx-map-stack">
+        <div className="hx-map-stack hx-level-1">
           <MapBand
             layer={layer}
             ranking={ranking}
@@ -206,23 +301,28 @@ export function JudgeShell() {
         <summary>{DEMO_CONTROLS}</summary>
         <RunBand />
       </details>
-      <MatchedNightChart
-        view={evidence.matched}
-        areaLabel={analysisAreaLabel(selectedZoneId)}
-      />
-      <ObservedInstantsChart
-        view={evidence.observed}
-        areaLabel={analysisAreaLabel(selectedZoneId)}
-      />
+      <div className="hx-temporal-pair" data-testid="temporal-pair">
+        <MatchedNightChart
+          view={evidence.matched}
+          areaLabel={analysisAreaLabel(selectedZoneId)}
+          analysisAreaCount={analysisAreaCount}
+        />
+        <ObservedInstantsChart
+          view={evidence.observed}
+          areaLabel={analysisAreaLabel(selectedZoneId)}
+        />
+      </div>
       <div data-testid="selected-area-story">
-        <ContextPanel story={story} />
-        <PreparednessPanel story={story} />
+        <ContextPanel comparisons={comparisons} selectedZoneId={selectedZoneId} />
+        <PreparednessPanel
+          status={prepStatus}
+          sentences={story.questions.support.sentences}
+          sourceLines={story.sources.mag}
+        />
       </div>
       <DecisionDirection
-        story={story}
-        rankingWithheld={rankingWithheld}
-        temperatureC={thermalB.temperatureC}
-        change2024vs2022={evidence.matched.change2024vs2022}
+        synthesis={synthesis}
+        areaLabel={analysisAreaLabel(selectedZoneId)}
       />
       <HappeningBand
         happening={happening}

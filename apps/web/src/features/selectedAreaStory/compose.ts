@@ -128,6 +128,8 @@ function sanitizePreparednessLine(line: string): string {
   return line
     .replace(/\s*\([^)]*mag_[^)]*\)/gi, "")
     .replace(/,\s*vintage\s*\d{4}-\d{2}-\d{2}/gi, "")
+    .replace(/\binventory row\b/gi, "inventory identification")
+    .replace(/\bno row\b/gi, "no site identified")
     .replace(/\s{2,}/g, " ")
     .trim();
 }
@@ -145,12 +147,12 @@ function preparednessSentences(
   }
   if (status === "IDENTIFIED") {
     return [
-      "Heat-relief site(s) are identified in the available regional inventory. An inventory row is not proof that cooling is available.",
+      "Heat-relief site(s) are identified in the available regional inventory. Identification is not proof that cooling is available.",
     ];
   }
   if (status === "NOT_IDENTIFIED_IN_DATASET") {
     return [
-      "No site was identified in this dataset for this analysis area. This does not establish that no cooling resource exists.",
+      "No Heat Relief Network site was identified in the available dataset for this analysis area. This does not establish that no cooling resource exists.",
     ];
   }
   return ["Cooling inventory status is unknown for this analysis area."];

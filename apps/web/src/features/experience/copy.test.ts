@@ -27,11 +27,11 @@ describe("judge experience first-read copy", () => {
   });
 
   it("keeps preparedness public and never says no cooling site", () => {
-    expect(preparednessLabel("IDENTIFIED")).toBe("Identified");
+    expect(preparednessLabel("IDENTIFIED")).toBe("Site identified in available inventory");
     expect(preparednessLabel("NOT_IDENTIFIED_IN_DATASET")).toBe(
-      "Not identified in this dataset",
+      "No site identified in available inventory",
     );
-    expect(preparednessLabel("UNKNOWN")).toBe("Unknown");
+    expect(preparednessLabel("UNKNOWN")).toBe("Inventory status unknown");
     expect(preparednessLabel("NOT_IDENTIFIED_IN_DATASET").toLowerCase()).not.toContain(
       "no cooling site",
     );

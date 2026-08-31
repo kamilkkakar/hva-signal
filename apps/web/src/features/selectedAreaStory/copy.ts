@@ -13,7 +13,7 @@ export const B_TIMEZONE = "America/Phoenix" as const;
 export const B_COVERAGE = "25/25" as const;
 
 export const INVENTORY_DISCLAIMER =
-  "Partial regional inventory. An inventory row is not proof that cooling is available. A dataset miss does not establish that no cooling resource exists.";
+  "Partial regional inventory. Identification is not proof that cooling is available. A dataset miss does not establish that no cooling resource exists.";
 
 export const R0_TEXT =
   "Select a catalog analysis area before reviewing thermal evidence or context.";
@@ -26,7 +26,7 @@ export const R3_TEXT =
 export const R4_TEXT =
   "Review published ACS and canopy quantities for this analysis area. Do not treat a missing or unreliable estimate as low need.";
 export const R5_TEXT =
-  "Verify cooling access on the ground. An inventory row is not proof that cooling is available.";
+  "Verify cooling access on the ground. Inventory identification is not proof that cooling is available.";
 
 export const FORBIDDEN_STORY_TOKENS = [
   "vulnerability =",

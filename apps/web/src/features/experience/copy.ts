@@ -29,50 +29,64 @@ export const SECTION_NAV = [
 export const PREP_SECTION_TITLE = "What support is identified?";
 
 export const METRIC_TEMP = "Selected thermal observation";
-export const METRIC_HISTORY = "Historical 03:00 position";
-export const METRIC_CHANGE = "Matched nighttime change vs 2022";
+export const METRIC_HISTORY = "Own-area historical position";
+export const METRIC_CHANGE = "2024 vs 2022 matched-nighttime change";
+export const METRIC_CHANGE_WINDOW = "30 Jun–30 Jul · 03:00 local";
 
 export const HISTORY_UNAVAILABLE =
-  "A historical 03:00 position is not published for this observation.";
+  "Historical position is not available for this observation.";
+export const HISTORY_UNAVAILABLE_REASON =
+  "A comparable own-area 03:00 historical position is not published for this case.";
+export const HISTORY_CARD_TITLE = "Historical position";
 export const HISTORY_WITHHELD =
-  "The differences across the 25 analysis areas are too small to support a defensible ordering for this observation.";
+  "The differences across the analysis areas are too small to support a defensible ordering for this observation.";
 export const HISTORY_WITHHELD_TRUST =
   "HVA-Signal preserves the evidence rather than exaggerating small differences.";
 
-export const RANKING_WITHHELD_TITLE = "Spatial ranking withheld";
+export const SPATIAL_CARD_TITLE = "Spatial comparison";
+export const RANKING_WITHHELD_TITLE = "Ranking withheld";
 export const RANKING_WITHHELD_BODY =
-  "The differences across the 25 analysis areas are too small to support a defensible ordering for this observation.";
+  "Thermal differences across the analysis areas are too small to support a defensible ordering for this observation.";
 export const RANKING_WITHHELD_NEXT =
   "Use the temporal and contextual evidence to decide what to verify. Do not recreate a hidden thermal ranking.";
 export const RANKING_SUPPORTED_TITLE = "Spatial comparison available";
 export const RANKING_SUPPORTED_BODY =
-  "Nighttime historical positions differ enough across the 25 areas to support a comparison for this observation.";
+  "Thermal differences across the analysis areas are large enough to support a comparison for this observation.";
 
-export const MATCHED_TITLE = "How have nighttime conditions changed?";
-export const MATCHED_WINDOW = "30 Jun–30 Jul, 03:00 local · same calendar dates · same hour";
+export const PATTERN_CARD_TITLE = "Evidence pattern";
+export const EVIDENCE_SUMMARY_TITLE = "Evidence summary";
+
+export const MATCHED_TITLE = "How have matched nighttime conditions changed?";
+export const MATCHED_WINDOW =
+  "Mean of matched 03:00 observations, 30 Jun–30 Jul each year · same calendar dates · same hour.";
 export const MATCHED_NOT_CLIMATE =
-  "These are matched 03:00 nights across three summers, not a long-term climate series.";
+  "These are matched 03:00 nights across three windows, not a long-term climate series.";
 export const MATCHED_SELECT = "Select an analysis area to read matched nighttime conditions.";
+export const MATCHED_KEY_FINDING = "Key finding";
 
 export const INSTANTS_TITLE = "How did conditions differ across observed times?";
 export const INSTANTS_SUBTITLE = "Four discrete observations. Hours between them were not measured.";
-export const INSTANTS_GAP = "Interval not observed";
+export const INSTANTS_GAP =
+  "Dashed guides connect observed instants for orientation only. Conditions between these observations were not measured.";
 export const INSTANTS_SELECT = "Select an analysis area to read observed instants.";
+export const INSTANTS_HIGH_LABEL = "Observed conditions were highest at";
+export const INSTANTS_DIFF_LABEL = "Difference between observations";
 
 export const CONTEXT_TITLE = "What local context matters?";
-export const PREP_TITLE = "What support is identified?";
-export const PREP_IDENTIFIED = "Identified";
-export const PREP_NOT_IDENTIFIED = "Not identified in this dataset";
-export const PREP_UNKNOWN = "Unknown";
+export const PREP_TITLE = "Heat-relief resources";
+export const PREP_IDENTIFIED = "Site identified in available inventory";
+export const PREP_NOT_IDENTIFIED = "No site identified in available inventory";
+export const PREP_UNKNOWN = "Inventory status unknown";
 export const PREP_DISCLAIMER =
-  "Partial regional inventory. A dataset miss does not establish that no cooling resource exists.";
+  "This does not establish that no cooling resource exists. Identification is not proof that cooling is available.";
+export const PREP_SOURCE_SUMMARY = "Source & coverage";
 
-export const DECISION_TITLE = "What to verify next";
+export const DECISION_TITLE = "What should be verified next?";
 export const DECISION_SHOWS = "What the evidence shows";
 export const DECISION_MATTERS = "Why it matters";
 export const DECISION_NEXT = "What to verify next";
 export const DECISION_NO_RECOMMENDATION =
-  "This is investigation direction, not an automated intervention recommendation.";
+  "Investigation direction only. Not an automated intervention recommendation.";
 
 export const ABOUT_SUMMARY = "About this evidence";
 export const METHOD_SUMMARY = "Method and provenance";
