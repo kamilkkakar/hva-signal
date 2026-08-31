@@ -44,6 +44,7 @@ FROZEN_PUBLIC_OPENAPI_PATHS = {
     "/api/v1/cities/{city_id}/capabilities",
     "/api/v1/cross-city/metrics",
     "/api/v1/cross-city/query",
+    "/api/v1/cross-city/cities/{city_id}/geometry",
 }
 
 RESOLVER_POLICY_ID = "NATIONAL_PLACE_GEOGRAPHY_V1"

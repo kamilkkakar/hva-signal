@@ -11,13 +11,9 @@ describe("judge shell flag", () => {
     expect(isJudgeShellEnabled()).toBe(true);
   });
 
-  it("mounts JudgeShell from App unless VITE_HVA_JUDGE_SHELL is 0", () => {
+  it("mounts Workspace from App (dynamic city workspace)", () => {
     const app = readFileSync(path.resolve(here, "../../app/App.tsx"), "utf8");
-    const lines = app.trim().split(/\r?\n/);
-    expect(lines).toHaveLength(5);
-    expect(app).toContain("JudgeShell");
-    expect(app).toContain("CommandCenterShell");
-    expect(app).toContain('VITE_HVA_JUDGE_SHELL === "0"');
+    expect(app).toContain("Workspace");
     expect(app.toLowerCase()).not.toMatch(/log in|login|sign up|signup|oauth/);
   });
 });
