@@ -14,9 +14,9 @@ describe("place search feature flags", () => {
     expect(gatedPlaceSearchLanding("#/phoenix-demo")).toBe("phoenix-demo");
   });
 
-  it("keeps App landing on CommandCenterShell (phoenix-demo) with no login", () => {
+  it("keeps App landing on Workspace (phoenix-demo) with no login", () => {
     const app = readFileSync(path.resolve(here, "../../app/App.tsx"), "utf8");
-    expect(app).toContain("CommandCenterShell");
+    expect(app).toContain("Workspace");
     expect(app).not.toContain("PlaceSearch");
     expect(app.toLowerCase()).not.toMatch(/log in|login|sign up|signup|oauth/);
   });

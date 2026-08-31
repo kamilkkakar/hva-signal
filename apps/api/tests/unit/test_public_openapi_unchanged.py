@@ -18,6 +18,7 @@ def test_public_openapi_has_no_signal_b_or_prepare_paths() -> None:
         "/api/v1/cities/{city_id}/capabilities",
         "/api/v1/cross-city/metrics",
         "/api/v1/cross-city/query",
+        "/api/v1/cross-city/cities/{city_id}/geometry",
         "/api/v1/areas/{area_id}/context",
         "/api/v1/demo/matched-nighttime-window",
         "/api/v1/demo/observed-thermal-instants",

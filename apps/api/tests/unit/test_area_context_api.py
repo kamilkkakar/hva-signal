@@ -27,6 +27,7 @@ LIVE_OPENAPI_PATHS = {
     "/api/v1/cities/{city_id}/capabilities",
     "/api/v1/cross-city/metrics",
     "/api/v1/cross-city/query",
+    "/api/v1/cross-city/cities/{city_id}/geometry",
     "/api/v1/areas/{area_id}/context",
     "/api/v1/demo/matched-nighttime-window",
     "/api/v1/demo/observed-thermal-instants",
@@ -50,7 +51,7 @@ def test_live_openapi_includes_context_path() -> None:
     paths = set((live_app.openapi().get("paths") or {}))
     assert paths == LIVE_OPENAPI_PATHS
     assert "/api/v1/areas/{area_id}/context" in paths
-    assert len(paths) == 15
+    assert len(paths) == 16
 
 
 def test_gated_include_off_adds_nothing(monkeypatch: pytest.MonkeyPatch) -> None:

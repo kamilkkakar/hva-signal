@@ -253,6 +253,27 @@ def get_city_capabilities(city_id: str) -> CapabilityView:
     return CapabilityView(city_id=city.city_id, capabilities=capabilities)
 
 
+@router.get("/cross-city/cities/{city_id}/geometry")
+def get_cross_city_city_geometry(city_id: str) -> Any:
+    """Per-city comparison geometry for the Explore City map."""
+    city = _city_or_404(city_id)
+    city_dir = _CITY_ID_TO_DIR.get(city.city_id)
+    if not city_dir:
+        raise HTTPException(status_code=404, detail=f"No geometry for {city_id}")
+    geometry_path = (
+        _repo_root() / "data" / "areas" / "cross-city" / city_dir / "geometry.geojson"
+    )
+    if not geometry_path.is_file():
+        raise HTTPException(status_code=404, detail=f"Geometry not packaged for {city_id}")
+    from fastapi.responses import Response
+
+    return Response(
+        content=geometry_path.read_text(encoding="utf-8"),
+        media_type="application/geo+json",
+        headers={"X-HVA-City-ID": str(city.city_id)},
+    )
+
+
 @router.get("/cross-city/metrics")
 def get_cross_city_metrics() -> CrossCityMetricsResponse:
     return _build_metrics_response(
