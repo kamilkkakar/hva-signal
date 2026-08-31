@@ -124,13 +124,22 @@ function preparednessStatus(
   return "UNKNOWN";
 }
 
+function sanitizePreparednessLine(line: string): string {
+  return line
+    .replace(/\s*\([^)]*mag_[^)]*\)/gi, "")
+    .replace(/,\s*vintage\s*\d{4}-\d{2}-\d{2}/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 function preparednessSentences(
   status: PreparednessStatus,
   context: AnalysisAreaContextView | null | undefined,
 ): string[] {
-  const incoming = (context?.preparedness ?? []).filter(
-    (line) => !/no cooling site/i.test(line),
-  );
+  const incoming = (context?.preparedness ?? [])
+    .filter((line) => !/no cooling site/i.test(line))
+    .map(sanitizePreparednessLine)
+    .filter((line) => line.length > 0);
   if (incoming.length) {
     return incoming;
   }

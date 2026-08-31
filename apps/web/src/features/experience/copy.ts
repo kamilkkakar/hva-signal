@@ -18,6 +18,16 @@ export const SELECTOR_SEARCH = "Find an analysis area";
 export const GEOID_SECONDARY = "Census tract";
 export const DEMO_CONTROLS = "Explore another observation";
 
+export const SECTION_NAV = [
+  { id: "happening", num: "01", title: "What's happening here?" },
+  { id: "history", num: "02", title: "How does this compare with history?" },
+  { id: "changed", num: "03", title: "How have conditions changed?" },
+  { id: "context", num: "04", title: "What local context matters?" },
+  { id: "verify", num: "05", title: "What should be verified next?" },
+] as const;
+
+export const PREP_SECTION_TITLE = "What support is identified?";
+
 export const METRIC_TEMP = "Selected thermal observation";
 export const METRIC_HISTORY = "Historical 03:00 position";
 export const METRIC_CHANGE = "Matched nighttime change vs 2022";
@@ -49,8 +59,8 @@ export const INSTANTS_SUBTITLE = "Four discrete observations. Hours between them
 export const INSTANTS_GAP = "Interval not observed";
 export const INSTANTS_SELECT = "Select an analysis area to read observed instants.";
 
-export const CONTEXT_TITLE = "Local context";
-export const PREP_TITLE = "Preparedness";
+export const CONTEXT_TITLE = "What local context matters?";
+export const PREP_TITLE = "What support is identified?";
 export const PREP_IDENTIFIED = "Identified";
 export const PREP_NOT_IDENTIFIED = "Not identified in this dataset";
 export const PREP_UNKNOWN = "Unknown";
@@ -75,12 +85,17 @@ export const FORBIDDEN_FIRST_READ = [
   "24-HOUR CURVE",
   "24-hour curve",
   "climate trend",
+  "month/season",
+  "intervention effect",
+  "OUTLINES ONLY",
+  "FILLS WAIT FOR A BOUND LAYER",
   "NO COOLING SITE",
   "no cooling site",
   "SUBMIT ANALYSIS",
   "Submit analysis",
   "not the municipality",
   "not live",
+  "activity_id",
 ] as const;
 
 export function historicalPositionSentence(qA: number): string {

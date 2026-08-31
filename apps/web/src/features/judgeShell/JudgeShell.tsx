@@ -19,13 +19,13 @@ import {
   EvidenceDisclosure,
   MatchedNightChart,
   ObservedInstantsChart,
+  SectionNav,
   ThermalHero,
   presentHistoricalHero,
 } from "@/features/experience";
 import { DEMO_CONTROLS } from "@/features/experience/copy";
 import { ContextPanel } from "@/features/experience/ContextPanel";
 import { PreparednessPanel } from "@/features/experience/PreparednessPanel";
-import { Q_THERMAL, Q_VERIFY } from "@/features/selectedAreaStory/copy";
 import "@/features/experience/experience.css";
 import { CapabilityBand } from "./CapabilityBand";
 import { ContextBar } from "./ContextBar";
@@ -157,6 +157,7 @@ export function JudgeShell() {
       data-has-result={snapshot?.result != null ? "true" : "false"}
     >
       <AppShell observationStamp={observationStamp} />
+      <SectionNav />
       <ContextBar
         source={source}
         clockDate={clockDate}
@@ -213,6 +214,16 @@ export function JudgeShell() {
         view={evidence.observed}
         areaLabel={analysisAreaLabel(selectedZoneId)}
       />
+      <div data-testid="selected-area-story">
+        <ContextPanel story={story} />
+        <PreparednessPanel story={story} />
+      </div>
+      <DecisionDirection
+        story={story}
+        rankingWithheld={rankingWithheld}
+        temperatureC={thermalB.temperatureC}
+        change2024vs2022={evidence.matched.change2024vs2022}
+      />
       <HappeningBand
         happening={happening}
         busy={busy}
@@ -220,24 +231,6 @@ export function JudgeShell() {
         canResubmit={canResubmit}
         onResubmit={() => void resubmit()}
       />
-      <ResultStoryBand snapshot={snapshot} busy={busy} />
-      <article
-        className="selected-area-story"
-        data-testid="selected-area-story"
-        aria-label={analysisAreaLabel(selectedZoneId) ?? "Selected analysis area"}
-      >
-        <section data-testid="story-thermal">
-          <h3>{Q_THERMAL}</h3>
-          <p data-testid="story-thermal-b">
-            {thermalB.wording}: {thermalB.temperatureC == null ? "—" : `${thermalB.temperatureC.toFixed(1)} °C`}
-          </p>
-        </section>
-        <ContextPanel story={story} />
-        <PreparednessPanel story={story} />
-        <section data-testid="story-verify">
-          <h3>{Q_VERIFY}</h3>
-        </section>
-      </article>
       <div id="area-different">
         <AreaContextBand
           areaId={lastRequest?.area_id ?? snapshot?.request?.area_id ?? "phoenix-demo"}
@@ -248,9 +241,9 @@ export function JudgeShell() {
           onContextZones={setContextZones}
         />
       </div>
-      <DecisionDirection story={story} rankingWithheld={rankingWithheld} />
-      <ProvenanceBand snapshot={snapshot} />
       <EvidenceDisclosure>
+        <ProvenanceBand snapshot={snapshot} />
+        <ResultStoryBand snapshot={snapshot} busy={busy} />
         <div id="thermal-conditions">
           <ThermalBand
             snapshot={snapshot}

@@ -32,6 +32,86 @@
   font-family: var(--font-body);
 }
 
+.hx-kicker-sub {
+  margin-top: 0.35rem;
+}
+
+.hx-section-nav {
+  padding: 0.35rem 1.25rem 0.5rem;
+  background: var(--hx-card);
+  border-bottom: 1px solid var(--hx-line);
+}
+
+.hx-section-nav ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hx-section-nav a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  color: var(--hx-ink);
+  text-decoration: none;
+  font-size: 0.88rem;
+}
+
+.hx-section-nav a:hover,
+.hx-section-nav a:focus-visible {
+  color: var(--hx-copper);
+}
+
+.hx-section-num {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--hx-muted);
+}
+
+.hx-axis-line {
+  stroke: var(--hx-ink);
+  stroke-width: 1;
+}
+
+.hx-axis-tick {
+  stroke: var(--hx-ink);
+  stroke-width: 1;
+}
+
+.hx-axis-label,
+.hx-axis-title {
+  fill: var(--hx-muted);
+  font-size: 10px;
+  font-family: var(--font-data);
+}
+
+.hx-baseline-line {
+  stroke: var(--hx-brass);
+  stroke-width: 1;
+  opacity: 0.55;
+}
+
+.hx-disclaimer-compact {
+  margin-top: 0.65rem;
+  font-size: 0.82rem;
+}
+
+.hx-cards li {
+  border-left: 3px solid var(--hx-field);
+}
+
+.hx-cards strong {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+}
+
+.hx-app .judge-result-story {
+  display: none;
+}
+
 .hx-shell {
   display: grid;
   gap: 0.55rem 1.5rem;

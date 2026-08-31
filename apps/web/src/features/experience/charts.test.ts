@@ -43,6 +43,7 @@ describe("experience charts", () => {
     expect(html).toContain("How have nighttime conditions changed?");
     expect(html).toContain("32.8 °C");
     expect(html).toContain("+1.60 °C");
+    expect(html).toContain(">°C<");
     expect(html).toContain(MATCHED_NOT_CLIMATE);
     expect(html).not.toContain("climate trend");
     expect(html).not.toContain("q_A");
@@ -56,6 +57,7 @@ describe("experience charts", () => {
     expect(html).toContain(INSTANTS_SUBTITLE);
     expect(html).toContain("Interval not observed");
     expect(html).toContain("41.2 °C");
+    expect(html).toContain(">°C<");
     expect(html).not.toContain("24-HOUR CURVE");
     expect(html).not.toContain("hourly series");
   });

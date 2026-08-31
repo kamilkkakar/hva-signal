@@ -7,22 +7,35 @@ type ObservedInstantsChartProps = {
   areaLabel: string | null;
 };
 
+function yTicks(min: number, max: number, count = 4): number[] {
+  const span = max - min || 1;
+  return Array.from({ length: count + 1 }, (_, index) => min + (span * index) / count);
+}
+
 export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChartProps) {
   const temps = view.instants.map((item) => item.temperatureC);
   const min = temps.length ? Math.min(...temps) - 1 : 0;
   const max = temps.length ? Math.max(...temps) + 1 : 1;
   const span = max - min || 1;
   const width = 560;
-  const height = 180;
-  const pad = 36;
+  const height = 220;
+  const pad = { l: 52, r: 36, t: 16, b: 40 };
+  const plotW = width - pad.l - pad.r;
+  const plotH = height - pad.t - pad.b;
+  const ticks = yTicks(min, max);
   const points = view.instants.map((item, index) => {
-    const x = pad + (index * (width - pad * 2)) / 3;
-    const y = height - pad - ((item.temperatureC - min) / span) * (height - pad * 2);
+    const x = pad.l + (index * plotW) / 3;
+    const y = pad.t + plotH - ((item.temperatureC - min) / span) * plotH;
     return { ...item, x, y };
   });
 
   return (
-    <section className="hx-section" data-testid="observed-instants" aria-labelledby="observed-instants-title">
+    <section
+      className="hx-section"
+      id="observed"
+      data-testid="observed-instants"
+      aria-labelledby="observed-instants-title"
+    >
       <h2 id="observed-instants-title">{INSTANTS_TITLE}</h2>
       {view.status !== "AVAILABLE" ? (
         <p className="hx-missing">{view.reason ?? INSTANTS_SELECT}</p>
@@ -33,7 +46,7 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
             {view.instants
               .map((item) => `${item.label} ${formatTempC(item.temperatureC)}`)
               .join(" · ")}
-            . Connecting guides mark unobserved intervals.
+            . Dashed guides mark unobserved intervals only — not a continuous curve.
           </p>
           <svg
             className="hx-chart"
@@ -43,6 +56,34 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
             data-testid="observed-instants-chart"
             data-autostretch="false"
           >
+            <line x1={pad.l} y1={pad.t} x2={pad.l} y2={pad.t + plotH} className="hx-axis-line" />
+            <line
+              x1={pad.l}
+              y1={pad.t + plotH}
+              x2={pad.l + plotW}
+              y2={pad.t + plotH}
+              className="hx-axis-line"
+            />
+            {ticks.map((tick) => {
+              const y = pad.t + plotH - ((tick - min) / span) * plotH;
+              return (
+                <g key={tick}>
+                  <line x1={pad.l - 4} y1={y} x2={pad.l} y2={y} className="hx-axis-tick" />
+                  <text x={pad.l - 8} y={y + 4} textAnchor="end" className="hx-axis-label">
+                    {formatTempC(tick)}
+                  </text>
+                </g>
+              );
+            })}
+            <text
+              x={pad.l - 38}
+              y={pad.t + plotH / 2}
+              textAnchor="middle"
+              transform={`rotate(-90 ${pad.l - 38} ${pad.t + plotH / 2})`}
+              className="hx-axis-title"
+            >
+              °C
+            </text>
             {points.slice(1).map((point, index) => {
               const prev = points[index];
               if (prev == null) {
@@ -70,11 +111,11 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
             })}
             {points.map((point) => (
               <g key={point.instantId}>
-                <circle cx={point.x} cy={point.y} r="6" className="hx-dot" />
-                <text x={point.x} y={point.y - 14} textAnchor="middle" className="hx-chart-value">
+                <circle cx={point.x} cy={point.y} r="7" className="hx-dot" />
+                <text x={point.x} y={point.y - 16} textAnchor="middle" className="hx-chart-value">
                   {formatTempC(point.temperatureC)}
                 </text>
-                <text x={point.x} y={height - 8} textAnchor="middle" className="hx-chart-label">
+                <text x={point.x} y={height - 10} textAnchor="middle" className="hx-chart-label">
                   {point.label}
                 </text>
               </g>

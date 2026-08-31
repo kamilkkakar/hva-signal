@@ -1,5 +1,7 @@
 import { analysisAreaLabel } from "@/features/selectedAreaStory/identity";
-import { B_CLOCK } from "@/features/selectedAreaStory/copy";
+import { formatDeltaC, formatTempC } from "./format";
+import type { HistoricalPositionView } from "./historicalPosition";
+import { AreaSelector } from "./AreaSelector";
 import {
   GEOID_SECONDARY,
   HISTORY_WITHHELD_TRUST,
@@ -7,9 +9,6 @@ import {
   METRIC_TEMP,
   RANKING_WITHHELD_TITLE,
 } from "./copy";
-import { formatDeltaC, formatLocalObservation, formatTempC } from "./format";
-import type { HistoricalPositionView } from "./historicalPosition";
-import { AreaSelector } from "./AreaSelector";
 
 type ThermalHeroProps = {
   selectedZoneId: string | null;
@@ -29,13 +28,16 @@ export function ThermalHero({
   change2024vs2022,
 }: ThermalHeroProps) {
   const label = analysisAreaLabel(selectedZoneId) ?? "Select an analysis area";
-  const localStamp = observationStamp
-    ? formatLocalObservation(B_CLOCK)
-    : null;
+  const localStamp = observationStamp ?? null;
   return (
-    <section className="hx-hero" data-testid="thermal-hero" aria-label="Selected analysis area summary">
+    <section
+      className="hx-hero"
+      id="happening"
+      data-testid="thermal-hero"
+      aria-label="Selected analysis area summary"
+    >
       <div className="hx-hero-identity">
-        <p className="hx-kicker">Selected area</p>
+        <p className="hx-kicker">01 · What's happening here?</p>
         <h2 data-testid="selected-area-label">{label}</h2>
         <AreaSelector selectedZoneId={selectedZoneId} onSelect={onSelect} />
         {selectedZoneId ? (
@@ -47,9 +49,7 @@ export function ThermalHero({
       </div>
       <dl className="hx-metrics">
         <div data-testid="hero-temperature" className="hx-metric-primary">
-          <dd>
-            {temperatureC == null ? "—" : formatTempC(temperatureC)}
-          </dd>
+          <dd>{temperatureC == null ? "—" : formatTempC(temperatureC)}</dd>
           <dt>{METRIC_TEMP}</dt>
           {localStamp ? <span className="hx-metric-note">{localStamp}</span> : null}
         </div>
@@ -58,15 +58,16 @@ export function ThermalHero({
           <dt>{METRIC_CHANGE}</dt>
         </div>
       </dl>
-      <div data-testid="evidence-summary">
+      <div id="history" data-testid="evidence-summary">
         <aside
           className="hx-trust-note"
           data-testid="hero-history"
           data-withheld={history.withheld ? "true" : "false"}
         >
+          <p className="hx-kicker">02 · How does this compare with history?</p>
           {history.withheld ? (
             <>
-              <p className="hx-kicker">{RANKING_WITHHELD_TITLE}</p>
+              <p className="hx-kicker hx-kicker-sub">{RANKING_WITHHELD_TITLE}</p>
               <p data-testid="ranking-interpretation">{history.sentence}</p>
               <p data-testid="ranking-next" className="hx-note">
                 {HISTORY_WITHHELD_TRUST}

@@ -9,7 +9,7 @@ type ContextPanelProps = {
 export function ContextPanel({ story }: ContextPanelProps) {
   const facts = story.questions.different.facts;
   return (
-    <section className="hx-section hx-secondary-panel" data-testid="context-panel" aria-labelledby="context-title">
+    <section className="hx-section hx-secondary-panel" data-testid="context-panel" id="context" aria-labelledby="context-title">
       <h2 id="context-title">{CONTEXT_TITLE}</h2>
       <p className="hx-section-lead">
         {analysisAreaLabel(story.identity.geoid) ?? "Select an analysis area"}. Not a score.

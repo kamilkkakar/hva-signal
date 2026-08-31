@@ -8,7 +8,7 @@ type PreparednessPanelProps = {
 export function PreparednessPanel({ story }: PreparednessPanelProps) {
   const support = story.questions.support;
   return (
-    <section className="hx-section hx-secondary-panel" data-testid="preparedness-panel" aria-labelledby="prep-title">
+    <section className="hx-section hx-secondary-panel" data-testid="preparedness-panel" id="preparedness" aria-labelledby="prep-title">
       <h2 id="prep-title">{PREP_TITLE}</h2>
       <p className="hx-status" data-testid="preparedness-status">
         {preparednessLabel(support.status)}
