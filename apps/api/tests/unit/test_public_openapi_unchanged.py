@@ -21,6 +21,7 @@ def test_public_openapi_has_no_signal_b_or_prepare_paths() -> None:
         "/api/v1/areas/{area_id}/context",
         "/api/v1/demo/matched-nighttime-window",
         "/api/v1/demo/observed-thermal-instants",
+        "/api/v1/live/selected-time",
     }
     joined = " ".join(paths)
     assert "/api/v1/areas" in paths

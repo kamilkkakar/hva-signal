@@ -61,6 +61,7 @@ LIVE_OPENAPI_PATHS = {
     "/api/v1/areas/{area_id}/context",
     "/api/v1/demo/matched-nighttime-window",
     "/api/v1/demo/observed-thermal-instants",
+    "/api/v1/live/selected-time",
 }
 OWNED_SOURCES = [
     Path(__file__).resolve().parents[2]

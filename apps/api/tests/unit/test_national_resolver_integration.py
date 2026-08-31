@@ -38,6 +38,7 @@ FROZEN_PUBLIC_OPENAPI_PATHS = {
     "/api/v1/areas/{area_id}/context",
     "/api/v1/demo/matched-nighttime-window",
     "/api/v1/demo/observed-thermal-instants",
+    "/api/v1/live/selected-time",
     "/api/v1/cities",
     "/api/v1/cities/{city_id}",
     "/api/v1/cities/{city_id}/capabilities",

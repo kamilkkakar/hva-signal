@@ -35,6 +35,10 @@ services:
         value: false
       - key: HOSTED_LIVE_REAL_VENDOR_ENABLED
         value: false
+      - key: BOUNDED_SELECTED_TIME_LIVE_ENABLED
+        value: false
+      - key: BOUNDED_SELECTED_TIME_DAILY_LIMIT
+        value: "20"
       - key: DEMO_ALLOWANCE_ENABLED
         value: false
       - key: DEMO_ALLOWANCE_MAX_TOTAL_UNITS
