@@ -161,7 +161,7 @@ def test_cross_city_metrics_binds_non_thermal_for_all_cities() -> None:
         "fill": "tree_canopy_pct",
     }
     assert len(body["rows"]) == 100
-    assert body["summary"]["included_count"] >= 20
+    assert body["summary"]["included_count"] >= 99
     for city_id in CITIES:
         rows = [row for row in body["rows"] if row["city_id"] == city_id]
         assert len(rows) == 25
@@ -169,10 +169,7 @@ def test_cross_city_metrics_binds_non_thermal_for_all_cities() -> None:
         assert sum(row["median_household_income"] is not None for row in rows) >= 20
         assert all(row["tree_canopy_pct"] is not None for row in rows)
         assert all(row["label"].startswith("Comparison Area ") for row in rows)
-        if city_id == "los_angeles":
-            assert all(row["temperature_c"] is not None for row in rows)
-        else:
-            assert all(row["temperature_c"] is None for row in rows)
+        assert all(row["temperature_c"] is not None for row in rows)
 
     queried = client.get(
         "/api/v1/cross-city/query",
@@ -192,10 +189,8 @@ def test_cross_city_metrics_binds_non_thermal_for_all_cities() -> None:
 def test_missing_thermal_is_disclosed_not_fabricated() -> None:
     client = TestClient(app)
     rows = client.get("/api/v1/cross-city/metrics").json()["rows"]
-    phoenix = next(row for row in rows if row["city_id"] == "phoenix")
-    assert phoenix["temperature_c"] is None
-    assert "synthetic" in phoenix["missing_reasons"]["temperature_c"].lower()
-    assert phoenix["coverage_flags"]["temperature_c"] is False
-    la = next(row for row in rows if row["city_id"] == "los_angeles")
-    assert la["temperature_c"] is not None
-    assert "temperature_c" not in la["missing_reasons"]
+    # All four cities now hold real thermal; fabrication remains forbidden.
+    assert all(row["temperature_c"] is not None for row in rows)
+    assert all(row["coverage_flags"]["temperature_c"] for row in rows)
+    assert all("temperature_c" not in row["missing_reasons"] for row in rows)
+    assert all(row["label"].startswith("Comparison Area ") for row in rows)

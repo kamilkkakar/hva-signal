@@ -1,7 +1,13 @@
 import { useMemo, useState } from "react";
 import { outlineColorForCity } from "./colors";
-import { globalFillColor, metricDomain, radiusFromPopulation, type NumericDomain } from "./scale";
-import type { CrossCityAreaRecord, CrossCityId } from "./types";
+import {
+  globalFillColor,
+  metricDomain,
+  metricValue,
+  radiusFromPopulation,
+  type NumericDomain,
+} from "./scale";
+import type { CrossCityAreaRecord, CrossCityId, CrossCityMetricKey } from "./types";
 
 const SVG_WIDTH = 720;
 const SVG_HEIGHT = 420;
@@ -125,11 +131,12 @@ export function presentBubbleExplorer(
   records: readonly CrossCityAreaRecord[],
   activeCityIds: readonly CrossCityId[],
   selectedCityId: CrossCityId,
+  fillMetric: CrossCityMetricKey = "treeCanopyPct",
 ): BubbleExplorerView {
   const xDomain = metricDomain(records, "selectedTimeTemperatureC");
   const yDomain = metricDomain(records, "medianHouseholdIncomeUsd");
   const sizeDomain = metricDomain(records, "population");
-  const fillDomain = metricDomain(records, "treeCanopyPct");
+  const fillDomain = metricDomain(records, fillMetric);
   const filtered = records.filter((record) => activeCityIds.includes(record.cityId));
   const plotted: BubblePoint[] = [];
   let omittedCount = 0;
@@ -142,13 +149,14 @@ export function presentBubbleExplorer(
       continue;
     }
     const computedRadius = radiusFromPopulation(record.metrics.population, sizeDomain);
+    const fillValue = metricValue(record, fillMetric);
     plotted.push({
       ...record,
       cx: scaleX(xValue, xDomain),
       cy: scaleY(yValue, yDomain),
       radius: computedRadius ?? FALLBACK_SIZE_RADIUS,
-      fill: globalFillColor(record.metrics.treeCanopyPct, fillDomain) ?? "url(#hx-cross-city-missing-fill)",
-      fillMissing: record.metrics.treeCanopyPct == null,
+      fill: globalFillColor(fillValue, fillDomain) ?? "url(#hx-cross-city-missing-fill)",
+      fillMissing: fillValue == null,
       sizeMissing: computedRadius == null,
       outline: outlineColorForCity(record.cityId),
       selected: record.cityId === selectedCityId,
@@ -168,16 +176,18 @@ type BubbleExplorerProps = {
   records: readonly CrossCityAreaRecord[];
   activeCityIds: readonly CrossCityId[];
   selectedCityId: CrossCityId;
+  fillMetric?: CrossCityMetricKey;
 };
 
 export function BubbleExplorer({
   records,
   activeCityIds,
   selectedCityId,
+  fillMetric = "treeCanopyPct",
 }: BubbleExplorerProps) {
   const view = useMemo(
-    () => presentBubbleExplorer(records, activeCityIds, selectedCityId),
-    [activeCityIds, records, selectedCityId],
+    () => presentBubbleExplorer(records, activeCityIds, selectedCityId, fillMetric),
+    [activeCityIds, fillMetric, records, selectedCityId],
   );
   const [activeAreaId, setActiveAreaId] = useState<string | null>(null);
   const activePoint =
@@ -297,7 +307,8 @@ export function BubbleExplorer({
       <div className="hx-cc-chart-meta">
         <p className="hx-note">
           X = selected-time temperature (°C) · Y = median household income · Size = population ·
-          Fill = tree canopy · Outline = city
+          Fill = {fillMetric === "treeCanopyPct" ? "tree canopy" : "selected-time temperature"} ·
+          Outline = city
         </p>
         {view.omittedCount > 0 ? (
           <p className="hx-note" data-testid="cross-city-omitted">

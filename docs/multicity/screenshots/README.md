@@ -1,8 +1,21 @@
-# TEST_ONLY
+# Cross-City Explorer screenshots (REAL)
 
-This folder is for TEST_ONLY visual QA assets related to the Cross-City Explorer.
+Canonical visual QA set for `CROSS_CITY_OBSERVATION_V1` on `feat/multicity-explorer`.
 
-- Never mix these files into the approved Phoenix screenshot set under `docs/judge-experience/screenshots/`.
-- Do not rename or replace the approved `phoenix-*.png` files from the frozen Phoenix baseline.
-- Do not introduce fake public thermal data into screenshot annotations, filenames, or mock captions.
-- Treat any images placed here as temporary validation artifacts for multi-city work on `feat/multicity-explorer`.
+## Files
+
+- `cross-city-real-default.png`
+- `cross-city-real-phoenix-isolated.png`
+- `cross-city-real-los-angeles-isolated.png`
+- `cross-city-real-las-vegas-isolated.png`
+- `cross-city-real-tucson-isolated.png`
+- `cross-city-real-canopy-fill.png`
+- `cross-city-real-temperature-fill.png`
+- `cross-city-real-mobile.png`
+
+## Rules
+
+- Captured from the production web build against real acquired thermal + ACS + NLCD canopy.
+- Never mix these files into `docs/judge-experience/screenshots/` (Phoenix design contract).
+- Do not rename or replace approved `phoenix-*.png` baselines unless a true Phoenix regression is found and reviewed.
+- Labels use **Comparison Area N** for the cross-city geography only.

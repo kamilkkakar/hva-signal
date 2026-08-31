@@ -8,6 +8,7 @@ import {
   CROSS_CITY_COMPARISON_CLOCK_LOCAL,
   cityMeta,
   type CrossCityId,
+  type CrossCityMetricKey,
   type CrossCityMetricsResponse,
 } from "./types";
 import "./crossCity.css";
@@ -18,12 +19,12 @@ type LoadState =
   | { status: "error"; message: string };
 
 export const CROSS_CITY_SECTION_COPY = {
-  kicker: "06 · Cross-city explorer",
-  title: "How do published areas compare across cities?",
+  kicker: "COMPARE ACROSS CITIES",
+  title: "Cross-City Explorer",
   lead:
-    "Compare selected-time temperature, household income, population, and tree canopy across published analysis areas at the same local date and time.",
+    "Explore how thermal conditions and local context overlap across analysis areas in different cities.",
   caution:
-    "This section is descriptive. It does not score cities, rank need, or prescribe an intervention.",
+    "Patterns in this view are descriptive and do not establish causal relationships.",
   missing:
     "Missing tree canopy is shown with a hatched fill. Areas missing temperature or income stay off the plot and are counted below.",
 } as const;
@@ -40,6 +41,7 @@ function includesCity(
 export function CrossCitySection() {
   const [selectedCityId, setSelectedCityId] = useState<CrossCityId>("phoenix-az");
   const [activeCityIds, setActiveCityIds] = useState<readonly CrossCityId[]>(ALL_CITY_IDS);
+  const [fillMetric, setFillMetric] = useState<CrossCityMetricKey>("treeCanopyPct");
   const [state, setState] = useState<LoadState>({ status: "loading" });
 
   useEffect(() => {
@@ -74,12 +76,13 @@ export function CrossCitySection() {
 
   const summary = useMemo(() => {
     if (state.status !== "ready") {
-      return { areas: 0, cities: 0 };
+      return { areas: 0, cities: 0, withTemp: 0 };
     }
     const visible = state.data.areas.filter((area) => includesCity(activeCityIds, area.cityId));
     return {
       areas: visible.length,
       cities: new Set(visible.map((area) => area.cityId)).size,
+      withTemp: visible.filter((area) => area.metrics.selectedTimeTemperatureC != null).length,
     };
   }, [activeCityIds, state]);
 
@@ -119,7 +122,8 @@ export function CrossCitySection() {
       <p className="hx-section-lead">{CROSS_CITY_SECTION_COPY.lead}</p>
       <p className="hx-note">{CROSS_CITY_SECTION_COPY.caution}</p>
       <p className="hx-note" data-testid="cross-city-clock">
-        Comparison clock: same local date and time across cities, {comparisonClock}.
+        Comparison clock: same local date and time across cities, {comparisonClock}. Thermal
+        source: FortyGuard Type-1 TCM.
       </p>
 
       <div className="hx-cc-controls">
@@ -145,6 +149,29 @@ export function CrossCitySection() {
             </>
           )}
         </div>
+        <div className="hx-cc-open-panel" data-testid="cross-city-fill-controls">
+          <p className="hx-kicker">Fill</p>
+          <div className="hx-cc-fill-buttons">
+            <button
+              type="button"
+              className="hx-cc-open-link"
+              data-testid="cross-city-fill-canopy"
+              aria-pressed={fillMetric === "treeCanopyPct"}
+              onClick={() => setFillMetric("treeCanopyPct")}
+            >
+              Tree canopy
+            </button>
+            <button
+              type="button"
+              className="hx-cc-open-link"
+              data-testid="cross-city-fill-temperature"
+              aria-pressed={fillMetric === "selectedTimeTemperatureC"}
+              onClick={() => setFillMetric("selectedTimeTemperatureC")}
+            >
+              Temperature
+            </button>
+          </div>
+        </div>
       </div>
 
       <p className="hx-note">{CROSS_CITY_SECTION_COPY.missing}</p>
@@ -157,7 +184,10 @@ export function CrossCitySection() {
 
       {state.status === "error" ? (
         <div className="hx-cc-state" data-testid="cross-city-error">
-          <p>Cross-city comparison is not available yet. Phoenix remains the local published baseline above.</p>
+          <p>
+            Cross-city comparison is not available yet. Phoenix remains the local published
+            baseline above.
+          </p>
           <p className="hx-note">{state.message}</p>
         </div>
       ) : null}
@@ -172,8 +202,9 @@ export function CrossCitySection() {
         <>
           <div className="hx-cc-summary" data-testid="cross-city-summary">
             <p>
-              Showing {summary.areas} published areas across {summary.cities}{" "}
-              {summary.cities === 1 ? "city" : "cities"} in the current filter.
+              {summary.cities} cities · {summary.areas} comparison areas · {summary.withTemp} with
+              published selected-time temperature · observation {comparisonClock} local ·
+              FortyGuard Type-1 TCM.
             </p>
           </div>
           <CityLegend
@@ -187,6 +218,7 @@ export function CrossCitySection() {
             records={state.data.areas}
             activeCityIds={activeCityIds}
             selectedCityId={selectedCityId}
+            fillMetric={fillMetric}
           />
         </>
       ) : null}

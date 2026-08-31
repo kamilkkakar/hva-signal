@@ -38,6 +38,11 @@ FROZEN_PUBLIC_OPENAPI_PATHS = {
     "/api/v1/areas/{area_id}/context",
     "/api/v1/demo/matched-nighttime-window",
     "/api/v1/demo/observed-thermal-instants",
+    "/api/v1/cities",
+    "/api/v1/cities/{city_id}",
+    "/api/v1/cities/{city_id}/capabilities",
+    "/api/v1/cross-city/metrics",
+    "/api/v1/cross-city/query",
 }
 
 RESOLVER_POLICY_ID = "NATIONAL_PLACE_GEOGRAPHY_V1"
