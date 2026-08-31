@@ -442,6 +442,61 @@
   line-height: 1.4;
 }
 
+/* === HVA STORY RAIL === */
+.ws-hva-rail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.25rem;
+  margin: 0 0 0.75rem;
+}
+
+.ws-hva-rail-btn {
+  min-height: 2rem;
+  padding: 0.25rem 0.2rem;
+  border: 1px solid var(--ws-line);
+  background: var(--ws-bg);
+  color: var(--ws-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.ws-hva-rail-btn[data-active="true"] {
+  background: var(--ws-ink);
+  color: var(--ws-card);
+  border-color: var(--ws-ink);
+}
+
+.ws-context-highlights {
+  margin: 0 0 0.75rem;
+}
+
+.ws-context-highlights ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+}
+
+.ws-action-why {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  color: var(--ws-muted);
+}
+
+.ws-outlook-panel {
+  margin: 0 0 0.75rem;
+  padding: 0.55rem 0.65rem;
+  background: var(--ws-bg);
+  border-left: 4px solid var(--ws-brass);
+}
+
+.ws-outlook-panel p {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+}
+
 /* === BELOW-MAP SECTIONS === */
 .ws-below-map {
   background: var(--ws-bg);

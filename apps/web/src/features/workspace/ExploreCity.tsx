@@ -38,6 +38,8 @@ import { fetchCrossCityMetrics } from "@/features/crossCity/fetchMetrics";
 import type { CrossCityMetricsResponse, CrossCityAreaRecord } from "@/features/crossCity/types";
 import { CityControls } from "./CityControls";
 import { ZonePanel } from "./ZonePanel";
+import { buildStoryActions, contextHighlights } from "./actionEngine";
+import { type HvaStage } from "./HvaStoryRail";
 import { cityConfig, type CityId, type ObservationMode, type ZoneInfo } from "./types";
 
 const EMPTY_LIMITATIONS: readonly string[] = [];
@@ -111,6 +113,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
   const [liveTime, setLiveTime] = useState("15:00");
   const [liveRunning, setLiveRunning] = useState(false);
   const [mapMode, setMapMode] = useState<MapMode>("THERMAL");
+  const [storyStage, setStoryStage] = useState<HvaStage>("heat");
   const [contextZones, setContextZones] = useState<ZoneMapProperties[]>([]);
   const [crossCityData, setCrossCityData] = useState<CrossCityMetricsResponse | null>(null);
   const [cityGeometry, setCityGeometry] = useState<CityGeometry | null>(null);
@@ -305,11 +308,25 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
     };
   }, [isPhoenix, snapshot?.result, spatial.sentence, spatial.status, submitting]);
 
-  const nextActions = useMemo(() => {
-    if (!isPhoenix) return ["Switch to Phoenix for full analysis", "Compare across cities", "Review context layers"];
-    if (spatial.status === "supported") return ["Inspect matched nighttime change", "Review context layers", "Compare across cities"];
-    return ["Use temporal evidence instead", "Review context layers", "Compare across cities"];
-  }, [isPhoenix, spatial.status]);
+  const preparedness = (isPhoenix
+    ? (story.questions.support.status as PreparednessEvidenceStatus)
+    : "UNAVAILABLE") as PreparednessEvidenceStatus;
+
+  const storyActions = useMemo(
+    () =>
+      buildStoryActions({
+        comparisons,
+        preparedness,
+        spatialSupported: isPhoenix && spatial.status === "supported",
+        isPhoenix,
+      }),
+    [comparisons, preparedness, isPhoenix, spatial.status],
+  );
+
+  const highlights = useMemo(
+    () => contextHighlights(comparisons, preparedness),
+    [comparisons, preparedness],
+  );
 
   const provenanceLine = observationMode === "published"
     ? isPhoenix
@@ -398,7 +415,11 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
                   areaLabel={analysisAreaLabel(selectedAreaId)}
                 />
               </details>
-              <details className="ws-analysis-section" data-testid="local-context-section">
+              <details
+                className="ws-analysis-section"
+                data-testid="local-context-section"
+                open={storyStage === "context"}
+              >
                 <summary>Local context</summary>
                 <ContextPanel comparisons={comparisons} selectedZoneId={selectedAreaId} />
               </details>
@@ -420,8 +441,12 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
           zone={zoneInfo}
           rangeLabel={rangeLabel}
           spatialState={spatialState}
-          nextActions={nextActions}
+          actions={storyActions}
+          highlights={highlights}
+          stage={storyStage}
+          onStageChange={setStoryStage}
           hasLocalAnalysis={isPhoenix}
+          forecastSupported={false}
         />
       </div>
     </div>

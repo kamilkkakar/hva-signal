@@ -78,6 +78,21 @@ describe("workspace contracts", () => {
     }
   });
 
+  it("HVA story rail and outlook panel exist", () => {
+    const rail = readSrc("./HvaStoryRail.tsx");
+    const outlook = readSrc("./OutlookPanel.tsx");
+    expect(rail).toContain("hva-story-rail");
+    expect(rail).toContain("hva-stage-heat");
+    expect(outlook).toContain("hva-outlook-panel");
+    expect(outlook).toContain("forecast contract");
+  });
+
+  it("action engine caps at 3 evidence-linked actions", () => {
+    const engine = readSrc("./actionEngine.ts");
+    expect(engine).toContain("whyShown");
+    expect(engine).toContain(">= 3");
+  });
+
   it("below-map sections are collapsed by default", () => {
     const explore = readSrc("./ExploreCity.tsx");
     const detailsCount = (explore.match(/<details className="ws-analysis-section"/g) || []).length;
