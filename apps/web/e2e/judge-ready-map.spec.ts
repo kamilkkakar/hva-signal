@@ -3,11 +3,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "@playwright/test";
 import {
-  SUFFICIENT_TIME,
-  fillAnalysisTime,
   openMapAdvancedChrome,
   openZoneIdentifierList,
-  submitAnalysis,
   waitForMapState,
 } from "./judge-ready.helpers";
 
@@ -24,21 +21,18 @@ const imap = JSON.parse(
   };
 };
 
-test.describe("judge-ready map hover/click", () => {
+test.describe("workspace map hover/click", () => {
   test.describe.configure({ timeout: 90_000 });
   test.use({ timezoneId: "America/Phoenix" });
 
-  test("I-MAP fixture hover is transient and click persists when chrome is mounted", async ({
-    page,
-  }) => {
+  test("map zone click persists after hover leave", async ({ page }) => {
     expect(imap._not_product_evidence).toBe(true);
     expect(imap.zone_ids).toHaveLength(5);
     expect(imap.contract.hover_writes_selection).toBe(false);
     expect(imap.contract.click_persists_after_hover_leave).toBe(true);
 
     await page.goto("/");
-    await fillAnalysisTime(page, SUFFICIENT_TIME);
-    await submitAnalysis(page);
+    await expect(page.getByTestId("workspace")).toBeVisible();
     const map = await waitForMapState(page, "sufficient");
     await expect(map).toHaveAttribute("data-ranked-feature-count", "25");
 
@@ -80,7 +74,6 @@ test.describe("judge-ready map hover/click", () => {
       expect(selectedId.length).toBeGreaterThan(0);
       await page.mouse.move(0, 0);
       await expect(page.getByTestId("detail-geoid")).toHaveText(selectedId);
-      // Controlled SSOT: re-clicking the selected zone keeps the parent selection.
       await liveButton.click();
       await expect(page.getByTestId("map-interaction-detail")).toHaveAttribute(
         "data-has-selection",
@@ -100,7 +93,6 @@ test.describe("judge-ready map hover/click", () => {
     await page.mouse.move(0, 0);
     await expect(page.getByTestId("detail-geoid")).toHaveText(first);
 
-    // Controlled SSOT: same-GEOID click does not clear the authoritative selection.
     await firstRow.locator("button").click();
     await expect(page.getByTestId("map-interaction-detail")).toHaveAttribute(
       "data-has-selection",

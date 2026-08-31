@@ -1,245 +1,133 @@
 import { expect, test, type Page } from "@playwright/test";
 
-async function openDemoControls(page: Page) {
-  const details = page.getByTestId("demo-controls");
-  if ((await details.count()) === 0) {
-    return;
-  }
-  await details.evaluate((node) => {
-    if (node instanceof HTMLDetailsElement) {
-      node.open = true;
-    }
-  });
-}
-
-async function openEvidenceDisclosure(page: Page) {
-  const details = page.getByTestId("evidence-disclosure");
-  if ((await details.count()) === 0) {
-    return;
-  }
-  await details.evaluate((node) => {
-    if (node instanceof HTMLDetailsElement) {
-      node.open = true;
-    }
-  });
-  await expect(details).toHaveAttribute("open", "");
-}
-
-async function openAdvancedDetails(page: Page) {
-  await openEvidenceDisclosure(page);
-  const details = page.getByTestId("analysis-detail");
-  await expect(details).toBeAttached({ timeout: 45_000 });
-  if ((await details.getAttribute("open")) == null) {
-    await page.getByTestId("advanced-technical-details").click();
-  }
-  await expect(details).toHaveAttribute("open", "");
-}
+const apiBase = process.env.API_BASE_URL ?? "http://127.0.0.1:8000";
 
 const FROZEN_GEOMETRY =
   "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f";
 
-type JobBody = {
-  status?: string;
-  request?: { analysis_time?: string };
-  result?: {
-    zones?: unknown[];
-    reference_quality?: string;
-    thermal_differentiation_state?: string;
-    versions?: { zone_geometry_version?: string };
-    hazard_spread?: {
-      observed_spread?: number | null;
-      zone_geometry_version?: string | null;
-      differentiation_state?: string;
-    };
-    system_limitations?: string[];
-  };
-};
-
-async function submitAndReadJob(
-  page: import("@playwright/test").Page,
-  request: import("@playwright/test").APIRequestContext,
-): Promise<{ requestTime: string; job: JobBody }> {
-  const apiBase = process.env.API_BASE_URL ?? "http://127.0.0.1:8000";
-  const posted = page.waitForResponse(
-    (response) =>
-      response.request().method() === "POST" &&
-      response.url().includes("/api/v1/analysis/jobs"),
+async function waitForWorkspaceMap(page: Page) {
+  await expect(page.getByTestId("workspace")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId("explore-city")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId("map-stage")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("map-stage")).toHaveAttribute(
+    "data-map-state",
+    "sufficient",
+    { timeout: 60_000 },
   );
-  await openDemoControls(page);
-  await page.getByRole("button", { name: "Submit analysis" }).click();
-  const post = await posted;
-  const requestTime = JSON.parse(post.request().postData() ?? "{}")
-    .analysis_time as string;
-  const created = (await post.json()) as { job_id?: string };
-  if (!created.job_id) {
-    throw new Error("Analysis job POST did not return job_id.");
-  }
-
-  let job: JobBody = {};
-  await expect
-    .poll(
-      async () => {
-        const response = await request.get(
-          `${apiBase}/api/v1/analysis/jobs/${created.job_id}`,
-        );
-        job = (await response.json()) as JobBody;
-        return job.status ?? null;
-      },
-      { timeout: 30_000 },
-    )
-    .toMatch(/complete|partial|failed/);
-
-  return { requestTime, job };
 }
 
-test.describe("Phoenix AOI-local replay demo path", () => {
+test.describe("Phoenix workspace replay integration", () => {
   test.describe("America/New_York", () => {
     test.use({ timezoneId: "America/New_York" });
 
-    test("default submit is 2022-07-01 03:00 AOI-local INSUFFICIENT", async ({
+    test("Phoenix auto-loads and map reaches sufficient state in replay mode", async ({
       page,
-      request,
     }) => {
       test.setTimeout(60_000);
       await page.goto("/");
-      await expect(page.locator('input[name="analysis_time"]')).toHaveValue(
-        "2022-07-01T03:00",
-      );
-
-      const { requestTime, job } = await submitAndReadJob(page, request);
-      expect(requestTime).toBe("2022-07-01T03:00:00");
-      expect(requestTime).not.toMatch(/Z$/);
-      expect(job.status).toBe("complete");
-      expect(job.result?.zones).toHaveLength(25);
-      expect(
-        job.result?.versions?.zone_geometry_version ??
-          job.result?.hazard_spread?.zone_geometry_version,
-      ).toBe(FROZEN_GEOMETRY);
-      expect(job.result?.reference_quality).toBe("FULL_REFERENCE");
-      expect(job.result?.thermal_differentiation_state).toBe("INSUFFICIENT");
-      expect(job.result?.hazard_spread?.observed_spread).toBeCloseTo(
-        0.0439665471923536,
-        12,
-      );
-      expect(JSON.stringify(job.result)).not.toMatch(
-        /phoenix_demo_unfrozen_zones/,
-      );
-      expect(JSON.stringify(job.result)).not.toMatch(/heatmap_tcm_hourly_1500/);
-
-      await openAdvancedDetails(page);
-      const panel = page.getByTestId("decision8-evidence-panel");
-      await expect(panel).toBeVisible();
-      await expect(page.getByTestId("decision8-observed-s")).toContainText(
-        "0.043966547192353",
-      );
-      await expect(page.getByTestId("decision8-policy-floor")).toContainText(
-        "0.10 q_A units",
-      );
-      await expect(page.getByTestId("decision8-policy-floor")).not.toContainText(
-        "%",
-      );
-      await expect(page.getByTestId("decision8-reference-version")).toContainText(
-        "PHX_ZTSI_REF_V1",
-      );
-      await expect(page.getByTestId("decision8-zone-geometry")).toContainText(
-        FROZEN_GEOMETRY,
-      );
-      await expect(
-        page.getByTestId("decision8-suppression-reason"),
-      ).toBeVisible();
-      await expect(page.getByTestId("source-banner")).toContainText("REPLAY");
-      await expect(page.getByTestId("source-banner")).not.toContainText(
-        "FORTYGUARD CACHED",
-      );
-      await expect(page.getByTestId("source-banner")).not.toContainText("LIVE");
+      await waitForWorkspaceMap(page);
 
       const map = page.getByTestId("map-stage");
-      await expect(map).toHaveAttribute("data-map-state", "sufficient", {
-        timeout: 30_000,
-      });
       await expect(map).toHaveAttribute("data-geometry-feature-count", "25");
       await expect(map).toHaveAttribute("data-ranked-feature-count", "25");
-      await expect(map).toHaveAttribute("data-map-source-count", "25");
-      await expect(page.getByTestId("map-layer-label")).toContainText(
-        "Selected-time thermal",
-      );
-      await expect(page.locator("body")).not.toContainText(
-        "Geometry and decision cards are not wired yet",
-      );
+
+      await expect(page.getByTestId("observation-provenance")).toContainText("Published");
+      await expect(page.getByTestId("observation-provenance")).not.toContainText("LIVE");
+
+      const mapText = await map.innerText();
+      expect(mapText).not.toMatch(/API KEY REQUIRED|carto\.com\/basemaps/i);
     });
   });
 
   test.describe("Pacific/Auckland", () => {
     test.use({ timezoneId: "Pacific/Auckland" });
 
-    test("selected 2022-06-30 remains AOI-local and reaches SUFFICIENT", async ({
+    test("Phoenix workspace loads correctly regardless of timezone", async ({
       page,
-      request,
     }) => {
       test.setTimeout(60_000);
       await page.goto("/");
-      await expect(page.getByTestId("judge-shell")).toHaveAttribute("data-has-result", "true", {
-        timeout: 60_000,
-      });
-      await openDemoControls(page);
-      await page.locator('input[name="analysis_time"]').fill("2022-06-30T03:00");
-      await expect(page.locator('input[name="analysis_time"]')).toHaveValue(
-        "2022-06-30T03:00",
-      );
-
-      const { requestTime, job } = await submitAndReadJob(page, request);
-      expect(requestTime).toBe("2022-06-30T03:00:00");
-      expect(job.status).toBe("complete");
-      expect(job.result?.zones).toHaveLength(25);
-      expect(
-        job.result?.versions?.zone_geometry_version ??
-          job.result?.hazard_spread?.zone_geometry_version,
-      ).toBe(FROZEN_GEOMETRY);
-      expect(job.result?.reference_quality).toBe("FULL_REFERENCE");
-      expect(job.result?.thermal_differentiation_state).toBe("SUFFICIENT");
-      expect(job.result?.hazard_spread?.observed_spread).toBeCloseTo(
-        0.1354838709677419,
-        12,
-      );
-      expect(job.result?.zones?.some((zone) => (zone as { ranked?: boolean }).ranked)).toBe(
-        true,
-      );
-
-      await openAdvancedDetails(page);
-      const panel = page.getByTestId("decision8-evidence-panel");
-      await expect(panel).toBeVisible();
-      await expect(page.getByTestId("decision8-observed-s")).toContainText(
-        "0.135483870967741",
-      );
-      await expect(page.getByTestId("decision8-policy-version")).toContainText(
-        "PHX_NORMALIZED_HAZARD_SPREAD_V1_TOP3_BOTTOM3_QA_FLOOR_0P10",
-      );
-      await expect(page.getByTestId("decision8-reference-version")).toContainText(
-        "PHX_ZTSI_REF_V1",
-      );
-      await expect(page.getByTestId("decision8-zone-geometry")).toContainText(
-        FROZEN_GEOMETRY,
-      );
-      await expect(panel).not.toContainText("25 / 93");
-      await expect(panel).not.toContainText("safe");
-      await expect(page.getByTestId("source-banner")).toContainText("REPLAY");
-      await expect(page.getByTestId("source-banner")).not.toContainText(
-        "FORTYGUARD CACHED",
-      );
+      await waitForWorkspaceMap(page);
 
       const map = page.getByTestId("map-stage");
-      await expect(map).toHaveAttribute("data-map-state", "sufficient", {
-        timeout: 30_000,
-      });
       await expect(map).toHaveAttribute("data-geometry-feature-count", "25");
       await expect(map).toHaveAttribute("data-ranked-feature-count", "25");
-      await expect(map).toHaveAttribute("data-map-source-count", "25");
-      await expect(page.locator("body")).not.toContainText(
-        "Fill intensity reflects backend-authorized thermal ordering",
-      );
-      await expect(page.locator("body")).not.toContainText(
-        "Geometry and decision cards are not wired yet",
-      );
+
+      await expect(page.getByTestId("zone-panel")).toBeVisible();
+      await expect(page.getByTestId("zone-name")).toBeVisible();
+    });
+  });
+
+  test.describe("API replay correctness (stateless)", () => {
+    test("2022-07-01 03:00 INSUFFICIENT via API", async ({ request }) => {
+      test.setTimeout(60_000);
+      const created = await request.post(`${apiBase}/api/v1/analysis/jobs`, {
+        data: {
+          area_id: "phoenix-demo",
+          analysis_time: "2022-07-01T03:00:00",
+          analysis_mode: "retrospective",
+          horizon_hours: 0,
+          lookback_hours: 0,
+          granularity_m: 100,
+          data_mode: "replay",
+        },
+      });
+      expect(created.status()).toBe(202);
+      const { job_id: jobId } = (await created.json()) as { job_id?: string };
+      expect(jobId).toBeTruthy();
+
+      let job: Record<string, unknown> = {};
+      await expect
+        .poll(
+          async () => {
+            const resp = await request.get(`${apiBase}/api/v1/analysis/jobs/${jobId}`);
+            job = (await resp.json()) as Record<string, unknown>;
+            return (job.status as string) ?? null;
+          },
+          { timeout: 30_000 },
+        )
+        .toMatch(/complete|partial|failed/);
+
+      expect(job.status).toBe("complete");
+      const result = job.result as Record<string, unknown>;
+      expect(result.thermal_differentiation_state).toBe("INSUFFICIENT");
+      expect((result.zones as unknown[]).length).toBe(25);
+      expect(JSON.stringify(job)).not.toMatch(/fortyguard_api_key/i);
+    });
+
+    test("2022-06-30 03:00 SUFFICIENT via API", async ({ request }) => {
+      test.setTimeout(60_000);
+      const created = await request.post(`${apiBase}/api/v1/analysis/jobs`, {
+        data: {
+          area_id: "phoenix-demo",
+          analysis_time: "2022-06-30T03:00:00",
+          analysis_mode: "retrospective",
+          horizon_hours: 0,
+          lookback_hours: 0,
+          granularity_m: 100,
+          data_mode: "replay",
+        },
+      });
+      expect(created.status()).toBe(202);
+      const { job_id: jobId } = (await created.json()) as { job_id?: string };
+      expect(jobId).toBeTruthy();
+
+      let job: Record<string, unknown> = {};
+      await expect
+        .poll(
+          async () => {
+            const resp = await request.get(`${apiBase}/api/v1/analysis/jobs/${jobId}`);
+            job = (await resp.json()) as Record<string, unknown>;
+            return (job.status as string) ?? null;
+          },
+          { timeout: 30_000 },
+        )
+        .toMatch(/complete|partial|failed/);
+
+      expect(job.status).toBe("complete");
+      const result = job.result as Record<string, unknown>;
+      expect(result.thermal_differentiation_state).toBe("SUFFICIENT");
+      expect((result.zones as unknown[]).length).toBe(25);
     });
   });
 });

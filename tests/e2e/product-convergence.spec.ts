@@ -129,11 +129,9 @@ test.describe("product convergence e2e (gated/mocked)", () => {
   }) => {
     await page.goto("/");
     await expect(
-      page.getByRole("heading", { name: "HVA-Signal" }),
+      page.getByRole("heading", { name: /HVA-SIGNAL/i }),
     ).toBeVisible();
-    await expect(page.locator('input[name="analysis_time"]')).toHaveValue(
-      "2022-07-01T03:00",
-    );
+    await expect(page.getByTestId("workspace")).toBeVisible();
     await expect(page.getByRole("link", { name: /sign in|log in|sign up/i })).toHaveCount(
       0,
     );
