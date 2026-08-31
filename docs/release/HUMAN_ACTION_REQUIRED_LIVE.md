@@ -20,8 +20,8 @@ Do **not** put FortyGuard secrets on `urban-thermal-web`.
 
 ## Important code constraints
 
-1. Even with `BOUNDED_SELECTED_TIME_LIVE_ENABLED=true`, `POST /api/v1/live/selected-time` is **cache-first**. On cache miss, `may_construct_real_vendor()` returns **False** (hard program refuse). Public route returns `acquisition_unavailable` with **0** vendor calls.
-2. Paid temporal acquisition must go through **ACQUISITION-OWNER** operator path (`scripts/acquire_cross_city_type1.py` or controlled extension). That script is currently **hardcoded to 15:00** — must be extended for the 12-row matrix clocks before spend.
+1. `POST /api/v1/live/selected-time` is **cache-first**. On miss, when `BOUNDED_SELECTED_TIME_LIVE_ENABLED=true` and `FORTYGUARD_API_KEY` is present on the API service, the route may construct `FortyGuardHttpClient` via `construct_bounded_selected_time_http_client()` only. GENERAL `may_construct_real_vendor()` stays **False**. See `docs/release/BOUNDED_LIVE_VENDOR_PATH.md`.
+2. Operator path (`scripts/acquire_cross_city_type1.py`) remains available for ACQUISITION-OWNER when geometry/tooling differs. That script is currently **hardcoded to 15:00** — must be extended for the 12-row matrix clocks before non-15:00 spend.
 3. `data/acquisitions/cross-city/STOP_DECISION.json` has `additional_fortyguard_calls_authorized: false`. Explicit new human authorization is required to supersede that stop.
 4. Forecast / Thermal Outlook: **BLOCKED** (no documented horizon) — do not authorize forecast paid calls.
 

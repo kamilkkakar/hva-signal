@@ -1,8 +1,16 @@
-"""Live Type-1 architecture with hosted-live hard-disabled."""
+"""Live Type-1 architecture with hosted-live hard-disabled.
+
+GENERAL real vendor stays refused via may_construct_real_vendor() / refuse_real_vendor().
+The ONLY construction path for FortyGuardHttpClient in this program is the bounded
+selected-time surface: construct_bounded_selected_time_http_client(), reachable from
+POST /api/v1/live/selected-time when BOUNDED_SELECTED_TIME_LIVE_ENABLED=true.
+HOSTED_LIVE_REAL_VENDOR_ENABLED must never authorize GENERAL construction.
+"""
 
 from __future__ import annotations
 
 import math
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Final, Mapping
@@ -22,9 +30,17 @@ from app.domain.multicity.city_catalog import (
     resolve_city_aoi,
 )
 from app.domain.signals import ThermalSignalKind
+from app.integrations.fortyguard.adapter import FortyGuardAdapter
 from app.integrations.fortyguard.cache import FortyGuardCache
+from app.integrations.fortyguard.client import DEFAULT_BASE_URL, FortyGuardHttpClient
+from app.integrations.fortyguard.exceptions import MissingApiKeyError
 from app.integrations.fortyguard.fingerprints import fingerprint_request
 from app.integrations.fortyguard.partitioning import plan_partitions, polygon_area_km2
+from app.integrations.fortyguard.transport_models import (
+    DataMode,
+    HeatmapFetchRequest,
+    HeatmapTemporalMode,
+)
 
 TYPE1_LIVE_CONTRACT_VERSION: Final = "MULTICITY_TYPE1_LIVE_V1"
 TYPE1_LIVE_COST_MODEL_VERSION: Final = "LOCAL_COMPLEXITY_HEURISTIC_V2"
@@ -371,7 +387,145 @@ def seed_type1_live_cache(
 
 
 def construct_vendor_stage(*, settings: Settings | None = None) -> None:
+    """GENERAL vendor construction — always refuses (may_construct_real_vendor)."""
     refuse_real_vendor(settings)
+
+
+def construct_bounded_selected_time_http_client(
+    *,
+    settings: Settings,
+    transport: Any | None = None,
+) -> FortyGuardHttpClient:
+    """Narrow construction for POST /api/v1/live/selected-time only.
+
+    Requires BOUNDED_SELECTED_TIME_LIVE_ENABLED. Does not consult
+    may_construct_real_vendor() or HOSTED_LIVE_REAL_VENDOR_ENABLED.
+    Reads Settings.fortyguard_api_key (server env only). Never returns the key.
+    """
+    if not bool(getattr(settings, "bounded_selected_time_live_enabled", False)):
+        raise HostedLiveDisabledError(
+            "bounded selected-time live gate is OFF; "
+            "GENERAL may_construct_real_vendor remains False"
+        )
+    # Defense: GENERAL real-vendor flag must never be the construction authority.
+    if may_construct_real_vendor(settings) is not False:
+        raise HostedLiveDisabledError(
+            "invariant broken: may_construct_real_vendor must stay False"
+        )
+    key = str(getattr(settings, "fortyguard_api_key", "") or "").strip()
+    if not key:
+        raise MissingApiKeyError(
+            "BOUNDED selected-time live requires FORTYGUARD_API_KEY on the backend."
+        )
+    base = str(
+        getattr(settings, "fortyguard_base_url", "") or DEFAULT_BASE_URL
+    ).strip().rstrip("/") or DEFAULT_BASE_URL
+    kwargs: dict[str, Any] = {"api_key": key, "base_url": base}
+    if transport is not None:
+        kwargs["transport"] = transport
+    return FortyGuardHttpClient(**kwargs)
+
+
+def _bounded_selected_time_acquire(
+    parsed: Type1LiveClientRequest,
+    *,
+    settings: Settings,
+    cache: FortyGuardCache,
+    preflight: dict[str, Any],
+    transport: Any | None = None,
+    poll_interval: float = 3.0,
+    poll_timeout: float = 600.0,
+) -> dict[str, Any]:
+    """Cache-miss acquisition owned by the bounded selected-time surface."""
+    try:
+        client = construct_bounded_selected_time_http_client(
+            settings=settings, transport=transport
+        )
+    except MissingApiKeyError:
+        return {
+            "status": "acquisition_unavailable",
+            "vendor_attempted": False,
+            "message": (
+                "Cache miss. Bounded live gate is open but the server secret is "
+                "not configured. No FortyGuard Type-1 request was made."
+            ),
+            "preflight": preflight,
+        }
+    except HostedLiveDisabledError:
+        return {
+            "status": "acquisition_unavailable",
+            "vendor_attempted": False,
+            "message": (
+                "Cache miss. Bounded selected-time live gate is OFF. "
+                "No FortyGuard Type-1 request was made."
+            ),
+            "preflight": preflight,
+        }
+
+    city_config = resolve_city_aoi(parsed.city)
+    sleep_fn = (lambda _dt: None) if poll_interval <= 0 else time.sleep
+    # Adapter requires a non-empty api_key for _has_key even with injected client.
+    # The key never leaves process memory into public responses (sanitize below).
+    adapter = FortyGuardAdapter(
+        api_key=str(settings.fortyguard_api_key).strip(),
+        base_url=str(settings.fortyguard_base_url or DEFAULT_BASE_URL).rstrip("/"),
+        http_client=client,
+        cache_dir=Path(settings.cache_dir) / "bounded_selected_time_vendor",
+        poll_interval=poll_interval,
+        poll_timeout=poll_timeout,
+        sleep=sleep_fn,
+    )
+    heatmap_req = HeatmapFetchRequest(
+        polygon_aoi=city_config.polygon_aoi,
+        start_date=parsed.target_local.strftime("%Y-%m-%d"),
+        start_time=parsed.target_local.strftime("%H:%M"),
+        temporal_mode=HeatmapTemporalMode.SINGLE_HOUR,
+        granularity=TYPE1_RESOLUTION_M,
+        analytic_type="tcm",
+        data_mode=DataMode.LIVE,
+    )
+    assembly = None
+    try:
+        assembly = adapter.fetch_heatmap(heatmap_req)
+    except Exception as exc:  # noqa: BLE001 — sanitize; never leak secrets
+        return {
+            "status": "acquisition_unavailable",
+            "vendor_attempted": True,
+            "message": (
+                "Bounded live acquisition failed. No secret material is returned. "
+                f"error_type={type(exc).__name__}"
+            ),
+            "preflight": preflight,
+        }
+    finally:
+        try:
+            client.close()
+        except Exception:  # noqa: BLE001
+            pass
+
+    assert assembly is not None
+    vendor_cache_hit = adapter.cache.get(assembly.fingerprint)
+    raw_payload = vendor_cache_hit[0] if vendor_cache_hit else {}
+    if not isinstance(raw_payload, dict):
+        raw_payload = {}
+    activity_id = raw_payload.get("activity_id")
+    record_payload = {
+        "activity_id": activity_id,
+        "city": city_config.city,
+        "tile_count": len(assembly.tiles),
+        "source": str(assembly.source),
+        "data_status": str(assembly.data_status),
+        "adapter_fingerprint": assembly.fingerprint,
+        "contract": "BOUNDED_SELECTED_TIME_LIVE_V1",
+    }
+    seeded = seed_type1_live_cache(parsed, payload=record_payload, cache=cache)
+    return {
+        "status": "live_acquired",
+        "vendor_attempted": True,
+        "cache_tier": None,
+        "preflight": preflight,
+        "result": _sanitize_public_payload(seeded),
+    }
 
 
 def run_type1_live(
@@ -380,7 +534,18 @@ def run_type1_live(
     dry_run: bool = False,
     cache: FortyGuardCache | None = None,
     settings: Settings | None = None,
+    bounded_selected_time_authorized: bool = False,
+    vendor_transport: Any | None = None,
+    poll_interval: float = 3.0,
+    poll_timeout: float = 600.0,
 ) -> dict[str, Any]:
+    """Cache-first Type-1 runner.
+
+    Without bounded_selected_time_authorized: GENERAL refuse on miss (no vendor).
+    With bounded_selected_time_authorized=True (selected-time route only): may
+    construct FortyGuardHttpClient when BOUNDED_SELECTED_TIME_LIVE_ENABLED and
+    Settings.fortyguard_api_key are present. may_construct_real_vendor stays False.
+    """
     parsed = (
         request
         if isinstance(request, Type1LiveClientRequest)
@@ -404,7 +569,19 @@ def run_type1_live(
             "vendor_attempted": False,
             "preflight": preflight,
         }
+    if bounded_selected_time_authorized:
+        current = settings if settings is not None else Settings()
+        return _bounded_selected_time_acquire(
+            parsed,
+            settings=current,
+            cache=active_cache,
+            preflight=preflight,
+            transport=vendor_transport,
+            poll_interval=poll_interval,
+            poll_timeout=poll_timeout,
+        )
     _gate = spend_gate_check(parsed, settings=settings)
+    del _gate
     raise _vendor_stage_disabled(settings=settings)
 
 
@@ -436,6 +613,7 @@ __all__ = [
     "Type1LiveClientRequest",
     "build_type1_request",
     "cache_fingerprint_for",
+    "construct_bounded_selected_time_http_client",
     "construct_vendor_stage",
     "default_cache_root",
     "dry_run_type1_preflight",

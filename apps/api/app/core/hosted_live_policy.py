@@ -1,8 +1,13 @@
 """Hosted live is OFF by default. Clients cannot enable a live vendor.
 
-Operator/server settings may flip a demo flag. This program still refuses
-real vendor construction. The Temporal program owns the one authorized live call.
-No FortyGuard import. No network.
+Operator/server settings may flip a demo flag. GENERAL real vendor construction
+stays refused via may_construct_real_vendor() / refuse_real_vendor() — always.
+HOSTED_LIVE_REAL_VENDOR_ENABLED must never authorize FortyGuardHttpClient.
+
+The sole construction path is bounded selected-time:
+construct_bounded_selected_time_http_client() in type1_live, only when
+BOUNDED_SELECTED_TIME_LIVE_ENABLED=true, only from POST /api/v1/live/selected-time.
+No FortyGuard import here. No network.
 """
 
 from __future__ import annotations
@@ -41,17 +46,17 @@ def resolve_hosted_live(
 
 
 def may_construct_real_vendor(settings: Settings | None = None) -> bool:
-    """Always False here. Client and demo config cannot change this."""
+    """Always False. GENERAL vendor. Client and demo config cannot change this."""
     del settings
     return False
 
 
 def refuse_real_vendor(settings: Settings | None = None) -> None:
-    """Call at any vendor-construction site. Always refuses."""
+    """Call at any GENERAL vendor-construction site. Always refuses."""
     del settings
     raise HostedLiveDisabledError(
-        "this program will not construct a live vendor; "
-        "Temporal owns the one authorized live call"
+        "this program will not construct a GENERAL live vendor; "
+        "bounded selected-time uses construct_bounded_selected_time_http_client only"
     )
 
 
