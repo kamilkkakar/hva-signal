@@ -20,16 +20,16 @@ These thirteen images are the only approved Phoenix UI visual references under `
 
 | File | Viewport | Purpose | Surface | SHA256 |
 |---|---|---|---|---|
-| `phoenix-landing-1440x900.png` | 1440×900 | First-read landing | desktop | `2bd4bd63ea61790a47c74df6e96e9010777d19120f2faf09e92f0ddc8c9eab80` |
-| `phoenix-thermal-map.png` | 1440×900 | Thermal map stage | desktop | `02bbec98d3201959ebdd50dcbec3ae937990de2e8798945660f4c07048b0c5e8` |
-| `phoenix-canopy-map.png` | 1440×900 | Tree canopy map mode | desktop | `bdd7123056464db57745989feec42a1d012bcaaaff02cd1373bdc949b795c955` |
-| `phoenix-income-map.png` | 1440×900 | Income map mode | desktop | `1ab69549088d39dba100893045ffdee0e2c1c5fe1cf020c308481dbd65e69b24` |
-| `phoenix-older-housing-map.png` | 1440×900 | Older housing map mode | desktop | `b20d390abfe4bfeb04ad11ba12490e8cc78ab4725fd5cee4fb13e58e4a17eba6` |
-| `phoenix-matched-night.png` | 1440×900 | Matched nighttime chart | desktop | `9828ca514a92219527032ff9234b85f814971362b57996a21545973d313fe5c4` |
-| `phoenix-observed-instants.png` | 1440×900 | Observed instants chart | desktop | `e1c9811e8ce519f117be24e28dbcf5d07ee8488a7f576d4f9f1d6f0a4ed19ddd` |
-| `phoenix-context.png` | 1440×900 | Local context panel | desktop | `a19c60aa18a85d7d17be3e0f7b8f0d53c80ddd3027a5e31c25f8509681b95a62` |
-| `phoenix-preparedness.png` | 1440×900 | Preparedness panel | desktop | `bb97be109d611977e086c1c8c7507e7e34475283e283bb872805dfc7145e32ee` |
-| `phoenix-direction.png` | 1440×900 | Direction / verify-next | desktop | `2c8d5207cc0323a0a61f49ea9347e9f05ab5ebb9367121d6cae264c1cee37d5b` |
-| `phoenix-method-provenance.png` | 1440×900 | Method / provenance disclosure | desktop | `150b06ab492ebb2a69b8c9cc5db2aae2bf4c7c09b0ee2bfd308069ccbefffb30` |
-| `phoenix-1024.png` | 1024×768 | Laptop first-read | desktop | `92821e12cb4db3671e228257d06bb83c8082c0d0deb005e98b721327c92049c1` |
-| `phoenix-mobile-390x844.png` | 390×844 | Mobile first-read + compact nav | mobile | `d70bf3c627434c104a0bb7b0fecc4fd94988573ba386ec2886c45f70f92efed4` |
+| `phoenix-landing-1440x900.png` | 1440×900 | First-read landing | desktop | `242b0e92fa8428c3c9dfdf859dd5e505465003d6bf337ff79e7ca6bcd2036e77` |
+| `phoenix-thermal-map.png` | 1440×900 | Thermal map stage | desktop | `79cc26e9aec52b1c58fd0063e7d1ee15b40dabfa605c699730423bbbcc261baa` |
+| `phoenix-canopy-map.png` | 1440×900 | Tree canopy map mode | desktop | `1b825cd7b8baf495c04ad4958ab226c2f3a27599d6dc64b462e104e730e18ace` |
+| `phoenix-income-map.png` | 1440×900 | Income map mode | desktop | `d48a02d8aca931ecc28ee1dd3949233b149f218fe0b17b5ac0988811f3c714e5` |
+| `phoenix-older-housing-map.png` | 1440×900 | Older housing map mode | desktop | `62968ddfbc39826f2cc52c1a848374beea18ecdd4f4c96ff83bac52b14cc1bdf` |
+| `phoenix-matched-night.png` | 1440×900 | Matched nighttime chart | desktop | `43dacdcfe916f66111d4ea545ce38bee809ec31e9e8373ff15dafdb2e182591d` |
+| `phoenix-observed-instants.png` | 1440×900 | Observed instants chart | desktop | `204cbb585a88043ca8e51b5d77bfc9fedb920f2d3b0d86cee5102026d6de72e7` |
+| `phoenix-context.png` | 1440×900 | Local context panel | desktop | `c800743409806c91bfc5e75602d05e932d93d181d31f72e4a2cc46e7c86eeae4` |
+| `phoenix-preparedness.png` | 1440×900 | Preparedness panel | desktop | `ca5f98708d2f90f7f8c5000da773155c25a0cc29072a38c1fcf107d56b962347` |
+| `phoenix-direction.png` | 1440×900 | Direction / verify-next | desktop | `31f36490a418a4a287f83c08243f0a749c9d89b60a79a7d750b2dabcd186b082` |
+| `phoenix-method-provenance.png` | 1440×900 | Method / provenance disclosure | desktop | `50f5fc49ba5fdeddea51ab4dd1939a8e06d94d8c74c1f5cc65e80680eac126d6` |
+| `phoenix-1024.png` | 1024×768 | Laptop first-read | desktop | `01b285bc294300e60e7a38af8abf137e0af1e717f9dbc3ce10b5d86851f3f01c` |
+| `phoenix-mobile-390x844.png` | 390×844 | Mobile first-read + compact nav | mobile | `20d1723d9bc96d1bb0020adebb8559c5231631f951cf6d7973f08653bed0d7f3` |

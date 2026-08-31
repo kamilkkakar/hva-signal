@@ -40,11 +40,11 @@ describe("experience charts", () => {
     const html = renderToStaticMarkup(
       createElement(MatchedNightChart, { view, areaLabel: "Analysis Area 1" }),
     );
-    expect(html).toContain("How have matched nighttime conditions changed?");
+    expect(html).toContain("Matched nighttime change");
     expect(html).toContain('data-viz="line-points"');
     expect(html).toContain("32.8 °C");
     expect(html).toContain("+1.60 °C");
-    expect(html).toContain("1.60 °C higher");
+    expect(html).toContain("Higher by 1.60 °C");
     expect(html).toContain("31 matched");
     expect(html).toContain(">°C<");
     expect(html).toContain(MATCHED_NOT_CLIMATE);
@@ -62,7 +62,7 @@ describe("experience charts", () => {
     expect(html).toContain(INSTANTS_GAP);
     expect(html).toContain("41.2 °C");
     expect(html).toContain("observed-high");
-    expect(html).toContain("Difference between observations");
+    expect(html).toContain("Gaps between observations");
     expect(html).toContain(">°C<");
     expect((html.match(/Interval not observed/g) ?? []).length).toBe(0);
     expect(html).not.toContain("24-HOUR CURVE");

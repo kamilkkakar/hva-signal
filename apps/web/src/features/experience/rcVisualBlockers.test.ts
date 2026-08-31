@@ -71,7 +71,7 @@ describe("RC visual blockers", () => {
     expect(html).not.toMatch(/data-testid="section-nav-next"[^>]*\bhidden=""/);
   });
 
-  it("compresses historical unavailable behind Why unavailable? and uses highest observed instant wording", () => {
+  it("compresses historical unavailable behind Why unavailable?", () => {
     const html = renderToStaticMarkup(
       createElement(ThermalHero, {
         selectedZoneId: "04013107401",
@@ -89,25 +89,13 @@ describe("RC visual blockers", () => {
           sentence: "Thermal differences across the analysis areas are too small.",
         },
         change2024vs2022: 1.54,
-        patternTitle: "Temporal change is stronger than spatial separation",
-        patternSummary: "Matched nighttime conditions were higher in 2024.",
-        evidenceSignals: [
-          { id: "observed_high", label: "Highest observed instant", value: "42.3°C\n15:00" },
-          {
-            id: "prep",
-            label: "Heat-relief resources",
-            value: "Not identified\nin available inventory",
-          },
-        ],
       }),
     );
     expect(html).toContain("Not available for this observation.");
     expect(html).toContain("Why unavailable?");
     expect(html).not.toMatch(/>Why\?</);
-    expect(html).toContain("Highest observed instant");
-    expect(html).toContain("Not identified");
     expect(html).not.toMatch(/no row/i);
     expect(html).not.toMatch(/fill_kind|Decision 8|q_A|job clock|payload/i);
-    expect(html).toContain('data-testid="evidence-pattern"');
+    expect(html).toContain('data-testid="hero-history"');
   });
 });

@@ -124,9 +124,6 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
                 </g>
               ))}
             </svg>
-            <p className="hx-note" data-testid="observed-interval-note">
-              {INSTANTS_GAP}
-            </p>
           </div>
           <aside className="hx-temporal-interpret">
             {high ? (
@@ -148,6 +145,9 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
             <details className="hx-method">
               <summary>About these observations</summary>
               <p>{INSTANTS_SUBTITLE}</p>
+              <p className="hx-note" data-testid="observed-interval-note">
+                {INSTANTS_GAP}
+              </p>
             </details>
           </aside>
         </div>

@@ -349,6 +349,61 @@
   margin-top: 0.75rem;
 }
 
+.hx-decision-brief {
+  margin: 0.75rem 1.25rem 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--hx-line);
+  background: linear-gradient(180deg, var(--hx-card) 0%, var(--hx-paper) 100%);
+}
+
+.hx-brief-summary {
+  margin: 0.35rem 0 0.75rem;
+  max-width: 62ch;
+  color: var(--hx-ink);
+  font-size: 1.02rem;
+  line-height: 1.45;
+}
+
+.hx-brief-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.hx-brief-grid article {
+  padding: 0.65rem 0.7rem;
+  background: var(--hx-paper);
+  border-top: 2px solid var(--hx-brass);
+}
+
+.hx-brief-grid h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.92rem;
+}
+
+.hx-brief-grid ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.hx-guided-next {
+  margin: 0.55rem 0 0;
+  font-size: 0.88rem;
+  color: var(--hx-muted);
+}
+
+.hx-guided-next a {
+  color: var(--hx-ink);
+  text-underline-offset: 2px;
+}
+
+.hx-map-about {
+  margin: 0.5rem 0 0;
+  max-width: 52ch;
+  font-size: 0.88rem;
+  color: var(--hx-muted);
+}
+
 .hx-decision-grid article {
   padding: 0.75rem;
   background: var(--hx-card);
@@ -824,6 +879,7 @@
   .hx-hero,
   .hx-metrics,
   .hx-decision-grid,
+  .hx-brief-grid,
   .hx-compare-grid,
   .hx-temporal-pair,
   .hx-temporal-layout {

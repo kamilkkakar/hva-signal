@@ -1,6 +1,6 @@
 import { analysisAreaLabel } from "@/features/selectedAreaStory/identity";
 import type { ContextComparison } from "./narrative";
-import { CONTEXT_TITLE } from "./copy";
+import { CONTEXT_LEAD, CONTEXT_TITLE } from "./copy";
 
 type ContextPanelProps = {
   comparisons: ContextComparison[];
@@ -17,8 +17,7 @@ export function ContextPanel({ comparisons, selectedZoneId }: ContextPanelProps)
     >
       <h2 id="context-title">{CONTEXT_TITLE}</h2>
       <p className="hx-section-lead">
-        {analysisAreaLabel(selectedZoneId) ?? "Select an analysis area"}. Context can strengthen,
-        weaken, or complicate the thermal reading — not a score.
+        {analysisAreaLabel(selectedZoneId) ?? "Select an analysis area"}. {CONTEXT_LEAD}
       </p>
       {comparisons.length === 0 ? (
         <p className="hx-missing">Local context for this analysis area is still loading.</p>
@@ -38,17 +37,14 @@ export function ContextPanel({ comparisons, selectedZoneId }: ContextPanelProps)
               {fact.comparisonAllowed && fact.comparison ? (
                 <span className="hx-card-cmp">
                   {fact.comparison === "higher"
-                    ? "Above analysis-geography median"
+                    ? "Above median"
                     : fact.comparison === "lower"
-                      ? "Below analysis-geography median"
-                      : "Similar to analysis-geography median"}
+                      ? "Below median"
+                      : "Near median"}
                 </span>
               ) : (
-                <em>Estimate shown with uncertainty. A higher/lower comparison is not published.</em>
+                <em>Uncertainty published; no higher/lower call.</em>
               )}
-              {fact.interpretation ? (
-                <span className="hx-card-interpret">{fact.interpretation}</span>
-              ) : null}
             </li>
           ))}
         </ul>

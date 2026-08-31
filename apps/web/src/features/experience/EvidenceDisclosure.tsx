@@ -7,7 +7,7 @@ type EvidenceDisclosureProps = {
 
 export function EvidenceDisclosure({ children }: EvidenceDisclosureProps) {
   return (
-    <details className="hx-disclosure" data-testid="evidence-disclosure">
+    <details className="hx-disclosure" id="methods" data-testid="evidence-disclosure">
       <summary>{ABOUT_SUMMARY}</summary>
       <p className="hx-note">{METHOD_SUMMARY}</p>
       {children}

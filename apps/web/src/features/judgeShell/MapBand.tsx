@@ -13,6 +13,7 @@ import type { JobStatus } from "@/types";
 import type { MapLayerState, RankingPresentation } from "@/utils/mapLayer";
 import { JudgeMap } from "./map/JudgeMap";
 import { buildJudgeMapCatalog, exploreMapState } from "./mapCatalog";
+import { MAP_ABOUT_BODY, MAP_ABOUT_LAYER } from "@/features/experience/copy";
 
 type MapBandProps = {
   layer: MapLayerState;
@@ -112,6 +113,10 @@ export function MapBand(props: MapBandProps) {
         selectedId={props.selectedZoneId ?? null}
         onSelectedIdChange={props.onSelectedIdChange}
       />
+      <details className="hx-method hx-map-about" data-testid="map-about-layer">
+        <summary>{MAP_ABOUT_LAYER}</summary>
+        <p>{MAP_ABOUT_BODY}</p>
+      </details>
     </section>
   );
 }

@@ -41,7 +41,7 @@ export function PreparednessPanel({
         {publicStatus(status)}
       </p>
       <div data-testid="story-support">
-        {sentences.map((line) => (
+        {sentences.slice(0, 2).map((line) => (
           <p key={line}>{line}</p>
         ))}
         <p className="hx-note">{PREP_DISCLAIMER}</p>
