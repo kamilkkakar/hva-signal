@@ -17,6 +17,7 @@ const REAL_SHOTS = [
   "cross-city-real-tucson-isolated",
   "cross-city-real-canopy-fill",
   "cross-city-real-temperature-fill",
+  "cross-city-real-tooltip",
   "cross-city-real-mobile",
 ] as const;
 
@@ -56,6 +57,12 @@ test.describe("cross-city real screenshots", () => {
     );
     await shotSection(page, "cross-city-real-temperature-fill");
     await page.getByTestId("cross-city-fill-canopy").click();
+
+    // Tooltip / hover evidence
+    const bubble = page.locator("[data-testid='cross-city-bubble-explorer'] circle").first();
+    await bubble.hover({ force: true });
+    await expect(page.getByTestId("cross-city-tooltip")).toBeVisible();
+    await shotSection(page, "cross-city-real-tooltip");
 
     const isolates: Array<{ label: string; file: string }> = [
       { label: "Only show Phoenix, AZ", file: "cross-city-real-phoenix-isolated" },

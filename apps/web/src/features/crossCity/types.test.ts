@@ -18,8 +18,8 @@ describe("cross-city defaults", () => {
   it("keeps the fixed comparison clock and default encodings", () => {
     expect(CROSS_CITY_COMPARISON_CLOCK_LOCAL).toBe("2024-07-08 15:00");
     expect(CROSS_CITY_DEFAULT_ENCODINGS).toEqual({
-      x: "selectedTimeTemperatureC",
-      y: "medianHouseholdIncomeUsd",
+      x: "treeCanopyPct",
+      y: "selectedTimeTemperatureC",
       size: "population",
       fill: "treeCanopyPct",
     });

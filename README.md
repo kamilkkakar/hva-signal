@@ -2,15 +2,121 @@
 
 **3K Labs** · Heat, Vulnerability & Action Signal
 
-**FortyGuard** is the thermal intelligence backbone: dated zone-mean thermal observations on a 25-area analysis window.
+Comparable selected-time thermal observations, context, and decision framing — without inventing rankings the evidence cannot defend.
 
-**HVA-Signal** adds what the thermal field alone does not: historical reasoning, change-over-time interpretation, context and vulnerability (not scored), preparedness inventory status, decision direction, and an intervention-verification pathway.
+**FortyGuard** is the thermal intelligence backbone (Type-1 TCM). **HVA-Signal** adds historical reasoning, change-over-time interpretation, context (not scored), preparedness inventory status, decision direction, and an intervention-verification pathway.
 
 The public path is accountless. Default data mode is `DATA_MODE=replay`. Hosted live acquisition is **disabled**. Runtime reads tracked product data only — it does not depend on `workforce/`.
 
 ---
 
-## Contents
+## Live demo
+
+Public Render validation (free tier; may sleep when idle):
+
+- Web: see Deploy notes after blueprint sync — typically `urban-thermal-web.onrender.com`
+- API health: paired `urban-thermal-api` service `/health`
+
+No login. Leave **Data mode** on **Replay**. Scroll to **Cross-City Explorer** for the four-city comparison, or use the Phoenix local analysis above it.
+
+![Cross-City Explorer — canopy × temperature default](docs/multicity/screenshots/cross-city-real-default.png)
+
+---
+
+## Why this exists
+
+Municipal heat tools still collapse into **one map that ranks every night**. When the thermal field is flat, that ranking is a manufactured targeting list. HVA-Signal separates observe → contextualize → change → context → verify → act, and **withholds** order when spread cannot defend it.
+
+---
+
+## Experience (what judges see)
+
+1. **Phoenix local command center** — Historical Thermal Position, selected-time snapshot, matched nights, observed instants, context/preparedness, Action framing (`phoenix-demo`, design contract frozen).
+2. **Cross-City Explorer** — four curated cities · 100 comparison areas · FortyGuard selected-time TCM · **8 Jul 2024 at 15:00 local** civil clock.
+   - Default: **X = tree canopy (%)**, **Y = selected-time temperature (°C)**, **size = population**, **city = hue family**, **fill shade = canopy** on `CROSS_CITY_CANOPY_DISPLAY_SCALE_V1` (0–25%, shared, end-capped).
+   - Patterns are descriptive and do not establish causal relationships.
+   - Yuma / Palm Springs heat-extreme candidates remain **blocked** on ALG1 geography (see `docs/multicity/HOT_CITY_EXPANSION_PREFLIGHT.md`). No hotter-than-Phoenix claims.
+
+---
+
+## Explorer encoding
+
+| Channel | Meaning |
+|---------|---------|
+| Color family | City (OKLCH hue) |
+| Shade | Selected fill metric intensity within that hue |
+| Shared canopy scale | `CROSS_CITY_CANOPY_DISPLAY_SCALE_V1` — not stretched to visible cities |
+| Outline | Darker shade of the city hue |
+| Selection / hover | Neutral copper/black halo |
+
+---
+
+## Evidence & safeguards
+
+- Real cached/replay FortyGuard Type-1 TCM for Phoenix, Las Vegas, Tucson, Los Angeles under `CROSS_CITY_OBSERVATION_V1`.
+- ACS 2020–2024 context + NLCD TCC 2021 canopy under `CROSS_CITY_CANOPY_CONTRACT_V1`.
+- Public live vendor **OFF**. Hosted end-user vendor triggering **OFF**. Allowance **0**.
+- No user login/auth. No FortyGuard keys in the browser.
+- TCM is **not** WBGT / heat burden / exposure (`docs/product/WBGT_ENVIRONMENTAL_HEAT_STRESS_FUTURE.md`).
+- Multi-instant thermal profiles are roadmap only (`docs/product/CROSS_CITY_THERMAL_PROFILE_V1.md`).
+
+---
+
+## Architecture (concise)
+
+| Layer | Role |
+|-------|------|
+| `apps/web` | Accountless React command center + Cross-City Explorer |
+| `apps/api` | FastAPI · replay-first · cache-only public GETs |
+| `data/` | Frozen Phoenix panel, cross-city geographies, ACS, canopy, Type-1 acquisitions |
+| `infra/render.yaml` | Free-tier Render blueprint · live vendor flags false |
+
+```mermaid
+flowchart LR
+  FG["FortyGuard TCM<br/>cached Type-1"]
+  HVA["HVA-Signal"]
+  FG --> HVA
+  HVA --> PHX["Phoenix local stories"]
+  HVA --> XC["Cross-City Explorer"]
+```
+
+---
+
+## Local run
+
+```bash
+# API (from apps/api)
+pip install -e ".[dev]"
+uvicorn app.main:app --reload --port 8000
+
+# Web (from apps/web)
+npm install
+npm run dev
+```
+
+Docker Compose: see `infra/`. Keep `DATA_MODE=replay`. Do not set public live vendor flags.
+
+---
+
+## Status
+
+| Surface | Status |
+|---------|--------|
+| Phoenix local judge experience | **Published** (design contract `safety/phoenix-design-approved-615195d`) |
+| Cross-City Explorer (4 cities / 100 areas) | **Published** · city-spectrum encoding |
+| Yuma / Palm Springs | **Blocked** — ALG1 geography |
+| WBGT | **Not shipped** |
+| Cross-city thermal profile | **Roadmap only** |
+
+---
+
+## Hackathon
+
+Built for comparable multi-city thermal + context exploration on frozen geographies, with spend-gated vendor acquisition and fail-closed public defaults.
+
+---
+
+## Contents (full product docs)
 
 1. [Overview](#1-overview)
 2. [Problem](#2-problem)
@@ -145,6 +251,7 @@ Statuses below match the shipped JudgeShell and cache-only APIs.
 | **Matched Nighttime Change** | **AVAILABLE NOW** | Same calendar dates, same 03:00 hour, 2022 / 2023 / 2024 |
 | **Observed Thermal Instants** | **AVAILABLE NOW** | Four named observations on 8–9 Jul 2024. Gaps are unobserved |
 | **Context / Preparedness** | **AVAILABLE NOW** | Published ACS, canopy, and inventory status. Not scored |
+| **Cross-City Explorer** | **AVAILABLE NOW** | Four-city canopy × temperature comparison · city-spectrum encoding · cached Type-1 TCM |
 | **Action** | **AVAILABLE NOW — decision framing only** | Decision 8 authorize / withhold translation |
 | **Intervention Verification** | **ACTIVE DEVELOPMENT & VALIDATION** | Pathway and case copy. No public effect claim |
 
@@ -154,7 +261,7 @@ Not shipped calculations (no public number, gauge, or map layer):
 |---|---|
 | HeatDose | Not shipped — research only |
 | AfterHeat | Not shipped — research only |
-| WBGT | Not shipped — research only |
+| WBGT | Not shipped — future pathway only (`docs/product/WBGT_ENVIRONMENTAL_HEAT_STRESS_FUTURE.md`) |
 | Probability | Not shipped — research only |
 
 HVA-Signal does not expose a metric simply because it can be calculated.

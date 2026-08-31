@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.domain.multicity.capabilities import negotiate_capabilities
 from app.domain.multicity.catalog import get_city, list_cities
 from app.domain.multicity.city_config import CityConfig, CityId
-from app.domain.multicity.cross_city_acs import acs_metric
+from app.domain.multicity.cross_city_acs import acs_metric, acs_share_pct
 from app.domain.multicity.cross_city_canopy import canopy_pct_for
 from app.domain.multicity.cross_city_thermal import thermal_mean_c_for
 from app.domain.multicity.observation_clock import (
@@ -144,7 +144,7 @@ def _city_rows(city: CityConfig) -> list[CrossCityMetricRow]:
         geoid = str(props["GEOID"]).zfill(11)
         income = acs_metric(city_dir, geoid, "median_household_income")
         population_value = acs_metric(city_dir, geoid, "population")
-        older = acs_metric(city_dir, geoid, "homes_built_before_1980")
+        older = acs_share_pct(city_dir, geoid, "homes_built_before_1980")
         canopy = canopy_pct_for(city_dir, geoid)
         temperature = thermal_mean_c_for(city_dir, geoid)
         missing_reasons: dict[str, str] = {}
@@ -157,7 +157,9 @@ def _city_rows(city: CityConfig) -> list[CrossCityMetricRow]:
         if canopy is None:
             missing_reasons["tree_canopy_pct"] = "National canopy value missing."
         if older is None:
-            missing_reasons["homes_built_before_1980"] = "ACS older-housing estimate missing."
+            missing_reasons["homes_built_before_1980"] = (
+                "ACS older-housing share missing."
+            )
         rows.append(
             CrossCityMetricRow(
                 city_id=city.city_id,
@@ -246,8 +248,8 @@ def get_city_capabilities(city_id: str) -> CapabilityView:
 def get_cross_city_metrics() -> CrossCityMetricsResponse:
     return _build_metrics_response(
         axes=CrossCityAxes(
-            x=MetricAxis.TEMPERATURE_C,
-            y=MetricAxis.MEDIAN_HOUSEHOLD_INCOME,
+            x=MetricAxis.TREE_CANOPY_PCT,
+            y=MetricAxis.TEMPERATURE_C,
             size=MetricAxis.POPULATION,
             fill=MetricAxis.TREE_CANOPY_PCT,
         )

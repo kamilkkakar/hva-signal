@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { globalFillColor, metricDomain, radiusFromPopulation } from "./scale";
+import {
+  CROSS_CITY_CANOPY_DISPLAY_SCALE_V1,
+  canopyDisplayDomain,
+} from "./canopyDisplayScale";
+import { metricDomain, radiusFromPopulation } from "./scale";
 import type { CrossCityAreaRecord } from "./types";
 
 const records: CrossCityAreaRecord[] = [
@@ -13,6 +17,7 @@ const records: CrossCityAreaRecord[] = [
       medianHouseholdIncomeUsd: 55_000,
       population: 100_000,
       treeCanopyPct: 8,
+      olderHousingPct: 40,
     },
   },
   {
@@ -25,6 +30,7 @@ const records: CrossCityAreaRecord[] = [
       medianHouseholdIncomeUsd: 62_000,
       population: 400_000,
       treeCanopyPct: 18,
+      olderHousingPct: 55,
     },
   },
 ];
@@ -40,10 +46,10 @@ describe("cross-city scales", () => {
     expect(large).toBeCloseTo((small ?? 0) * 2, 1);
   });
 
-  it("uses one global canopy fill scale", () => {
-    const domain = metricDomain(records, "treeCanopyPct");
-    expect(globalFillColor(8, domain)).toBe("rgb(233, 245, 237)");
-    expect(globalFillColor(18, domain)).toBe("rgb(32, 94, 65)");
-    expect(globalFillColor(null, domain)).toBeNull();
+  it("uses fixed CROSS_CITY_CANOPY_DISPLAY_SCALE_V1, not visible-city stretch", () => {
+    expect(CROSS_CITY_CANOPY_DISPLAY_SCALE_V1.domainMin).toBe(0);
+    expect(CROSS_CITY_CANOPY_DISPLAY_SCALE_V1.domainMax).toBe(25);
+    expect(metricDomain(records, "treeCanopyPct")).toEqual(canopyDisplayDomain());
+    expect(metricDomain(records, "treeCanopyPct")).not.toEqual({ min: 8, max: 18 });
   });
 });

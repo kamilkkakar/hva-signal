@@ -23,6 +23,8 @@ type FlatAreaDto = {
   population?: unknown;
   tree_canopy_pct?: unknown;
   tree_canopy_percent?: unknown;
+  homes_built_before_1980?: unknown;
+  older_housing_pct?: unknown;
 };
 
 type NestedCityDto = {
@@ -65,6 +67,12 @@ function normalizeCityId(value: string | null | undefined): CrossCityId | null {
   ) {
     return "los-angeles-ca";
   }
+  if (raw.includes("yuma")) {
+    return null;
+  }
+  if (raw.includes("palm springs") || raw.includes("palm-springs")) {
+    return null;
+  }
   return null;
 }
 
@@ -104,6 +112,9 @@ function normalizeAreaRecord(
       ),
       population: toNumber(area.population),
       treeCanopyPct: toNumber(area.tree_canopy_pct ?? area.tree_canopy_percent),
+      olderHousingPct: toNumber(
+        area.older_housing_pct ?? area.homes_built_before_1980,
+      ),
     },
   };
 }

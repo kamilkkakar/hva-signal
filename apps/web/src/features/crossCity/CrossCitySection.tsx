@@ -4,9 +4,13 @@ import { CityLegend } from "./CityLegend";
 import { CitySelector } from "./CitySelector";
 import { fetchCrossCityMetrics } from "./fetchMetrics";
 import {
+  CROSS_CITY_AXIS_OPTIONS,
   CROSS_CITY_CITY_ALLOWLIST,
   CROSS_CITY_COMPARISON_CLOCK_LOCAL,
+  CROSS_CITY_DEFAULT_ENCODINGS,
+  CROSS_CITY_FILL_OPTIONS,
   cityMeta,
+  type CrossCityFillKey,
   type CrossCityId,
   type CrossCityMetricKey,
   type CrossCityMetricsResponse,
@@ -22,11 +26,11 @@ export const CROSS_CITY_SECTION_COPY = {
   kicker: "COMPARE ACROSS CITIES",
   title: "Cross-City Explorer",
   lead:
-    "Explore how thermal conditions and local context overlap across analysis areas in different cities.",
+    "How do thermal conditions vary across comparison areas with different levels of tree canopy?",
   caution:
-    "Patterns in this view are descriptive and do not establish causal relationships.",
+    "Patterns are descriptive and do not establish causal relationships.",
   missing:
-    "Missing tree canopy is shown with a hatched fill. Areas missing temperature or income stay off the plot and are counted below.",
+    "Missing fill values use a hatched pattern. Areas missing the selected X or Y metric stay off the plot and are counted below.",
 } as const;
 
 const ALL_CITY_IDS = CROSS_CITY_CITY_ALLOWLIST.map((city) => city.id);
@@ -41,7 +45,10 @@ function includesCity(
 export function CrossCitySection() {
   const [selectedCityId, setSelectedCityId] = useState<CrossCityId>("phoenix-az");
   const [activeCityIds, setActiveCityIds] = useState<readonly CrossCityId[]>(ALL_CITY_IDS);
-  const [fillMetric, setFillMetric] = useState<CrossCityMetricKey>("treeCanopyPct");
+  const [xMetric, setXMetric] = useState<CrossCityMetricKey>(CROSS_CITY_DEFAULT_ENCODINGS.x);
+  const [yMetric, setYMetric] = useState<CrossCityMetricKey>(CROSS_CITY_DEFAULT_ENCODINGS.y);
+  const [fillMetric, setFillMetric] = useState<CrossCityFillKey>(CROSS_CITY_DEFAULT_ENCODINGS.fill);
+  const [forceComparisonScale, setForceComparisonScale] = useState(false);
   const [state, setState] = useState<LoadState>({ status: "loading" });
 
   useEffect(() => {
@@ -88,19 +95,25 @@ export function CrossCitySection() {
 
   function showAll() {
     setActiveCityIds(ALL_CITY_IDS);
+    setForceComparisonScale(false);
   }
 
   function toggleCity(cityId: CrossCityId) {
-    setActiveCityIds((current) =>
-      includesCity(current, cityId)
+    setActiveCityIds((current) => {
+      const next = includesCity(current, cityId)
         ? current.filter((value) => value !== cityId)
-        : [...current, cityId],
-    );
+        : [...current, cityId];
+      if (next.length !== 1) {
+        setForceComparisonScale(false);
+      }
+      return next;
+    });
   }
 
   function isolateCity(cityId: CrossCityId) {
     setSelectedCityId(cityId);
     setActiveCityIds([cityId]);
+    setForceComparisonScale(false);
   }
 
   function selectCity(cityId: CrossCityId) {
@@ -149,28 +162,71 @@ export function CrossCitySection() {
             </>
           )}
         </div>
+        <div className="hx-cc-open-panel" data-testid="cross-city-axis-controls">
+          <p className="hx-kicker">Axes</p>
+          <label className="hx-cc-field">
+            <span>X</span>
+            <select
+              value={xMetric}
+              aria-label="X axis metric"
+              data-testid="cross-city-x-select"
+              onChange={(event) => setXMetric(event.target.value as CrossCityMetricKey)}
+            >
+              {CROSS_CITY_AXIS_OPTIONS.map((option) => (
+                <option key={option.key} value={option.key}>
+                  {option.shortLabel}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="hx-cc-field">
+            <span>Y</span>
+            <select
+              value={yMetric}
+              aria-label="Y axis metric"
+              data-testid="cross-city-y-select"
+              onChange={(event) => setYMetric(event.target.value as CrossCityMetricKey)}
+            >
+              {CROSS_CITY_AXIS_OPTIONS.map((option) => (
+                <option key={option.key} value={option.key}>
+                  {option.shortLabel}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
         <div className="hx-cc-open-panel" data-testid="cross-city-fill-controls">
-          <p className="hx-kicker">Fill</p>
+          <p className="hx-kicker">Fill shade</p>
           <div className="hx-cc-fill-buttons">
-            <button
-              type="button"
-              className="hx-cc-open-link"
-              data-testid="cross-city-fill-canopy"
-              aria-pressed={fillMetric === "treeCanopyPct"}
-              onClick={() => setFillMetric("treeCanopyPct")}
-            >
-              Tree canopy
-            </button>
-            <button
-              type="button"
-              className="hx-cc-open-link"
-              data-testid="cross-city-fill-temperature"
-              aria-pressed={fillMetric === "selectedTimeTemperatureC"}
-              onClick={() => setFillMetric("selectedTimeTemperatureC")}
-            >
-              Temperature
-            </button>
+            {CROSS_CITY_FILL_OPTIONS.map((option) => {
+              const testId =
+                option.key === "treeCanopyPct"
+                  ? "cross-city-fill-canopy"
+                  : option.key === "selectedTimeTemperatureC"
+                    ? "cross-city-fill-temperature"
+                    : option.key === "medianHouseholdIncomeUsd"
+                      ? "cross-city-fill-income"
+                      : option.key === "olderHousingPct"
+                        ? "cross-city-fill-older-housing"
+                        : "cross-city-fill-none";
+              return (
+                <button
+                  key={option.key}
+                  type="button"
+                  className="hx-cc-open-link"
+                  data-testid={testId}
+                  aria-pressed={fillMetric === option.key}
+                  onClick={() => setFillMetric(option.key)}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
           </div>
+          <p className="hx-note">
+            City stays the hue family. Changing fill only changes shade intensity within that
+            family.
+          </p>
         </div>
       </div>
 
@@ -202,14 +258,23 @@ export function CrossCitySection() {
         <>
           <div className="hx-cc-summary" data-testid="cross-city-summary">
             <p>
-              {summary.cities} cities · {summary.areas} comparison areas · {summary.withTemp} with
-              published selected-time temperature · observation {comparisonClock} local ·
-              FortyGuard Type-1 TCM.
+              {summary.cities} cities · {summary.areas} comparison areas · FortyGuard selected-time
+              thermal observations · 8 Jul 2024 at 15:00 local · Type-1 TCM
             </p>
+            <details className="hx-cc-methods">
+              <summary>Methods &amp; encoding</summary>
+              <p>
+                Default encodings: X = tree canopy (%), Y = selected-time temperature (°C), size =
+                population, city = hue family, fill intensity = tree canopy on{" "}
+                <code>CROSS_CITY_CANOPY_DISPLAY_SCALE_V1</code> (0–25%, shared, end-capped). Patterns
+                are descriptive only.
+              </p>
+            </details>
           </div>
           <CityLegend
             activeCityIds={activeCityIds}
             selectedCityId={selectedCityId}
+            fillMetric={fillMetric}
             onToggle={toggleCity}
             onIsolate={isolateCity}
             onShowAll={showAll}
@@ -218,7 +283,12 @@ export function CrossCitySection() {
             records={state.data.areas}
             activeCityIds={activeCityIds}
             selectedCityId={selectedCityId}
+            xMetric={xMetric}
+            yMetric={yMetric}
             fillMetric={fillMetric}
+            forceComparisonScale={forceComparisonScale}
+            onRequestComparisonScale={() => setForceComparisonScale(true)}
+            onRequestFocusedScale={() => setForceComparisonScale(false)}
           />
         </>
       ) : null}

@@ -155,8 +155,8 @@ def test_cross_city_metrics_binds_non_thermal_for_all_cities() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["axes"] == {
-        "x": "temperature_c",
-        "y": "median_household_income",
+        "x": "tree_canopy_pct",
+        "y": "temperature_c",
         "size": "population",
         "fill": "tree_canopy_pct",
     }
@@ -170,6 +170,9 @@ def test_cross_city_metrics_binds_non_thermal_for_all_cities() -> None:
         assert all(row["tree_canopy_pct"] is not None for row in rows)
         assert all(row["label"].startswith("Comparison Area ") for row in rows)
         assert all(row["temperature_c"] is not None for row in rows)
+        # Older housing is share of units (%), not raw ACS count.
+        older = [row["homes_built_before_1980"] for row in rows]
+        assert all(v is None or (0.0 <= float(v) <= 100.0) for v in older)
 
     queried = client.get(
         "/api/v1/cross-city/query",

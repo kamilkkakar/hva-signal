@@ -11,6 +11,7 @@ Canonical visual QA set for `CROSS_CITY_OBSERVATION_V1` on `feat/multicity-explo
 - `cross-city-real-tucson-isolated.png`
 - `cross-city-real-canopy-fill.png`
 - `cross-city-real-temperature-fill.png`
+- `cross-city-real-tooltip.png`
 - `cross-city-real-mobile.png`
 
 ## Rules

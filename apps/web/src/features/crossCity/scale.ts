@@ -1,10 +1,23 @@
 import type { CrossCityAreaRecord, CrossCityMetricKey } from "./types";
+import { canopyDisplayDomain } from "./canopyDisplayScale";
+import { citySpectrumFill } from "./colors";
+import { ACTIVE_THERMAL_DISPLAY_SCALE } from "@/features/mapEncoding/thermalDisplayScale";
 
 export type NumericDomain = { min: number; max: number };
 
 const POPULATION_MAX_RADIUS = 26;
-const FILL_LOW = [233, 245, 237] as const;
-const FILL_HIGH = [32, 94, 65] as const;
+
+/** Fixed income display band for fill intensity (USD). Not visible-city stretch. */
+export const CROSS_CITY_INCOME_DISPLAY_DOMAIN: NumericDomain = {
+  min: 20_000,
+  max: 160_000,
+};
+
+/** Older-housing share display band (% of units built before 1980). */
+export const CROSS_CITY_OLDER_HOUSING_DISPLAY_DOMAIN: NumericDomain = {
+  min: 0,
+  max: 100,
+};
 
 export function metricValue(
   record: CrossCityAreaRecord,
@@ -13,10 +26,29 @@ export function metricValue(
   return record.metrics[metric];
 }
 
+/**
+ * Shared quantitative domain across the full published payload.
+ * Never rescale to the currently visible / isolated city set.
+ */
 export function metricDomain(
   records: readonly CrossCityAreaRecord[],
   metric: CrossCityMetricKey,
 ): NumericDomain | null {
+  if (metric === "treeCanopyPct") {
+    return canopyDisplayDomain();
+  }
+  if (metric === "selectedTimeTemperatureC") {
+    return {
+      min: ACTIVE_THERMAL_DISPLAY_SCALE.domainMin,
+      max: ACTIVE_THERMAL_DISPLAY_SCALE.domainMax,
+    };
+  }
+  if (metric === "medianHouseholdIncomeUsd") {
+    return CROSS_CITY_INCOME_DISPLAY_DOMAIN;
+  }
+  if (metric === "olderHousingPct") {
+    return CROSS_CITY_OLDER_HOUSING_DISPLAY_DOMAIN;
+  }
   const values = records
     .map((record) => metricValue(record, metric))
     .filter((value): value is number => value != null && Number.isFinite(value));
@@ -27,6 +59,28 @@ export function metricDomain(
     min: Math.min(...values),
     max: Math.max(...values),
   };
+}
+
+/** Axis domain from an explicit record subset (e.g. focused single-city scale). */
+export function axisDomainFromRecords(
+  records: readonly CrossCityAreaRecord[],
+  metric: CrossCityMetricKey,
+  paddingRatio = 0.08,
+): NumericDomain | null {
+  const values = records
+    .map((record) => metricValue(record, metric))
+    .filter((value): value is number => value != null && Number.isFinite(value));
+  if (values.length === 0) {
+    return null;
+  }
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  if (min === max) {
+    const pad = Math.max(Math.abs(min) * paddingRatio, metric === "treeCanopyPct" ? 0.5 : 1);
+    return { min: min - pad, max: max + pad };
+  }
+  const pad = (max - min) * paddingRatio;
+  return { min: min - pad, max: max + pad };
 }
 
 export function radiusFromPopulation(
@@ -40,19 +94,25 @@ export function radiusFromPopulation(
   return Number(((Math.sqrt(population) / Math.sqrt(max)) * POPULATION_MAX_RADIUS).toFixed(2));
 }
 
-function interpolate(start: number, end: number, ratio: number): number {
-  return Math.round(start + (end - start) * ratio);
-}
-
+/** @deprecated Prefer citySpectrumFill — kept for test migration clarity. */
 export function globalFillColor(
   value: number | null,
   domain: NumericDomain | null,
+  cityId: CrossCityAreaRecord["cityId"] = "phoenix-az",
 ): string | null {
-  if (value == null || !Number.isFinite(value) || domain == null) {
-    return null;
+  return citySpectrumFill(cityId, value, domain, { metric: "treeCanopyPct" });
+}
+
+export function fillColorForMetric(
+  cityId: CrossCityAreaRecord["cityId"],
+  fillMetric: CrossCityMetricKey | "none",
+  value: number | null,
+  domain: NumericDomain | null,
+): string | null {
+  if (fillMetric === "none") {
+    return citySpectrumFill(cityId, null, null, { metric: "none" });
   }
-  const span = domain.max - domain.min;
-  const ratio = span <= 0 ? 0.5 : Math.max(0, Math.min(1, (value - domain.min) / span));
-  const rgb = FILL_LOW.map((start, index) => interpolate(start, FILL_HIGH[index] ?? start, ratio));
-  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+  return citySpectrumFill(cityId, value, domain, {
+    metric: fillMetric === "treeCanopyPct" ? "treeCanopyPct" : "other",
+  });
 }

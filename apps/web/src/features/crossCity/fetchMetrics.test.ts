@@ -31,6 +31,7 @@ describe("cross-city metrics client", () => {
           medianHouseholdIncomeUsd: 58000,
           population: 105000,
           treeCanopyPct: 12.5,
+          olderHousingPct: null,
         },
       },
     ]);
