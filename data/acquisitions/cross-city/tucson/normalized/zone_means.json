@@ -1,0 +1,274 @@
+{
+  "city_id": "tucson",
+  "observation_contract": "CROSS_CITY_OBSERVATION_V1",
+  "local_timestamp": "2024-07-08T15:00:00",
+  "provider_utc": "2024-07-08T22:00:00Z",
+  "activity_id": "d6336b48-fc75-4571-b86c-2dcc56e3d84f",
+  "aggregation": {
+    "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN",
+    "usable_count": 25,
+    "missing_count": 0,
+    "missing": [],
+    "rows": [
+      {
+        "city_id": "tucson",
+        "area_id": "04019003302",
+        "tract_geoid": "04019003302",
+        "contributing_cells": 256,
+        "mean_tcm_c": 41.284656640625,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019003502",
+        "tract_geoid": "04019003502",
+        "contributing_cells": 257,
+        "mean_tcm_c": 41.216999221789884,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019003503",
+        "tract_geoid": "04019003503",
+        "contributing_cells": 167,
+        "mean_tcm_c": 41.23631377245509,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019003504",
+        "tract_geoid": "04019003504",
+        "contributing_cells": 135,
+        "mean_tcm_c": 41.21548814814815,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019003505",
+        "tract_geoid": "04019003505",
+        "contributing_cells": 222,
+        "mean_tcm_c": 41.15945990990991,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019003506",
+        "tract_geoid": "04019003506",
+        "contributing_cells": 141,
+        "mean_tcm_c": 41.23592411347518,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019003601",
+        "tract_geoid": "04019003601",
+        "contributing_cells": 643,
+        "mean_tcm_c": 41.1929732503888,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004008",
+        "tract_geoid": "04019004008",
+        "contributing_cells": 247,
+        "mean_tcm_c": 41.16983846153846,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004010",
+        "tract_geoid": "04019004010",
+        "contributing_cells": 193,
+        "mean_tcm_c": 41.07865699481865,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004029",
+        "tract_geoid": "04019004029",
+        "contributing_cells": 256,
+        "mean_tcm_c": 40.8591203125,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004033",
+        "tract_geoid": "04019004033",
+        "contributing_cells": 128,
+        "mean_tcm_c": 41.11534609375,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004034",
+        "tract_geoid": "04019004034",
+        "contributing_cells": 120,
+        "mean_tcm_c": 41.11702083333333,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004035",
+        "tract_geoid": "04019004035",
+        "contributing_cells": 205,
+        "mean_tcm_c": 40.9152443902439,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004036",
+        "tract_geoid": "04019004036",
+        "contributing_cells": 128,
+        "mean_tcm_c": 40.88794609375,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004037",
+        "tract_geoid": "04019004037",
+        "contributing_cells": 128,
+        "mean_tcm_c": 40.898121875,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004038",
+        "tract_geoid": "04019004038",
+        "contributing_cells": 128,
+        "mean_tcm_c": 40.89384765625,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004056",
+        "tract_geoid": "04019004056",
+        "contributing_cells": 195,
+        "mean_tcm_c": 40.95731128205128,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004057",
+        "tract_geoid": "04019004057",
+        "contributing_cells": 344,
+        "mean_tcm_c": 40.77790465116279,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004058",
+        "tract_geoid": "04019004058",
+        "contributing_cells": 668,
+        "mean_tcm_c": 40.78688877245509,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004063",
+        "tract_geoid": "04019004063",
+        "contributing_cells": 1811,
+        "mean_tcm_c": 40.65888724461623,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004075",
+        "tract_geoid": "04019004075",
+        "contributing_cells": 155,
+        "mean_tcm_c": 40.9514535483871,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004076",
+        "tract_geoid": "04019004076",
+        "contributing_cells": 206,
+        "mean_tcm_c": 40.95649660194175,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004077",
+        "tract_geoid": "04019004077",
+        "contributing_cells": 161,
+        "mean_tcm_c": 40.98110745341615,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019004078",
+        "tract_geoid": "04019004078",
+        "contributing_cells": 255,
+        "mean_tcm_c": 40.944320000000005,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "tucson",
+        "area_id": "04019980300",
+        "tract_geoid": "04019980300",
+        "contributing_cells": 3957,
+        "mean_tcm_c": 40.96339706848622,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      }
+    ],
+    "qa": {
+      "min_c": 40.65888724461623,
+      "max_c": 41.284656640625,
+      "mean_of_means_c": 41.01818897561972,
+      "median_c": 40.96339706848622,
+      "spread_c": 0.6257693960087707,
+      "usable": 25,
+      "missing": 0
+    }
+  }
+}

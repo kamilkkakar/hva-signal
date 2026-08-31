@@ -1,0 +1,274 @@
+{
+  "city_id": "las_vegas",
+  "observation_contract": "CROSS_CITY_OBSERVATION_V1",
+  "local_timestamp": "2024-07-08T15:00:00",
+  "provider_utc": "2024-07-08T22:00:00Z",
+  "activity_id": "5d9b16ed-1257-42fb-8d07-7dbb1c80a3a8",
+  "aggregation": {
+    "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN",
+    "usable_count": 25,
+    "missing_count": 0,
+    "missing": [],
+    "rows": [
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003003",
+        "tract_geoid": "32003003003",
+        "contributing_cells": 164,
+        "mean_tcm_c": 41.721841463414634,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003004",
+        "tract_geoid": "32003003004",
+        "contributing_cells": 60,
+        "mean_tcm_c": 41.72981333333333,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003005",
+        "tract_geoid": "32003003005",
+        "contributing_cells": 133,
+        "mean_tcm_c": 41.73246691729323,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003102",
+        "tract_geoid": "32003003102",
+        "contributing_cells": 147,
+        "mean_tcm_c": 41.79352925170068,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003103",
+        "tract_geoid": "32003003103",
+        "contributing_cells": 74,
+        "mean_tcm_c": 41.81048513513513,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003104",
+        "tract_geoid": "32003003104",
+        "contributing_cells": 78,
+        "mean_tcm_c": 41.78431153846154,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003215",
+        "tract_geoid": "32003003215",
+        "contributing_cells": 145,
+        "mean_tcm_c": 41.516566206896556,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003219",
+        "tract_geoid": "32003003219",
+        "contributing_cells": 223,
+        "mean_tcm_c": 41.312235426008975,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003220",
+        "tract_geoid": "32003003220",
+        "contributing_cells": 297,
+        "mean_tcm_c": 41.29526060606061,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003245",
+        "tract_geoid": "32003003245",
+        "contributing_cells": 153,
+        "mean_tcm_c": 41.62540196078431,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003246",
+        "tract_geoid": "32003003246",
+        "contributing_cells": 128,
+        "mean_tcm_c": 41.6368890625,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003247",
+        "tract_geoid": "32003003247",
+        "contributing_cells": 139,
+        "mean_tcm_c": 41.717346762589926,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003248",
+        "tract_geoid": "32003003248",
+        "contributing_cells": 116,
+        "mean_tcm_c": 41.34332844827586,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003253",
+        "tract_geoid": "32003003253",
+        "contributing_cells": 187,
+        "mean_tcm_c": 41.30361016042781,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003254",
+        "tract_geoid": "32003003254",
+        "contributing_cells": 133,
+        "mean_tcm_c": 41.29334135338346,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003408",
+        "tract_geoid": "32003003408",
+        "contributing_cells": 193,
+        "mean_tcm_c": 41.808721761658035,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003409",
+        "tract_geoid": "32003003409",
+        "contributing_cells": 174,
+        "mean_tcm_c": 41.82264425287356,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003411",
+        "tract_geoid": "32003003411",
+        "contributing_cells": 210,
+        "mean_tcm_c": 41.83405238095238,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003412",
+        "tract_geoid": "32003003412",
+        "contributing_cells": 192,
+        "mean_tcm_c": 41.8274796875,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003415",
+        "tract_geoid": "32003003415",
+        "contributing_cells": 396,
+        "mean_tcm_c": 41.8830053030303,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003416",
+        "tract_geoid": "32003003416",
+        "contributing_cells": 118,
+        "mean_tcm_c": 41.86320847457627,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003418",
+        "tract_geoid": "32003003418",
+        "contributing_cells": 129,
+        "mean_tcm_c": 41.90099379844961,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003419",
+        "tract_geoid": "32003003419",
+        "contributing_cells": 160,
+        "mean_tcm_c": 41.867803125,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003421",
+        "tract_geoid": "32003003421",
+        "contributing_cells": 112,
+        "mean_tcm_c": 41.74351696428572,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      },
+      {
+        "city_id": "las_vegas",
+        "area_id": "32003003422",
+        "tract_geoid": "32003003422",
+        "contributing_cells": 163,
+        "mean_tcm_c": 41.8092036809816,
+        "usable": true,
+        "coverage_status": "ok",
+        "aggregation_policy": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN"
+      }
+    ],
+    "qa": {
+      "min_c": 41.29334135338346,
+      "max_c": 41.90099379844961,
+      "mean_of_means_c": 41.67908228222294,
+      "median_c": 41.74351696428572,
+      "spread_c": 0.6076524450661509,
+      "usable": 25,
+      "missing": 0
+    }
+  }
+}

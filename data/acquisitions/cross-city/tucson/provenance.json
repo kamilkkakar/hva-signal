@@ -1,0 +1,109 @@
+{
+  "city": "Tucson",
+  "city_id": "tucson",
+  "key_alias": "PRIMARY",
+  "observation_contract": "CROSS_CITY_OBSERVATION_V1",
+  "local_timestamp": "2024-07-08T15:00:00",
+  "provider_utc": "2024-07-08T22:00:00Z",
+  "timezone": "America/Phoenix",
+  "dst_active": false,
+  "type": "Type-1",
+  "metric": "TCM",
+  "resolution_m": 100,
+  "geometry_version": "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.PLACE_0477000.CROSS_CITY_COMPARISON_GEOGRAPHY_V1.3455b316",
+  "geometry_hash": "3455b3160a482b8dd2c33fff308b252b9285574fabd394c1f48a77d197d244b6",
+  "area_config_hash": "4b2db80bc6c1098bbd6f0425ad38f85065bf137caecfa20ee92f6e87dd56eb9f",
+  "request_fingerprint": "398f25b7771c7d075882ff77eff89428701f365316efe2e038ea1058d0b007bc",
+  "cache_fingerprint": "af217e898e35b28f126abe5d2fac3b082f00fc5bbf035e1228d2896d3db9ea0e",
+  "partitions": 1,
+  "expected_tiles": 11225,
+  "upper_bound": 19002,
+  "preflight_checks": {
+    "city": true,
+    "geometry_hash": true,
+    "areas_25": true,
+    "polygon_aoi": true,
+    "local_time": true,
+    "provider_local": true,
+    "utc_contract": true,
+    "resolution_100m": true,
+    "metric_tcm": true,
+    "partitions_1": true,
+    "request_fp": true,
+    "cache_fp": true,
+    "hosted_live_off": true,
+    "public_real_vendor_off": true
+  },
+  "hosted_live_enabled": false,
+  "public_real_vendor_enabled": false,
+  "public_allowance": 0,
+  "vendor_path": "scoped_operator_adapter_LIVE",
+  "usage_before": {
+    "http_status": 200,
+    "remaining": 1408040,
+    "cycle_credits_used": 591960,
+    "heatmap": {
+      "credits": 540160,
+      "count": 128,
+      "unit_implied": 4220.0
+    },
+    "summary_keys": [
+      "cycle_credits_used",
+      "cycle_remaining_credits",
+      "cycle_usage_percentage",
+      "total_available_credits",
+      "total_credits_used",
+      "total_remaining_credits"
+    ]
+  },
+  "debit_model": "TYPE1_SINGLE_PARTITION_EMPIRICAL_DEBIT_V1",
+  "status": "succeeded",
+  "http_status": 200,
+  "provider_status": "succeeded",
+  "activity_id": "d6336b48-fc75-4571-b86c-2dcc56e3d84f",
+  "tile_count": 11106,
+  "tiles_with_mean": 11106,
+  "debit": 4220,
+  "debit_source": "cycle_remaining_delta",
+  "usage_after": {
+    "http_status": 200,
+    "remaining": 1403820,
+    "cycle_credits_used": 596180,
+    "heatmap": {
+      "credits": 544380,
+      "count": 129,
+      "unit_implied": 4220.0
+    }
+  },
+  "circuit_breaker": {
+    "model": "TYPE1_SINGLE_PARTITION_EMPIRICAL_DEBIT_V1",
+    "expected": 4220,
+    "normal_range": [
+      3800,
+      4700
+    ],
+    "review_max": 5000,
+    "hard_stop_gt": 5000,
+    "debit_band": "NORMAL",
+    "triggered": false,
+    "review_band": false,
+    "scope_failures": [],
+    "legacy_area_upper_bound": 19002
+  },
+  "aggregation_qa": {
+    "min_c": 40.65888724461623,
+    "max_c": 41.284656640625,
+    "mean_of_means_c": 41.01818897561972,
+    "median_c": 40.96339706848622,
+    "spread_c": 0.6257693960087707,
+    "usable": 25,
+    "missing": 0
+  },
+  "usable_25": true,
+  "usable_count": 25,
+  "missing_areas": [],
+  "acquisition_timestamp": "2026-08-31T11:12:48.839585+00:00",
+  "vendor_attempted": true,
+  "adapter_fingerprint": "bf1cf152e9f99989272bec51b47328ec9442763ce2e694a00bcf75020b71dd6e",
+  "completeness": "complete"
+}

@@ -71,6 +71,13 @@ UPPER_BOUNDS = {
     "tucson": 19002,
 }
 PHOENIX_REF = {"debit": 4220, "tiles": 3749, "km2": 37.49}  # historical demo envelope
+# Human-authorized resume model (post-LA calibration).
+DEBIT_MODEL = "TYPE1_SINGLE_PARTITION_EMPIRICAL_DEBIT_V1"
+DEBIT_EXPECTED = 4220
+DEBIT_NORMAL_MIN = 3800
+DEBIT_NORMAL_MAX = 4700
+DEBIT_REVIEW_MAX = 5000  # 4701–5000 = review but may continue if explained
+DEBIT_HARD_STOP = 5000  # >5000 hard stop
 
 
 def _load_key_alias() -> tuple[str, str, str]:
@@ -347,8 +354,11 @@ def acquire_city(city_name: str, *, dry_run: bool = False) -> dict[str, Any]:
     report["usage_before"] = {
         "http_status": usage_before["http_status"],
         "remaining": usage_before["remaining"],
+        "cycle_credits_used": usage_before.get("cycle_credits_used"),
+        "heatmap": usage_before.get("heatmap"),
         "summary_keys": usage_before["summary_keys"],
     }
+    report["debit_model"] = DEBIT_MODEL
 
     adapter = FortyGuardAdapter(
         api_key=api_key,
@@ -411,8 +421,20 @@ def acquire_city(city_name: str, *, dry_run: bool = False) -> dict[str, Any]:
 
     usage_after = _usage_remaining(api_key, base_url)
     debit = None
+    debit_source = None
     if usage_before["remaining"] is not None and usage_after["remaining"] is not None:
         debit = int(usage_before["remaining"]) - int(usage_after["remaining"])
+        debit_source = "cycle_remaining_delta"
+    elif (
+        usage_before.get("heatmap")
+        and usage_after.get("heatmap")
+        and usage_before["heatmap"].get("credits") is not None
+        and usage_after["heatmap"].get("credits") is not None
+    ):
+        debit = int(usage_after["heatmap"]["credits"]) - int(
+            usage_before["heatmap"]["credits"]
+        )
+        debit_source = "heatmap_generation_credits_delta"
 
     # Persist redacted raw audit evidence
     audit_doc = redact_secrets(
@@ -470,28 +492,37 @@ def acquire_city(city_name: str, *, dry_run: bool = False) -> dict[str, Any]:
         },
     )
 
-    over_bound = debit is not None and debit > gate["upper_bound"]
-    calibration = None
-    if city_id == "los_angeles" and debit is not None and tile_count:
-        debit_per_tile = debit / tile_count
-        debit_per_km2 = debit / float(gate["freeze"]["total_union_area_km2"])
-        phx_per_tile = PHOENIX_REF["debit"] / PHOENIX_REF["tiles"]
-        phx_per_km2 = PHOENIX_REF["debit"] / PHOENIX_REF["km2"]
-        predicted_mid = PHOENIX_REF["debit"] * (
-            gate["preflight"]["expected_tiles_estimate"] / PHOENIX_REF["tiles"]
-        )
-        calibration = {
-            "debit": debit,
-            "tiles": tile_count,
-            "debit_per_tile": round(debit_per_tile, 4),
-            "debit_per_km2": round(debit_per_km2, 4),
-            "phoenix_ref_debit_per_tile": round(phx_per_tile, 4),
-            "phoenix_ref_debit_per_km2": round(phx_per_km2, 4),
-            "predicted_mid_from_phoenix_tiles": round(predicted_mid, 1),
-            "vs_predicted_mid_pct": round(100.0 * (debit - predicted_mid) / predicted_mid, 1),
-            "vs_upper_bound": debit - gate["upper_bound"],
-            "materially_wrong_flat_4220": abs(debit - 4220) < 50,
-        }
+    # Scope / coverage hard stops (independent of debit).
+    scope_failures: list[str] = []
+    if gate["preflight"]["partition_count"] != 1:
+        scope_failures.append("partitions_ne_1")
+    if aggregation["usable_count"] < 20:
+        scope_failures.append(f"usable_zones_{aggregation['usable_count']}")
+    qa = aggregation["qa"]
+    if qa.get("min_c") is not None and (qa["min_c"] < -20 or qa["max_c"] > 70):
+        scope_failures.append("implausible_temperature_range")
+
+    debit_band = None
+    hard_stop = False
+    review_band = False
+    if debit is None:
+        debit_band = "UNKNOWN"
+        hard_stop = True
+        scope_failures.append("debit_unmetered")
+    elif debit > DEBIT_HARD_STOP:
+        debit_band = "HARD_STOP"
+        hard_stop = True
+    elif debit > DEBIT_NORMAL_MAX:
+        debit_band = "REVIEW_MAY_CONTINUE"
+        review_band = True
+    elif debit >= DEBIT_NORMAL_MIN:
+        debit_band = "NORMAL"
+    else:
+        debit_band = "BELOW_NORMAL_REVIEW"
+        review_band = True
+
+    if scope_failures:
+        hard_stop = True
 
     report.update(
         {
@@ -502,16 +533,25 @@ def acquire_city(city_name: str, *, dry_run: bool = False) -> dict[str, Any]:
             "tile_count": tile_count,
             "tiles_with_mean": tiles_with_mean,
             "debit": debit,
+            "debit_source": debit_source,
             "usage_after": {
                 "http_status": usage_after["http_status"],
                 "remaining": usage_after["remaining"],
+                "cycle_credits_used": usage_after.get("cycle_credits_used"),
+                "heatmap": usage_after.get("heatmap"),
             },
             "circuit_breaker": {
-                "upper_bound": gate["upper_bound"],
-                "triggered": over_bound,
-                "rule": "debit > city conservative upper bound",
+                "model": DEBIT_MODEL,
+                "expected": DEBIT_EXPECTED,
+                "normal_range": [DEBIT_NORMAL_MIN, DEBIT_NORMAL_MAX],
+                "review_max": DEBIT_REVIEW_MAX,
+                "hard_stop_gt": DEBIT_HARD_STOP,
+                "debit_band": debit_band,
+                "triggered": hard_stop,
+                "review_band": review_band,
+                "scope_failures": scope_failures,
+                "legacy_area_upper_bound": gate["upper_bound"],
             },
-            "calibration": calibration,
             "aggregation_qa": aggregation["qa"],
             "usable_25": aggregation["usable_count"] == 25,
             "usable_count": aggregation["usable_count"],
@@ -532,12 +572,18 @@ def acquire_city(city_name: str, *, dry_run: bool = False) -> dict[str, Any]:
         "activity_id": activity_id,
         "tiles": tile_count,
         "debit": debit,
+        "debit_band": debit_band,
         "usable": aggregation["usable_count"],
         "qa": aggregation["qa"],
-        "circuit_breaker_triggered": over_bound,
-        "calibration": calibration,
+        "circuit_breaker_triggered": hard_stop,
+        "scope_failures": scope_failures,
     }
     print(json.dumps(safe_print, indent=2, default=str))
+    if hard_stop:
+        raise SystemExit(
+            f"HARD_STOP after {city_name}: band={debit_band} debit={debit} "
+            f"failures={scope_failures}"
+        )
     return report
 
 

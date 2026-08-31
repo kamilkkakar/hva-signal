@@ -1,32 +1,30 @@
 {
-  "status": "PARTIAL_ACQUISITION_CIRCUIT_BREAKER_TRIGGERED",
-  "authorized_calls": 4,
-  "actual_calls": 1,
-  "completed_cities": [
-    "los_angeles"
-  ],
-  "stopped_before": [
-    "las_vegas",
-    "phoenix",
-    "tucson"
-  ],
+  "status": "WAVE_COMPLETE",
+  "authorized_calls_program": 4,
+  "actual_calls_program": 4,
+  "authorized_new_calls_this_wave": 3,
+  "actual_new_calls_this_wave": 3,
+  "completed_cities": ["los_angeles", "las_vegas", "phoenix", "tucson"],
   "la": {
     "activity_id": "d3433426-e627-4d12-b535-f49268b7fc5c",
-    "tiles": 1727,
     "debit": 4220,
-    "upper_bound": 2961,
-    "usable_25": true,
-    "qa": {
-      "min_c": 22.308133333333334,
-      "max_c": 24.59224210526316,
-      "mean_of_means_c": 23.333802787034678,
-      "median_c": 23.24106911764706,
-      "spread_c": 2.2841087719298265,
-      "usable": 25,
-      "missing": 0
-    }
+    "reacquired": false
   },
-  "reason": "LA debit 4220 exceeds conservative upper bound 2961; first-call calibration shows flat ~4220 heatmap tariff rather than area/tile-scaled empirical model used in Validation Package V2.",
+  "las_vegas": {
+    "activity_id": "5d9b16ed-1257-42fb-8d07-7dbb1c80a3a8",
+    "debit": 4220
+  },
+  "phoenix": {
+    "activity_id": "28ae2aad-b0f9-4bb2-a93f-23200d353aa0",
+    "debit": 4220,
+    "local_reuse_avoided": true
+  },
+  "tucson": {
+    "activity_id": "d6336b48-fc75-4571-b86c-2dcc56e3d84f",
+    "debit": 4220
+  },
+  "debit_model": "TYPE1_SINGLE_PARTITION_EMPIRICAL_DEBIT_V1",
+  "flat_4220_hypothesis": "SUPPORTED",
   "additional_fortyguard_calls_authorized": false,
   "hosted_live": false,
   "public_real_vendor": false,

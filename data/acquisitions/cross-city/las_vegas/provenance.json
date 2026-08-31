@@ -1,0 +1,109 @@
+{
+  "city": "Las Vegas",
+  "city_id": "las_vegas",
+  "key_alias": "PRIMARY",
+  "observation_contract": "CROSS_CITY_OBSERVATION_V1",
+  "local_timestamp": "2024-07-08T15:00:00",
+  "provider_utc": "2024-07-08T22:00:00Z",
+  "timezone": "America/Los_Angeles",
+  "dst_active": true,
+  "type": "Type-1",
+  "metric": "TCM",
+  "resolution_m": 100,
+  "geometry_version": "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.PLACE_3240000.CROSS_CITY_COMPARISON_GEOGRAPHY_V1.4023d404",
+  "geometry_hash": "4023d404b44da71b6f8e275c1295d5aa2d3781634741a1653fbe3158f3de062e",
+  "area_config_hash": "1e459a5e40e0f03e3dbe05361ea1574cebbff5f100f7a394f98c52f12f153853",
+  "request_fingerprint": "a28a3c44299d71b19cfdf27e142ee2d904fdcc2fadb18181e75bcd36f0523c6e",
+  "cache_fingerprint": "dddfb9c06143932023e521dae89dbc1eb397c1100212b6d6ececdee12ad318fc",
+  "partitions": 1,
+  "expected_tiles": 3983,
+  "upper_bound": 6775,
+  "preflight_checks": {
+    "city": true,
+    "geometry_hash": true,
+    "areas_25": true,
+    "polygon_aoi": true,
+    "local_time": true,
+    "provider_local": true,
+    "utc_contract": true,
+    "resolution_100m": true,
+    "metric_tcm": true,
+    "partitions_1": true,
+    "request_fp": true,
+    "cache_fp": true,
+    "hosted_live_off": true,
+    "public_real_vendor_off": true
+  },
+  "hosted_live_enabled": false,
+  "public_real_vendor_enabled": false,
+  "public_allowance": 0,
+  "vendor_path": "scoped_operator_adapter_LIVE",
+  "usage_before": {
+    "http_status": 200,
+    "remaining": 1416480,
+    "cycle_credits_used": 583520,
+    "heatmap": {
+      "credits": 531720,
+      "count": 126,
+      "unit_implied": 4220.0
+    },
+    "summary_keys": [
+      "cycle_credits_used",
+      "cycle_remaining_credits",
+      "cycle_usage_percentage",
+      "total_available_credits",
+      "total_credits_used",
+      "total_remaining_credits"
+    ]
+  },
+  "debit_model": "TYPE1_SINGLE_PARTITION_EMPIRICAL_DEBIT_V1",
+  "status": "succeeded",
+  "http_status": 200,
+  "provider_status": "succeeded",
+  "activity_id": "5d9b16ed-1257-42fb-8d07-7dbb1c80a3a8",
+  "tile_count": 4024,
+  "tiles_with_mean": 4024,
+  "debit": 4220,
+  "debit_source": "cycle_remaining_delta",
+  "usage_after": {
+    "http_status": 200,
+    "remaining": 1412260,
+    "cycle_credits_used": 587740,
+    "heatmap": {
+      "credits": 535940,
+      "count": 127,
+      "unit_implied": 4220.0
+    }
+  },
+  "circuit_breaker": {
+    "model": "TYPE1_SINGLE_PARTITION_EMPIRICAL_DEBIT_V1",
+    "expected": 4220,
+    "normal_range": [
+      3800,
+      4700
+    ],
+    "review_max": 5000,
+    "hard_stop_gt": 5000,
+    "debit_band": "NORMAL",
+    "triggered": false,
+    "review_band": false,
+    "scope_failures": [],
+    "legacy_area_upper_bound": 6775
+  },
+  "aggregation_qa": {
+    "min_c": 41.29334135338346,
+    "max_c": 41.90099379844961,
+    "mean_of_means_c": 41.67908228222294,
+    "median_c": 41.74351696428572,
+    "spread_c": 0.6076524450661509,
+    "usable": 25,
+    "missing": 0
+  },
+  "usable_25": true,
+  "usable_count": 25,
+  "missing_areas": [],
+  "acquisition_timestamp": "2026-08-31T11:10:57.759980+00:00",
+  "vendor_attempted": true,
+  "adapter_fingerprint": "1d5ba3f2d1b10bd6bd3f47cbcf38c93b9308f23a449a2e3a5e0d6231d8ba7dff",
+  "completeness": "complete"
+}
