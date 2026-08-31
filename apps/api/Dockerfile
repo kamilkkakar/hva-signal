@@ -23,6 +23,8 @@ COPY data/demo/phoenix /hackathon/data/demo/phoenix
 COPY data/phoenix/reference /hackathon/data/phoenix/reference
 COPY data/areas /hackathon/data/areas
 COPY data/context/phoenix-demo /hackathon/data/context/phoenix-demo
+COPY data/context/cross-city /hackathon/data/context/cross-city
+COPY data/acquisitions/cross-city /hackathon/data/acquisitions/cross-city
 COPY data/phoenix/snapshots /hackathon/data/phoenix/snapshots
 RUN pip install --no-cache-dir .
 

@@ -14,8 +14,8 @@ The public path is accountless. Default data mode is `DATA_MODE=replay`. Hosted 
 
 Public Render validation (free tier; may sleep when idle):
 
-- Web: see Deploy notes after blueprint sync — typically `urban-thermal-web.onrender.com`
-- API health: paired `urban-thermal-api` service `/health`
+- Web: https://urban-thermal-web.onrender.com
+- API: https://urban-thermal-api.onrender.com (`/health`, `/ready`)
 
 No login. Leave **Data mode** on **Replay**. Scroll to **Cross-City Explorer** for the four-city comparison, or use the Phoenix local analysis above it.
 
