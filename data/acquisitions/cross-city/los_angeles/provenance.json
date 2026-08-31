@@ -1,0 +1,113 @@
+{
+  "city": "Los Angeles",
+  "city_id": "los_angeles",
+  "key_alias": "PRIMARY",
+  "observation_contract": "CROSS_CITY_OBSERVATION_V1",
+  "local_timestamp": "2024-07-08T15:00:00",
+  "provider_utc": "2024-07-08T22:00:00Z",
+  "timezone": "America/Los_Angeles",
+  "dst_active": true,
+  "type": "Type-1",
+  "metric": "TCM",
+  "resolution_m": 100,
+  "geometry_version": "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.PLACE_0644000.CROSS_CITY_COMPARISON_GEOGRAPHY_V1.7049e495",
+  "geometry_hash": "7049e495115c3f6aeece5000198cd22ef4b616bc78da9f0b778a1781a39d488c",
+  "area_config_hash": "0a8473fbe6fff86aa99f6775a2345443187ea1ccd7741754a03350e777450bab",
+  "request_fingerprint": "93c8824afc862a4e04741418f4ede8937730c5d56c770521c4ce5e46242ec124",
+  "cache_fingerprint": "c4c45a39ffcbdda85fb04ae23169f72b50d5e8d7cd8244842a22179197579034",
+  "partitions": 1,
+  "expected_tiles": 1724,
+  "upper_bound": 2961,
+  "preflight_checks": {
+    "city": true,
+    "geometry_hash": true,
+    "areas_25": true,
+    "polygon_aoi": true,
+    "local_time": true,
+    "provider_local": true,
+    "utc_contract": true,
+    "resolution_100m": true,
+    "metric_tcm": true,
+    "partitions_1": true,
+    "request_fp": true,
+    "cache_fp": true,
+    "hosted_live_off": true,
+    "public_real_vendor_off": true
+  },
+  "hosted_live_enabled": false,
+  "public_real_vendor_enabled": false,
+  "public_allowance": 0,
+  "vendor_path": "scoped_operator_adapter_LIVE",
+  "usage_before": {
+    "http_status": 200,
+    "remaining": null,
+    "summary_keys": []
+  },
+  "status": "succeeded",
+  "http_status": 200,
+  "provider_status": "succeeded",
+  "activity_id": "d3433426-e627-4d12-b535-f49268b7fc5c",
+  "tile_count": 1727,
+  "tiles_with_mean": 1727,
+  "debit": 4220,
+  "usage_after": {
+    "http_status": 200,
+    "remaining": null
+  },
+  "circuit_breaker": {
+    "upper_bound": 2961,
+    "debit": 4220,
+    "triggered": true,
+    "rule": "debit > city conservative upper bound",
+    "action": "PARTIAL_ACQUISITION_CIRCUIT_BREAKER_TRIGGERED_STOP"
+  },
+  "calibration": {
+    "debit": 4220,
+    "debit_source": "heatmap_generation_unit_implied_exact_4220_post_call",
+    "usage_after_fix": {
+      "remaining": 1416480,
+      "cycle_credits_used": 583520,
+      "heatmap": {
+        "credits": 531720,
+        "count": 126,
+        "unit_implied": 4220.0
+      }
+    },
+    "tiles": 1727,
+    "debit_per_tile": 2.4435,
+    "debit_per_km2": 244.9009,
+    "phoenix_ref_debit_per_tile": 1.1256,
+    "phoenix_ref_debit_per_km2": 112.5634,
+    "predicted_mid_from_phoenix_tiles": 1940.6,
+    "vs_predicted_mid_pct": 117.5,
+    "vs_upper_bound": 1259,
+    "materially_wrong_flat_4220": true,
+    "decision": "STOP_BEFORE_LAS_VEGAS"
+  },
+  "aggregation_qa": {
+    "min_c": 22.308133333333334,
+    "max_c": 24.59224210526316,
+    "mean_of_means_c": 23.333802787034678,
+    "median_c": 23.24106911764706,
+    "spread_c": 2.2841087719298265,
+    "usable": 25,
+    "missing": 0
+  },
+  "usable_25": true,
+  "usable_count": 25,
+  "missing_areas": [],
+  "acquisition_timestamp": "2026-08-31T10:51:57.879990+00:00",
+  "vendor_attempted": true,
+  "adapter_fingerprint": "c83b5a0d3196ad01eed6d0ac36d7ed8305ad0344e8abfa5d8944569bb6882402",
+  "completeness": "complete",
+  "debit_metering_note": "Pre/post remaining parse initially failed (credit_summary is top-level). Post-call usage shows Heatmap Generation credits/count = 531720/126 = 4220.0 exact; one successful Type-1 call billed at that flat unit.",
+  "usage_after_fixed": {
+    "remaining": 1416480,
+    "cycle_credits_used": 583520,
+    "heatmap": {
+      "credits": 531720,
+      "count": 126,
+      "unit_implied": 4220.0
+    }
+  }
+}
