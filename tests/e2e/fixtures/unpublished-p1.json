@@ -19,7 +19,8 @@
     "/api/v1/cross-city/metrics",
     "/api/v1/cross-city/query",
     "/api/v1/demo/matched-nighttime-window",
-    "/api/v1/demo/observed-thermal-instants"
+    "/api/v1/demo/observed-thermal-instants",
+    "/api/v1/live/selected-time"
   ],
   "unpublished_geography_paths": [
     "/api/v1/places",

@@ -41,6 +41,10 @@ class Settings(BaseSettings):
     # Hosted live default OFF. Client cannot enable. Real vendor stays refused.
     hosted_live_enabled: bool = False
     hosted_live_real_vendor_enabled: bool = False
+    # Bounded selected-time live surface (narrow POST). Separate from GENERAL
+    # arbitrary vendor (may_construct_real_vendor stays False). Default OFF.
+    bounded_selected_time_live_enabled: bool = False
+    bounded_selected_time_daily_limit: int = 20
     # Operator approval is server-side only. Default denied.
     operator_approval_enabled: bool = False
     # Local file durability only. Default off. Enabling SQLite does not

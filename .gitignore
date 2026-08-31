@@ -64,3 +64,6 @@ Thumbs.db
 .runtime/
 *.sqlite
 *.db
+
+# Local visual gate compare dumps
+docs/release/visual-gate/

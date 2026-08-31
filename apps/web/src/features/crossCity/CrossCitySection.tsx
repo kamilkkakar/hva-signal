@@ -26,11 +26,13 @@ export const CROSS_CITY_SECTION_COPY = {
   kicker: "COMPARE ACROSS CITIES",
   title: "Cross-City Explorer",
   lead:
-    "How do thermal conditions vary across comparison areas with different levels of tree canopy?",
+    "Observed pattern across cities at one comparison clock — descriptive, not causal.",
   caution:
     "Patterns are descriptive and do not establish causal relationships.",
   missing:
     "Missing fill values use a hatched pattern. Areas missing the selected X or Y metric stay off the plot and are counted below.",
+  guided:
+    "Use this to ask which cities share a warmer / lower-canopy pattern at the comparison clock — then return to the local decision brief.",
 } as const;
 
 const ALL_CITY_IDS = CROSS_CITY_CITY_ALLOWLIST.map((city) => city.id);
@@ -133,6 +135,9 @@ export function CrossCitySection() {
       <p className="hx-kicker">{CROSS_CITY_SECTION_COPY.kicker}</p>
       <h2 id="cross-city-title">{CROSS_CITY_SECTION_COPY.title}</h2>
       <p className="hx-section-lead">{CROSS_CITY_SECTION_COPY.lead}</p>
+      <p className="hx-note" data-testid="cross-city-guided">
+        {CROSS_CITY_SECTION_COPY.guided}
+      </p>
       <p className="hx-note">{CROSS_CITY_SECTION_COPY.caution}</p>
       <p className="hx-note" data-testid="cross-city-clock">
         Comparison clock: same local date and time across cities, {comparisonClock}. Thermal

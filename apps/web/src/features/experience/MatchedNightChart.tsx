@@ -124,30 +124,23 @@ export function MatchedNightChart({
           <aside className="hx-temporal-interpret" data-testid="matched-interpretation">
             <p className="hx-kicker">{MATCHED_KEY_FINDING}</p>
             <p data-testid="matched-change">
-              2024 matched-window mean {formatTempC(view.years[view.years.length - 1]?.meanC ?? 0)}
+              2024 {formatTempC(view.years[view.years.length - 1]?.meanC ?? 0)}
               {" · "}
               {formatDeltaC(view.change2024vs2022 ?? 0)} vs 2022
             </p>
             <p data-testid="matched-finding">
-              The 2024 matched-window mean was{" "}
-              {Math.abs(view.change2024vs2022 ?? 0).toFixed(2)} °C{" "}
-              {(view.change2024vs2022 ?? 0) >= 0 ? "higher" : "lower"} than in 2022.
+              {(view.change2024vs2022 ?? 0) >= 0 ? "Higher" : "Lower"} by{" "}
+              {Math.abs(view.change2024vs2022 ?? 0).toFixed(2)} °C than the 2022 matched window.
             </p>
             <p data-testid="matched-median">
-              Across the {analysisAreaCount}-area geography, median 2024-vs-2022 change:{" "}
-              {formatDeltaC(view.medianChange ?? 0)}.
+              Geography median: {formatDeltaC(view.medianChange ?? 0)} ({analysisAreaCount} areas).
             </p>
             <p data-testid="matched-nights">
-              Mean of {view.nightsTotal} matched 03:00 observations
-              {view.nightsWarmer != null
-                ? ` · nights higher in 2024: ${view.nightsWarmer} / ${view.nightsTotal}`
-                : ""}
-              .
+              {view.nightsTotal} matched nights
+              {view.nightsWarmer != null ? ` · ${view.nightsWarmer} warmer in 2024` : ""}.
             </p>
             {movedWithGeography ? (
-              <p data-testid="matched-geo-read">
-                The selected area moved broadly with the wider analysis geography.
-              </p>
+              <p data-testid="matched-geo-read">Moved with the wider geography.</p>
             ) : null}
             <details className="hx-method">
               <summary>About this comparison</summary>

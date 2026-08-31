@@ -1,6 +1,7 @@
 export { SectionNav } from "./SectionNav";
 export { AppShell } from "./AppShell";
 export { AreaSelector } from "./AreaSelector";
+export { DecisionBrief } from "./DecisionBrief";
 export { DecisionDirection } from "./DecisionDirection";
 export { EvidenceDisclosure } from "./EvidenceDisclosure";
 export { EvidenceSummary } from "./EvidenceSummary";

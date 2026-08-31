@@ -7,8 +7,8 @@ const CONTEXT_ON = /^(1|true|yes|on)$/i.test(
 const INSUFFICIENT_TIME = "2022-07-01T03:00";
 
 const STORY_QUESTIONS = [
-  "What local context matters?",
-  "Heat-relief resources",
+  "Local context",
+  "Heat-relief inventory",
 ] as const;
 
 async function openDetails(page: Page, testId: string) {

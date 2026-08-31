@@ -15,6 +15,7 @@ import { presentThermalB } from "@/features/selectedAreaStory/thermalB";
 import { B_CLOCK, B_TIMEZONE } from "@/features/selectedAreaStory/copy";
 import {
   AppShell,
+  DecisionBrief,
   DecisionDirection,
   EvidenceDisclosure,
   MatchedNightChart,
@@ -26,7 +27,7 @@ import {
   presentSpatialDifferentiation,
   synthesizeNarrative,
 } from "@/features/experience";
-import { DEMO_CONTROLS } from "@/features/experience/copy";
+import { DEMO_CONTROLS, MAP_CUE_CONTEXT, MAP_CUE_MATCHED, MAP_CUE_VERIFY } from "@/features/experience/copy";
 import { ContextPanel } from "@/features/experience/ContextPanel";
 import { PreparednessPanel } from "@/features/experience/PreparednessPanel";
 import type { PreparednessEvidenceStatus, SpatialDiffStatus } from "@/features/experience/narrative";
@@ -289,9 +290,6 @@ export function JudgeShell() {
         history={history}
         spatial={spatial}
         change2024vs2022={evidence.matched.change2024vs2022}
-        patternTitle={synthesis.patternTitle}
-        patternSummary={synthesis.patternSummary}
-        evidenceSignals={synthesis.evidenceSummary}
       />
       <div
         className="judge-explore"
@@ -314,11 +312,21 @@ export function JudgeShell() {
             selectedZoneId={selectedAreaId}
             onSelectedIdChange={selectArea}
           />
-          <p className="hx-temporal-cue">
-            <a href="#matched-night-title">How nighttime conditions changed</a>
+          <p className="hx-temporal-cue" data-testid="guided-next-cues">
+            <a href="#brief">Decision brief</a>
+            {" · "}
+            <a href="#changed">{MAP_CUE_MATCHED}</a>
+            {" · "}
+            <a href="#context">{MAP_CUE_CONTEXT}</a>
+            {" · "}
+            <a href="#verify">{MAP_CUE_VERIFY}</a>
           </p>
         </div>
       </div>
+      <DecisionBrief
+        synthesis={synthesis}
+        areaLabel={analysisAreaLabel(selectedAreaId)}
+      />
       <details className="hx-demo-controls" data-testid="demo-controls">
         <summary>{DEMO_CONTROLS}</summary>
         <RunBand />

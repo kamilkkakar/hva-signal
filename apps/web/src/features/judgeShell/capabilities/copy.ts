@@ -59,7 +59,8 @@ export const GEOGRAPHY_SCOPE =
 export const HOSTED_LIVE_NAME = "Hosted live" as const;
 export const HOSTED_LIVE_MATURITY = "DISABLED" as const;
 export const HOSTED_LIVE_QUESTION = "Is this thermal evidence live?";
-export const HOSTED_LIVE_SCOPE = "Hosted live acquisition is off. This surface is replay.";
+export const HOSTED_LIVE_SCOPE =
+  "GENERAL hosted live acquisition is off. Bounded selected-time live is a separate server gate (default off). This surface is replay.";
 
 export const HEATDOSE_NAME = "HeatDose" as const;
 export const HEATDOSE_MATURITY = "ANALYTICAL DEVELOPMENT" as const;

@@ -14,7 +14,7 @@ import {
 describe("judge experience first-read copy", () => {
   it("leads with the product sentence, not a method headline", () => {
     expect(HERO_LINE).toBe("From thermal observations to defensible urban heat decisions.");
-    expect(HERO_SUPPORT).toContain("local context and preparedness");
+    expect(HERO_SUPPORT).toContain("what HVA-Signal found");
     expect(PRODUCT_EXPANSION).toBe("Heat, Vulnerability & Action Signal");
   });
 
@@ -29,7 +29,7 @@ describe("judge experience first-read copy", () => {
   it("keeps preparedness public and never says no cooling site", () => {
     expect(preparednessLabel("IDENTIFIED")).toBe("Identified in available inventory");
     expect(preparednessLabel("NOT_IDENTIFIED_IN_DATASET")).toBe(
-      "Not identified / in available inventory",
+      "Not identified in available inventory",
     );
     expect(preparednessLabel("UNKNOWN")).toBe("Inventory status unknown");
     expect(preparednessLabel("NOT_IDENTIFIED_IN_DATASET").toLowerCase()).not.toContain(
