@@ -62,7 +62,13 @@ const SHOTS: Shot[] = [
   {
     file: "compare-cities-1440x900",
     viewport: { width: 1440, height: 900 },
-    screen: "Compare Cities",
+    screen: "Compare Cities Snapshot",
+    expected: ["compare-cities", "cross-city-section", "compare-lens-tabs", "compare-snapshot-lens"],
+  },
+  {
+    file: "compare-cities-context-1440x900",
+    viewport: { width: 1440, height: 900 },
+    screen: "Compare Cities Context",
     expected: ["compare-cities", "cross-city-section", "cross-city-bubble-explorer"],
   },
 ];
@@ -148,14 +154,18 @@ test.describe("pre-final UI baseline screenshots", () => {
     await expect(page.getByTestId("zone-panel")).toBeVisible();
     await shot(page, "explore-phoenix-selected-zone-1440x900");
 
-    // Compare Cities
+    // Compare Cities — default Snapshot lens, then Context for bubble explorer
     await page.getByTestId("mode-compare").click();
     await expect(page.getByTestId("compare-cities")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId("cross-city-section")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("compare-lens-tabs")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("compare-snapshot-lens")).toBeVisible({ timeout: 60_000 });
+    await shot(page, "compare-cities-1440x900");
+    await page.getByTestId("compare-lens-context").click();
     await expect(page.getByTestId("cross-city-bubble-explorer")).toBeVisible({
       timeout: 60_000,
     });
-    await shot(page, "compare-cities-1440x900");
+    await shot(page, "compare-cities-context-1440x900");
 
     for (const s of SHOTS) {
       manifestLines.push(
