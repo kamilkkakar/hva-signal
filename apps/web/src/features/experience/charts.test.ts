@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { presentMatched, presentObserved } from "@/features/judgeShell/decision/present";
 import type { MatchedNighttimeView, ObservedSequenceView } from "@/features/judgeShell/decision/types";
-import { MATCHED_NOT_CLIMATE, INSTANTS_SUBTITLE } from "./copy";
+import { INSTANTS_GAP, MATCHED_NOT_CLIMATE } from "./copy";
 import { MatchedNightChart } from "./MatchedNightChart";
 import { ObservedInstantsChart } from "./ObservedInstantsChart";
 
@@ -35,30 +35,38 @@ const observedDoc: ObservedSequenceView = {
 };
 
 describe("experience charts", () => {
-  it("renders matched-night bars from API fields only", () => {
+  it("renders matched-night line+points from API fields only", () => {
     const view = presentMatched(GEOID, matchedDoc, null);
     const html = renderToStaticMarkup(
       createElement(MatchedNightChart, { view, areaLabel: "Analysis Area 1" }),
     );
-    expect(html).toContain("How have nighttime conditions changed?");
+    expect(html).toContain("How have matched nighttime conditions changed?");
+    expect(html).toContain('data-viz="line-points"');
     expect(html).toContain("32.8 °C");
     expect(html).toContain("+1.60 °C");
+    expect(html).toContain("1.60 °C higher");
+    expect(html).toContain("31 matched");
     expect(html).toContain(">°C<");
     expect(html).toContain(MATCHED_NOT_CLIMATE);
+    expect(html).not.toContain("<rect");
     expect(html).not.toContain("climate trend");
+    expect(html).not.toContain("warming trend");
     expect(html).not.toContain("q_A");
   });
 
-  it("renders discrete observed instants with unobserved intervals", () => {
+  it("renders discrete observed instants with one interval note and observed high", () => {
     const view = presentObserved(GEOID, observedDoc, null);
     const html = renderToStaticMarkup(
       createElement(ObservedInstantsChart, { view, areaLabel: "Analysis Area 1" }),
     );
-    expect(html).toContain(INSTANTS_SUBTITLE);
-    expect(html).toContain("Interval not observed");
+    expect(html).toContain(INSTANTS_GAP);
     expect(html).toContain("41.2 °C");
+    expect(html).toContain("observed-high");
+    expect(html).toContain("Difference between observations");
     expect(html).toContain(">°C<");
+    expect((html.match(/Interval not observed/g) ?? []).length).toBe(0);
     expect(html).not.toContain("24-HOUR CURVE");
+    expect(html).not.toContain("cooling rate");
     expect(html).not.toContain("hourly series");
   });
 });

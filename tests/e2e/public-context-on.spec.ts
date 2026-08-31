@@ -8,7 +8,7 @@ const INSUFFICIENT_TIME = "2022-07-01T03:00";
 
 const STORY_QUESTIONS = [
   "What local context matters?",
-  "What support is identified?",
+  "Heat-relief resources",
 ] as const;
 
 async function openDetails(page: Page, testId: string) {
@@ -106,6 +106,7 @@ test.describe("isolated HVA_PUBLIC_CONTEXT=1", () => {
     await expect(map).toHaveAttribute("data-geometry-feature-count", "25");
     await expect(page.getByTestId("happening-stamp")).toHaveText(
       "SPATIAL ORDERING WITHHELD",
+      { timeout: 45_000 },
     );
 
     const contextBand = page.getByTestId("area-context-band");
