@@ -27,12 +27,12 @@ export const SIGNAL_A_FILL_OPACITY = 0.86;
 export const SIGNAL_A_HATCH_OPACITY = 0.42;
 
 export const SIGNAL_A_LINE = "#10140e";
-export const SIGNAL_A_LINE_WIDTH = 1.2;
+export const SIGNAL_A_LINE_WIDTH = 0.75;
 export const SIGNAL_A_HALO = "#e8eadc";
-export const SIGNAL_A_HALO_WIDTH = 2.55;
+export const SIGNAL_A_HALO_WIDTH = 2.4;
 
 export const SIGNAL_A_INSUFFICIENT_LINE = "#4e5748";
-export const SIGNAL_A_INSUFFICIENT_LINE_WIDTH = 1.15;
+export const SIGNAL_A_INSUFFICIENT_LINE_WIDTH = 0.7;
 
 export const SIGNAL_A_HATCH_LOW_ID = "hva-pos-hatch-low";
 export const SIGNAL_A_HATCH_MID_ID = "hva-pos-hatch-mid";
@@ -56,35 +56,36 @@ export const SIGNAL_B_HOLD_LINE = "#10140e";
 export const SIGNAL_B_HOLD_OPACITY = 0.38;
 export const SIGNAL_B_HOLD_ENCODING = "neutral_numeric_hold" as const;
 
-/** Fixed Phoenix summer thermal scale. Not request-local min/max stretch. */
-export const THERMAL_C_STOPS = [
-  25, "#f3e6c8",
-  30, "#e4b27a",
-  35, "#d07840",
-  40, "#b84f2a",
-  45, "#6f2414",
-] as const;
+import {
+  ACTIVE_THERMAL_DISPLAY_SCALE,
+  thermalScaleAxisLabel,
+  thermalScaleDomainLabel,
+} from "./thermalDisplayScale";
 
-export const THERMAL_C_LOW_LABEL = "25 °C";
-export const THERMAL_C_HIGH_LABEL = "45 °C";
-export const THERMAL_C_AXIS = "Zone mean · °C";
-export const THERMAL_C_DENIAL =
-  "Absolute zone-mean °C at the selected observation time. Fixed 25–45 °C scale.";
+/** @deprecated Prefer ACTIVE_THERMAL_DISPLAY_SCALE.stops — kept as alias for paint callers. */
+export const THERMAL_C_STOPS = ACTIVE_THERMAL_DISPLAY_SCALE.stops;
+
+export const THERMAL_C_LOW_LABEL = `≤${ACTIVE_THERMAL_DISPLAY_SCALE.domainMin} °C`;
+export const THERMAL_C_HIGH_LABEL = `≥${ACTIVE_THERMAL_DISPLAY_SCALE.domainMax} °C`;
+export const THERMAL_C_AXIS = thermalScaleAxisLabel();
+export const THERMAL_C_DENIAL = `Absolute zone-mean TCM (°C) at the selected observation time. Fixed ${thermalScaleDomainLabel()} scale (${ACTIVE_THERMAL_DISPLAY_SCALE.version}) — not stretched to the current AOI.`;
 export const THERMAL_C_NARROW_NOTE =
-  "When zone means cluster tightly, the map stays nearly uniform — that is correct.";
+  "Area means are tightly clustered at this observation.";
 
 /** Local-contrast endpoints on the fixed thermal palette — not a new scale. */
-export const THERMAL_C_LOCAL_LOW = THERMAL_C_STOPS[1];
-export const THERMAL_C_LOCAL_HIGH = THERMAL_C_STOPS[7];
+export const THERMAL_C_LOCAL_LOW = String(ACTIVE_THERMAL_DISPLAY_SCALE.stops[1]);
+export const THERMAL_C_LOCAL_HIGH = String(
+  ACTIVE_THERMAL_DISPLAY_SCALE.stops[ACTIVE_THERMAL_DISPLAY_SCALE.stops.length - 1],
+);
 
 export const THERMAL_C_LOCAL_CONTRAST_NOTE =
-  "Visual enhancement only. Absolute thermal differences remain small.";
+  "Visual enhancement only. Absolute differences remain small.";
 export const THERMAL_C_LOCAL_CONTRAST_WARNING =
-  "Enhance local contrast stretches fill within the observed span for visibility. Absolute differences remain small.";
+  "Visual enhancement only. Absolute differences remain small.";
 
 export function thermalObservedSpanNote(minC: number, maxC: number): string {
   const spread = Math.max(0, maxC - minC);
-  return `Observed range: ${minC.toFixed(1)}–${maxC.toFixed(1)} °C · Approximate spread: ${spread.toFixed(1)} °C.`;
+  return `Observed range: ${minC.toFixed(1)}–${maxC.toFixed(1)} °C · Spread: approximately ${spread.toFixed(1)} °C.`;
 }
 
 /** Span below this may optionally use local contrast (OFF by default). */

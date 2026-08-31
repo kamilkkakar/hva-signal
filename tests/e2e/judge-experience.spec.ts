@@ -124,6 +124,16 @@ test.describe("judge experience overhaul", () => {
     await expect(page.getByTestId("matched-night-chart")).toBeVisible({ timeout: 45_000 });
     await expect(page.getByTestId("thermal-snapshot-legend")).toHaveAttribute("data-fixed-scale", "yes");
     await expect(page.getByTestId("thermal-snapshot-legend")).toHaveAttribute("data-local-contrast", "no");
+    await expect(page.getByTestId("thermal-snapshot-legend")).toHaveAttribute(
+      "data-scale-version",
+      "THERMAL_DISPLAY_SCALE_V1",
+    );
+    await expect(page.getByTestId("thermal-legend-ticks")).toBeVisible();
+    await expect(page.getByTestId("thermal-legend-ticks")).toContainText("°C");
+    const mapText = await page.getByTestId("map-stage").innerText();
+    expect(mapText).not.toMatch(/API KEY REQUIRED|carto\.com\/basemaps/i);
+    await expect(page.getByTestId("evidence-summary")).toContainText(/Highest observed instant/i);
+    await expect(page.getByTestId("hero-history")).toContainText(/Not available for this observation/i);
 
     await shot(page, "01-1440x900-landing");
     await shot(page, "1440x900-landing");
@@ -259,11 +269,21 @@ test.describe("judge experience overhaul", () => {
     await page.goto("/");
     await waitForEvidence(page);
     await expect(page.getByTestId("section-nav-compact")).toBeVisible();
+    await expect(page.getByTestId("section-nav-all")).toBeVisible();
+    expect(
+      await page.getByTestId("section-nav-all").evaluate((node) =>
+        node instanceof HTMLDetailsElement ? node.open : true,
+      ),
+    ).toBe(false);
+    await expect(page.getByTestId("section-nav-desktop")).toBeHidden();
     const overflowX = await page.evaluate(
       () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
     );
     expect(overflowX).toBeFalsy();
     await shot(page, "23-390x844");
     await shot(page, "mobile-390x844");
+    await page.getByTestId("section-nav-next").click();
+    await page.getByTestId("matched-nighttime").scrollIntoViewIfNeeded();
+    await shot(page, "24-390x844-after-nav");
   });
 });

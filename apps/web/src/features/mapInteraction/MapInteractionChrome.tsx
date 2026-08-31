@@ -35,6 +35,7 @@ export type MapInteractionChromeProps = {
 
 function contextModeFromTitle(title: string, meaning: string): {
   mode: string;
+  title: string;
   unit: string;
   sourceLine: string;
 } {
@@ -42,21 +43,24 @@ function contextModeFromTitle(title: string, meaning: string): {
   if (blob.includes("canopy") || blob.includes("tree")) {
     return {
       mode: "TREE_CANOPY",
+      title: "Tree canopy",
       unit: "% of plantable ground",
-      sourceLine: meaning || "Phoenix shade study · tree canopy",
+      sourceLine: "Share of plantable ground with tree canopy · Phoenix shade study",
     };
   }
   if (blob.includes("income")) {
     return {
       mode: "INCOME",
+      title: "Median household income",
       unit: "USD · ACS 2020–2024",
-      sourceLine: meaning || "ACS 5-year median household income",
+      sourceLine: "ACS 5-year median household income",
     };
   }
   return {
     mode: "OLDER_HOUSING",
+    title: "Older housing",
     unit: "% homes built before 1980",
-    sourceLine: meaning || "ACS 5-year older housing share",
+    sourceLine: "ACS 5-year older housing share",
   };
 }
 
@@ -92,7 +96,7 @@ export function MapInteractionChrome({
         ) : fillKind === "context_quantity" && contextMeta ? (
           <ContextModeLegend
             mode={contextMeta.mode}
-            title={layerTitle ?? view.layerTitle}
+            title={contextMeta.title}
             unit={contextMeta.unit}
             sourceLine={contextMeta.sourceLine}
           />

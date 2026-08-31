@@ -107,18 +107,34 @@ export function ThermalHero({
       ) : null}
       <div id="history" className="hx-compare-grid" data-testid="history-spatial-pair">
         <aside
-          className="hx-trust-note"
+          className={
+            history.status === "unavailable" ? "hx-trust-note hx-history-unavailable" : "hx-trust-note"
+          }
           data-testid="hero-history"
           data-status={history.status}
         >
           <p className="hx-kicker">02 · How does this compare with history?</p>
           <p className="hx-kicker hx-kicker-sub">{HISTORY_CARD_TITLE}</p>
-          <p data-testid="historical-position-sentence">{history.sentence}</p>
-          {history.reason ? (
-            <p data-testid="historical-position-reason" className="hx-note">
-              {history.reason}
-            </p>
-          ) : null}
+          {history.status === "unavailable" ? (
+            <div className="hx-history-unavailable-body">
+              <p data-testid="historical-position-sentence">{history.sentence}</p>
+              {history.reason ? (
+                <details className="hx-history-why" data-testid="historical-position-why">
+                  <summary>Why?</summary>
+                  <p data-testid="historical-position-reason">{history.reason}</p>
+                </details>
+              ) : null}
+            </div>
+          ) : (
+            <>
+              <p data-testid="historical-position-sentence">{history.sentence}</p>
+              {history.reason ? (
+                <p data-testid="historical-position-reason" className="hx-note">
+                  {history.reason}
+                </p>
+              ) : null}
+            </>
+          )}
           <details className="hx-method">
             <summary>How this is calculated</summary>
             <p>

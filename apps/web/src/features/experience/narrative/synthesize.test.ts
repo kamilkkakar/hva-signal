@@ -108,9 +108,15 @@ describe("synthesizeNarrative", () => {
     expect(story.patternTitle).toMatch(/temporal change/i);
     expect(story.evidenceSummary.some((row) => row.id === "matched")).toBe(true);
     expect(story.whatEvidenceShows.join(" ")).toMatch(/1\.54 °C higher/);
-    expect(story.whatEvidenceShows.join(" ")).toMatch(/too small to support/);
+    expect(story.whatEvidenceShows.join(" ")).toMatch(/does not support a defensible area ranking/);
     expect(story.whyItMatters.join(" ")).toMatch(/hottest neighborhood/);
     expect(story.verifyNext.join(" ")).toMatch(/cooling access/i);
+    expect(story.whyItMatters.length).toBeLessThanOrEqual(3);
+    expect(story.whatEvidenceShows.length).toBeLessThanOrEqual(3);
+    expect(story.verifyNext.length).toBeLessThanOrEqual(3);
+    expect(story.evidenceSummary.some((row) => /highest observed instant/i.test(row.label))).toBe(
+      true,
+    );
     const blob = JSON.stringify(story).toLowerCase();
     expect(blob).not.toMatch(/warming trend|climate trend|vulnerability score|priority score/);
     expect(blob).not.toMatch(/intervention recommendation|no row/);

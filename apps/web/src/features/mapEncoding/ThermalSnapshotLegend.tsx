@@ -6,9 +6,13 @@ import {
   THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C,
   THERMAL_C_LOW_LABEL,
   THERMAL_C_NARROW_NOTE,
-  THERMAL_C_STOPS,
   thermalObservedSpanNote,
 } from "./tokens";
+import {
+  ACTIVE_THERMAL_DISPLAY_SCALE,
+  thermalObservedBandPosition,
+  thermalScaleTickLabels,
+} from "./thermalDisplayScale";
 import "./legend.css";
 
 export type ThermalSnapshotLegendProps = {
@@ -16,6 +20,8 @@ export type ThermalSnapshotLegendProps = {
   observedMaxC?: number | null;
   enhanceLocalContrast?: boolean;
   onEnhanceLocalContrastChange?: (next: boolean) => void;
+  /** Optional override; defaults to ACTIVE_THERMAL_DISPLAY_SCALE. */
+  scale?: typeof ACTIVE_THERMAL_DISPLAY_SCALE;
 };
 
 export function ThermalSnapshotLegend({
@@ -23,8 +29,10 @@ export function ThermalSnapshotLegend({
   observedMaxC = null,
   enhanceLocalContrast = false,
   onEnhanceLocalContrastChange,
+  scale = ACTIVE_THERMAL_DISPLAY_SCALE,
 }: ThermalSnapshotLegendProps) {
-  const colors = THERMAL_C_STOPS.filter((_, index) => index % 2 === 1) as string[];
+  const colors = scale.stops.filter((_, index) => index % 2 === 1) as string[];
+  const tickLabels = thermalScaleTickLabels(scale);
   const hasObservedSpan =
     observedMinC != null &&
     observedMaxC != null &&
@@ -34,13 +42,9 @@ export function ThermalSnapshotLegend({
   const spreadC = hasObservedSpan ? observedMaxC - observedMinC : null;
   const lowVariation =
     spreadC != null && spreadC > 0 && spreadC < THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C;
-  const bandLeft =
+  const band =
     hasObservedSpan && spreadC != null && spreadC > 0
-      ? `${((observedMinC - 25) / 20) * 100}%`
-      : null;
-  const bandWidth =
-    hasObservedSpan && spreadC != null && spreadC > 0
-      ? `${Math.max((spreadC / 20) * 100, 6)}%`
+      ? thermalObservedBandPosition(observedMinC, observedMaxC, scale)
       : null;
 
   return (
@@ -50,33 +54,44 @@ export function ThermalSnapshotLegend({
       data-testid="thermal-snapshot-legend"
       data-local-contrast={enhanceLocalContrast ? "yes" : "no"}
       data-fixed-scale="yes"
+      data-scale-version={scale.version}
+      data-scale-min={scale.domainMin}
+      data-scale-max={scale.domainMax}
       data-b-public="yes"
     >
-      <h3>Selected-time temperature</h3>
+      <h3>Selected-time thermal conditions</h3>
       <div className="hva-pos-ramp-block">
         <div
           className="hva-pos-ramp"
           role="img"
           aria-label={`${THERMAL_C_LOW_LABEL} to ${THERMAL_C_HIGH_LABEL}`}
+          style={{ gridTemplateColumns: `repeat(${colors.length}, minmax(0, 1fr))` }}
         >
           {colors.map((stop) => (
             <span key={stop} className="hva-pos-stop" style={{ background: stop }} data-stop={stop} />
           ))}
-          {bandLeft && bandWidth ? (
+          {band ? (
             <span
               className="hva-thermal-observed-band"
               aria-hidden="true"
-              style={{ left: bandLeft, width: bandWidth }}
+              style={{ left: `${band.leftPct}%`, width: `${band.widthPct}%` }}
             />
           ) : null}
         </div>
-        <p className="hva-pos-axis">
-          <span>25</span>
-          <span>30</span>
-          <span>35</span>
-          <span>40</span>
-          <span>45</span>
-        </p>
+        <ol
+          className="hva-thermal-ticks"
+          data-testid="thermal-legend-ticks"
+          aria-label={`Temperature scale in ${scale.unit}`}
+        >
+          {tickLabels.map((label, index) => (
+            <li key={`${label}-${index}`} data-tick={scale.ticks[index]}>
+              <span className="hva-thermal-tick-value">{label}</span>
+              {index === tickLabels.length - 1 ? (
+                <span className="hva-thermal-tick-unit">{scale.unit}</span>
+              ) : null}
+            </li>
+          ))}
+        </ol>
       </div>
       <p className="hva-pos-denial">{THERMAL_C_AXIS}</p>
       {hasObservedSpan ? (

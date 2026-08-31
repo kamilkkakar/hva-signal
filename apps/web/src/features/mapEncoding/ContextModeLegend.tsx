@@ -56,12 +56,11 @@ export function ContextModeLegend({
         </p>
       </div>
       <p className="hva-pos-denial" data-testid="context-legend-unit">
-        Unit: {unit}
+        {unit}
       </p>
-      {sourceLine ? <p className="hva-pos-hatch-note">{sourceLine}</p> : null}
       <p className="hva-pos-outline">
         <span className="hva-pos-outline-swatch" style={{ borderColor: "#4e5748" }} aria-hidden="true" />
-        Missing / unreliable — outline only
+        Missing
       </p>
       <p className="hva-pos-outline">
         <span
@@ -69,8 +68,12 @@ export function ContextModeLegend({
           style={{ borderColor: "#c45c26", borderWidth: "2px" }}
           aria-hidden="true"
         />
-        Selected analysis area
+        Selected area
       </p>
+      <details className="hva-legend-about">
+        <summary>About this layer</summary>
+        {sourceLine ? <p className="hva-pos-hatch-note">{sourceLine}</p> : null}
+      </details>
     </aside>
   );
 }

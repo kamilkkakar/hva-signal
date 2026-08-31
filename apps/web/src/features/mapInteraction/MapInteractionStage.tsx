@@ -23,8 +23,6 @@ const EMPTY_COLLECTION = {
   type: "FeatureCollection" as const,
   features: [],
 };
-const BASEMAP_SOURCE_ID = "hva-basemap-carto";
-const BASEMAP_LAYER_ID = "hva-basemap-carto-raster";
 
 export type MapInteractionStageProps = {
   enabled?: boolean;
@@ -89,43 +87,34 @@ function ensureLayers(map: maplibregl.Map): GeoJSONSource | null {
       source: SOURCE_ID,
       paint: {
         "line-color": "#4e5748",
-        "line-width": 1.15,
+        "line-width": 0.7,
       },
     });
   }
   return (map.getSource(SOURCE_ID) as GeoJSONSource | undefined) ?? null;
 }
 
+/**
+ * Production-safe geographic context: neutral paper + real polygons only.
+ * No external basemap tiles — avoids API-key watermarks / broken providers.
+ * Prefer no basemap over a credentialed or broken one.
+ */
 function ensureBasemap(map: maplibregl.Map): void {
   if (!map.isStyleLoaded()) {
     return;
   }
-  if (!map.getSource(BASEMAP_SOURCE_ID)) {
-    map.addSource(BASEMAP_SOURCE_ID, {
-      type: "raster",
-      tiles: [
-        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-      ],
-      tileSize: 256,
-      attribution: "© OpenStreetMap contributors",
-      maxzoom: 19,
-    });
+  // Remove any prior external raster basemap if a stale style still carries one.
+  for (const layerId of ["hva-basemap-carto-raster", "hva-basemap-osm-raster", "hva-basemap-raster"]) {
+    if (map.getLayer(layerId)) {
+      map.removeLayer(layerId);
+    }
   }
-  if (!map.getLayer(BASEMAP_LAYER_ID)) {
-    map.addLayer(
-      {
-        id: BASEMAP_LAYER_ID,
-        type: "raster",
-        source: BASEMAP_SOURCE_ID,
-        paint: {
-          "raster-opacity": 0.38,
-          "raster-saturation": -0.45,
-          "raster-contrast": -0.15,
-        },
-      },
-      FILL_LAYER_ID,
-    );
+  for (const sourceId of ["hva-basemap-carto", "hva-basemap-osm", "hva-basemap"]) {
+    if (map.getSource(sourceId)) {
+      map.removeSource(sourceId);
+    }
   }
+  void map;
 }
 
 function applyCatalog(

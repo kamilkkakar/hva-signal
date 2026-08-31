@@ -13,7 +13,7 @@ describe("observedThermalSpan", () => {
     expect(span?.spreadC).toBeGreaterThan(0);
   });
 
-  it("keeps fixed 25–45 thermal scale by default even when spread is narrow", () => {
+  it("keeps fixed THERMAL_DISPLAY_SCALE_V1 by default even when spread is narrow", () => {
     const catalog = snapshotCatalog();
     catalog.collection.features.forEach((feature, index) => {
       feature.properties.mean_temperature_c = 33.5 + index * 0.04;
@@ -25,8 +25,8 @@ describe("observedThermalSpan", () => {
       layerActive: true,
     });
     const encoded = JSON.stringify(fill["fill-color"]);
-    expect(encoded).toContain("25");
-    expect(encoded).toContain("45");
+    expect(encoded).toContain("15");
+    expect(encoded).toContain("60");
     expect(encoded).not.toContain("33.5");
     expect(encoded).not.toContain("backend_order");
   });

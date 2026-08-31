@@ -31,6 +31,18 @@ export {
   HOUSING_STOPS,
 } from "./tokens";
 export {
+  THERMAL_DISPLAY_SCALE_V1,
+  THERMAL_DISPLAY_SCALE_VERSION,
+  ACTIVE_THERMAL_DISPLAY_SCALE,
+  thermalScaleStops,
+  thermalScaleTickLabels,
+  thermalScaleAxisLabel,
+  thermalScaleDomainLabel,
+  thermalObservedBandPosition,
+  isOutsideThermalDomain,
+} from "./thermalDisplayScale";
+export type { ThermalDisplayScale, ThermalOverflowPolicy } from "./thermalDisplayScale";
+export {
   signalAFillPaint,
   signalAHatchPaint,
   signalALinePaint,

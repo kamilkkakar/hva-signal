@@ -34,9 +34,10 @@ export const METRIC_CHANGE = "2024 vs 2022 matched-nighttime change";
 export const METRIC_CHANGE_WINDOW = "30 Jun–30 Jul · 03:00 local";
 
 export const HISTORY_UNAVAILABLE =
-  "Historical position is not available for this observation.";
+  "Not available for this observation.";
 export const HISTORY_UNAVAILABLE_REASON =
   "A comparable own-area 03:00 historical position is not published for this case.";
+export const HISTORY_UNAVAILABLE_WHY = "Why?";
 export const HISTORY_CARD_TITLE = "Historical position";
 export const HISTORY_WITHHELD =
   "The differences across the analysis areas are too small to support a defensible ordering for this observation.";
@@ -69,13 +70,13 @@ export const INSTANTS_SUBTITLE = "Four discrete observations. Hours between them
 export const INSTANTS_GAP =
   "Dashed guides connect observed instants for orientation only. Conditions between these observations were not measured.";
 export const INSTANTS_SELECT = "Select an analysis area to read observed instants.";
-export const INSTANTS_HIGH_LABEL = "Observed conditions were highest at";
+export const INSTANTS_HIGH_LABEL = "Highest observed instant";
 export const INSTANTS_DIFF_LABEL = "Difference between observations";
 
 export const CONTEXT_TITLE = "What local context matters?";
 export const PREP_TITLE = "Heat-relief resources";
-export const PREP_IDENTIFIED = "Site identified in available inventory";
-export const PREP_NOT_IDENTIFIED = "No site identified in available inventory";
+export const PREP_IDENTIFIED = "Identified in available inventory";
+export const PREP_NOT_IDENTIFIED = "Not identified / in available inventory";
 export const PREP_UNKNOWN = "Inventory status unknown";
 export const PREP_DISCLAIMER =
   "This does not establish that no cooling resource exists. Identification is not proof that cooling is available.";

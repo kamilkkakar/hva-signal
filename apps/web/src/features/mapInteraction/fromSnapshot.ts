@@ -99,7 +99,8 @@ export function catalogFromSnapshot(input: {
     fill_authorized: true,
     fill_kind: "thermal_absolute",
     layer_title: "Selected-time thermal conditions",
-    meaning:
-      "Zone-mean absolute °C at the cached observation time. Fixed thermal scale — not stretched to this night's range.",
+    meaning: input.targetTimestamp
+      ? `Zone-mean TCM · °C · ${formatObservationLabel(input.targetTimestamp)}`
+      : "Zone-mean TCM · °C",
   });
 }

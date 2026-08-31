@@ -143,7 +143,7 @@ function fixedThermalFillPaint(): SignalAFillPaint["fill-color"] {
   ];
 }
 
-/** Selected-time absolute °C. Default = true fixed 25–45 scale. */
+/** Selected-time absolute °C. Default = THERMAL_DISPLAY_SCALE_V1 (no AOI stretch). */
 export function signalBThermalFillPaint(input?: SignalBThermalFillInput): SignalAFillPaint {
   const lo = input?.observedMinC;
   const hi = input?.observedMaxC;

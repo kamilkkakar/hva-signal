@@ -57,13 +57,13 @@ export function legendFromCatalog(
       {
         id: "scale",
         label: "Fixed thermal scale",
-        meaning: "Zone-mean absolute °C. 25–45 °C semantic scale — not stretched to this snapshot.",
+        meaning: "Zone-mean TCM · °C on the fixed multi-city display scale — not stretched to this snapshot.",
         swatch: null,
       },
       {
         id: "valid",
         label: "Observed zone mean",
-        meaning: "Filled polygon encodes °C on the fixed scale. Hover for the exact value.",
+        meaning: "Fill encodes absolute °C. Hover for the exact value.",
         swatch: INTERACTION_SHARED_FILL,
       },
       {

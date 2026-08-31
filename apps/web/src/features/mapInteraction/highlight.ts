@@ -62,7 +62,7 @@ function paletteFromCatalog(catalog: InteractionCatalog): ContextPaletteId {
 /**
  * Authorized fills use RESCUE-E historical-position tokens.
  * Insufficient / unauthorized stays outline-only (opacity 0).
- * Thermal default = fixed 25–45 °C unless enhanceLocalContrast is opted in.
+ * Thermal default = THERMAL_DISPLAY_SCALE_V1 unless enhanceLocalContrast is opted in.
  */
 export function highlightFillPaint(
   catalog: InteractionCatalog | null,

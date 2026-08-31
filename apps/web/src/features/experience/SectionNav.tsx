@@ -1,6 +1,28 @@
 import { useState } from "react";
 import { SECTION_NAV } from "./copy";
 
+function SectionLinks({
+  onPick,
+}: {
+  onPick?: (index: number) => void;
+}) {
+  return (
+    <ol className="hx-section-nav-list">
+      {SECTION_NAV.map((item, index) => (
+        <li key={item.id}>
+          <a
+            href={`#${item.id}`}
+            onClick={() => onPick?.(index)}
+          >
+            <span className="hx-section-num">{item.num}</span>
+            <span className="hx-section-title">{item.title}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export function SectionNav() {
   const [index, setIndex] = useState(0);
   const current = SECTION_NAV[index] ?? SECTION_NAV[0]!;
@@ -36,16 +58,13 @@ export function SectionNav() {
           </button>
         </div>
       </div>
-      <ol className="hx-section-nav-list">
-        {SECTION_NAV.map((item) => (
-          <li key={item.id}>
-            <a href={`#${item.id}`}>
-              <span className="hx-section-num">{item.num}</span>
-              <span className="hx-section-title">{item.title}</span>
-            </a>
-          </li>
-        ))}
-      </ol>
+      <div className="hx-section-nav-desktop" data-testid="section-nav-desktop">
+        <SectionLinks onPick={setIndex} />
+      </div>
+      <details className="hx-section-nav-all" data-testid="section-nav-all">
+        <summary>All sections</summary>
+        <SectionLinks onPick={setIndex} />
+      </details>
     </nav>
   );
 }

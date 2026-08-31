@@ -64,6 +64,52 @@
   line-height: 1.25;
 }
 
+.hva-thermal-ticks {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.2rem;
+  margin: 0.32rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.62rem;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  color: var(--hva-pos-ink);
+  line-height: 1.2;
+}
+
+.hva-thermal-ticks li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.hva-thermal-ticks li:first-child {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.hva-thermal-ticks li:last-child {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.hva-thermal-tick-value {
+  display: block;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.hva-thermal-tick-unit {
+  display: block;
+  margin-top: 0.05rem;
+  color: var(--hva-pos-muted);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
 .hva-pos-hatch {
   display: flex;
   flex-wrap: wrap;
