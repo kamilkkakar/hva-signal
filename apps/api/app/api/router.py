@@ -7,10 +7,12 @@ from app.api.optional_two_signal_router import include_optional_two_signal_route
 from app.api.routes.analysis_jobs import router as jobs_router
 from app.api.routes.areas import router as areas_router
 from app.api.routes.health import router as health_router
+from app.api.routes.multicity import router as multicity_router
 
 api_router = APIRouter()
 api_router.include_router(jobs_router, prefix="/api/v1")
 api_router.include_router(areas_router, prefix="/api/v1")
+api_router.include_router(multicity_router, prefix="/api/v1")
 include_public_geography_routes(api_router)
 include_public_context_routes(api_router)
 include_optional_two_signal_routes(api_router)

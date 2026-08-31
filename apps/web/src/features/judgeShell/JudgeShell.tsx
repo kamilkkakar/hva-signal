@@ -45,6 +45,7 @@ import { contextSourceChip } from "./sourceChip";
 import { SupportsBand } from "./SupportsBand";
 import { ThermalBand } from "./ThermalBand";
 import { useAreaEvidence } from "../experience/useAreaEvidence";
+import { CrossCitySection } from "../crossCity";
 import "./judgeShell.css";
 
 const EMPTY_LIMITATIONS: readonly string[] = [];
@@ -324,6 +325,7 @@ export function JudgeShell() {
         synthesis={synthesis}
         areaLabel={analysisAreaLabel(selectedZoneId)}
       />
+      <CrossCitySection />
       <HappeningBand
         happening={happening}
         busy={busy}
