@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CITIES, type CityId, type ObservationMode } from "./types";
+import { CITIES, cityConfig, type CityId, type ObservationMode } from "./types";
 
 type CityControlsProps = {
   cityId: CityId;
@@ -18,7 +18,7 @@ type CityControlsProps = {
 };
 
 function cityDisplay(id: CityId): string {
-  const city = CITIES.find((item) => item.id === id) ?? CITIES[0];
+  const city = cityConfig(id);
   return `${city.label}, ${city.state}`;
 }
 
