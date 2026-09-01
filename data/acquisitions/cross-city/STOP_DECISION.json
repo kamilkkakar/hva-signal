@@ -1,7 +1,8 @@
 {
   "status": "STOPPED_DUPLICATE_SPEND",
+  "record_scope": "historical incident snapshot",
   "stopped_at": "2026-08-31T18:23:00Z",
-  "reason": "Identical LA 2024-07-08T03:00:00 cache-proof attempt used DataMode.LIVE which bypasses disk cache and submitted a second Type-1",
+  "reason": "Identical LA 2024-07-08T03:00:00 cache-proof attempt used DataMode.LIVE which bypassed disk cache and submitted a second Type-1",
   "prior_wave": {
     "observation_contract": "CROSS_CITY_OBSERVATION_V1",
     "clock": "2024-07-08T15:00:00",
@@ -32,8 +33,8 @@
         "local_datetime": "2024-07-08T03:00:00",
         "activity_id_submitted": "eea72b19-1efd-4814-bcbd-e5db8e52a0b7",
         "debit": 4220,
-        "cause": "operator cache-proof used FortyGuardAdapter DataMode.LIVE (always submits; ignores vendor_cache)",
-        "note": "acquire_cross_city_type1.py correctly refused second paid run via provenance gate"
+        "cause": "operator cache-proof used FortyGuardAdapter DataMode.LIVE which always submitted instead of reading vendor_cache",
+        "note": "acquire_cross_city_type1.py correctly refused a second paid run via provenance gate"
       }
     ],
     "total_debit": 8440,
@@ -41,8 +42,8 @@
   },
   "additional_fortyguard_calls_authorized": false,
   "remaining_matrix_rows": 11,
-  "acquisition_path_used": "scripts/acquire_cross_city_type1.py (operator; local key file)",
-  "production_bounded_route": {
+  "acquisition_path_used": "scripts/acquire_cross_city_type1.py (operator; local secret)",
+  "production_bounded_route_at_stop": {
     "BOUNDED_SELECTED_TIME_LIVE_ENABLED_observed": "ON (no 503)",
     "Phase1_construct_deployed": false,
     "can_pay_on_production": false,
@@ -53,9 +54,18 @@
   "public_real_vendor": false,
   "HOSTED_LIVE_REAL_VENDOR_ENABLED": false,
   "may_construct_real_vendor": false,
-  "merge_blocked": true,
+  "merge_blocked_at_stop": true,
   "forecast_status": "BLOCKED",
   "time_lens": "NOT_ENABLED",
   "package_CROSS_CITY_MATCHED_INSTANTS_V1": "NOT_BUILT",
-  "decision": "STOP_ACQUISITION — KEEP product shell / no UI rollback required"
+  "decision": "STOP_ACQUISITION — KEEP product shell / no UI rollback required",
+  "current_resolution": {
+    "resolved_at": "2026-09-01",
+    "duplicate_spend_code_defect": "REMEDIATED_CACHE_FIRST",
+    "replay_product_release_blocked": false,
+    "new_paid_temporal_acquisition_authorized": false,
+    "public_bounded_live_authorized": false,
+    "general_vendor_authorized": false,
+    "note": "The historical STOP no longer blocks the replay product release. It still blocks new spend and public bounded-live activation until a separate production cache/spend proof is explicitly authorized and passes."
+  }
 }
