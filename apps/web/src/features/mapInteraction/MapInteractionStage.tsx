@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import maplibregl, { type GeoJSONSource } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./mapInteraction.css";
@@ -11,9 +11,7 @@ import {
 import { mapInteractionIsEnabled } from "./flags";
 import { highlightFillPaint, highlightHatchPaint, highlightLinePaint } from "./highlight";
 import { MapInteractionChrome } from "./MapInteractionChrome";
-import {
-  INTERACTION_PAPER,
-} from "./policy";
+import { INTERACTION_PAPER } from "./policy";
 import { observedThermalSpan } from "./thermalSpan";
 import { presentMapInteraction } from "./present";
 import { initialInteractionState, reduceInteraction } from "./state";
@@ -107,7 +105,6 @@ function ensureBasemap(map: maplibregl.Map): void {
   if (!map.isStyleLoaded()) {
     return;
   }
-  // Remove any prior external raster basemap if a stale style still carries one.
   for (const layerId of ["hva-basemap-carto-raster", "hva-basemap-osm-raster", "hva-basemap-raster"]) {
     if (map.getLayer(layerId)) {
       map.removeLayer(layerId);
@@ -126,7 +123,6 @@ function applyCatalog(
   catalog: InteractionCatalog | null,
   state: InteractionState,
   canvasAllowed: boolean,
-  enhanceLocalContrast = false,
 ): boolean {
   const source = ensureLayers(map);
   if (!source) {
@@ -135,7 +131,7 @@ function applyCatalog(
   ensureBasemap(map);
   const payload = canvasAllowed && catalog ? catalog.collection : EMPTY_COLLECTION;
   source.setData(payload as GeoJSON.FeatureCollection);
-  const fill = highlightFillPaint(catalog, state, { enhanceLocalContrast });
+  const fill = highlightFillPaint(catalog, state);
   const hatch = highlightHatchPaint(catalog, state);
   const line = highlightLinePaint(catalog, state);
   map.setPaintProperty(FILL_LAYER_ID, "fill-color", fill["fill-color"]);
@@ -172,6 +168,17 @@ function fitCatalog(map: maplibregl.Map, catalog: InteractionCatalog | null): vo
   map.fitBounds(bounds, { padding: 36, duration: 0 });
 }
 
+function fitKey(catalog: InteractionCatalog | null): string {
+  if (!catalog?.collection.features.length) {
+    return "";
+  }
+  const bounds = featureCollectionBounds(catalog.collection);
+  if (!bounds) {
+    return `n:${catalog.collection.features.length}`;
+  }
+  return `${bounds[0][0].toFixed(4)},${bounds[0][1].toFixed(4)},${bounds[1][0].toFixed(4)},${bounds[1][1].toFixed(4)}:${catalog.collection.features.length}`;
+}
+
 export function MapInteractionStage({
   enabled,
   catalog,
@@ -179,7 +186,6 @@ export function MapInteractionStage({
   onSelectedIdChange,
 }: MapInteractionStageProps) {
   const gatedOn = mapInteractionIsEnabled(enabled);
-  const [enhanceLocalContrast, setEnhanceLocalContrast] = useState(false);
   const [state, dispatch] = useReducer(
     (current: InteractionState, event: InteractionEvent) =>
       reduceInteraction(current, event, catalog),
@@ -192,13 +198,12 @@ export function MapInteractionStage({
   const catalogRef = useRef(catalog);
   const stateRef = useRef(state);
   const viewRef = useRef(view);
-  const enhanceRef = useRef(enhanceLocalContrast);
   const lastFit = useRef(0);
+  const lastResizeFitKey = useRef("");
 
   catalogRef.current = catalog;
   stateRef.current = state;
   viewRef.current = view;
-  enhanceRef.current = enhanceLocalContrast;
 
   const notifyParent = useStableSelectionHandler(onSelectedIdChange);
   const notifyParentRef = useRef(notifyParent);
@@ -208,7 +213,6 @@ export function MapInteractionStage({
 
   const dispatchControlled = (event: InteractionEvent) => {
     if (event.type === "select") {
-      // Controlled: set (do not toggle-deselect) so parent SSOT cannot flap null→id.
       dispatch({ type: "set_selected", geoid: event.geoid });
       notifyParentRef.current(event.geoid, "user_select");
       return;
@@ -218,13 +222,10 @@ export function MapInteractionStage({
       (event.type === "clear_selection" || event.type === "restore_layer") &&
       selectedIdRef.current
     ) {
-      // Keep map mirror aligned with authoritative parent selection.
       dispatch(applyParentSelectionToMap(selectedIdRef.current));
     }
   };
 
-  // Parent selectedAreaId is authoritative. Mirror inbound only — never echo
-  // map mirror state back on callback identity churn (A→B→A flicker).
   useEffect(() => {
     dispatch(applyParentSelectionToMap(selectedId));
   }, [selectedId]);
@@ -257,6 +258,7 @@ export function MapInteractionStage({
     map.dragRotate.disable();
     map.touchZoomRotate.disableRotation();
     map.keyboard.disableRotation();
+
     const geoidFromEvent = (event: maplibregl.MapLayerMouseEvent): string | null => {
       const props = event.features?.[0]?.properties;
       if (!props || props.GEOID == null) {
@@ -264,13 +266,13 @@ export function MapInteractionStage({
       }
       return String(props.GEOID);
     };
+
     const onReady = () => {
       applyCatalog(
         map,
         catalogRef.current,
         stateRef.current,
         viewRef.current.canvasAllowed,
-        enhanceRef.current,
       );
       fitCatalog(map, catalogRef.current);
     };
@@ -290,6 +292,7 @@ export function MapInteractionStage({
         notifyParentRef.current(geoid, "user_select");
       }
     };
+
     if (map.loaded()) {
       onReady();
     } else {
@@ -302,10 +305,28 @@ export function MapInteractionStage({
     map.on("mouseleave", HATCH_LAYER_ID, onLeave);
     map.on("click", HATCH_LAYER_ID, onClick);
     mapRef.current = map;
+
     const observer = new ResizeObserver(() => {
       map.resize();
+      const currentCatalog = catalogRef.current;
+      const currentKey = fitKey(currentCatalog);
+      const rect = node.getBoundingClientRect();
+      if (
+        currentKey &&
+        currentKey !== lastResizeFitKey.current &&
+        rect.width >= 320 &&
+        rect.height >= 220
+      ) {
+        lastResizeFitKey.current = currentKey;
+        window.requestAnimationFrame(() => {
+          if (mapRef.current === map) {
+            fitCatalog(map, currentCatalog);
+          }
+        });
+      }
     });
     observer.observe(node);
+
     return () => {
       observer.disconnect();
       map.off("load", onReady);
@@ -314,16 +335,7 @@ export function MapInteractionStage({
     };
   }, [gatedOn, view.canvasAllowed]);
 
-  const catalogBoundsKey = (() => {
-    if (!catalog?.collection.features.length) {
-      return "";
-    }
-    const bounds = featureCollectionBounds(catalog.collection);
-    if (!bounds) {
-      return `n:${catalog.collection.features.length}`;
-    }
-    return `${bounds[0][0].toFixed(4)},${bounds[0][1].toFixed(4)},${bounds[1][0].toFixed(4)},${bounds[1][1].toFixed(4)}:${catalog.collection.features.length}`;
-  })();
+  const catalogBoundsKey = fitKey(catalog);
   const lastBoundsKey = useRef("");
 
   useEffect(() => {
@@ -334,7 +346,7 @@ export function MapInteractionStage({
     let attempts = 0;
     let frame = 0;
     const tryApply = () => {
-      if (applyCatalog(map, catalog, state, view.canvasAllowed, enhanceLocalContrast)) {
+      if (applyCatalog(map, catalog, state, view.canvasAllowed)) {
         const boundsChanged =
           Boolean(catalogBoundsKey) && catalogBoundsKey !== lastBoundsKey.current;
         if (boundsChanged) {
@@ -356,14 +368,9 @@ export function MapInteractionStage({
     return () => {
       window.cancelAnimationFrame(frame);
     };
-  }, [
-    catalog,
-    catalogBoundsKey,
-    enhanceLocalContrast,
-    gatedOn,
-    state,
-    view.canvasAllowed,
-  ]);
+  }, [catalog, catalogBoundsKey, gatedOn, state, view.canvasAllowed]);
+
+  const thermalSpan = observedThermalSpan(catalog);
 
   return (
     <section
@@ -394,7 +401,12 @@ export function MapInteractionStage({
         <>
           {view.canvasAllowed ? (
             <div className="mapi-stage">
-              <div ref={containerRef} id="judge-map-canvas" className="mapi-canvas" data-testid="map-interaction-canvas" />
+              <div
+                ref={containerRef}
+                id="judge-map-canvas"
+                className="mapi-canvas"
+                data-testid="map-interaction-canvas"
+              />
               <div className="mapi-overlay">
                 <p className="mapi-label" data-testid="map-interaction-layer-label">
                   {view.layerTitle}
@@ -419,10 +431,8 @@ export function MapInteractionStage({
             fillKind={catalog?.fill_kind}
             layerTitle={catalog?.layer_title ?? view.layerTitle}
             layerMeaning={catalog?.meaning ?? view.meaningCopy}
-            observedMinC={observedThermalSpan(catalog)?.minC ?? null}
-            observedMaxC={observedThermalSpan(catalog)?.maxC ?? null}
-            enhanceLocalContrast={enhanceLocalContrast}
-            onEnhanceLocalContrastChange={setEnhanceLocalContrast}
+            observedMinC={thermalSpan?.minC ?? null}
+            observedMaxC={thermalSpan?.maxC ?? null}
           />
         </>
       )}
