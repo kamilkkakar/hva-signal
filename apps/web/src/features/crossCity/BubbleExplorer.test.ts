@@ -60,6 +60,26 @@ describe("cross-city bubble explorer", () => {
     expect(view.plotted.map((point) => point.areaId)).toEqual(["phx-1"]);
   });
 
+  it("keeps plotted bubbles inside the chart axes rather than on top of them", () => {
+    const view = presentBubbleExplorer(
+      records,
+      ["phoenix-az", "las-vegas-nv"],
+      "phoenix-az",
+      {
+        x: "medianHouseholdIncomeUsd",
+        y: "selectedTimeTemperatureC",
+        size: "population",
+        fill: "treeCanopyPct",
+      },
+    );
+    expect(view.plotted.length).toBeGreaterThan(1);
+    for (const point of view.plotted) {
+      expect(point.cx - point.radius).toBeGreaterThan(108);
+      expect(point.cy - point.radius).toBeGreaterThan(28);
+      expect(point.cy + point.radius).toBeLessThan(296);
+    }
+  });
+
   it("marks missing fill in the tooltip disclosure", () => {
     expect(bubbleTooltipLines(records[1] ?? records[0])).toContain(
       "Tree canopy fill not published for this area.",
@@ -75,7 +95,7 @@ describe("cross-city bubble explorer", () => {
     expect(comparison.scaleMode).toBe("comparison");
   });
 
-  it("renders the explorer copy without causal wording", () => {
+  it("renders the explorer copy without causal wording and with explicit axes", () => {
     const html = renderToStaticMarkup(
       createElement(BubbleExplorer, {
         records,
@@ -87,6 +107,8 @@ describe("cross-city bubble explorer", () => {
     expect(html).toContain("Tree canopy (%)");
     expect(html).toContain("Selected-time temperature (°C)");
     expect(html).toContain('data-testid="cross-city-omitted"');
+    expect(html).toContain('data-testid="bubble-x-axis"');
+    expect(html).toContain('data-testid="bubble-y-axis"');
     expect(html.toLowerCase()).not.toContain("causes");
     expect(html.toLowerCase()).not.toContain("drives heat");
   });
