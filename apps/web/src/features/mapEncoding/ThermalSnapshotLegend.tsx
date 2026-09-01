@@ -2,8 +2,6 @@ import {
   THERMAL_C_AXIS,
   THERMAL_C_DENIAL,
   THERMAL_C_HIGH_LABEL,
-  THERMAL_C_LOCAL_CONTRAST_WARNING,
-  THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C,
   THERMAL_C_LOW_LABEL,
   THERMAL_C_NARROW_NOTE,
   thermalObservedSpanNote,
@@ -18,6 +16,7 @@ import "./legend.css";
 export type ThermalSnapshotLegendProps = {
   observedMinC?: number | null;
   observedMaxC?: number | null;
+  /** Deprecated compatibility props. Selected-time °C can no longer be AOI-stretched. */
   enhanceLocalContrast?: boolean;
   onEnhanceLocalContrastChange?: (next: boolean) => void;
   /** Optional override; defaults to ACTIVE_THERMAL_DISPLAY_SCALE. */
@@ -27,8 +26,6 @@ export type ThermalSnapshotLegendProps = {
 export function ThermalSnapshotLegend({
   observedMinC = null,
   observedMaxC = null,
-  enhanceLocalContrast = false,
-  onEnhanceLocalContrastChange,
   scale = ACTIVE_THERMAL_DISPLAY_SCALE,
 }: ThermalSnapshotLegendProps) {
   const colors = scale.stops.filter((_, index) => index % 2 === 1) as string[];
@@ -40,8 +37,7 @@ export function ThermalSnapshotLegend({
     Number.isFinite(observedMaxC) &&
     observedMaxC >= observedMinC;
   const spreadC = hasObservedSpan ? observedMaxC - observedMinC : null;
-  const lowVariation =
-    spreadC != null && spreadC > 0 && spreadC < THERMAL_C_LOCAL_CONTRAST_THRESHOLD_C;
+  const lowVariation = spreadC != null && spreadC > 0 && spreadC < 2;
   const band =
     hasObservedSpan && spreadC != null && spreadC > 0
       ? thermalObservedBandPosition(observedMinC, observedMaxC, scale)
@@ -52,7 +48,7 @@ export function ThermalSnapshotLegend({
       className="hva-pos-legend hva-thermal-legend"
       aria-label="Selected-time thermal legend"
       data-testid="thermal-snapshot-legend"
-      data-local-contrast={enhanceLocalContrast ? "yes" : "no"}
+      data-local-contrast="no"
       data-fixed-scale="yes"
       data-scale-version={scale.version}
       data-scale-min={scale.domainMin}
@@ -102,21 +98,6 @@ export function ThermalSnapshotLegend({
       {lowVariation ? (
         <p className="hva-pos-hatch-note" data-testid="thermal-low-variation">
           Low spatial variation. {THERMAL_C_NARROW_NOTE}
-        </p>
-      ) : null}
-      {onEnhanceLocalContrastChange && lowVariation ? (
-        <label className="hva-contrast-toggle" data-testid="thermal-contrast-toggle">
-          <input
-            type="checkbox"
-            checked={enhanceLocalContrast}
-            onChange={(event) => onEnhanceLocalContrastChange(event.target.checked)}
-          />
-          Enhance local contrast
-        </label>
-      ) : null}
-      {enhanceLocalContrast ? (
-        <p className="hva-pos-hatch-note" data-testid="thermal-local-contrast-note">
-          {THERMAL_C_LOCAL_CONTRAST_WARNING}
         </p>
       ) : null}
       <details className="hva-legend-about">
