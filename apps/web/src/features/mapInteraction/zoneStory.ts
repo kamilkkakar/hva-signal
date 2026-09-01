@@ -23,16 +23,54 @@ const MONTHS = [
   "Dec",
 ] as const;
 
+function timezoneObservationLabel(stamp: string, timezone: string): string | null {
+  const parsed = new Date(stamp);
+  if (!Number.isFinite(parsed.getTime())) return null;
+  try {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: timezone,
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    }).formatToParts(parsed);
+    const read = (type: Intl.DateTimeFormatPartTypes) =>
+      parts.find((part) => part.type === type)?.value ?? "";
+    const day = read("day");
+    const month = read("month");
+    const year = read("year");
+    const hour = read("hour");
+    const minute = read("minute");
+    if (!day || !month || !year || !hour || !minute) return null;
+    return `${Number(day)} ${month} ${year} · ${hour}:${minute} local`;
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Calendar date/time from an AOI-local stamp. This deliberately does not apply
- * a timezone conversion: the selected-time endpoint already returns the city's
- * requested local clock. Historical 03:00 observations therefore still render
- * 03:00, while Live 15:00/21:00/etc. reflect the actual request.
+ * Display the actual observation clock.
+ *
+ * Selected-time Live supplies an AOI-local clock without an offset, so that
+ * value is rendered exactly as requested. Historical analysis timestamps may
+ * be UTC/offset-aware; when a timezone is supplied we convert those back to the
+ * AOI-local clock before presenting them.
  */
-export function formatObservationLabel(stamp: string | null | undefined): string {
+export function formatObservationLabel(
+  stamp: string | null | undefined,
+  timezone?: string | null,
+): string {
   if (!stamp) {
     return MISSING_DISPLAY;
   }
+  const offsetAware = /(?:Z|[+-]\d{2}:?\d{2})$/.test(stamp);
+  if (timezone && offsetAware) {
+    const localized = timezoneObservationLabel(stamp, timezone);
+    if (localized) return localized;
+  }
+
   const match = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/.exec(stamp);
   if (!match) {
     return stamp;
