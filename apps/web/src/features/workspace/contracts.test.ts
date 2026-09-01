@@ -53,7 +53,8 @@ describe("workspace contracts", () => {
     const explore = readSrc("./ExploreCity.tsx");
     expect(explore).toContain("cross-city");
     expect(explore).toContain("cityGeometry");
-    expect(explore).toContain("crossCityCatalog");
+    expect(explore).toContain("publishedCrossCityCatalog");
+    expect(explore).toContain("activeCrossCityCatalog");
   });
 
   it("live integration calls POST endpoint only on explicit Run", () => {
@@ -64,11 +65,13 @@ describe("workspace contracts", () => {
     expect(controls).toContain("Run observation");
   });
 
-  it("public controls default to Published only until live is verified", () => {
+  it("CityControls stays fail-closed unless its caller explicitly enables live", () => {
     const controls = readSrc("./CityControls.tsx");
     expect(controls).toContain("liveAvailable = false");
     expect(controls).toContain("observation-published-only");
     expect(controls).toContain("ws-published-badge");
+    const explore = readSrc("./ExploreCity.tsx");
+    expect(explore).toContain("liveAvailable");
   });
 
   it("no FortyGuard API key in workspace source", () => {
