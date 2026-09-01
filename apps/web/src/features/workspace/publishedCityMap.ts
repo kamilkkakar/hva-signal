@@ -42,13 +42,18 @@ function recordGeoid(record: CrossCityAreaRecord): string {
 }
 
 /**
- * Join published geometry to cross-city observation rows.
+ * Join selected-time city geometry to observation rows.
  * Fails closed: missing temps are coverage=missing (outline only), never invented.
  */
 export function buildPublishedCityCatalog(
   geometry: CityGeometry,
   records: readonly CrossCityAreaRecord[],
-  options?: { timezone?: string; targetTimestamp?: string },
+  options?: {
+    timezone?: string;
+    targetTimestamp?: string;
+    source?: string;
+    dataStatus?: string;
+  },
 ): InteractionCatalog {
   const recordMap = new Map<string, CrossCityAreaRecord>();
   for (const record of records) {
@@ -73,8 +78,8 @@ export function buildPublishedCityCatalog(
     geometry,
     targetTimestamp: options?.targetTimestamp ?? "2024-07-08T15:00:00",
     timezone: options?.timezone ?? "America/Phoenix",
-    source: "fortyguard_cached",
-    dataStatus: "cached",
+    source: options?.source ?? "fortyguard_cached",
+    dataStatus: options?.dataStatus ?? "cached",
   });
 }
 
