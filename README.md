@@ -103,7 +103,7 @@ flowchart LR
     ACTION --> UI
 ```
 
-The frontend is a React/TypeScript application with MapLibre for geographic interaction. The API is FastAPI. Published observations and their provenance are served through replay/cache paths so the public demo is reproducible and does not create an uncontrolled vendor request simply because somebody opens the page.
+The frontend is a React/TypeScript application with MapLibre for geographic interaction. The API is FastAPI. Published observations and their provenance are served through replay/cache paths so the default public experience is reproducible and does not create an uncontrolled vendor request simply because somebody opens the page.
 
 ## FortyGuard usage
 
@@ -111,13 +111,13 @@ FortyGuard is the primary thermal-data provider. HVA-Signal uses **Type-1 TCM he
 
 The integration is deliberately cache-first. Repeating an identical request should reuse the existing evidence rather than submit the same paid request again.
 
-The repository also contains a narrowly scoped bounded selected-time live path:
+The public product also exposes one narrowly scoped Live path:
 
 `POST /api/v1/live/selected-time`
 
-That route accepts only a city and city-local hourly timestamp. AOI geometry, resolution, metric, provider configuration and credentials remain server-owned. The general arbitrary-vendor path is refused by design.
+Live is limited to the four supported city geographies. The browser sends only a supported city and city-local hourly timestamp; AOI geometry, resolution, metric, provider configuration and credentials remain server-owned. A successful result is aggregated into the same 25-zone geography used by the map. The general arbitrary-vendor path remains refused by design.
 
-**The current public Render deployment runs in replay mode and keeps bounded live disabled.** The Live control is not exposed in the public UI until a production cache/spend proof has been completed for the deployed configuration. This preserves a working published product instead of presenting a control that cannot complete its workflow.
+Published mode remains replay-backed. A paid/provider request can occur only when a user explicitly chooses **Live** and runs a supported selected-time observation; opening or navigating the product does not trigger one.
 
 ## Context data
 
@@ -125,8 +125,10 @@ Context is kept separate from thermal evidence. The current product uses:
 
 - **US Census Bureau TIGER/Line 2025** for tract geometry;
 - **ACS 2020–2024 5-year estimates** for socioeconomic and housing context;
-- **national tree-canopy context** for the cross-city comparison;
-- **Phoenix-specific canopy evidence** where the local Phoenix contract supports it.
+- **2021 national tree-canopy context** for the cross-city comparison;
+- **Phoenix-specific canopy evidence** where the deeper local Phoenix contract supports it.
+
+These context layers are structural reference datasets, not live measurements. When a selected-time Live thermal observation is requested, HVA-Signal joins the thermal result and the context values by the same Census tract while preserving each dataset's own reference date. It does **not** pretend that 2021 canopy or ACS 2020–2024 estimates were measured at the requested thermal timestamp.
 
 Context layers may use a relative colour range within the displayed comparison geography. The legend labels that behaviour explicitly and preserves the underlying numeric values. Context variables are not collapsed into a composite vulnerability score.
 
@@ -185,12 +187,12 @@ data/
   context/              contextual datasets and contracts
   phoenix/              Phoenix reference evidence
   cross-city/           cross-city comparison packages
-docs/                   analytical, release and provenance notes
+docs/                   analytical, release, provenance and internal notes
 infra/                   Render deployment blueprint
 scripts/                 validation and operational utilities
 ```
 
-The deployed product UI lives under `apps/web/src/features/workspace/`.
+The deployed product UI lives under `apps/web/src/features/workspace/`. Internal implementation plans and operational notes live under `docs/`, not at the repository root.
 
 ## Run locally
 
@@ -258,14 +260,14 @@ Render deployment is defined in `infra/render.yaml` (with the required root blue
 - Web: https://urban-thermal-web.onrender.com
 - API: https://urban-thermal-api.onrender.com
 
-The public deployment is intentionally replay-backed. Opening or navigating the product must not trigger a paid FortyGuard request.
+Published mode is replay-backed and deterministic. Bounded selected-time Live is opt-in and limited to the four supported server-owned city geographies; general arbitrary vendor access remains disabled.
 
 ## What we are shipping next
 
 The near-term product direction is to make the same evidence discipline useful over more observations, not to add a synthetic score.
 
 1. **Matched observed instants across cities** — compare the same local observation times across all four city geographies once the evidence package is acquired and validated.
-2. **Bounded selected-time Live** — activate the existing narrow live path only after production cache/spend verification proves an identical rerun creates no duplicate provider activity or debit.
+2. **Live hardening and monitoring** — continue validating cache reuse, spend controls and clear provenance for bounded selected-time observations without opening a general arbitrary-vendor path.
 3. **Stronger event-level thermal context** — make severe or persistent matched-time conditions clear without confusing event severity with spatial differentiation.
 4. **Method validation** — run sensitivity analysis on the current spatial-differentiation threshold and compare it with robust full-field alternatives before changing the frozen V1 policy.
 5. **More operational context** — add preparedness/resource evidence only where source coverage and provenance support it.

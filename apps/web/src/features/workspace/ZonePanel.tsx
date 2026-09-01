@@ -22,6 +22,9 @@ type ZonePanelProps = {
   forecastSupported?: boolean;
 };
 
+export const CONTEXT_REFERENCE_COPY =
+  "Context reference: tree canopy 2021; income and older housing from ACS 2020–2024 5-year estimates. These are structural reference layers for this Census tract, not measurements from the thermal observation timestamp.";
+
 function formatC(value: number | null): string {
   if (value == null) return "\u2014";
   return `${value.toFixed(1)}\u00a0\u00b0C`;
@@ -47,6 +50,9 @@ export function ZonePanel({
     );
   }
 
+  const hasContextMetrics =
+    zone.canopyPct != null || zone.incomeUsd != null || zone.olderHousingPct != null;
+
   return (
     <aside className="ws-zone-panel" data-testid="zone-panel" aria-label="Zone details">
       <HvaStoryRail stage={stage} onStageChange={onStageChange} />
@@ -61,36 +67,43 @@ export function ZonePanel({
       </div>
 
       {(stage === "heat" || stage === "context") && (
-        <dl className="ws-zone-metrics" data-testid="hva-heat-metrics">
-          <div className="ws-metric-row ws-metric-primary">
-            <dt>Temperature</dt>
-            <dd data-testid="zone-temp">{formatC(zone.temperatureC)}</dd>
-          </div>
-          {rangeLabel ? (
-            <div className="ws-metric-row">
-              <dt>City range</dt>
-              <dd data-testid="zone-range">{rangeLabel}</dd>
+        <>
+          <dl className="ws-zone-metrics" data-testid="hva-heat-metrics">
+            <div className="ws-metric-row ws-metric-primary">
+              <dt>Temperature</dt>
+              <dd data-testid="zone-temp">{formatC(zone.temperatureC)}</dd>
             </div>
+            {rangeLabel ? (
+              <div className="ws-metric-row">
+                <dt>City range</dt>
+                <dd data-testid="zone-range">{rangeLabel}</dd>
+              </div>
+            ) : null}
+            {zone.canopyPct != null ? (
+              <div className="ws-metric-row">
+                <dt>Tree canopy</dt>
+                <dd>{zone.canopyPct.toFixed(0)}%</dd>
+              </div>
+            ) : null}
+            {zone.incomeUsd != null ? (
+              <div className="ws-metric-row">
+                <dt>Income</dt>
+                <dd>${zone.incomeUsd.toLocaleString()}</dd>
+              </div>
+            ) : null}
+            {zone.olderHousingPct != null ? (
+              <div className="ws-metric-row">
+                <dt>Older housing</dt>
+                <dd>{zone.olderHousingPct.toFixed(0)}%</dd>
+              </div>
+            ) : null}
+          </dl>
+          {hasContextMetrics ? (
+            <p className="ws-context-reference" data-testid="context-reference">
+              {CONTEXT_REFERENCE_COPY}
+            </p>
           ) : null}
-          {zone.canopyPct != null ? (
-            <div className="ws-metric-row">
-              <dt>Tree canopy</dt>
-              <dd>{zone.canopyPct.toFixed(0)}%</dd>
-            </div>
-          ) : null}
-          {zone.incomeUsd != null ? (
-            <div className="ws-metric-row">
-              <dt>Income</dt>
-              <dd>${zone.incomeUsd.toLocaleString()}</dd>
-            </div>
-          ) : null}
-          {zone.olderHousingPct != null ? (
-            <div className="ws-metric-row">
-              <dt>Older housing</dt>
-              <dd>{zone.olderHousingPct.toFixed(0)}%</dd>
-            </div>
-          ) : null}
-        </dl>
+        </>
       )}
 
       {stage === "heat" && spatialState ? (
@@ -146,9 +159,9 @@ export function ZonePanel({
         <p>
           {hasLocalAnalysis
             ? "FortyGuard Type-1 TCM · 100 m resolution · cached observation."
-            : "Comparison-mode context uses published cross-city metrics for the selected observation only."}{" "}
-          Census Tract geography from US Census Bureau TIGER/Line 2025. Context from ACS 5-year
-          estimates and NLCD 2021.
+            : "Thermal and context evidence are joined by Census tract, but retain their own source dates."}{" "}
+          Census Tract geography from US Census Bureau TIGER/Line 2025. Tree canopy is a 2021
+          reference layer; income and older housing use ACS 2020–2024 5-year estimates.
         </p>
       </details>
     </aside>

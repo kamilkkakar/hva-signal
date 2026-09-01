@@ -42,11 +42,14 @@ describe("workspace contracts", () => {
     expect(panel).toContain("zone-name");
   });
 
-  it("methods disclosure is closed by default", () => {
+  it("methods disclosure is closed by default and preserves source dates", () => {
     const panel = readSrc("./ZonePanel.tsx");
     expect(panel).toContain("<details");
     expect(panel).toContain("Methods");
-    expect(panel).toContain("Comparison-mode context uses published cross-city metrics");
+    expect(panel).toContain("Thermal and context evidence are joined by Census tract");
+    expect(panel).toContain("Tree canopy is a 2021");
+    expect(panel).toContain("ACS 2020–2024 5-year estimates");
+    expect(panel).not.toContain("for the selected observation only");
   });
 
   it("ExploreCity has four-city support", () => {
