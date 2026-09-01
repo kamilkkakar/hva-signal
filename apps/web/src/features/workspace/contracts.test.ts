@@ -96,9 +96,13 @@ describe("workspace contracts", () => {
   });
 
   it("below-map sections are collapsed by default", () => {
-    const explore = readSrc("./ExploreCity.tsx");
-    const detailsCount = (explore.match(/<details className="ws-analysis-section"/g) || []).length;
+    const evidence = readSrc("./CityEvidenceSections.tsx");
+    const detailsCount = (evidence.match(/<details className="ws-analysis-section"/g) || []).length;
     expect(detailsCount).toBeGreaterThanOrEqual(3);
+    expect(evidence).toContain("cityEvidenceCapabilities");
+    expect(evidence).not.toMatch(/if\s*\(\s*city\s*===\s*["']phoenix/i);
+    const explore = readSrc("./ExploreCity.tsx");
+    expect(explore).toContain("CityEvidenceSections");
     expect(explore).toContain("ws-map-column");
   });
 

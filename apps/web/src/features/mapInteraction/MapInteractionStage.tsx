@@ -314,6 +314,18 @@ export function MapInteractionStage({
     };
   }, [gatedOn, view.canvasAllowed]);
 
+  const catalogBoundsKey = (() => {
+    if (!catalog?.collection.features.length) {
+      return "";
+    }
+    const bounds = featureCollectionBounds(catalog.collection);
+    if (!bounds) {
+      return `n:${catalog.collection.features.length}`;
+    }
+    return `${bounds[0][0].toFixed(4)},${bounds[0][1].toFixed(4)},${bounds[1][0].toFixed(4)},${bounds[1][1].toFixed(4)}:${catalog.collection.features.length}`;
+  })();
+  const lastBoundsKey = useRef("");
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !gatedOn) {
@@ -323,7 +335,12 @@ export function MapInteractionStage({
     let frame = 0;
     const tryApply = () => {
       if (applyCatalog(map, catalog, state, view.canvasAllowed, enhanceLocalContrast)) {
-        if (state.fitGeneration !== lastFit.current) {
+        const boundsChanged =
+          Boolean(catalogBoundsKey) && catalogBoundsKey !== lastBoundsKey.current;
+        if (boundsChanged) {
+          lastBoundsKey.current = catalogBoundsKey;
+          fitCatalog(map, catalog);
+        } else if (state.fitGeneration !== lastFit.current) {
           lastFit.current = state.fitGeneration;
           fitCatalog(map, catalog);
         }
@@ -339,7 +356,14 @@ export function MapInteractionStage({
     return () => {
       window.cancelAnimationFrame(frame);
     };
-  }, [catalog, enhanceLocalContrast, gatedOn, state, view.canvasAllowed]);
+  }, [
+    catalog,
+    catalogBoundsKey,
+    enhanceLocalContrast,
+    gatedOn,
+    state,
+    view.canvasAllowed,
+  ]);
 
   return (
     <section

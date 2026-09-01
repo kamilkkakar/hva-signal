@@ -1,7 +1,7 @@
 # Pre-final UI baseline MANIFEST
 
 - baseline_sha: `6bfde4afd081386d16aa900093e251d27a0f312b`
-- captured_at: 2026-08-31T17:43:26.620Z
+- captured_at: 2026-09-01T03:49:50.950Z
 - contract: docs/release/CORE_UI_CONTRACT.json
 
 | File | Viewport | Screen/state | Expected major elements |
