@@ -23,11 +23,11 @@ import {
 
 const SVG_WIDTH = 720;
 const SVG_HEIGHT = 360;
-const MARGIN = { top: 24, right: 24, bottom: 56, left: 88 };
+const MARGIN = { top: 28, right: 28, bottom: 64, left: 108 };
 const FALLBACK_SIZE_RADIUS = 8;
 const DESKTOP_STROKE = 2.25;
 const MOBILE_STROKE = 2.75;
-const AXIS_MARK_GAP = 5;
+const AXIS_MARK_GAP = 10;
 
 type BubblePoint = CrossCityAreaRecord & {
   cx: number;
@@ -185,8 +185,8 @@ export function presentBubbleExplorer(
     const rawCx = scaleX(xValue, xDomain);
     const rawCy = scaleY(yValue, yDomain);
     // Domain extrema sit on the axes mathematically. Pull the rendered mark
-    // inward by its own radius so the bubble/halo cannot cover tick labels or
-    // axes while preserving the underlying value/domain.
+    // inward by its own radius plus a visible gap so neither the mark nor halo
+    // can cover the axis or its labels.
     const cx = clamp(
       rawCx,
       MARGIN.left + radius + AXIS_MARK_GAP,
@@ -292,15 +292,29 @@ export function BubbleExplorer({
             </pattern>
           </defs>
 
-          <line className="hx-axis-line" x1={MARGIN.left} y1={SVG_HEIGHT - MARGIN.bottom} x2={SVG_WIDTH - MARGIN.right} y2={SVG_HEIGHT - MARGIN.bottom} />
-          <line className="hx-axis-line" x1={MARGIN.left} y1={MARGIN.top} x2={MARGIN.left} y2={SVG_HEIGHT - MARGIN.bottom} />
+          <line
+            className="hx-axis-line"
+            x1={MARGIN.left}
+            y1={SVG_HEIGHT - MARGIN.bottom}
+            x2={SVG_WIDTH - MARGIN.right}
+            y2={SVG_HEIGHT - MARGIN.bottom}
+            data-testid="bubble-x-axis"
+          />
+          <line
+            className="hx-axis-line"
+            x1={MARGIN.left}
+            y1={MARGIN.top}
+            x2={MARGIN.left}
+            y2={SVG_HEIGHT - MARGIN.bottom}
+            data-testid="bubble-y-axis"
+          />
 
           {tickValues(view.xDomain, 5).map((tick) => {
             const x = scaleX(tick, view.xDomain);
             return (
               <g key={`x-${tick}`}>
                 <line className="hx-axis-tick" x1={x} y1={SVG_HEIGHT - MARGIN.bottom} x2={x} y2={SVG_HEIGHT - MARGIN.bottom + 6} />
-                <text className="hx-axis-label" x={x} y={SVG_HEIGHT - MARGIN.bottom + 20} textAnchor="middle">
+                <text className="hx-axis-label" x={x} y={SVG_HEIGHT - MARGIN.bottom + 22} textAnchor="middle">
                   {formatAxisTick(xMetric, tick)}
                 </text>
               </g>
@@ -311,8 +325,8 @@ export function BubbleExplorer({
             const y = scaleY(tick, view.yDomain);
             return (
               <g key={`y-${tick}`}>
-                <line className="hx-axis-tick" x1={MARGIN.left - 6} y1={y} x2={MARGIN.left} y2={y} />
-                <text className="hx-axis-label" x={MARGIN.left - 12} y={y + 4} textAnchor="end">
+                <line className="hx-axis-tick" x1={MARGIN.left - 7} y1={y} x2={MARGIN.left} y2={y} />
+                <text className="hx-axis-label" x={MARGIN.left - 17} y={y + 4} textAnchor="end">
                   {formatAxisTick(yMetric, tick)}
                 </text>
               </g>
@@ -324,10 +338,10 @@ export function BubbleExplorer({
           </text>
           <text
             className="hx-axis-title"
-            x={20}
+            x={25}
             y={(MARGIN.top + SVG_HEIGHT - MARGIN.bottom) / 2}
             textAnchor="middle"
-            transform={`rotate(-90 20 ${(MARGIN.top + SVG_HEIGHT - MARGIN.bottom) / 2})`}
+            transform={`rotate(-90 25 ${(MARGIN.top + SVG_HEIGHT - MARGIN.bottom) / 2})`}
           >
             {metricLabel(yMetric)}
           </text>
