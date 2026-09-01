@@ -24,7 +24,9 @@ export function MatchedNightChart({
   const span = max - min || 1;
   const width = 640;
   const height = 240;
-  const pad = { l: 48, r: 20, t: 22, b: 36 };
+  // Reserve a real y-axis gutter so tick text and the unit never collide with
+  // the first point or get clipped at the SVG edge.
+  const pad = { l: 84, r: 24, t: 26, b: 42 };
   const plotW = width - pad.l - pad.r;
   const plotH = height - pad.t - pad.b;
   const ticks = yTicks(min, max, 3);
@@ -78,21 +80,21 @@ export function MatchedNightChart({
                 const y = pad.t + plotH - ((tick - min) / span) * plotH;
                 return (
                   <g key={tick}>
-                    <line x1={pad.l - 4} y1={y} x2={pad.l} y2={y} className="hx-axis-tick" />
-                    <text x={pad.l - 8} y={y + 4} textAnchor="end" className="hx-axis-label">
+                    <line x1={pad.l - 5} y1={y} x2={pad.l} y2={y} className="hx-axis-tick" />
+                    <text x={pad.l - 12} y={y + 4} textAnchor="end" className="hx-axis-label">
                       {formatTempC(tick)}
                     </text>
                   </g>
                 );
               })}
               <text
-                x={pad.l - 42}
+                x={20}
                 y={pad.t + plotH / 2}
                 textAnchor="middle"
-                transform={`rotate(-90 ${pad.l - 42} ${pad.t + plotH / 2})`}
+                transform={`rotate(-90 20 ${pad.t + plotH / 2})`}
                 className="hx-axis-title"
               >
-                °C
+                Temperature (°C)
               </text>
               {points.slice(1).map((point, index) => {
                 const prev = points[index];
@@ -110,11 +112,11 @@ export function MatchedNightChart({
               })}
               {points.map((point) => (
                 <g key={point.year}>
-                  <circle cx={point.x} cy={point.y} r="6" className="hx-dot" data-testid={`matched-dot-${point.year}`} />
-                  <text x={point.x} y={point.y - 12} textAnchor="middle" className="hx-chart-value">
+                  <circle cx={point.x} cy={point.y} r="5" className="hx-dot" data-testid={`matched-dot-${point.year}`} />
+                  <text x={point.x} y={Math.max(pad.t + 10, point.y - 12)} textAnchor="middle" className="hx-chart-value">
                     {formatTempC(point.meanC)}
                   </text>
-                  <text x={point.x} y={height - 10} textAnchor="middle" className="hx-chart-label">
+                  <text x={point.x} y={height - 12} textAnchor="middle" className="hx-chart-label">
                     {point.year}
                   </text>
                 </g>

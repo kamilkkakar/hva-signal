@@ -48,7 +48,7 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
   const span = max - min || 1;
   const width = 640;
   const height = 250;
-  const pad = { l: 48, r: 28, t: 22, b: 36 };
+  const pad = { l: 88, r: 38, t: 28, b: 48 };
   const plotW = width - pad.l - pad.r;
   const plotH = height - pad.t - pad.b;
   const ticks = yTicks(min, max, 3);
@@ -99,27 +99,25 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
                 const y = pad.t + plotH - ((tick - min) / span) * plotH;
                 return (
                   <g key={tick}>
-                    <line x1={pad.l - 4} y1={y} x2={pad.l} y2={y} className="hx-axis-tick" />
-                    <text x={pad.l - 8} y={y + 4} textAnchor="end" className="hx-axis-label">
+                    <line x1={pad.l - 5} y1={y} x2={pad.l} y2={y} className="hx-axis-tick" />
+                    <text x={pad.l - 12} y={y + 4} textAnchor="end" className="hx-axis-label">
                       {formatTempC(tick)}
                     </text>
                   </g>
                 );
               })}
               <text
-                x={pad.l - 42}
+                x={20}
                 y={pad.t + plotH / 2}
                 textAnchor="middle"
-                transform={`rotate(-90 ${pad.l - 42} ${pad.t + plotH / 2})`}
+                transform={`rotate(-90 20 ${pad.t + plotH / 2})`}
                 className="hx-axis-title"
               >
-                °C
+                Temperature (°C)
               </text>
               {points.slice(1).map((point, index) => {
                 const prev = points[index];
-                if (prev == null) {
-                  return null;
-                }
+                if (prev == null) return null;
                 return (
                   <line
                     key={`${prev.instantId}-${point.instantId}`}
@@ -136,13 +134,13 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
                   <circle
                     cx={point.x}
                     cy={point.y}
-                    r={high?.id === point.instantId ? 7 : 5.5}
+                    r={high?.id === point.instantId ? 6 : 5}
                     className={high?.id === point.instantId ? "hx-dot hx-dot-high" : "hx-dot"}
                   />
-                  <text x={point.x} y={point.y - 12} textAnchor="middle" className="hx-chart-value">
+                  <text x={point.x} y={Math.max(pad.t + 10, point.y - 12)} textAnchor="middle" className="hx-chart-value">
                     {formatTempC(point.temperatureC)}
                   </text>
-                  <text x={point.x} y={height - 10} textAnchor="middle" className="hx-chart-label">
+                  <text x={point.x} y={height - 14} textAnchor="middle" className="hx-chart-label">
                     {point.label}
                   </text>
                 </g>

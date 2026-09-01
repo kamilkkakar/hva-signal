@@ -42,13 +42,18 @@ function recordGeoid(record: CrossCityAreaRecord): string {
 }
 
 /**
- * Join published geometry to cross-city observation rows.
+ * Join selected-time city geometry to observation rows.
  * Fails closed: missing temps are coverage=missing (outline only), never invented.
  */
 export function buildPublishedCityCatalog(
   geometry: CityGeometry,
   records: readonly CrossCityAreaRecord[],
-  options?: { timezone?: string; targetTimestamp?: string },
+  options?: {
+    timezone?: string;
+    targetTimestamp?: string;
+    source?: string;
+    dataStatus?: string;
+  },
 ): InteractionCatalog {
   const recordMap = new Map<string, CrossCityAreaRecord>();
   for (const record of records) {
@@ -73,8 +78,8 @@ export function buildPublishedCityCatalog(
     geometry,
     targetTimestamp: options?.targetTimestamp ?? "2024-07-08T15:00:00",
     timezone: options?.timezone ?? "America/Phoenix",
-    source: "fortyguard_cached",
-    dataStatus: "cached",
+    source: options?.source ?? "fortyguard_cached",
+    dataStatus: options?.dataStatus ?? "cached",
   });
 }
 
@@ -135,6 +140,15 @@ export function assertPublishedMapContract(
   return report;
 }
 
+function finiteMetric(value: number | null | undefined): boolean {
+  return value != null && Number.isFinite(value);
+}
+
+/**
+ * Cross-city context values are already published comparison metrics. Authorize
+ * an individual layer only when that metric is actually present for the zone.
+ * This does not authorize a combined score or turn context into thermal rank.
+ */
 export function contextZonesFromRecords(
   records: readonly CrossCityAreaRecord[],
 ): ZoneMapProperties[] {
@@ -144,9 +158,9 @@ export function contextZonesFromRecords(
     canopy_cover_share: record.metrics.treeCanopyPct,
     median_household_income: record.metrics.medianHouseholdIncomeUsd,
     share_pre_1980_housing: record.metrics.olderHousingPct,
-    canopy_comparison_allowed: false,
-    income_comparison_allowed: false,
-    older_housing_comparison_allowed: false,
+    canopy_comparison_allowed: finiteMetric(record.metrics.treeCanopyPct),
+    income_comparison_allowed: finiteMetric(record.metrics.medianHouseholdIncomeUsd),
+    older_housing_comparison_allowed: finiteMetric(record.metrics.olderHousingPct),
     cooling_site_status: "unknown",
     combined_score_authorized: false as const,
   }));

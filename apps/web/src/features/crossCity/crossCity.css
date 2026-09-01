@@ -22,30 +22,58 @@
 }
 
 .hx-cc-lens-tabs {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: 0.4rem;
+  width: fit-content;
   margin: 0.25rem 0 0.5rem;
+  padding: 0.28rem;
+  border: 1px solid var(--hx-line);
+  border-radius: 0.45rem;
+  background: rgba(255, 255, 255, 0.55);
 }
 
 .hx-cc-lens-tab {
-  min-height: 2.25rem;
-  padding: 0.35rem 0.85rem;
-  border: 1px solid var(--hx-ink);
-  background: var(--hx-paper);
+  min-height: 2.3rem;
+  padding: 0.38rem 0.95rem;
+  border: 1px solid #aab4ad;
+  border-radius: 0.3rem;
+  background: #ffffff;
   color: var(--hx-ink);
   cursor: pointer;
   font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 1px 1px rgba(28, 36, 32, 0.04);
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.hx-cc-lens-tab:hover:not(:disabled) {
+  border-color: var(--hx-ink);
+  background: #f0f3ee;
+  transform: translateY(-1px);
+}
+
+.hx-cc-lens-tab:focus-visible,
+.hx-cc-open-link:focus-visible,
+.hx-cc-legend-toggle:focus-visible,
+.hx-cc-legend-only:focus-visible,
+.hx-cc-legend-show-all:focus-visible {
+  outline: 2px solid var(--hx-copper);
+  outline-offset: 2px;
 }
 
 .hx-cc-lens-tab[aria-selected="true"] {
-  background: var(--hx-ink);
-  color: var(--hx-paper);
+  background: var(--hx-field);
+  color: #f7f8f5;
+  border-color: var(--hx-field);
+  box-shadow: none;
 }
 
 .hx-cc-lens-tab:disabled {
-  opacity: 0.45;
+  opacity: 0.42;
   cursor: not-allowed;
+  background: #edf0eb;
+  border-style: dashed;
 }
 
 .hx-cc-lens-panel {
@@ -146,17 +174,6 @@
   gap: 0.4rem;
 }
 
-.hx-cc-selector,
-.hx-cc-open-panel,
-.hx-cc-summary,
-.hx-cc-state,
-.hx-cc-legend,
-.hx-cc-chart-shell,
-.hx-cc-tooltip {
-  padding: 0.8rem 0.9rem;
-  background: var(--hx-card);
-}
-
 .hx-cc-selector {
   display: grid;
   gap: 0.35rem;
@@ -168,6 +185,7 @@
   min-height: 2.5rem;
   padding: 0.35rem 0.5rem;
   border: 1px solid var(--hx-ink);
+  border-radius: 0.28rem;
   background: #fff;
 }
 
@@ -181,7 +199,7 @@
 .hx-cc-fill-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 
 .hx-cc-open-link,
@@ -189,14 +207,26 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.5rem;
-  padding: 0.4rem 0.8rem;
-  border: 1px solid var(--hx-ink);
-  background: var(--hx-paper);
+  min-height: 2.35rem;
+  padding: 0.38rem 0.75rem;
+  border: 1px solid #9ba8a0;
+  border-radius: 0.3rem;
+  background: #ffffff;
   color: var(--hx-ink);
   text-decoration: none;
   width: fit-content;
   cursor: pointer;
+  font-weight: 600;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.hx-cc-open-link:hover:not([disabled]),
+.hx-cc-legend-toggle:hover,
+.hx-cc-legend-only:hover,
+.hx-cc-legend-show-all:hover {
+  border-color: var(--hx-ink);
+  background: #eef2ed;
+  transform: translateY(-1px);
 }
 
 .hx-cc-inline-link {
@@ -205,6 +235,7 @@
   border: none;
   background: transparent;
   text-decoration: underline;
+  font-weight: 500;
 }
 
 .hx-cc-open-link[disabled] {
@@ -213,8 +244,10 @@
 }
 
 .hx-cc-open-link[aria-pressed="true"] {
-  background: var(--hx-ink);
-  color: var(--hx-paper);
+  background: var(--hx-field);
+  color: #f7f8f5;
+  border-color: var(--hx-field);
+  box-shadow: inset 0 0 0 1px var(--hx-field);
 }
 
 .hx-cc-legend-head {
@@ -236,9 +269,12 @@
 .hx-cc-legend-show-all,
 .hx-cc-legend-toggle,
 .hx-cc-legend-only {
-  border: 1px solid var(--hx-line);
-  background: var(--hx-paper);
+  border: 1px solid #aab4ad;
+  border-radius: 0.28rem;
+  background: #ffffff;
   color: var(--hx-ink);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
 }
 
 .hx-cc-legend-show-all {
@@ -289,6 +325,7 @@
 .hx-cc-legend-list li[data-selected="true"] .hx-cc-legend-toggle {
   border-color: var(--hx-ink);
   box-shadow: inset 0 0 0 1px var(--hx-ink);
+  background: #eef2ed;
 }
 
 .hx-cc-chart-shell {
@@ -384,6 +421,14 @@
   .hx-cc-chart-shell,
   .hx-cc-tooltip {
     min-width: 0;
+  }
+
+  .hx-cc-lens-tabs {
+    width: 100%;
+  }
+
+  .hx-cc-lens-tab {
+    flex: 1 1 0;
   }
 
   .hx-cc-chart {

@@ -1,4 +1,5 @@
-import { CITIES, type CityId, type ObservationMode } from "./types";
+import { useEffect, useState } from "react";
+import { CITIES, cityConfig, type CityId, type ObservationMode } from "./types";
 
 type CityControlsProps = {
   cityId: CityId;
@@ -12,9 +13,14 @@ type CityControlsProps = {
   onRunLive?: () => void;
   liveRunning?: boolean;
   provenanceLine?: string | null;
-  /** Public Live is shown only after the bounded route has passed its cache/spend proof. */
+  /** Public Live is limited to the existing server-owned four-city geography. */
   liveAvailable?: boolean;
 };
+
+function cityDisplay(id: CityId): string {
+  const city = cityConfig(id);
+  return `${city.label}, ${city.state}`;
+}
 
 export function CityControls({
   cityId,
@@ -30,6 +36,23 @@ export function CityControls({
   provenanceLine,
   liveAvailable = false,
 }: CityControlsProps) {
+  const [liveCityQuery, setLiveCityQuery] = useState(cityDisplay(cityId));
+
+  useEffect(() => {
+    setLiveCityQuery(cityDisplay(cityId));
+  }, [cityId]);
+
+  const updateLiveCity = (value: string) => {
+    setLiveCityQuery(value);
+    const normalized = value.trim().toLowerCase();
+    const match = CITIES.find(
+      (item) =>
+        `${item.label}, ${item.state}`.toLowerCase() === normalized ||
+        item.label.toLowerCase() === normalized,
+    );
+    if (match) onCityChange(match.id);
+  };
+
   return (
     <div className="ws-city-controls" data-testid="city-controls">
       <div className="ws-controls-row">
@@ -88,6 +111,22 @@ export function CityControls({
 
         {liveAvailable && observationMode === "live" ? (
           <div className="ws-live-controls" data-testid="live-controls">
+            <label className="ws-control-field ws-live-city-search">
+              <span className="ws-control-label">Search supported city</span>
+              <input
+                type="search"
+                list="hva-live-supported-cities"
+                value={liveCityQuery}
+                onChange={(e) => updateLiveCity(e.target.value)}
+                aria-label="Search supported live city"
+                data-testid="live-city-search"
+              />
+              <datalist id="hva-live-supported-cities">
+                {CITIES.map((item) => (
+                  <option key={item.id} value={`${item.label}, ${item.state}`} />
+                ))}
+              </datalist>
+            </label>
             <label className="ws-control-field">
               <span className="ws-control-label">Date</span>
               <input
@@ -98,7 +137,7 @@ export function CityControls({
               />
             </label>
             <label className="ws-control-field">
-              <span className="ws-control-label">Time</span>
+              <span className="ws-control-label">Local time</span>
               <input
                 type="time"
                 value={liveTime ?? ""}
@@ -116,6 +155,10 @@ export function CityControls({
             >
               {liveRunning ? "Running…" : "Run observation"}
             </button>
+            <p className="ws-live-scope" data-testid="live-scope-note">
+              Live is bounded to the four published city geographies. The server owns the AOI,
+              100 m TCM request and provider credentials.
+            </p>
           </div>
         ) : null}
       </div>
