@@ -190,7 +190,12 @@ test.describe("workspace experience", () => {
     await expect(page.getByTestId("live-controls")).toBeVisible();
     await expect(page.getByTestId("live-city-search")).toBeVisible();
     await expect(page.getByTestId("run-live")).toBeVisible();
-    await expect(page.getByTestId("live-scope-note")).toContainText("four published city geographies");
+    await expect(page.getByTestId("live-scope-note")).toContainText(
+      "four supported city geographies",
+    );
+    await expect(page.getByTestId("live-scope-note")).toContainText("tree canopy 2021");
+    await expect(page.getByTestId("live-scope-note")).toContainText("ACS 2020–2024");
+    await expect(page.getByTestId("live-scope-note")).toContainText("not timestamp-matched");
 
     // Do not click Run here: CI must never create a paid provider request.
     await expect(page.getByTestId("run-live")).toBeEnabled();
