@@ -23,23 +23,69 @@ const MONTHS = [
   "Dec",
 ] as const;
 
-/** Calendar date from an AOI-local stamp. Does not shift across timezones. */
-export function formatObservationLabel(stamp: string | null | undefined): string {
+function timezoneObservationLabel(stamp: string, timezone: string): string | null {
+  const parsed = new Date(stamp);
+  if (!Number.isFinite(parsed.getTime())) return null;
+  try {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: timezone,
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    }).formatToParts(parsed);
+    const read = (type: Intl.DateTimeFormatPartTypes) =>
+      parts.find((part) => part.type === type)?.value ?? "";
+    const day = read("day");
+    const month = read("month");
+    const year = read("year");
+    const hour = read("hour");
+    const minute = read("minute");
+    if (!day || !month || !year || !hour || !minute) return null;
+    return `${Number(day)} ${month} ${year} · ${hour}:${minute} local`;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Display the actual observation clock.
+ *
+ * Selected-time Live supplies an AOI-local clock without an offset, so that
+ * value is rendered exactly as requested. Historical analysis timestamps may
+ * be UTC/offset-aware; when a timezone is supplied we convert those back to the
+ * AOI-local clock before presenting them.
+ */
+export function formatObservationLabel(
+  stamp: string | null | undefined,
+  timezone?: string | null,
+): string {
   if (!stamp) {
     return MISSING_DISPLAY;
   }
-  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(stamp);
+  const offsetAware = /(?:Z|[+-]\d{2}:?\d{2})$/.test(stamp);
+  if (timezone && offsetAware) {
+    const localized = timezoneObservationLabel(stamp, timezone);
+    if (localized) return localized;
+  }
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/.exec(stamp);
   if (!match) {
     return stamp;
   }
   const year = match[1];
   const month = Number(match[2]);
   const day = Number(match[3]);
+  const hour = match[4];
+  const minute = match[5];
   const monthName = MONTHS[month - 1];
   if (!monthName || !Number.isFinite(day) || day < 1) {
     return stamp;
   }
-  return `${day} ${monthName} ${year} · 03:00 local`;
+  const dateLabel = `${day} ${monthName} ${year}`;
+  return hour && minute ? `${dateLabel} · ${hour}:${minute} local` : dateLabel;
 }
 
 export function emptyStoryFields(input: {

@@ -46,14 +46,19 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
   const min = temps.length ? Math.min(...temps) - 1 : 0;
   const max = temps.length ? Math.max(...temps) + 1 : 1;
   const span = max - min || 1;
-  const width = 640;
+  const width = 680;
   const height = 250;
-  const pad = { l: 88, r: 38, t: 28, b: 48 };
+  const pad = { l: 98, r: 34, t: 28, b: 50 };
   const plotW = width - pad.l - pad.r;
   const plotH = height - pad.t - pad.b;
+  const pointInset = 34;
+  const pointSpan = Math.max(0, plotW - pointInset * 2);
   const ticks = yTicks(min, max, 3);
   const points = view.instants.map((item, index) => {
-    const x = pad.l + (index * plotW) / Math.max(view.instants.length - 1, 1);
+    const x =
+      view.instants.length === 1
+        ? pad.l + plotW / 2
+        : pad.l + pointInset + (index * pointSpan) / Math.max(view.instants.length - 1, 1);
     const y = pad.t + plotH - ((item.temperatureC - min) / span) * plotH;
     return { ...item, x, y };
   });
@@ -87,30 +92,38 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
               data-testid="observed-instants-chart"
               data-autostretch="false"
             >
-              <line x1={pad.l} y1={pad.t} x2={pad.l} y2={pad.t + plotH} className="hx-axis-line" />
+              <line
+                x1={pad.l}
+                y1={pad.t}
+                x2={pad.l}
+                y2={pad.t + plotH}
+                className="hx-axis-line"
+                data-testid="observed-y-axis"
+              />
               <line
                 x1={pad.l}
                 y1={pad.t + plotH}
                 x2={pad.l + plotW}
                 y2={pad.t + plotH}
                 className="hx-axis-line"
+                data-testid="observed-x-axis"
               />
               {ticks.map((tick) => {
                 const y = pad.t + plotH - ((tick - min) / span) * plotH;
                 return (
                   <g key={tick}>
-                    <line x1={pad.l - 5} y1={y} x2={pad.l} y2={y} className="hx-axis-tick" />
-                    <text x={pad.l - 12} y={y + 4} textAnchor="end" className="hx-axis-label">
+                    <line x1={pad.l - 6} y1={y} x2={pad.l} y2={y} className="hx-axis-tick" />
+                    <text x={pad.l - 16} y={y + 4} textAnchor="end" className="hx-axis-label">
                       {formatTempC(tick)}
                     </text>
                   </g>
                 );
               })}
               <text
-                x={20}
+                x={22}
                 y={pad.t + plotH / 2}
                 textAnchor="middle"
-                transform={`rotate(-90 20 ${pad.t + plotH / 2})`}
+                transform={`rotate(-90 22 ${pad.t + plotH / 2})`}
                 className="hx-axis-title"
               >
                 Temperature (°C)

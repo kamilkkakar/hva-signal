@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { MapInteractionChrome } from "./MapInteractionChrome";
-import { historicalCatalog } from "./fixtures";
+import { historicalCatalog, snapshotCatalog } from "./fixtures";
 import { presentMapInteraction } from "./present";
 import { initialInteractionState, reduceInteraction } from "./state";
 
@@ -56,5 +56,26 @@ describe("map interaction first-read chrome", () => {
     );
     expect(heading?.[1]).toBe("Selected analysis zone");
     expect(heading?.[1]).not.toContain(geoid);
+  });
+
+  it("shows selected-time temperature and the actual observation clock instead of historical position copy", () => {
+    const catalog = snapshotCatalog(false);
+    const geoid = catalog.zones[0]?.geoid ?? "";
+    let state = initialInteractionState();
+    state = reduceInteraction(state, { type: "select", geoid }, catalog);
+    const view = presentMapInteraction({ enabled: true, catalog, state });
+    const html = renderToStaticMarkup(
+      createElement(MapInteractionChrome, {
+        view,
+        dispatch: () => undefined,
+        catalogKind: catalog.kind,
+        fillKind: catalog.fill_kind,
+      }),
+    );
+
+    expect(html).toContain('data-testid="detail-selected-time-value"');
+    expect(html).toContain("39.9 °C");
+    expect(html).toContain("15 Jul 2024 · 15:00 local");
+    expect(html).not.toContain("Position within this zone&#x27;s own 03:00 historical reference");
   });
 });

@@ -67,7 +67,7 @@ function contextModeFromTitle(title: string, meaning: string): {
 export function MapInteractionChrome({
   view,
   dispatch,
-  catalogKind: _catalogKind = null,
+  catalogKind = null,
   fillKind = null,
   layerTitle = null,
   layerMeaning = null,
@@ -76,11 +76,11 @@ export function MapInteractionChrome({
   enhanceLocalContrast = false,
   onEnhanceLocalContrastChange,
 }: MapInteractionChromeProps) {
-  void _catalogKind;
   const contextMeta =
     fillKind === "context_quantity"
       ? contextModeFromTitle(layerTitle ?? view.layerTitle, layerMeaning ?? view.meaningCopy)
       : null;
+  const selectedTimeDetail = catalogKind === "selected_time_snapshot";
 
   return (
     <div className="mapi-chrome" data-testid="map-interaction-chrome">
@@ -208,8 +208,17 @@ export function MapInteractionChrome({
                 </div>
               ) : null}
               <dl>
-                <dt>Position</dt>
-                <dd data-testid="detail-position-meaning">{view.detail.position_meaning}</dd>
+                {view.detail.position_shown ? (
+                  <>
+                    <dt>Position</dt>
+                    <dd data-testid="detail-position-meaning">{view.detail.position_meaning}</dd>
+                  </>
+                ) : selectedTimeDetail ? (
+                  <>
+                    <dt>Temperature</dt>
+                    <dd data-testid="detail-selected-time-value">{view.detail.value_display}</dd>
+                  </>
+                ) : null}
                 <dt>Observation</dt>
                 <dd data-testid="detail-observation">{view.detail.observation_label}</dd>
                 <dt>Source</dt>
@@ -253,7 +262,9 @@ export function MapInteractionChrome({
                   </p>
                 </details>
               ) : null}
-              <p className="mapi-copy mapi-position-note">{POSITION_MEANING}</p>
+              {view.detail.position_shown ? (
+                <p className="mapi-copy mapi-position-note">{POSITION_MEANING}</p>
+              ) : null}
             </>
           ) : (
             <p className="mapi-copy">{view.layerActive ? SELECT_PROMPT : view.meaningCopy}</p>

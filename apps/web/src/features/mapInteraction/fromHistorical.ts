@@ -44,7 +44,7 @@ export function catalogFromHistorical(input: {
   fillAuthorized: boolean;
 }): InteractionCatalog {
   const time_label = formatTimeLabel(input.analysisTime, input.timezone);
-  const observation_label = formatObservationLabel(input.analysisTime);
+  const observation_label = formatObservationLabel(input.analysisTime, input.timezone);
   const source_label = productSourceLabel(
     input.dataStatus ?? input.dataMode ?? input.thermalSource,
   );

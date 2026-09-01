@@ -39,7 +39,10 @@ function announce(
   }
   if (viewDetail) {
     const order = viewDetail.relative_order_line ? ` ${viewDetail.relative_order_line}.` : "";
-    return `Selected zone ${viewDetail.geoid}. ${viewDetail.position_meaning} ${viewDetail.observation_label}. Source ${viewDetail.source_story}.${order}`;
+    const evidence = viewDetail.position_shown
+      ? viewDetail.position_meaning
+      : `Temperature ${viewDetail.value_display}.`;
+    return `Selected zone ${viewDetail.geoid}. ${evidence} ${viewDetail.observation_label}. Source ${viewDetail.source_story}.${order}`;
   }
   if (viewHover) {
     return `Hover ${viewHover.line}.`;
