@@ -156,8 +156,9 @@ export function CityControls({
               {liveRunning ? "Running…" : "Run observation"}
             </button>
             <p className="ws-live-scope" data-testid="live-scope-note">
-              Live is bounded to the four published city geographies. The server owns the AOI,
-              100 m TCM request and provider credentials.
+              Live fetches selected-time TCM for the four supported city geographies. Context stays
+              joined to the same tract from published reference layers (tree canopy 2021; ACS
+              2020–2024) and is not timestamp-matched.
             </p>
           </div>
         ) : null}
