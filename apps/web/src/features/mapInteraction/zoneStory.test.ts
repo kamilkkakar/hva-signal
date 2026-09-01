@@ -14,6 +14,12 @@ describe("zone story", () => {
     expect(formatObservationLabel("2022-06-30T03:00:00")).toBe(
       "30 Jun 2022 · 03:00 local",
     );
+    expect(formatObservationLabel("2024-07-08T15:00:00")).toBe(
+      "8 Jul 2024 · 15:00 local",
+    );
+    expect(formatObservationLabel("2024-07-08T21:30:00")).toBe(
+      "8 Jul 2024 · 21:30 local",
+    );
     expect(formatQuantile4(0.2294)).toBe("0.2294");
     expect(formatQuantile4(0.2294000000000001)).toBe("0.2294");
     expect(formatQuantile4(Math.PI)).toBe("3.1416");
