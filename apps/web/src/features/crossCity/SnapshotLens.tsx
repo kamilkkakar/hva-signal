@@ -59,6 +59,7 @@ export function SnapshotLens({ areas, activeCityIds, comparisonClock }: Snapshot
           }
           const left = rangePosition(city.minC, scale.minC, scale.maxC);
           const right = rangePosition(city.maxC, scale.minC, scale.maxC);
+          const mid = (left + right) / 2;
           return (
             <li key={city.cityId} data-city={city.cityId}>
               <span className="hx-cc-city-swatch" style={{ background: cityHue(city.cityId) }} />
@@ -77,6 +78,11 @@ export function SnapshotLens({ areas, activeCityIds, comparisonClock }: Snapshot
                       width: `${Math.max(2, (right - left) * 100)}%`,
                       background: cityHue(city.cityId),
                     }}
+                  />
+                  <span
+                    className="hx-cc-city-range-marker"
+                    style={{ left: `${mid * 100}%`, background: cityHue(city.cityId) }}
+                    title="Midpoint of city range"
                   />
                 </div>
               </div>

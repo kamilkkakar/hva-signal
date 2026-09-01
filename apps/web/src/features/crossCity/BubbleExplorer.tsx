@@ -22,7 +22,7 @@ import {
 } from "./types";
 
 const SVG_WIDTH = 720;
-const SVG_HEIGHT = 420;
+const SVG_HEIGHT = 360;
 const MARGIN = { top: 24, right: 24, bottom: 56, left: 88 };
 const FALLBACK_SIZE_RADIUS = 8;
 const DESKTOP_STROKE = 2.25;

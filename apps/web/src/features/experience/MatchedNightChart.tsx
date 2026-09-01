@@ -23,11 +23,11 @@ export function MatchedNightChart({
   const max = temps.length ? Math.max(...temps) + 0.6 : 1;
   const span = max - min || 1;
   const width = 640;
-  const height = 260;
-  const pad = { l: 56, r: 24, t: 28, b: 44 };
+  const height = 240;
+  const pad = { l: 48, r: 20, t: 22, b: 36 };
   const plotW = width - pad.l - pad.r;
   const plotH = height - pad.t - pad.b;
-  const ticks = yTicks(min, max);
+  const ticks = yTicks(min, max, 3);
   const points = view.years.map((row, index) => {
     const x = pad.l + (view.years.length === 1 ? plotW / 2 : (index * plotW) / (view.years.length - 1));
     const y = pad.t + plotH - ((row.meanC - min) / span) * plotH;
@@ -110,11 +110,11 @@ export function MatchedNightChart({
               })}
               {points.map((point) => (
                 <g key={point.year}>
-                  <circle cx={point.x} cy={point.y} r="8" className="hx-dot" data-testid={`matched-dot-${point.year}`} />
-                  <text x={point.x} y={point.y - 14} textAnchor="middle" className="hx-chart-value">
+                  <circle cx={point.x} cy={point.y} r="6" className="hx-dot" data-testid={`matched-dot-${point.year}`} />
+                  <text x={point.x} y={point.y - 12} textAnchor="middle" className="hx-chart-value">
                     {formatTempC(point.meanC)}
                   </text>
-                  <text x={point.x} y={height - 12} textAnchor="middle" className="hx-chart-label">
+                  <text x={point.x} y={height - 10} textAnchor="middle" className="hx-chart-label">
                     {point.year}
                   </text>
                 </g>

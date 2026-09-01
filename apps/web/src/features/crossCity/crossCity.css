@@ -90,7 +90,8 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.65rem;
+  gap: 0.45rem;
+  max-height: 280px;
 }
 
 .hx-cc-city-ranges li {
@@ -125,6 +126,17 @@
   position: absolute;
   top: 0;
   bottom: 0;
+}
+
+.hx-cc-city-range-marker {
+  position: absolute;
+  top: 50%;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid #fff;
+  box-shadow: 0 0 0 1px rgba(28, 36, 32, 0.25);
 }
 
 .hx-cc-time-lens {

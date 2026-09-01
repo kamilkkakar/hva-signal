@@ -1,5 +1,6 @@
 import { INSTANTS_DIFF_LABEL, INSTANTS_GAP, INSTANTS_HIGH_LABEL, INSTANTS_SELECT, INSTANTS_SUBTITLE, INSTANTS_TITLE } from "./copy";
 import { formatDeltaC, formatTempC } from "./format";
+import { deriveThermalFindings } from "./derivedFindings";
 import type { PresentedSequence } from "@/features/judgeShell/decision/types";
 
 type ObservedInstantsChartProps = {
@@ -13,27 +14,50 @@ function yTicks(min: number, max: number, count = 4): number[] {
 }
 
 export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChartProps) {
+  const findings = deriveThermalFindings(
+    view.instants.map((item) => ({
+      id: item.instantId,
+      label: item.label,
+      temperatureC: item.temperatureC,
+    })),
+  );
+
+  if (view.status === "AVAILABLE" && findings.count < 2) {
+    return (
+      <section
+        className="hx-section hx-temporal-card hx-level-1"
+        id="observed"
+        data-testid="observed-instants"
+        aria-labelledby="observed-instants-title"
+      >
+        <h2 id="observed-instants-title">{INSTANTS_TITLE}</h2>
+        <p className="hx-note" data-testid="observed-single-instant">
+          {areaLabel ?? "This analysis area"}:{" "}
+          {findings.highest
+            ? `${findings.highest.label} ${formatTempC(findings.highest.temperatureC)}`
+            : "one published observation"}
+          . Additional timestamps are required before pairwise gaps are shown.
+        </p>
+      </section>
+    );
+  }
+
   const temps = view.instants.map((item) => item.temperatureC);
   const min = temps.length ? Math.min(...temps) - 1 : 0;
   const max = temps.length ? Math.max(...temps) + 1 : 1;
   const span = max - min || 1;
   const width = 640;
-  const height = 260;
-  const pad = { l: 56, r: 36, t: 28, b: 44 };
+  const height = 250;
+  const pad = { l: 48, r: 28, t: 22, b: 36 };
   const plotW = width - pad.l - pad.r;
   const plotH = height - pad.t - pad.b;
-  const ticks = yTicks(min, max);
+  const ticks = yTicks(min, max, 3);
   const points = view.instants.map((item, index) => {
     const x = pad.l + (index * plotW) / Math.max(view.instants.length - 1, 1);
     const y = pad.t + plotH - ((item.temperatureC - min) / span) * plotH;
     return { ...item, x, y };
   });
-  const high = view.instants.reduce<(typeof view.instants)[number] | null>((best, item) => {
-    if (!best || item.temperatureC > best.temperatureC) {
-      return item;
-    }
-    return best;
-  }, null);
+  const high = findings.highest;
 
   return (
     <section
@@ -59,7 +83,7 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
               className="hx-chart hx-chart-large"
               viewBox={`0 0 ${width} ${height}`}
               role="img"
-              aria-label="Four discrete observed thermal markers with unobserved intervals"
+              aria-label="Observed thermal markers with unobserved intervals"
               data-testid="observed-instants-chart"
               data-autostretch="false"
             >
@@ -112,13 +136,13 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
                   <circle
                     cx={point.x}
                     cy={point.y}
-                    r={high?.instantId === point.instantId ? 9 : 7}
-                    className={high?.instantId === point.instantId ? "hx-dot hx-dot-high" : "hx-dot"}
+                    r={high?.id === point.instantId ? 7 : 5.5}
+                    className={high?.id === point.instantId ? "hx-dot hx-dot-high" : "hx-dot"}
                   />
-                  <text x={point.x} y={point.y - 16} textAnchor="middle" className="hx-chart-value">
+                  <text x={point.x} y={point.y - 12} textAnchor="middle" className="hx-chart-value">
                     {formatTempC(point.temperatureC)}
                   </text>
-                  <text x={point.x} y={height - 12} textAnchor="middle" className="hx-chart-label">
+                  <text x={point.x} y={height - 10} textAnchor="middle" className="hx-chart-label">
                     {point.label}
                   </text>
                 </g>
@@ -134,11 +158,17 @@ export function ObservedInstantsChart({ view, areaLabel }: ObservedInstantsChart
                 </strong>
               </p>
             ) : null}
+            {findings.spanC != null ? (
+              <p className="hx-note" data-testid="observed-span">
+                Overall span {Math.abs(findings.spanC).toFixed(2)} °C across {findings.count}{" "}
+                observations.
+              </p>
+            ) : null}
             <p className="hx-kicker">{INSTANTS_DIFF_LABEL}</p>
             <ul className="hx-diffs" data-testid="observed-diffs">
-              {view.differences.map((item) => (
+              {findings.pairwise.map((item) => (
                 <li key={`${item.fromId}-${item.toId}`}>
-                  {item.fromId} → {item.toId}: {formatDeltaC(item.deltaC)}
+                  {item.fromLabel} → {item.toLabel}: {formatDeltaC(item.deltaC)}
                 </li>
               ))}
             </ul>
