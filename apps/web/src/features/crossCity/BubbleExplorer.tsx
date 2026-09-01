@@ -27,6 +27,7 @@ const MARGIN = { top: 24, right: 24, bottom: 56, left: 88 };
 const FALLBACK_SIZE_RADIUS = 8;
 const DESKTOP_STROKE = 2.25;
 const MOBILE_STROKE = 2.75;
+const AXIS_MARK_GAP = 5;
 
 type BubblePoint = CrossCityAreaRecord & {
   cx: number;
@@ -48,39 +49,31 @@ export type BubbleExplorerView = {
   scaleMode: "comparison" | "focused";
 };
 
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
 function scaleX(value: number, domain: NumericDomain | null): number {
   const left = MARGIN.left;
   const right = SVG_WIDTH - MARGIN.right;
-  if (!domain) {
-    return (left + right) / 2;
-  }
+  if (!domain) return (left + right) / 2;
   const span = domain.max - domain.min;
-  if (span <= 0) {
-    return (left + right) / 2;
-  }
+  if (span <= 0) return (left + right) / 2;
   return left + ((value - domain.min) / span) * (right - left);
 }
 
 function scaleY(value: number, domain: NumericDomain | null): number {
   const top = MARGIN.top;
   const bottom = SVG_HEIGHT - MARGIN.bottom;
-  if (!domain) {
-    return (top + bottom) / 2;
-  }
+  if (!domain) return (top + bottom) / 2;
   const span = domain.max - domain.min;
-  if (span <= 0) {
-    return (top + bottom) / 2;
-  }
+  if (span <= 0) return (top + bottom) / 2;
   return bottom - ((value - domain.min) / span) * (bottom - top);
 }
 
 function tickValues(domain: NumericDomain | null, count: number): number[] {
-  if (!domain) {
-    return [];
-  }
-  if (domain.max === domain.min) {
-    return [domain.min];
-  }
+  if (!domain) return [];
+  if (domain.max === domain.min) return [domain.min];
   const step = (domain.max - domain.min) / Math.max(count - 1, 1);
   return Array.from({ length: count }, (_, index) => domain.min + step * index);
 }
@@ -114,26 +107,14 @@ function formatOlderHousing(value: number | null): string {
 }
 
 function formatAxisTick(metric: CrossCityMetricKey, value: number): string {
-  if (metric === "selectedTimeTemperatureC") {
-    return `${value.toFixed(1)}°`;
-  }
-  if (metric === "treeCanopyPct" || metric === "olderHousingPct") {
-    return `${value.toFixed(0)}%`;
-  }
+  if (metric === "selectedTimeTemperatureC") return `${value.toFixed(1)}°`;
+  if (metric === "treeCanopyPct" || metric === "olderHousingPct") return `${value.toFixed(0)}%`;
   if (metric === "medianHouseholdIncomeUsd") {
-    if (Math.abs(value) >= 1_000_000) {
-      return `${(value / 1_000_000).toFixed(1)}M`;
-    }
-    if (Math.abs(value) >= 1_000) {
-      return `${Math.round(value / 1_000)}k`;
-    }
+    if (Math.abs(value) >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+    if (Math.abs(value) >= 1_000) return `${Math.round(value / 1_000)}k`;
   }
-  if (Math.abs(value) >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`;
-  }
-  if (Math.abs(value) >= 1_000) {
-    return `${Math.round(value / 1_000)}k`;
-  }
+  if (Math.abs(value) >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+  if (Math.abs(value) >= 1_000) return `${Math.round(value / 1_000)}k`;
   return `${Math.round(value)}`;
 }
 
@@ -145,9 +126,7 @@ export function bubbleTooltipLines(point: CrossCityAreaRecord): string[] {
   if (point.metrics.population == null) {
     missing.push("Population is not published, so bubble size uses a fallback marker.");
   }
-  const secondary =
-    point.secondaryLabel ??
-    `Comparison area · ${point.cityLabel}`;
+  const secondary = point.secondaryLabel ?? `Comparison area · ${point.cityLabel}`;
   return [
     point.areaLabel,
     point.cityLabel,
@@ -171,9 +150,7 @@ export function presentBubbleExplorer(
     size: CrossCityMetricKey;
     fill: CrossCityFillKey;
   } = CROSS_CITY_DEFAULT_ENCODINGS,
-  options?: {
-    forceComparisonScale?: boolean;
-  },
+  options?: { forceComparisonScale?: boolean },
 ): BubbleExplorerView {
   const filtered = records.filter((record) => activeCityIds.includes(record.cityId));
   const isolatedOne = activeCityIds.length === 1;
@@ -186,10 +163,8 @@ export function presentBubbleExplorer(
   const yDomain = useFocused
     ? axisDomainFromRecords(filtered, encodings.y)
     : axisDomainFromRecords(records, encodings.y);
-  // Size + fill stay on shared / fixed scales — never visible-city rescaling.
   const sizeDomain = metricDomain(records, encodings.size === "population" ? "population" : encodings.size);
-  const fillDomain =
-    encodings.fill === "none" ? null : metricDomain(records, encodings.fill);
+  const fillDomain = encodings.fill === "none" ? null : metricDomain(records, encodings.fill);
 
   const plotted: BubblePoint[] = [];
   let omittedCount = 0;
@@ -206,13 +181,28 @@ export function presentBubbleExplorer(
       encodings.size === "population" ? sizeValue : sizeValue,
       sizeDomain,
     );
-    const fillValue =
-      encodings.fill === "none" ? null : metricValue(record, encodings.fill);
+    const radius = Math.max(computedRadius ?? FALLBACK_SIZE_RADIUS, 6);
+    const rawCx = scaleX(xValue, xDomain);
+    const rawCy = scaleY(yValue, yDomain);
+    // Domain extrema sit on the axes mathematically. Pull the rendered mark
+    // inward by its own radius so the bubble/halo cannot cover tick labels or
+    // axes while preserving the underlying value/domain.
+    const cx = clamp(
+      rawCx,
+      MARGIN.left + radius + AXIS_MARK_GAP,
+      SVG_WIDTH - MARGIN.right - radius - AXIS_MARK_GAP,
+    );
+    const cy = clamp(
+      rawCy,
+      MARGIN.top + radius + AXIS_MARK_GAP,
+      SVG_HEIGHT - MARGIN.bottom - radius - AXIS_MARK_GAP,
+    );
+    const fillValue = encodings.fill === "none" ? null : metricValue(record, encodings.fill);
     plotted.push({
       ...record,
-      cx: scaleX(xValue, xDomain),
-      cy: scaleY(yValue, yDomain),
-      radius: Math.max(computedRadius ?? FALLBACK_SIZE_RADIUS, 6),
+      cx,
+      cy,
+      radius,
       fill:
         fillColorForMetric(record.cityId, encodings.fill, fillValue, fillDomain) ??
         "url(#hx-cross-city-missing-fill)",
@@ -296,50 +286,21 @@ export function BubbleExplorer({
           data-scale-mode={view.scaleMode}
         >
           <defs>
-            <pattern
-              id="hx-cross-city-missing-fill"
-              width="8"
-              height="8"
-              patternUnits="userSpaceOnUse"
-              patternTransform="rotate(45)"
-            >
+            <pattern id="hx-cross-city-missing-fill" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
               <rect width="8" height="8" fill="#f7f8f5" />
               <line x1="0" y1="0" x2="0" y2="8" stroke="#9ca3af" strokeWidth="2" />
             </pattern>
           </defs>
 
-          <line
-            className="hx-axis-line"
-            x1={MARGIN.left}
-            y1={SVG_HEIGHT - MARGIN.bottom}
-            x2={SVG_WIDTH - MARGIN.right}
-            y2={SVG_HEIGHT - MARGIN.bottom}
-          />
-          <line
-            className="hx-axis-line"
-            x1={MARGIN.left}
-            y1={MARGIN.top}
-            x2={MARGIN.left}
-            y2={SVG_HEIGHT - MARGIN.bottom}
-          />
+          <line className="hx-axis-line" x1={MARGIN.left} y1={SVG_HEIGHT - MARGIN.bottom} x2={SVG_WIDTH - MARGIN.right} y2={SVG_HEIGHT - MARGIN.bottom} />
+          <line className="hx-axis-line" x1={MARGIN.left} y1={MARGIN.top} x2={MARGIN.left} y2={SVG_HEIGHT - MARGIN.bottom} />
 
           {tickValues(view.xDomain, 5).map((tick) => {
             const x = scaleX(tick, view.xDomain);
             return (
               <g key={`x-${tick}`}>
-                <line
-                  className="hx-axis-tick"
-                  x1={x}
-                  y1={SVG_HEIGHT - MARGIN.bottom}
-                  x2={x}
-                  y2={SVG_HEIGHT - MARGIN.bottom + 6}
-                />
-                <text
-                  className="hx-axis-label"
-                  x={x}
-                  y={SVG_HEIGHT - MARGIN.bottom + 20}
-                  textAnchor="middle"
-                >
+                <line className="hx-axis-tick" x1={x} y1={SVG_HEIGHT - MARGIN.bottom} x2={x} y2={SVG_HEIGHT - MARGIN.bottom + 6} />
+                <text className="hx-axis-label" x={x} y={SVG_HEIGHT - MARGIN.bottom + 20} textAnchor="middle">
                   {formatAxisTick(xMetric, tick)}
                 </text>
               </g>
@@ -351,27 +312,22 @@ export function BubbleExplorer({
             return (
               <g key={`y-${tick}`}>
                 <line className="hx-axis-tick" x1={MARGIN.left - 6} y1={y} x2={MARGIN.left} y2={y} />
-                <text className="hx-axis-label" x={MARGIN.left - 10} y={y + 4} textAnchor="end">
+                <text className="hx-axis-label" x={MARGIN.left - 12} y={y + 4} textAnchor="end">
                   {formatAxisTick(yMetric, tick)}
                 </text>
               </g>
             );
           })}
 
-          <text
-            className="hx-axis-title"
-            x={(MARGIN.left + SVG_WIDTH - MARGIN.right) / 2}
-            y={SVG_HEIGHT - 12}
-            textAnchor="middle"
-          >
+          <text className="hx-axis-title" x={(MARGIN.left + SVG_WIDTH - MARGIN.right) / 2} y={SVG_HEIGHT - 12} textAnchor="middle">
             {metricLabel(xMetric)}
           </text>
           <text
             className="hx-axis-title"
-            x={18}
+            x={20}
             y={(MARGIN.top + SVG_HEIGHT - MARGIN.bottom) / 2}
             textAnchor="middle"
-            transform={`rotate(-90 18 ${(MARGIN.top + SVG_HEIGHT - MARGIN.bottom) / 2})`}
+            transform={`rotate(-90 20 ${(MARGIN.top + SVG_HEIGHT - MARGIN.bottom) / 2})`}
           >
             {metricLabel(yMetric)}
           </text>
@@ -386,16 +342,7 @@ export function BubbleExplorer({
             return (
               <g key={point.areaId}>
                 {halo ? (
-                  <circle
-                    cx={point.cx}
-                    cy={point.cy}
-                    r={point.radius + 4}
-                    fill="none"
-                    stroke={halo}
-                    strokeWidth={3}
-                    opacity={0.95}
-                    pointerEvents="none"
-                  />
+                  <circle cx={point.cx} cy={point.cy} r={point.radius + 4} fill="none" stroke={halo} strokeWidth={3} opacity={0.95} pointerEvents="none" />
                 ) : null}
                 <circle
                   cx={point.cx}
@@ -415,7 +362,6 @@ export function BubbleExplorer({
                   onFocus={() => setActiveAreaId(point.areaId)}
                   aria-label={bubbleTooltipLines(point).join(". ")}
                 />
-                {/* Larger invisible hit target when bubbles cluster */}
                 <circle
                   cx={point.cx}
                   cy={point.cy}
@@ -445,13 +391,8 @@ export function BubbleExplorer({
               Focused city scale
               {onRequestComparisonScale ? (
                 <>
-                  {" "}
-                  ·{" "}
-                  <button
-                    type="button"
-                    className="hx-cc-inline-link"
-                    onClick={onRequestComparisonScale}
-                  >
+                  {" "}·{" "}
+                  <button type="button" className="hx-cc-inline-link" onClick={onRequestComparisonScale}>
                     Use comparison scale
                   </button>
                 </>
@@ -459,8 +400,7 @@ export function BubbleExplorer({
             </p>
           ) : activeCityIds.length === 1 && forceComparisonScale && onRequestFocusedScale ? (
             <p className="hx-note" data-testid="cross-city-comparison-scale">
-              Comparison scale
-              {" · "}
+              Comparison scale ·{" "}
               <button type="button" className="hx-cc-inline-link" onClick={onRequestFocusedScale}>
                 Use focused city scale
               </button>
@@ -468,9 +408,7 @@ export function BubbleExplorer({
           ) : null}
           {view.omittedCount > 0 ? (
             <p className="hx-note" data-testid="cross-city-omitted">
-              {view.omittedCount} {view.omittedCount === 1 ? "area is" : "areas are"} omitted
-              because {metricLabel(xMetric)} or {metricLabel(yMetric)} is not published for this
-              comparison.
+              {view.omittedCount} {view.omittedCount === 1 ? "area is" : "areas are"} omitted because {metricLabel(xMetric)} or {metricLabel(yMetric)} is not published for this comparison.
             </p>
           ) : null}
           {view.filteredCount > 0 && view.plotted.length === 0 ? (
