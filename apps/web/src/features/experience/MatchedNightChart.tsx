@@ -22,16 +22,21 @@ export function MatchedNightChart({
   const min = temps.length ? Math.min(...temps) - 0.6 : 0;
   const max = temps.length ? Math.max(...temps) + 0.6 : 1;
   const span = max - min || 1;
-  const width = 640;
+  const width = 680;
   const height = 240;
-  // Reserve a real y-axis gutter so tick text and the unit never collide with
-  // the first point or get clipped at the SVG edge.
-  const pad = { l: 84, r: 24, t: 26, b: 42 };
+  // Keep labels in a dedicated gutter and keep the first/last marks off the
+  // axes themselves. A data point must never sit on top of an axis line/tick.
+  const pad = { l: 96, r: 30, t: 26, b: 44 };
   const plotW = width - pad.l - pad.r;
   const plotH = height - pad.t - pad.b;
+  const pointInset = 34;
+  const pointSpan = Math.max(0, plotW - pointInset * 2);
   const ticks = yTicks(min, max, 3);
   const points = view.years.map((row, index) => {
-    const x = pad.l + (view.years.length === 1 ? plotW / 2 : (index * plotW) / (view.years.length - 1));
+    const x =
+      view.years.length === 1
+        ? pad.l + plotW / 2
+        : pad.l + pointInset + (index * pointSpan) / (view.years.length - 1);
     const y = pad.t + plotH - ((row.meanC - min) / span) * plotH;
     return { ...row, x, y };
   });
@@ -68,30 +73,38 @@ export function MatchedNightChart({
               data-viz="line-points"
               data-autostretch="false"
             >
-              <line x1={pad.l} y1={pad.t} x2={pad.l} y2={pad.t + plotH} className="hx-axis-line" />
+              <line
+                x1={pad.l}
+                y1={pad.t}
+                x2={pad.l}
+                y2={pad.t + plotH}
+                className="hx-axis-line"
+                data-testid="matched-y-axis"
+              />
               <line
                 x1={pad.l}
                 y1={pad.t + plotH}
                 x2={pad.l + plotW}
                 y2={pad.t + plotH}
                 className="hx-axis-line"
+                data-testid="matched-x-axis"
               />
               {ticks.map((tick) => {
                 const y = pad.t + plotH - ((tick - min) / span) * plotH;
                 return (
                   <g key={tick}>
-                    <line x1={pad.l - 5} y1={y} x2={pad.l} y2={y} className="hx-axis-tick" />
-                    <text x={pad.l - 12} y={y + 4} textAnchor="end" className="hx-axis-label">
+                    <line x1={pad.l - 6} y1={y} x2={pad.l} y2={y} className="hx-axis-tick" />
+                    <text x={pad.l - 16} y={y + 4} textAnchor="end" className="hx-axis-label">
                       {formatTempC(tick)}
                     </text>
                   </g>
                 );
               })}
               <text
-                x={20}
+                x={22}
                 y={pad.t + plotH / 2}
                 textAnchor="middle"
-                transform={`rotate(-90 20 ${pad.t + plotH / 2})`}
+                transform={`rotate(-90 22 ${pad.t + plotH / 2})`}
                 className="hx-axis-title"
               >
                 Temperature (°C)
