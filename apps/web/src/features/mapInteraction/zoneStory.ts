@@ -23,23 +23,31 @@ const MONTHS = [
   "Dec",
 ] as const;
 
-/** Calendar date from an AOI-local stamp. Does not shift across timezones. */
+/**
+ * Calendar date/time from an AOI-local stamp. This deliberately does not apply
+ * a timezone conversion: the selected-time endpoint already returns the city's
+ * requested local clock. Historical 03:00 observations therefore still render
+ * 03:00, while Live 15:00/21:00/etc. reflect the actual request.
+ */
 export function formatObservationLabel(stamp: string | null | undefined): string {
   if (!stamp) {
     return MISSING_DISPLAY;
   }
-  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(stamp);
+  const match = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/.exec(stamp);
   if (!match) {
     return stamp;
   }
   const year = match[1];
   const month = Number(match[2]);
   const day = Number(match[3]);
+  const hour = match[4];
+  const minute = match[5];
   const monthName = MONTHS[month - 1];
   if (!monthName || !Number.isFinite(day) || day < 1) {
     return stamp;
   }
-  return `${day} ${monthName} ${year} · 03:00 local`;
+  const dateLabel = `${day} ${monthName} ${year}`;
+  return hour && minute ? `${dateLabel} · ${hour}:${minute} local` : dateLabel;
 }
 
 export function emptyStoryFields(input: {
