@@ -4,6 +4,19 @@
  * changing data contracts, city geometry, ranking policy, or map state.
  */
 
+.ws-published-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid #c8cec8;
+  border-radius: 0.28rem;
+  background: #ffffff;
+  color: #34433c;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
 /* Evidence sections should look interactive without browser disclosure glyphs
  * or the accidental question-mark marker from the rescue pass. */
 .ws-analysis-section > summary {
