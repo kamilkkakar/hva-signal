@@ -24,6 +24,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from app.core.config import Settings, get_settings
 from app.core.hosted_live_policy import HostedLiveDisabledError
 from app.domain.multicity.city_catalog import resolve_city_aoi
+from app.domain.multicity.live_zone_aggregation import aggregate_cached_live_zones
 from app.domain.multicity.type1_live import (
     Type1LiveClientRequest,
     run_type1_live,
@@ -165,6 +166,34 @@ def _public_result(raw: dict[str, Any]) -> dict[str, Any]:
     return body
 
 
+def _attach_zone_analysis(
+    public: dict[str, Any],
+    *,
+    city_id: str,
+    local_datetime: datetime,
+    settings: Settings,
+) -> dict[str, Any]:
+    """Attach the same 25-zone aggregation used by the map, from cached tiles only."""
+    if public.get("status") not in {"cache_hit", "live_acquired"}:
+        return public
+    try:
+        analysis = aggregate_cached_live_zones(city_id, local_datetime, settings)
+    except Exception as exc:  # noqa: BLE001 — fail closed, never leak internals/secrets
+        public["analysis"] = {
+            "aggregation_contract": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN",
+            "geometry_zone_count": 0,
+            "bindable_temperature_values": 0,
+            "zones": [],
+        }
+        public["message"] = (
+            f"{public.get('message', '')} Zone aggregation could not be prepared "
+            f"({type(exc).__name__}); no values were invented."
+        ).strip()
+        return public
+    public["analysis"] = analysis
+    return public
+
+
 def _with_single_flight(fingerprint: str, runner: Any) -> dict[str, Any]:
     with _flight_lock:
         existing = _inflight.get(fingerprint)
@@ -270,7 +299,14 @@ def post_selected_time_live(
             },
             "message": raw.get("message"),
         }
-    return _public_result(raw)
+
+    public = _public_result(raw)
+    return _attach_zone_analysis(
+        public,
+        city_id=body.city_id,
+        local_datetime=body.local_datetime,
+        settings=settings,
+    )
 
 
 __all__ = ["BOUNDED_ROUTE", "SelectedTimeLiveBody", "router"]
