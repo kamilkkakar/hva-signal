@@ -23,7 +23,10 @@ import {
   presentSpatialDifferentiation,
   contextComparisonsFromFacts,
 } from "@/features/experience";
-import type { PreparednessEvidenceStatus, SpatialDiffStatus } from "@/features/experience/narrative";
+import type {
+  PreparednessEvidenceStatus,
+  SpatialDiffStatus,
+} from "@/features/experience/narrative";
 import { judgeMapLayer } from "@/features/judgeShell/layer";
 import { MapBand } from "@/features/judgeShell/MapBand";
 import { JudgeMap } from "@/features/judgeShell/map/JudgeMap";
@@ -36,12 +39,21 @@ import {
   crossCitySecondaryLabel,
 } from "@/features/areaIdentity";
 import { fetchCrossCityMetrics } from "@/features/crossCity/fetchMetrics";
-import type { CrossCityMetricsResponse, CrossCityAreaRecord } from "@/features/crossCity/types";
+import type {
+  CrossCityMetricsResponse,
+  CrossCityAreaRecord,
+} from "@/features/crossCity/types";
 import { CityControls } from "./CityControls";
 import { ZonePanel } from "./ZonePanel";
 import { buildStoryActions, contextHighlights } from "./actionEngine";
 import { type HvaStage } from "./HvaStoryRail";
-import { CITIES, cityConfig, type CityId, type ObservationMode, type ZoneInfo } from "./types";
+import {
+  CITIES,
+  cityConfig,
+  type CityId,
+  type ObservationMode,
+  type ZoneInfo,
+} from "./types";
 import {
   CityEvidenceSections,
   cityEvidenceCapabilities,
@@ -52,6 +64,7 @@ import {
   cachedCityGeometry,
   contextZonesFromRecords,
   featureGeoid,
+  normalizeGeoid,
   putCityGeometryCache,
   type CityGeometry,
   type PublishedMapContract,
@@ -59,6 +72,41 @@ import {
 
 const EMPTY_LIMITATIONS: readonly string[] = [];
 const DEFAULT_PHOENIX_AREA = ANALYSIS_AREA_GEOIDS[0];
+
+type LiveZoneRow = {
+  zone_id: string;
+  temperature_c: number | null;
+  tile_count?: number;
+  coverage_status?: string;
+};
+
+type LiveZoneAnalysis = {
+  city?: string;
+  local_datetime?: string;
+  timezone?: string;
+  aggregation_contract?: string;
+  geometry_zone_count?: number;
+  bindable_temperature_values?: number;
+  source_tile_count?: number;
+  zones?: LiveZoneRow[];
+};
+
+type LiveObservationResponse = {
+  status?: string;
+  message?: string;
+  provenance?: {
+    acquisition_language?: string;
+    vendor_attempted?: boolean;
+    cache_tier?: string | null;
+    contract?: string;
+  };
+  analysis?: LiveZoneAnalysis;
+};
+
+type StoredLiveObservation = LiveObservationResponse & {
+  cityId: CityId;
+  requestedLocal: string;
+};
 
 function spatialStatusFrom(
   status: ReturnType<typeof presentSpatialDifferentiation>["status"],
@@ -72,6 +120,25 @@ function reportCityTiming(label: string, startedAt: number): void {
   if (!import.meta.env.DEV) return;
   // eslint-disable-next-line no-console
   console.info(`[city-perf] ${label}: ${(performance.now() - startedAt).toFixed(0)}ms`);
+}
+
+function cityTimezone(cityId: CityId): string {
+  return cityId === "los-angeles-ca" || cityId === "las-vegas-nv"
+    ? "America/Los_Angeles"
+    : "America/Phoenix";
+}
+
+function liveErrorMessage(status: number, payload: unknown): string {
+  if (payload && typeof payload === "object") {
+    const record = payload as Record<string, unknown>;
+    const detail = record.detail;
+    if (detail && typeof detail === "object") {
+      const message = (detail as Record<string, unknown>).message;
+      if (typeof message === "string") return message;
+    }
+    if (typeof record.message === "string") return record.message;
+  }
+  return `Live observation failed (${status}).`;
 }
 
 async function fetchCityGeometry(apiCityId: string): Promise<CityGeometry> {
@@ -107,17 +174,20 @@ type ExploreCityProps = {
 export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
   const city = cityConfig(cityId);
   const isPhoenix = city.hasLocalAnalysis;
-
   const [observationMode, setObservationMode] = useState<ObservationMode>("published");
+  const usePhoenixPublished = isPhoenix && observationMode === "published";
+
   const [liveDate, setLiveDate] = useState("2024-07-08");
   const [liveTime, setLiveTime] = useState("15:00");
   const [liveRunning, setLiveRunning] = useState(false);
+  const [liveResult, setLiveResult] = useState<StoredLiveObservation | null>(null);
+  const [liveError, setLiveError] = useState<string | null>(null);
   const [mapMode, setMapMode] = useState<MapMode>("THERMAL");
   const [storyStage, setStoryStage] = useState<HvaStage>("heat");
   const [contextZones, setContextZones] = useState<ZoneMapProperties[]>([]);
   const [crossCityData, setCrossCityData] = useState<CrossCityMetricsResponse | null>(null);
   const [cityGeometry, setCityGeometry] = useState<CityGeometry | null>(() =>
-    isPhoenix ? null : cachedCityGeometry(cityId),
+    cachedCityGeometry(cityId),
   );
   const [cityGeoIds, setCityGeoIds] = useState<string[]>([]);
   const [geometryLoading, setGeometryLoading] = useState(false);
@@ -127,7 +197,8 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
   );
   const cityLoadStarted = useRef(performance.now());
 
-  // Phoenix job store
+  // Phoenix historical job store. This remains replay-only and separate from
+  // bounded selected-time Live.
   const snapshot = useJobStore((s) => s.snapshot);
   const lastRequest = useJobStore((s) => s.lastRequest);
   const submitting = useJobStore((s) => s.submitting);
@@ -182,7 +253,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
           reportCityTiming("cross-city-metrics", started);
         }
       } catch {
-        /* silent — map contract will fail closed without invented temps */
+        /* map contract fails closed without invented temperatures */
       }
     })();
     return () => {
@@ -190,30 +261,20 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
     };
   }, []);
 
+  // Cross-city geometry is static and safe to cache for every supported city,
+  // including Phoenix. Published Phoenix still uses its separate local analysis
+  // geography; the cross-city Phoenix geometry is used only for bounded Live.
   useEffect(() => {
     cityLoadStarted.current = performance.now();
-    if (isPhoenix) {
-      setCityGeometry(null);
-      setCityGeoIds([]);
-      setGeometryLoading(false);
-      setMapContract(null);
-      return;
-    }
-
     const cached = cachedCityGeometry(cityId);
     if (cached) {
       setCityGeometry(cached);
-      const ids = cached.features.map(featureGeoid).filter(Boolean);
-      setCityGeoIds(ids);
-      if (!ids.includes(selectedAreaId ?? "")) {
-        setSelectedAreaId(ids[0] ?? null);
-      }
+      setCityGeoIds(cached.features.map(featureGeoid).filter(Boolean));
       setGeometryLoading(false);
       reportCityTiming(`${cityId}-geometry-cache-hit`, cityLoadStarted.current);
       return;
     }
 
-    // Clear stale sibling-city geometry so fills never join against the wrong AOI.
     setCityGeometry(null);
     setCityGeoIds([]);
     setGeometryLoading(true);
@@ -224,11 +285,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
         if (cancelled) return;
         putCityGeometryCache(cityId, geojson);
         setCityGeometry(geojson);
-        const ids = geojson.features.map(featureGeoid).filter(Boolean);
-        setCityGeoIds(ids);
-        if (!ids.includes(selectedAreaId ?? "")) {
-          setSelectedAreaId(ids[0] ?? null);
-        }
+        setCityGeoIds(geojson.features.map(featureGeoid).filter(Boolean));
         reportCityTiming(`${cityId}-geometry-fetch`, cityLoadStarted.current);
       } catch {
         if (!cancelled) {
@@ -242,14 +299,14 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
     return () => {
       cancelled = true;
     };
-  }, [cityId, isPhoenix, city.apiCityId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [cityId, city.apiCityId]);
 
-  // Idle prefetch published geometry for the other three cities (replay/static only).
+  // Idle prefetch is static geometry only; it never touches FortyGuard.
   useEffect(() => {
     if (!crossCityData) return;
     let cancelled = false;
     const idle = window.setTimeout(() => {
-      const others = CITIES.filter((c) => c.id !== cityId && !c.hasLocalAnalysis);
+      const others = CITIES.filter((c) => c.id !== cityId);
       void Promise.all(
         others.map(async (c) => {
           if (cachedCityGeometry(c.id) || cancelled) return;
@@ -257,7 +314,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
             const geo = await fetchCityGeometry(c.apiCityId);
             if (!cancelled) putCityGeometryCache(c.id, geo);
           } catch {
-            /* prefetch is best-effort */
+            /* best-effort static prefetch */
           }
         }),
       ).then(() => {
@@ -274,47 +331,76 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
   useEffect(() => {
     if (prevCity.current !== cityId) {
       prevCity.current = cityId;
-      if (isPhoenix) setSelectedAreaId(DEFAULT_PHOENIX_AREA);
+      setLiveResult(null);
+      setLiveError(null);
+      setMapContract(null);
+      if (observationMode === "published" && city.hasLocalAnalysis) {
+        setSelectedAreaId(DEFAULT_PHOENIX_AREA);
+      }
       reportCityTiming(`switch-to-${cityId}`, cityLoadStarted.current);
     }
-  }, [cityId, isPhoenix]);
+  }, [cityId, city.hasLocalAnalysis, observationMode]);
+
+  useEffect(() => {
+    if (observationMode === "live") {
+      if (cityGeoIds.length > 0 && !cityGeoIds.includes(selectedAreaId ?? "")) {
+        setSelectedAreaId(cityGeoIds[0] ?? null);
+      }
+      return;
+    }
+    if (isPhoenix && !(ANALYSIS_AREA_GEOIDS as readonly string[]).includes(selectedAreaId ?? "")) {
+      setSelectedAreaId(DEFAULT_PHOENIX_AREA);
+    } else if (!isPhoenix && cityGeoIds.length > 0 && !cityGeoIds.includes(selectedAreaId ?? "")) {
+      setSelectedAreaId(cityGeoIds[0] ?? null);
+    }
+  }, [observationMode, isPhoenix, cityGeoIds, selectedAreaId]);
 
   const selectArea = useCallback(
     (geoid: string | null) => {
       if (!geoid) return;
-      if (isPhoenix) {
-        if ((ANALYSIS_AREA_GEOIDS as readonly string[]).includes(geoid)) setSelectedAreaId(geoid);
-      } else {
+      if (observationMode === "live" || !isPhoenix) {
         if (cityGeoIds.includes(geoid)) setSelectedAreaId(geoid);
+        return;
+      }
+      if ((ANALYSIS_AREA_GEOIDS as readonly string[]).includes(geoid)) {
+        setSelectedAreaId(geoid);
       }
     },
-    [isPhoenix, cityGeoIds],
+    [observationMode, isPhoenix, cityGeoIds],
   );
 
-  // Phoenix evidence
+  // Phoenix historical evidence is intentionally not reused as the Live map.
   const limitations = snapshot?.result?.system_limitations ?? EMPTY_LIMITATIONS;
-  const ranking = useMemo(() => rankingPresentation(snapshot?.result?.zones), [snapshot?.result?.zones]);
+  const ranking = useMemo(
+    () => rankingPresentation(snapshot?.result?.zones),
+    [snapshot?.result?.zones],
+  );
   const layer = useMemo(
     () => judgeMapLayer(mapLayerFromLimitations(limitations), ranking, snapshot?.result != null),
     [limitations, ranking, snapshot?.result],
   );
-  const evidence = useAreaEvidence(isPhoenix ? selectedAreaId : null);
-  const thermalB = presentThermalB(isPhoenix ? selectedAreaId : null);
-  const history = presentHistoricalPosition(snapshot?.result, isPhoenix ? selectedAreaId : null);
-  const spatial = presentSpatialDifferentiation(snapshot?.result, isPhoenix ? selectedAreaId : null);
+  const evidence = useAreaEvidence(usePhoenixPublished ? selectedAreaId : null);
+  const thermalB = presentThermalB(usePhoenixPublished ? selectedAreaId : null);
+  const history = presentHistoricalPosition(
+    snapshot?.result,
+    usePhoenixPublished ? selectedAreaId : null,
+  );
+  const spatial = presentSpatialDifferentiation(
+    snapshot?.result,
+    usePhoenixPublished ? selectedAreaId : null,
+  );
   const observationStamp = `${B_CLOCK} ${B_TIMEZONE}`;
   const story = composeSelectedAreaStory({
-    selectedGeoid: isPhoenix ? selectedAreaId : null,
-    result: snapshot?.result ?? null,
-    context: evidence.context?.selected ?? null,
-    document: evidence.context,
+    selectedGeoid: usePhoenixPublished ? selectedAreaId : null,
+    result: usePhoenixPublished ? snapshot?.result ?? null : null,
+    context: usePhoenixPublished ? evidence.context?.selected ?? null : null,
+    document: usePhoenixPublished ? evidence.context : null,
   });
   const comparisons = contextComparisonsFromFacts(story.questions.different.facts);
 
-  // Narrative synthesis (Phoenix only)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const synthesis = useMemo(() => {
-    if (!isPhoenix) return null;
+    if (!usePhoenixPublished) return null;
     return synthesizeNarrative({
       areaLabel: analysisAreaLabel(selectedAreaId),
       analysisAreaCount: ANALYSIS_AREA_GEOIDS.length,
@@ -335,68 +421,164 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
       preparedness: story.questions.support.status as PreparednessEvidenceStatus,
       thermalAvailable: thermalB.temperatureC != null,
     });
-  }, [isPhoenix, selectedAreaId, thermalB.temperatureC, spatial.status, history, evidence.matched, comparisons, story.questions.support.status, observationStamp]);
+  }, [
+    usePhoenixPublished,
+    selectedAreaId,
+    thermalB.temperatureC,
+    spatial.status,
+    history,
+    evidence.matched,
+    comparisons,
+    story.questions.support.status,
+    observationStamp,
+  ]);
 
   const cityRecords = useMemo(() => {
     if (!crossCityData) return [] as CrossCityAreaRecord[];
     return crossCityData.areas.filter((a) => a.cityId === cityId);
   }, [crossCityData, cityId]);
 
-  const crossCityCatalog = useMemo<InteractionCatalog | null>(() => {
-    if (isPhoenix || !cityGeometry || !crossCityData) return null;
-    return buildPublishedCityCatalog(cityGeometry, cityRecords, {
-      timezone: cityId === "los-angeles-ca" || cityId === "las-vegas-nv"
-        ? "America/Los_Angeles"
-        : "America/Phoenix",
+  const liveCityRecords = useMemo(() => {
+    if (!liveResult || liveResult.cityId !== cityId) return null;
+    const rows = liveResult.analysis?.zones ?? [];
+    const temperatures = new Map<string, number | null>();
+    for (const row of rows) {
+      temperatures.set(normalizeGeoid(row.zone_id), row.temperature_c);
+    }
+    return cityRecords.map((record) => {
+      const geoid = normalizeGeoid(record.areaId);
+      return {
+        ...record,
+        metrics: {
+          ...record.metrics,
+          selectedTimeTemperatureC: temperatures.has(geoid)
+            ? temperatures.get(geoid) ?? null
+            : null,
+        },
+      };
     });
-  }, [isPhoenix, cityGeometry, crossCityData, cityId, cityRecords]);
+  }, [liveResult, cityId, cityRecords]);
+
+  const activeCityRecords =
+    observationMode === "live" && liveCityRecords ? liveCityRecords : cityRecords;
+
+  const publishedCrossCityCatalog = useMemo<InteractionCatalog | null>(() => {
+    if (!cityGeometry || !crossCityData) return null;
+    return buildPublishedCityCatalog(cityGeometry, cityRecords, {
+      timezone: cityTimezone(cityId),
+    });
+  }, [cityGeometry, crossCityData, cityId, cityRecords]);
+
+  const liveCatalog = useMemo<InteractionCatalog | null>(() => {
+    if (!cityGeometry || !liveResult || liveResult.cityId !== cityId || !liveCityRecords) {
+      return null;
+    }
+    return buildPublishedCityCatalog(cityGeometry, liveCityRecords, {
+      timezone: liveResult.analysis?.timezone ?? cityTimezone(cityId),
+      targetTimestamp: liveResult.analysis?.local_datetime ?? liveResult.requestedLocal,
+      source:
+        liveResult.status === "live_acquired" ? "fortyguard_live" : "fortyguard_cached",
+      dataStatus: liveResult.status === "live_acquired" ? "live" : "cached",
+    });
+  }, [cityGeometry, liveResult, cityId, liveCityRecords]);
+
+  const activeCrossCityCatalog =
+    observationMode === "live" ? liveCatalog ?? publishedCrossCityCatalog : publishedCrossCityCatalog;
 
   useEffect(() => {
-    if (!crossCityCatalog || !cityGeometry) {
+    if (!activeCrossCityCatalog || !cityGeometry) {
       setMapContract(null);
       return;
     }
-    setMapContract(assertPublishedMapContract(cityId, cityGeometry, cityRecords, crossCityCatalog));
-  }, [crossCityCatalog, cityGeometry, cityId, cityRecords]);
+    setMapContract(
+      assertPublishedMapContract(
+        cityId,
+        cityGeometry,
+        activeCityRecords,
+        activeCrossCityCatalog,
+      ),
+    );
+  }, [activeCrossCityCatalog, cityGeometry, cityId, activeCityRecords]);
 
   const crossCityContextZones = useMemo(
-    () => contextZonesFromRecords(cityRecords),
-    [cityRecords],
+    () => contextZonesFromRecords(activeCityRecords),
+    [activeCityRecords],
   );
 
   const zoneInfo = useMemo<ZoneInfo | null>(() => {
     if (!selectedAreaId) return null;
-    const record = cityRecords.find((a) => a.areaId === selectedAreaId);
-    if (isPhoenix) {
+    const record = activeCityRecords.find(
+      (a) => normalizeGeoid(a.areaId) === normalizeGeoid(selectedAreaId),
+    );
+    if (usePhoenixPublished) {
+      const publishedRecord = cityRecords.find((a) => a.areaId === selectedAreaId);
       return {
         geoid: selectedAreaId,
         label: analysisAreaLabel(selectedAreaId) ?? selectedAreaId,
-        secondaryLabel: "Census Tract \u00b7 Phoenix, AZ",
-        temperatureC: thermalB.temperatureC ?? record?.metrics.selectedTimeTemperatureC ?? null,
-        canopyPct: record?.metrics.treeCanopyPct ?? null,
-        incomeUsd: record?.metrics.medianHouseholdIncomeUsd ?? null,
-        olderHousingPct: record?.metrics.olderHousingPct ?? null,
-        population: record?.metrics.population ?? null,
+        secondaryLabel: "Census Tract · Phoenix, AZ",
+        temperatureC:
+          thermalB.temperatureC ?? publishedRecord?.metrics.selectedTimeTemperatureC ?? null,
+        canopyPct: publishedRecord?.metrics.treeCanopyPct ?? null,
+        incomeUsd: publishedRecord?.metrics.medianHouseholdIncomeUsd ?? null,
+        olderHousingPct: publishedRecord?.metrics.olderHousingPct ?? null,
+        population: publishedRecord?.metrics.population ?? null,
       };
     }
     return zoneInfoFromCrossCity(record, selectedAreaId, cityId);
-  }, [selectedAreaId, isPhoenix, thermalB.temperatureC, cityRecords, cityId]);
+  }, [selectedAreaId, usePhoenixPublished, thermalB.temperatureC, activeCityRecords, cityRecords, cityId]);
 
   const rangeLabel = useMemo(() => {
-    if (isPhoenix) return cachedRangeLabel();
-    const temps = cityRecords
+    if (usePhoenixPublished) return cachedRangeLabel();
+    const temps = activeCityRecords
       .map((r) => r.metrics.selectedTimeTemperatureC)
-      .filter((t): t is number => t != null);
+      .filter((t): t is number => t != null && Number.isFinite(t));
     if (temps.length === 0) return null;
-    return `${Math.min(...temps).toFixed(1)}\u2013${Math.max(...temps).toFixed(1)} \u00b0C`;
-  }, [isPhoenix, cityRecords]);
+    return `${Math.min(...temps).toFixed(1)}–${Math.max(...temps).toFixed(1)} °C`;
+  }, [usePhoenixPublished, activeCityRecords]);
 
   const spatialState = useMemo(() => {
-    if (!isPhoenix) return { supported: false, label: "Comparison-level only", sentence: "Full spatial targeting requires the local published analysis." };
-    if (spatial.status === "supported") return { supported: true, label: "Spatial targeting supported", sentence: "Thermal differences support a comparison for this observation." };
-    if (spatial.status === "withheld") return { supported: false, label: "Spatial targeting not supported", sentence: "Differences are too small to support a defensible ordering." };
+    if (observationMode === "live") {
+      if (!liveResult) {
+        return {
+          supported: false,
+          label: "Live observation pending",
+          sentence: "Choose a supported city and local hour, then run a bounded selected-time observation.",
+        };
+      }
+      return {
+        supported: false,
+        label: "Live selected-time observation",
+        sentence: "Absolute °C is shown. A single selected-time snapshot does not by itself authorize a priority ranking.",
+      };
+    }
+    if (!isPhoenix) {
+      return {
+        supported: false,
+        label: "Comparison-level only",
+        sentence: "Full spatial targeting requires the local published analysis.",
+      };
+    }
+    if (spatial.status === "supported") {
+      return {
+        supported: true,
+        label: "Spatial targeting supported",
+        sentence: "Thermal differences support a comparison for this observation.",
+      };
+    }
+    if (spatial.status === "withheld") {
+      return {
+        supported: false,
+        label: "Spatial targeting not supported",
+        sentence: "Differences are too small to support a defensible ordering.",
+      };
+    }
     if (snapshot?.result == null || submitting) {
-      return { supported: false, label: "Loading\u2026", sentence: spatial.sentence, loading: true };
+      return {
+        supported: false,
+        label: "Loading…",
+        sentence: spatial.sentence,
+        loading: true,
+      };
     }
     return {
       supported: false,
@@ -404,9 +586,9 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
       sentence: spatial.sentence,
       loading: false,
     };
-  }, [isPhoenix, snapshot?.result, spatial.sentence, spatial.status, submitting]);
+  }, [observationMode, liveResult, isPhoenix, snapshot?.result, spatial.sentence, spatial.status, submitting]);
 
-  const preparedness = (isPhoenix
+  const preparedness = (usePhoenixPublished
     ? (story.questions.support.status as PreparednessEvidenceStatus)
     : "UNAVAILABLE") as PreparednessEvidenceStatus;
 
@@ -415,10 +597,10 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
       buildStoryActions({
         comparisons,
         preparedness,
-        spatialSupported: isPhoenix && spatial.status === "supported",
-        isPhoenix,
+        spatialSupported: usePhoenixPublished && spatial.status === "supported",
+        isPhoenix: usePhoenixPublished,
       }),
-    [comparisons, preparedness, isPhoenix, spatial.status],
+    [comparisons, preparedness, usePhoenixPublished, spatial.status],
   );
 
   const highlights = useMemo(
@@ -426,39 +608,83 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
     [comparisons, preparedness],
   );
 
-  const provenanceLine = observationMode === "published"
-    ? isPhoenix
-      ? "Published observation / 15 Jul 2025 · 03:00 local / FortyGuard TCM"
-      : "Published observation / 8 Jul 2024 · 15:00 local / FortyGuard TCM"
-    : null;
+  const provenanceLine = useMemo(() => {
+    if (observationMode === "published") {
+      return isPhoenix
+        ? "Published observation / 15 Jul 2025 · 03:00 local / FortyGuard TCM"
+        : "Published observation / 8 Jul 2024 · 15:00 local / FortyGuard TCM";
+    }
+    if (!liveResult) {
+      return "Bounded Live / supported city + selected local hour / FortyGuard Type-1 TCM";
+    }
+    const source = liveResult.status === "cache_hit" ? "Cached live result" : "Live acquisition";
+    return `${source} / ${liveDate} · ${liveTime} local / FortyGuard Type-1 TCM`;
+  }, [observationMode, isPhoenix, liveResult, liveDate, liveTime]);
 
   const handleRunLive = async () => {
     if (liveRunning) return;
     setLiveRunning(true);
+    setLiveError(null);
+    const requestedLocal = `${liveDate}T${liveTime}:00`;
     try {
       const resp = await fetch(apiUrl("/api/v1/live/selected-time"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ city_id: city.apiCityId, local_datetime: `${liveDate}T${liveTime}:00` }),
+        body: JSON.stringify({ city_id: city.apiCityId, local_datetime: requestedLocal }),
       });
-      if (!resp.ok) {
-        const body = await resp.json().catch(() => ({}));
-        console.warn("Live observation failed:", resp.status, body);
+      const body = (await resp.json().catch(() => ({}))) as LiveObservationResponse;
+      if (!resp.ok) throw new Error(liveErrorMessage(resp.status, body));
+      if (body.status !== "cache_hit" && body.status !== "live_acquired") {
+        throw new Error(body.message ?? "Live acquisition is unavailable for this request.");
+      }
+      const bindable = Number(body.analysis?.bindable_temperature_values ?? 0);
+      const zones = body.analysis?.zones ?? [];
+      if (zones.length === 0 || bindable <= 0) {
+        throw new Error(
+          body.message ?? "Live observation returned without bindable zone temperatures.",
+        );
+      }
+      setLiveResult({ ...body, cityId, requestedLocal });
+      setMapMode("THERMAL");
+      const firstBindable = zones.find(
+        (row) => row.temperature_c != null && Number.isFinite(row.temperature_c),
+      );
+      if (firstBindable && !cityGeoIds.includes(selectedAreaId ?? "")) {
+        setSelectedAreaId(normalizeGeoid(firstBindable.zone_id));
       }
     } catch (err) {
-      console.warn("Live observation error:", err);
+      setLiveError(err instanceof Error ? err.message : "Live observation failed.");
     } finally {
       setLiveRunning(false);
     }
   };
 
+  const liveStatusMessage =
+    observationMode !== "live"
+      ? null
+      : liveError
+        ? liveError
+        : liveRunning
+          ? "Running the bounded selected-time observation. The existing map stays visible until a result returns."
+          : liveResult
+            ? liveResult.message ?? "Selected-time observation loaded."
+            : "Choose a supported city, date and local hour. The map remains on the published observation until Live returns.";
+
   return (
-    <div className="ws-explore" data-testid="explore-city" data-city={cityId} data-dominant-pattern={synthesis?.dominantPattern ?? ""}>
+    <div
+      className="ws-explore"
+      data-testid="explore-city"
+      data-city={cityId}
+      data-dominant-pattern={synthesis?.dominantPattern ?? ""}
+    >
       <CityControls
         cityId={cityId}
         onCityChange={onCityChange}
         observationMode={observationMode}
-        onObservationModeChange={setObservationMode}
+        onObservationModeChange={(mode) => {
+          setObservationMode(mode);
+          setLiveError(null);
+        }}
         liveDate={liveDate}
         onLiveDateChange={setLiveDate}
         liveTime={liveTime}
@@ -466,11 +692,21 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
         onRunLive={handleRunLive}
         liveRunning={liveRunning}
         provenanceLine={provenanceLine}
+        liveAvailable
       />
+      {liveStatusMessage ? (
+        <p
+          className="ws-live-status"
+          data-testid="live-status"
+          data-state={liveError ? "error" : liveResult ? "success" : "pending"}
+        >
+          {liveStatusMessage}
+        </p>
+      ) : null}
       <div className="ws-explore-main">
         <div className="ws-map-column">
           <div className="ws-map-pane">
-            {isPhoenix ? (
+            {usePhoenixPublished ? (
               <MapBand
                 layer={layer}
                 ranking={ranking}
@@ -488,18 +724,18 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
               />
             ) : (
               <CrossCityMapBand
-                catalog={crossCityCatalog}
+                catalog={activeCrossCityCatalog}
                 mapMode={mapMode}
                 onMapModeChange={setMapMode}
                 contextZones={crossCityContextZones}
                 selectedZoneId={selectedAreaId}
                 onSelectedIdChange={selectArea}
-                loading={geometryLoading || (!!cityGeometry && !crossCityCatalog)}
+                loading={geometryLoading || (!!cityGeometry && !activeCrossCityCatalog)}
                 contract={mapContract}
               />
             )}
           </div>
-          {isPhoenix ? (
+          {usePhoenixPublished ? (
             <CityEvidenceSections
               cityId={cityId}
               capabilities={cityEvidenceCapabilities(cityId, {
@@ -528,18 +764,18 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
               capabilities={cityEvidenceCapabilities(cityId, {
                 matchedStatus: "UNKNOWN",
                 observedCount: 0,
-                contextFactCount: cityRecords.length > 0 ? 3 : 0,
-                zoneCount: cityRecords.length,
+                contextFactCount: activeCityRecords.length > 0 ? 3 : 0,
+                zoneCount: activeCityRecords.length,
                 hasInventory: false,
               })}
               storyStage={storyStage}
               selectedAreaId={selectedAreaId}
               areaLabel={zoneInfo?.label ?? null}
-              analysisAreaCount={cityRecords.length || 25}
+              analysisAreaCount={activeCityRecords.length || 25}
               matched={evidence.matched}
               observed={evidence.observed}
               comparisons={comparisons}
-              cityRecords={cityRecords}
+              cityRecords={activeCityRecords}
               mapMode={mapMode}
               onSelectZone={selectArea}
             />
@@ -553,7 +789,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
           highlights={highlights}
           stage={storyStage}
           onStageChange={setStoryStage}
-          hasLocalAnalysis={isPhoenix}
+          hasLocalAnalysis={usePhoenixPublished}
           forecastSupported={false}
         />
       </div>
