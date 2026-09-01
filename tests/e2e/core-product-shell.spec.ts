@@ -35,8 +35,13 @@ test.describe("core product shell never disappears", () => {
     await expect(page.getByTestId("mode-explore")).toBeVisible();
     await expect(page.getByTestId("mode-compare")).toBeVisible();
     await expect(page.getByTestId("city-selector")).toBeVisible();
-    await expect(page.getByTestId("obs-published")).toBeVisible();
-    await expect(page.getByTestId("obs-live")).toBeVisible();
+
+    // Public release is intentionally Published-only until the bounded live path
+    // passes its cache/spend proof. Do not restore a dead Live affordance merely
+    // to satisfy an older shell contract.
+    await expect(page.getByTestId("observation-published-only")).toBeVisible();
+    await expect(page.getByTestId("obs-live")).toHaveCount(0);
+    await expect(page.getByTestId("live-controls")).toHaveCount(0);
 
     const citySelect = page.getByTestId("city-selector").locator("select");
     for (const city of ["phoenix-az", "las-vegas-nv", "tucson-az", "los-angeles-ca"]) {
@@ -53,10 +58,6 @@ test.describe("core product shell never disappears", () => {
     await expect(tabs.locator('[data-mode="TREE_CANOPY"]')).toBeVisible();
     await expect(tabs.locator('[data-mode="INCOME"]')).toBeVisible();
     await expect(tabs.locator('[data-mode="OLDER_HOUSING"]')).toBeVisible();
-
-    await page.getByTestId("obs-live").click();
-    await expect(page.getByTestId("live-controls")).toBeVisible();
-    await page.getByTestId("obs-published").click();
   });
 
   test("Compare Cities retains contract shell", async ({ page }) => {
