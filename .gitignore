@@ -1,6 +1,6 @@
-# Workforce, research, prompts, secrets, and agent coordination.
+# Research/workforce snapshots, prompts, secrets, and agent coordination.
 # The Git repository contains only the runnable/reproducible product.
-/workforce/
+**/workforce/
 
 # Secrets and local env
 .env

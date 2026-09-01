@@ -4,6 +4,7 @@ import { ExploreCity } from "./ExploreCity";
 import { CompareCities } from "./CompareCities";
 import type { WorkspaceMode, CityId } from "./types";
 import "./workspace.css";
+import "./workspace-polish.css";
 
 export function Workspace() {
   const [mode, setMode] = useState<WorkspaceMode>("explore");

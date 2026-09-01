@@ -41,6 +41,7 @@ export function ContextModeLegend({
       data-mode={mode}
       data-palette={palette.id}
       data-unit={unit}
+      data-relative-scale="displayed-geography"
     >
       <h3>{title}</h3>
       <div className="hva-pos-ramp-block">
@@ -57,6 +58,9 @@ export function ContextModeLegend({
       </div>
       <p className="hva-pos-denial" data-testid="context-legend-unit">
         {unit}
+      </p>
+      <p className="hva-pos-hatch-note" data-testid="context-relative-scale-note">
+        Relative within the displayed comparison geography; not a risk score.
       </p>
       <p className="hva-pos-outline">
         <span className="hva-pos-outline-swatch" style={{ borderColor: "#4e5748" }} aria-hidden="true" />

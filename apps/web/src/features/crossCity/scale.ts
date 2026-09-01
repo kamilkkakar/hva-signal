@@ -61,6 +61,22 @@ export function metricDomain(
   };
 }
 
+function clampPhysicalAxisDomain(
+  metric: CrossCityMetricKey,
+  domain: NumericDomain,
+): NumericDomain {
+  if (metric === "treeCanopyPct" || metric === "olderHousingPct") {
+    return {
+      min: Math.max(0, domain.min),
+      max: Math.min(100, Math.max(0, domain.max)),
+    };
+  }
+  if (metric === "population" || metric === "medianHouseholdIncomeUsd") {
+    return { min: Math.max(0, domain.min), max: Math.max(0, domain.max) };
+  }
+  return domain;
+}
+
 /** Axis domain from an explicit record subset (e.g. focused single-city scale). */
 export function axisDomainFromRecords(
   records: readonly CrossCityAreaRecord[],
@@ -77,10 +93,10 @@ export function axisDomainFromRecords(
   const max = Math.max(...values);
   if (min === max) {
     const pad = Math.max(Math.abs(min) * paddingRatio, metric === "treeCanopyPct" ? 0.5 : 1);
-    return { min: min - pad, max: max + pad };
+    return clampPhysicalAxisDomain(metric, { min: min - pad, max: max + pad });
   }
   const pad = (max - min) * paddingRatio;
-  return { min: min - pad, max: max + pad };
+  return clampPhysicalAxisDomain(metric, { min: min - pad, max: max + pad });
 }
 
 export function radiusFromPopulation(

@@ -31,7 +31,7 @@ describe("observedThermalSpan", () => {
     expect(encoded).not.toContain("backend_order");
   });
 
-  it("only expands local contrast when explicitly enhanced", () => {
+  it("does not AOI-stretch absolute temperature even when a legacy enhance flag is supplied", () => {
     const catalog = snapshotCatalog();
     catalog.collection.features.forEach((feature, index) => {
       feature.properties.mean_temperature_c = 33.5 + index * 0.04;
@@ -42,6 +42,8 @@ describe("observedThermalSpan", () => {
       { enhanceLocalContrast: true },
     );
     const encoded = JSON.stringify(fill["fill-color"]);
-    expect(encoded).toContain("33.5");
+    expect(encoded).toContain("15");
+    expect(encoded).toContain("60");
+    expect(encoded).not.toContain("33.5");
   });
 });

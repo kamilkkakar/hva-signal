@@ -64,6 +64,13 @@ describe("workspace contracts", () => {
     expect(controls).toContain("Run observation");
   });
 
+  it("public controls default to Published only until live is verified", () => {
+    const controls = readSrc("./CityControls.tsx");
+    expect(controls).toContain("liveAvailable = false");
+    expect(controls).toContain("observation-published-only");
+    expect(controls).toContain("ws-published-badge");
+  });
+
   it("no FortyGuard API key in workspace source", () => {
     const files = [
       readSrc("./Workspace.tsx"),
@@ -95,10 +102,12 @@ describe("workspace contracts", () => {
     expect(engine).toContain(">= 3");
   });
 
-  it("below-map sections are collapsed by default", () => {
+  it("features the strongest matched-night evidence while keeping secondary evidence progressive", () => {
     const evidence = readSrc("./CityEvidenceSections.tsx");
     const detailsCount = (evidence.match(/<details className="ws-analysis-section"/g) || []).length;
-    expect(detailsCount).toBeGreaterThanOrEqual(3);
+    expect(detailsCount).toBeGreaterThanOrEqual(2);
+    expect(evidence).toContain("ws-analysis-section-featured");
+    expect(evidence).toContain("matched-night-section");
     expect(evidence).toContain("cityEvidenceCapabilities");
     expect(evidence).not.toMatch(/if\s*\(\s*city\s*===\s*["']phoenix/i);
     const explore = readSrc("./ExploreCity.tsx");

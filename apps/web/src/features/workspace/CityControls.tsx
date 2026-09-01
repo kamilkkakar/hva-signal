@@ -12,6 +12,8 @@ type CityControlsProps = {
   onRunLive?: () => void;
   liveRunning?: boolean;
   provenanceLine?: string | null;
+  /** Public Live is shown only after the bounded route has passed its cache/spend proof. */
+  liveAvailable?: boolean;
 };
 
 export function CityControls({
@@ -26,6 +28,7 @@ export function CityControls({
   onRunLive,
   liveRunning,
   provenanceLine,
+  liveAvailable = false,
 }: CityControlsProps) {
   return (
     <div className="ws-city-controls" data-testid="city-controls">
@@ -45,33 +48,45 @@ export function CityControls({
           </select>
         </label>
 
-        <div className="ws-obs-toggle" role="radiogroup" aria-label="Observation type" data-testid="observation-toggle">
-          <span className="ws-control-label">Observation</span>
-          <div className="ws-obs-buttons">
-            <button
-              type="button"
-              role="radio"
-              aria-checked={observationMode === "published"}
-              className="ws-obs-btn"
-              data-testid="obs-published"
-              onClick={() => onObservationModeChange("published")}
-            >
-              Published
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={observationMode === "live"}
-              className="ws-obs-btn"
-              data-testid="obs-live"
-              onClick={() => onObservationModeChange("live")}
-            >
-              Live
-            </button>
+        {liveAvailable ? (
+          <div
+            className="ws-obs-toggle"
+            role="radiogroup"
+            aria-label="Observation type"
+            data-testid="observation-toggle"
+          >
+            <span className="ws-control-label">Observation</span>
+            <div className="ws-obs-buttons">
+              <button
+                type="button"
+                role="radio"
+                aria-checked={observationMode === "published"}
+                className="ws-obs-btn"
+                data-testid="obs-published"
+                onClick={() => onObservationModeChange("published")}
+              >
+                Published
+              </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={observationMode === "live"}
+                className="ws-obs-btn"
+                data-testid="obs-live"
+                onClick={() => onObservationModeChange("live")}
+              >
+                Live
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="ws-obs-toggle" data-testid="observation-published-only">
+            <span className="ws-control-label">Observation</span>
+            <span className="ws-published-badge">Published</span>
+          </div>
+        )}
 
-        {observationMode === "live" ? (
+        {liveAvailable && observationMode === "live" ? (
           <div className="ws-live-controls" data-testid="live-controls">
             <label className="ws-control-field">
               <span className="ws-control-label">Date</span>
@@ -99,7 +114,7 @@ export function CityControls({
               onClick={onRunLive}
               disabled={liveRunning}
             >
-              {liveRunning ? "Running\u2026" : "Run observation"}
+              {liveRunning ? "Running…" : "Run observation"}
             </button>
           </div>
         ) : null}

@@ -44,8 +44,8 @@ function contextModeFromTitle(title: string, meaning: string): {
     return {
       mode: "TREE_CANOPY",
       title: "Tree canopy",
-      unit: "% of plantable ground",
-      sourceLine: "Share of plantable ground with tree canopy · Phoenix shade study",
+      unit: "% canopy cover",
+      sourceLine: "Published tree canopy context · see Methods & provenance",
     };
   }
   if (blob.includes("income")) {

@@ -7,7 +7,6 @@ import {
   type ContextPaletteId,
   type SignalAHatchPaint,
 } from "@/features/mapEncoding";
-import { observedThermalSpan } from "./thermalSpan";
 import {
   INTERACTION_HOVER_LINE,
   INTERACTION_HOVER_LINE_WIDTH,
@@ -39,7 +38,7 @@ function maxAuthorizedOrder(catalog: InteractionCatalog): number {
   return max > 0 ? max : 25;
 }
 
-function contextRange(catalog: InteractionCatalog): { min: number; max: number } {
+export function contextRange(catalog: InteractionCatalog): { min: number; max: number } {
   const values = catalog.collection.features
     .map((feature) => feature.properties.context_fill_value)
     .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
@@ -60,14 +59,15 @@ function paletteFromCatalog(catalog: InteractionCatalog): ContextPaletteId {
 }
 
 /**
- * Authorized fills use RESCUE-E historical-position tokens.
- * Insufficient / unauthorized stays outline-only (opacity 0).
- * Thermal default = THERMAL_DISPLAY_SCALE_V1 unless enhanceLocalContrast is opted in.
+ * Historical ordering is shown only when the backend authorizes it.
+ * Selected-time thermal conditions always use the shared absolute °C scale.
+ * Context layers are relative within the displayed comparison geography and
+ * are labelled as such in the legend.
  */
 export function highlightFillPaint(
   catalog: InteractionCatalog | null,
   state: InteractionState,
-  options?: { enhanceLocalContrast?: boolean },
+  _options?: { enhanceLocalContrast?: boolean },
 ): InteractionFillPaint {
   if (catalog?.fill_kind === "context_quantity" && state.layerActive) {
     const { min, max } = contextRange(catalog);
@@ -78,14 +78,6 @@ export function highlightFillPaint(
     catalog.kind === "selected_time_snapshot" &&
     state.layerActive
   ) {
-    const span = observedThermalSpan(catalog);
-    if (options?.enhanceLocalContrast && span && span.spreadC > 0) {
-      return signalBThermalFillPaint({
-        observedMinC: span.minC,
-        observedMaxC: span.maxC,
-        enhanceLocalContrast: true,
-      });
-    }
     return signalBThermalFillPaint();
   }
   const authorized = Boolean(

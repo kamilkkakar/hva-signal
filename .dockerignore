@@ -12,9 +12,9 @@ apps/web/dist/
 dist/
 .vite/
 
-# Git / local-only (reference panel stays on disk; not in Git deploy context)
+# Git / local-only
 .git/
-workforce/
+**/workforce/
 
 # caches
 .cache/
