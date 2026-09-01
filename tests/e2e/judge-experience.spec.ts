@@ -177,15 +177,22 @@ test.describe("workspace experience", () => {
     expect(visible.toLowerCase()).not.toContain("no row");
   });
 
-  test("public observation mode is Published-only until bounded live is verified", async ({ page }) => {
+  test("public observation mode exposes bounded Live without auto-submitting", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
     await waitForWorkspaceMap(page);
 
-    await expect(page.getByTestId("observation-published-only")).toBeVisible();
-    await expect(page.getByTestId("observation-published-only")).toContainText("Published");
-    await expect(page.getByTestId("obs-live")).toHaveCount(0);
+    await expect(page.getByTestId("obs-published")).toHaveAttribute("aria-checked", "true");
+    await expect(page.getByTestId("obs-live")).toBeVisible();
     await expect(page.getByTestId("live-controls")).toHaveCount(0);
-    await expect(page.getByTestId("run-live")).toHaveCount(0);
+
+    await page.getByTestId("obs-live").click();
+    await expect(page.getByTestId("live-controls")).toBeVisible();
+    await expect(page.getByTestId("live-city-search")).toBeVisible();
+    await expect(page.getByTestId("run-live")).toBeVisible();
+    await expect(page.getByTestId("live-scope-note")).toContainText("four published city geographies");
+
+    // Do not click Run here: CI must never create a paid provider request.
+    await expect(page.getByTestId("run-live")).toBeEnabled();
   });
 });
