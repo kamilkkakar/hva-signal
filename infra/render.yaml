@@ -5,10 +5,10 @@
 # without the other.
 #
 # Free services sleep when idle and cannot use private-network hostport.
-# This is validation infrastructure, not the judged-demo plan.
-# Leave FORTYGUARD_API_KEY empty. DATA_MODE is replay.
-# Hosted live, real vendor, and demo allowance stay OFF.
-# Vite public-context / place-search flags are baked in apps/web/Dockerfile.
+# DATA_MODE remains replay for the published product. GENERAL hosted/vendor
+# construction stays OFF. Only the narrow cache-first selected-time endpoint is
+# enabled; it accepts supported city + exact local hour and keeps AOI/provider
+# configuration server-owned.
 
 services:
   - type: web
@@ -36,7 +36,7 @@ services:
       - key: HOSTED_LIVE_REAL_VENDOR_ENABLED
         value: false
       - key: BOUNDED_SELECTED_TIME_LIVE_ENABLED
-        value: false
+        value: true
       - key: BOUNDED_SELECTED_TIME_DAILY_LIMIT
         value: "20"
       - key: DEMO_ALLOWANCE_ENABLED
