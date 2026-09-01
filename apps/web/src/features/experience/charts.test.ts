@@ -46,7 +46,7 @@ describe("experience charts", () => {
     expect(html).toContain("+1.60 °C");
     expect(html).toContain("Higher by 1.60 °C");
     expect(html).toContain("31 matched");
-    expect(html).toContain(">°C<");
+    expect(html).toContain("Temperature (°C)");
     expect(html).toContain(MATCHED_NOT_CLIMATE);
     expect(html).not.toContain("<rect");
     expect(html).not.toContain("climate trend");
@@ -63,7 +63,7 @@ describe("experience charts", () => {
     expect(html).toContain("41.2 °C");
     expect(html).toContain("observed-high");
     expect(html).toContain("Gaps between observations");
-    expect(html).toContain(">°C<");
+    expect(html).toContain("Temperature (°C)");
     expect((html.match(/Interval not observed/g) ?? []).length).toBe(0);
     expect(html).not.toContain("24-HOUR CURVE");
     expect(html).not.toContain("cooling rate");
