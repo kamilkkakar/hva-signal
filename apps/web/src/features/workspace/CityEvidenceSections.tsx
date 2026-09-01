@@ -181,9 +181,7 @@ function LocalContextFromRecords({
   );
 }
 
-/**
- * Capability-driven below-map evidence. No city === "phoenix" whole-UI branches.
- */
+/** Capability-driven below-map evidence. */
 export function CityEvidenceSections({
   cityId,
   capabilities,
@@ -207,14 +205,16 @@ export function CityEvidenceSections({
   return (
     <div className="ws-below-map" data-testid="city-evidence-sections" data-city={cityId}>
       {capabilities.hasHistoricalMatchedNighttime ? (
-        <details className="ws-analysis-section" data-testid="matched-night-section">
-          <summary>Matched nighttime change</summary>
+        <section
+          className="ws-analysis-section ws-analysis-section-featured"
+          data-testid="matched-night-section"
+        >
           <MatchedNightChart
             view={matched}
             areaLabel={areaLabel}
             analysisAreaCount={analysisAreaCount}
           />
-        </details>
+        </section>
       ) : null}
 
       {capabilities.hasObservedInstants ? (
