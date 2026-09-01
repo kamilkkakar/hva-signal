@@ -15,8 +15,6 @@ import {
   SIGNAL_A_LINE,
   SIGNAL_A_LINE_WIDTH,
   SIGNAL_A_POS_STOPS,
-  THERMAL_C_LOCAL_HIGH,
-  THERMAL_C_LOCAL_LOW,
   THERMAL_C_STOPS,
 } from "./tokens";
 
@@ -127,10 +125,11 @@ export function signalAHaloPaint(authorized: boolean): SignalALinePaint {
   };
 }
 
+/* Kept as a compatibility type for older callers/tests. Absolute selected-time
+ * temperature never uses these values to stretch the palette. */
 export type SignalBThermalFillInput = {
-  observedMinC: number;
-  observedMaxC: number;
-  /** OFF by default. Only stretch when the analyst opts in. */
+  observedMinC?: number;
+  observedMaxC?: number;
   enhanceLocalContrast?: boolean;
 };
 
@@ -143,31 +142,15 @@ function fixedThermalFillPaint(): SignalAFillPaint["fill-color"] {
   ];
 }
 
-/** Selected-time absolute °C. Default = THERMAL_DISPLAY_SCALE_V1 (no AOI stretch). */
-export function signalBThermalFillPaint(input?: SignalBThermalFillInput): SignalAFillPaint {
-  const lo = input?.observedMinC;
-  const hi = input?.observedMaxC;
-  const enhance = input?.enhanceLocalContrast === true;
-  const useLocalContrast =
-    enhance &&
-    lo != null &&
-    hi != null &&
-    Number.isFinite(lo) &&
-    Number.isFinite(hi) &&
-    hi > lo;
-
+/**
+ * Selected-time absolute °C always uses THERMAL_DISPLAY_SCALE_V1.
+ * AOI min/max stretching is intentionally impossible on this path.
+ */
+export function signalBThermalFillPaint(
+  _input?: SignalBThermalFillInput,
+): SignalAFillPaint {
   return {
-    "fill-color": useLocalContrast
-      ? [
-          "interpolate",
-          ["linear"],
-          ["get", "mean_temperature_c"],
-          lo,
-          THERMAL_C_LOCAL_LOW,
-          hi,
-          THERMAL_C_LOCAL_HIGH,
-        ]
-      : fixedThermalFillPaint(),
+    "fill-color": fixedThermalFillPaint(),
     "fill-opacity": [
       "case",
       ["==", ["get", "has_semantic_fill"], true],
