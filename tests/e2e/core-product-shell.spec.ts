@@ -36,11 +36,16 @@ test.describe("core product shell never disappears", () => {
     await expect(page.getByTestId("mode-compare")).toBeVisible();
     await expect(page.getByTestId("city-selector")).toBeVisible();
 
-    // Public release is intentionally Published-only until the bounded live path
-    // passes its cache/spend proof. Do not restore a dead Live affordance merely
-    // to satisfy an older shell contract.
-    await expect(page.getByTestId("observation-published-only")).toBeVisible();
-    await expect(page.getByTestId("obs-live")).toHaveCount(0);
+    // Published remains the default. Bounded Live is an explicit user action;
+    // opening its controls must not submit a provider request.
+    await expect(page.getByTestId("obs-published")).toHaveAttribute("aria-checked", "true");
+    await expect(page.getByTestId("obs-live")).toBeVisible();
+    await expect(page.getByTestId("live-controls")).toHaveCount(0);
+    await page.getByTestId("obs-live").click();
+    await expect(page.getByTestId("live-controls")).toBeVisible();
+    await expect(page.getByTestId("live-city-search")).toBeVisible();
+    await expect(page.getByTestId("run-live")).toBeVisible();
+    await page.getByTestId("obs-published").click();
     await expect(page.getByTestId("live-controls")).toHaveCount(0);
 
     const citySelect = page.getByTestId("city-selector").locator("select");
