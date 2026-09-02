@@ -1,14 +1,15 @@
-# Render Blueprint — HVA-Signal (3K Labs) Free-tier public validation.
+# Render Blueprint — HVA-Signal (3K Labs) mixed-tier public deployment.
 #
 # Canonical deployment source: infra/render.yaml. Root render.yaml is a
 # required byte-identical copy (unit test enforces this). Do not edit one
 # without the other.
 #
-# Free services sleep when idle and cannot use private-network hostport.
-# DATA_MODE remains replay for the published product. GENERAL hosted/vendor
-# construction stays OFF. Only the narrow cache-first selected-time endpoint is
-# enabled; it accepts supported city + exact local hour and keeps AOI/provider
-# configuration server-owned.
+# The API remains on the Free compute plan and may sleep when idle. The web
+# service uses Render's paid 0.5c-512mb plan so the public interface stays
+# available. DATA_MODE remains replay for the published product. GENERAL
+# hosted/vendor construction stays OFF. Only the narrow cache-first
+# selected-time endpoint is enabled; it accepts supported city + exact local
+# hour and keeps AOI/provider configuration server-owned.
 
 services:
   - type: web
@@ -76,7 +77,7 @@ services:
   - type: web
     name: urban-thermal-web
     runtime: docker
-    plan: free
+    plan: 0.5c-512mb
     dockerfilePath: ./apps/web/Dockerfile
     dockerContext: ./apps/web
     healthCheckPath: /
