@@ -28,6 +28,35 @@ _SIGNAL_B_FORBIDDEN_NODE_IDS = frozenset(
     }
 )
 
+_GATE0_METADATA_KEYS = (
+    "gate0_ledger_version",
+    "gate0_ledger_sha256",
+    "gate0_overall_status",
+    "probability_capability_status",
+)
+
+
+def _gate0_node(extra: dict[str, Any]) -> EvidenceNode | None:
+    present = {key for key in _GATE0_METADATA_KEYS if key in extra}
+    if not present:
+        return None
+    missing = set(_GATE0_METADATA_KEYS) - present
+    if missing:
+        raise ValueError(
+            "Gate 0 evidence metadata must be complete; missing="
+            + ", ".join(sorted(missing))
+        )
+    values = {key: extra[key] for key in _GATE0_METADATA_KEYS}
+    if any(not isinstance(value, str) or not value for value in values.values()):
+        raise ValueError("Gate 0 evidence metadata values must be non-empty strings")
+    return EvidenceNode(
+        id="gate0_ledger",
+        type="gate0_ledger",
+        label=values["gate0_ledger_version"],
+        source_type="config",
+        metadata=values,
+    )
+
 
 def build_replay_evidence_graph(
     *,
@@ -57,6 +86,7 @@ def build_replay_evidence_graph(
         )
         if key in extra
     }
+    gate0_node = _gate0_node(extra)
 
     nodes = [
         EvidenceNode(
@@ -96,6 +126,15 @@ def build_replay_evidence_graph(
         EvidenceEdge(from_id=fixture_id, to_id=adapter_id, relation="served_through"),
         EvidenceEdge(from_id=adapter_id, to_id=aggregation_id, relation="aggregates_to"),
     ]
+    if gate0_node is not None:
+        nodes.append(gate0_node)
+        edges.append(
+            EvidenceEdge(
+                from_id=request_id,
+                to_id=gate0_node.id,
+                relation="evaluated_under",
+            )
+        )
     if spread_meta:
         spread_id = "decision8_hazard_spread"
         nodes.append(
@@ -114,6 +153,14 @@ def build_replay_evidence_graph(
                 relation="validates_spread",
             )
         )
+        if gate0_node is not None:
+            edges.append(
+                EvidenceEdge(
+                    from_id=gate0_node.id,
+                    to_id=spread_id,
+                    relation="governs",
+                )
+            )
     return EvidenceGraph(nodes=nodes, edges=edges)
 
 
@@ -135,6 +182,7 @@ def build_phoenix_v1_evidence_graph(
     reference_id = "decision1b_reference"
     aggregation_id = "zone_aggregation"
     spread_id = "decision8_hazard_spread"
+    gate0_node = _gate0_node(extra)
 
     nodes = [
         EvidenceNode(
@@ -204,6 +252,22 @@ def build_phoenix_v1_evidence_graph(
         EvidenceEdge(from_id=reference_id, to_id=aggregation_id, relation="supplies_target"),
         EvidenceEdge(from_id=aggregation_id, to_id=spread_id, relation="validates_spread"),
     ]
+    if gate0_node is not None:
+        nodes.append(gate0_node)
+        edges.extend(
+            [
+                EvidenceEdge(
+                    from_id=request_id,
+                    to_id=gate0_node.id,
+                    relation="evaluated_under",
+                ),
+                EvidenceEdge(
+                    from_id=gate0_node.id,
+                    to_id=spread_id,
+                    relation="governs",
+                ),
+            ]
+        )
     return EvidenceGraph(nodes=nodes, edges=edges)
 
 
