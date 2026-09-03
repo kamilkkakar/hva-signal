@@ -46,6 +46,11 @@ import type {
 import { CityControls } from "./CityControls";
 import { ZonePanel } from "./ZonePanel";
 import { buildStoryActions, contextHighlights } from "./actionEngine";
+import {
+  buildOutlookPlan,
+  type OutlookLiveState,
+  type OutlookSpatialState,
+} from "./outlookEngine";
 import { type HvaStage } from "./HvaStoryRail";
 import {
   CITIES,
@@ -608,6 +613,43 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
     [comparisons, preparedness],
   );
 
+  const outlookPlan = useMemo(() => {
+    const liveState: OutlookLiveState = liveRunning
+      ? "running"
+      : liveError
+        ? "error"
+        : liveResult?.cityId === cityId
+          ? "ready"
+          : "idle";
+    const outlookSpatialState: OutlookSpatialState = usePhoenixPublished
+      ? spatial.status === "supported"
+        ? "supported"
+        : spatial.status === "withheld"
+          ? "withheld"
+          : "not_evaluated"
+      : "not_evaluated";
+
+    return buildOutlookPlan({
+      cityLabel: city.label,
+      observationMode,
+      liveState,
+      spatialState: outlookSpatialState,
+      hasHistoricalMatchedEvidence: isPhoenix,
+      observedInstantCount: isPhoenix ? evidence.observed.instants.length : 0,
+    });
+  }, [
+    city.label,
+    cityId,
+    evidence.observed.instants.length,
+    isPhoenix,
+    liveError,
+    liveResult?.cityId,
+    liveRunning,
+    observationMode,
+    spatial.status,
+    usePhoenixPublished,
+  ]);
+
   const provenanceLine = useMemo(() => {
     if (observationMode === "published") {
       return isPhoenix
@@ -791,6 +833,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
           onStageChange={setStoryStage}
           hasLocalAnalysis={usePhoenixPublished}
           forecastSupported={false}
+          outlookPlan={outlookPlan}
         />
       </div>
     </div>

@@ -94,12 +94,17 @@ describe("workspace contracts", () => {
   it("HVA story rail and outlook panel exist", () => {
     const rail = readSrc("./HvaStoryRail.tsx");
     const outlook = readSrc("./OutlookPanel.tsx");
+    const engine = readSrc("./outlookEngine.ts");
     expect(rail).toContain("hva-story-rail");
     expect(rail).toContain("hva-stage-heat");
     expect(outlook).toContain("hva-outlook-panel");
-    expect(outlook).toContain("What to watch next");
+    expect(outlook).toContain("plan.steps");
+    expect(outlook).toContain("Decision basis");
     expect(outlook).toContain("Forecast remains blocked");
     expect(outlook).toContain("Forecast contract");
+    expect(engine).toContain("buildOutlookPlan");
+    expect(engine).toContain("spatialState");
+    expect(engine).not.toContain("predicted_temperature");
   });
 
   it("action engine caps at 3 evidence-linked actions", () => {

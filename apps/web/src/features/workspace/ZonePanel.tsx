@@ -1,6 +1,7 @@
 import type { StoryAction } from "./actionEngine";
 import { HvaStoryRail, type HvaStage } from "./HvaStoryRail";
 import { OutlookPanel } from "./OutlookPanel";
+import type { OutlookPlan } from "./outlookEngine";
 import type { ZoneInfo } from "./types";
 
 type SpatialState = {
@@ -20,6 +21,7 @@ type ZonePanelProps = {
   onStageChange: (stage: HvaStage) => void;
   hasLocalAnalysis?: boolean;
   forecastSupported?: boolean;
+  outlookPlan: OutlookPlan;
 };
 
 export const CONTEXT_REFERENCE_COPY =
@@ -40,6 +42,7 @@ export function ZonePanel({
   onStageChange,
   hasLocalAnalysis,
   forecastSupported = false,
+  outlookPlan,
 }: ZonePanelProps) {
   if (!zone) {
     return (
@@ -152,7 +155,9 @@ export function ZonePanel({
         </nav>
       ) : null}
 
-      {stage === "outlook" ? <OutlookPanel forecastSupported={forecastSupported} /> : null}
+      {stage === "outlook" ? (
+        <OutlookPanel plan={outlookPlan} forecastSupported={forecastSupported} />
+      ) : null}
 
       <details className="ws-methods-disclosure" data-testid="zone-methods">
         <summary>Methods &amp; provenance</summary>
