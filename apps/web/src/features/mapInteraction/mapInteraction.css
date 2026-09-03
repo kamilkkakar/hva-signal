@@ -35,6 +35,36 @@
   overflow: hidden;
 }
 
+.mapi-renderer-fallback {
+  display: grid;
+  place-content: center;
+  gap: 0.35rem;
+  padding: 1.5rem;
+  background:
+    linear-gradient(rgba(78, 87, 72, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(78, 87, 72, 0.14) 1px, transparent 1px),
+    #c2c8b4;
+  background-size: 2rem 2rem;
+  text-align: center;
+}
+
+.mapi-renderer-fallback p {
+  max-width: 30rem;
+  margin: 0;
+  color: #344039;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.mapi-renderer-fallback .mapi-renderer-fallback-title {
+  color: #10140e;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .mapi-canvas,
 .mapi-canvas .maplibregl-map {
   position: absolute;
@@ -429,4 +459,3 @@
 .mapi[data-layout="map-primary"] .mapi-advanced .mapi-table-wrap {
   margin-top: 0.55rem;
 }
-

@@ -541,6 +541,40 @@
   font-size: 0.85rem;
 }
 
+.ws-outlook-summary {
+  color: var(--ws-ink);
+  font-weight: 650;
+}
+
+.ws-outlook-steps {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0.6rem 0;
+  padding-left: 1.2rem;
+  font-size: 0.82rem;
+}
+
+.ws-outlook-steps li::marker {
+  color: var(--ws-copper);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.ws-outlook-why {
+  display: block;
+  margin-top: 0.12rem;
+  color: var(--ws-muted);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.ws-outlook-panel .ws-outlook-basis {
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--ws-line);
+  color: var(--ws-muted);
+  font-size: 0.7rem;
+}
+
 /* === BELOW-MAP SECTIONS === */
 .ws-below-map {
   background: var(--ws-bg);

@@ -1,13 +1,18 @@
-/**
- * Explore City outlook — no auto-fetch. Forecast only after audit SUPPORTS.
- * Blocked state is guidance ("what to watch next"), not a fake forecast.
- */
-export function OutlookPanel({ forecastSupported = false }: { forecastSupported?: boolean }) {
+import type { OutlookPlan } from "./outlookEngine";
+
+type OutlookPanelProps = {
+  plan: OutlookPlan;
+  forecastSupported?: boolean;
+};
+
+/** Evidence-aware outlook. It plans observations; it never auto-fetches. */
+export function OutlookPanel({ plan, forecastSupported = false }: OutlookPanelProps) {
   return (
     <section
       className="ws-outlook-panel"
       data-testid="hva-outlook-panel"
       data-forecast={forecastSupported ? "supported" : "blocked"}
+      data-outlook-state={plan.state}
       aria-label="Thermal outlook"
     >
       <p className="ws-control-label">Outlook</p>
@@ -18,12 +23,20 @@ export function OutlookPanel({ forecastSupported = false }: { forecastSupported?
         </p>
       ) : (
         <div data-testid="hva-outlook-blocked">
-          <p>What to watch next</p>
-          <ul>
-            <li>Run live — use an explicit selected-time request when the bounded live path is enabled.</li>
-            <li>Compare observed times — review published 15:00 snapshots on Compare → Snapshot.</li>
-            <li>Open Compare → Time — available after matched-instant evidence lands (not yet).</li>
-          </ul>
+          <p className="ws-outlook-summary" data-testid="hva-outlook-summary">
+            {plan.summary}
+          </p>
+          <ol className="ws-outlook-steps" data-testid="hva-outlook-steps">
+            {plan.steps.map((step) => (
+              <li key={step.id} data-outlook-step={step.id}>
+                <span>{step.label}</span>
+                <span className="ws-outlook-why">{step.whyShown}</span>
+              </li>
+            ))}
+          </ol>
+          <p className="ws-outlook-basis" data-testid="hva-outlook-basis">
+            Decision basis: {plan.basis}.
+          </p>
           <p data-testid="hva-outlook-forecast-blocked">
             Forecast remains blocked until a documented horizon exists. No predicted temperatures
             are shown here.
@@ -31,7 +44,8 @@ export function OutlookPanel({ forecastSupported = false }: { forecastSupported?
         </div>
       )}
       <p className="ws-gate-sentence">
-        Outlook does not claim overnight recovery, 24-hour profiles, or intervention efficacy.
+        No automatic request is made. Outlook does not claim overnight recovery, continuous
+        conditions, or intervention efficacy.
       </p>
     </section>
   );

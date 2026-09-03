@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import maplibregl, { type GeoJSONSource } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./mapInteraction.css";
@@ -14,6 +14,7 @@ import { MapInteractionChrome } from "./MapInteractionChrome";
 import { INTERACTION_PAPER } from "./policy";
 import { observedThermalSpan } from "./thermalSpan";
 import { presentMapInteraction } from "./present";
+import { startMapRuntime } from "./mapRuntime";
 import { initialInteractionState, reduceInteraction } from "./state";
 import type { InteractionCatalog, InteractionEvent, InteractionState } from "./types";
 
@@ -32,6 +33,8 @@ export type MapInteractionStageProps = {
   selectedId?: string | null;
   onSelectedIdChange?: (geoid: string | null) => void;
 };
+
+type MapRendererState = "pending" | "ready" | "unavailable";
 
 function ensureHatchImages(map: maplibregl.Map): void {
   for (const image of allHatchImages()) {
@@ -200,6 +203,7 @@ export function MapInteractionStage({
   const viewRef = useRef(view);
   const lastFit = useRef(0);
   const lastResizeFitKey = useRef("");
+  const [rendererState, setRendererState] = useState<MapRendererState>("pending");
 
   catalogRef.current = catalog;
   stateRef.current = state;
@@ -238,23 +242,35 @@ export function MapInteractionStage({
     if (!node) {
       return;
     }
-    const map = new maplibregl.Map({
-      container: node,
-      style: {
-        version: 8,
-        sources: {},
-        layers: [
-          {
-            id: "hva-map-interaction-paper",
-            type: "background",
-            paint: { "background-color": INTERACTION_PAPER },
+    const runtime = startMapRuntime(
+      () =>
+        new maplibregl.Map({
+          container: node,
+          style: {
+            version: 8,
+            sources: {},
+            layers: [
+              {
+                id: "hva-map-interaction-paper",
+                type: "background",
+                paint: { "background-color": INTERACTION_PAPER },
+              },
+            ],
           },
-        ],
-      },
-      attributionControl: false,
-      fadeDuration: 0,
-      renderWorldCopies: false,
-    });
+          attributionControl: false,
+          fadeDuration: 0,
+          renderWorldCopies: false,
+        }),
+    );
+    if (runtime.state === "unavailable") {
+      // Some managed browsers disable WebGL. Keep the evidence, zone list and
+      // decision rail usable instead of allowing MapLibre to unmount the app.
+      mapRef.current = null;
+      setRendererState("unavailable");
+      return;
+    }
+    const map = runtime.map;
+    setRendererState("ready");
     map.dragRotate.disable();
     map.touchZoomRotate.disableRotation();
     map.keyboard.disableRotation();
@@ -392,6 +408,7 @@ export function MapInteractionStage({
       data-position-legend={view.positionLegendMode ?? "none"}
       data-decorative="false"
       data-selected-area-id={state.layerActive ? state.selectedId ?? "" : ""}
+      data-map-renderer={view.canvasAllowed ? rendererState : "not-required"}
     >
       {!gatedOn ? (
         <p className="mapi-gated" data-testid="map-interaction-gated">
@@ -399,7 +416,7 @@ export function MapInteractionStage({
         </p>
       ) : (
         <>
-          {view.canvasAllowed ? (
+          {view.canvasAllowed && rendererState !== "unavailable" ? (
             <div className="mapi-stage">
               <div
                 ref={containerRef}
@@ -419,6 +436,18 @@ export function MapInteractionStage({
                 )}
               </div>
             </div>
+          ) : view.canvasAllowed ? (
+            <div
+              className="mapi-stage mapi-renderer-fallback"
+              data-testid="map-renderer-fallback"
+              role="status"
+            >
+              <p className="mapi-renderer-fallback-title">Map view unavailable</p>
+              <p>
+                This browser could not start the interactive map. The thermal and context
+                evidence is still available in the zone details and zone list.
+              </p>
+            </div>
           ) : (
             <p className="mapi-empty" data-testid="map-interaction-empty">
               {view.meaningCopy}
@@ -433,6 +462,7 @@ export function MapInteractionStage({
             layerMeaning={catalog?.meaning ?? view.meaningCopy}
             observedMinC={thermalSpan?.minC ?? null}
             observedMaxC={thermalSpan?.maxC ?? null}
+            interactiveMapAvailable={rendererState !== "unavailable"}
           />
         </>
       )}
