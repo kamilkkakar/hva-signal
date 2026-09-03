@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from app.core.gate0_registry import PHOENIX_GATE0_LEDGER_SHA256
 from app.domain.enums import AnalysisMode, DataMode, DataStatus, JobStatus, ResultStatus
 from app.domain.requests import AnalysisRequest
 
@@ -57,6 +58,19 @@ def test_probability_engine_result_is_blocked_with_null_value() -> None:
         assert zone.probability.status == ResultStatus.INSUFFICIENT_EVIDENCE
         assert zone.probability.value is None
         assert EVENT_PROBABILITY_BLOCKED in zone.probability.quality_flags
+        assert "gate0_ledger" in zone.probability.evidence_refs
+
+
+def test_replay_result_records_gate0_authorization_provenance() -> None:
+    result = _run()
+    gate = next(node for node in result.evidence_graph.nodes if node.id == "gate0_ledger")
+    assert gate.metadata == {
+        "gate0_ledger_version": "PHX_GATE0_LEDGER_V1_OPEN",
+        "gate0_ledger_sha256": PHOENIX_GATE0_LEDGER_SHA256,
+        "gate0_overall_status": "OPEN",
+        "probability_capability_status": "BLOCKED",
+    }
+    assert all("gate0_ledger" in zone.evidence_refs for zone in result.zones)
 
 
 def test_replay_result_does_not_emit_calibrated_probability() -> None:
