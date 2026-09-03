@@ -20,12 +20,16 @@ COPY apps/api/pyproject.toml ./
 COPY apps/api/app ./app
 COPY apps/api/tests/fixtures ./tests/fixtures
 COPY data/demo/phoenix /hackathon/data/demo/phoenix
+COPY data/gate0 /hackathon/data/gate0
 COPY data/phoenix/reference /hackathon/data/phoenix/reference
 COPY data/areas /hackathon/data/areas
 COPY data/context/phoenix-demo /hackathon/data/context/phoenix-demo
 COPY data/context/cross-city /hackathon/data/context/cross-city
 COPY data/acquisitions/cross-city /hackathon/data/acquisitions/cross-city
 COPY data/phoenix/snapshots /hackathon/data/phoenix/snapshots
+COPY scripts/gate0_between_aoi.py /hackathon/scripts/gate0_between_aoi.py
+COPY scripts/gate0_static_field.py /hackathon/scripts/gate0_static_field.py
+COPY scripts/gate0_static_field_audit.py /hackathon/scripts/gate0_static_field_audit.py
 RUN pip install --no-cache-dir .
 
 COPY apps/api/docker-entrypoint.sh /docker-entrypoint.sh

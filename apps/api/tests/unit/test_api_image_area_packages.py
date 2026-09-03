@@ -29,12 +29,19 @@ ACTIVITY_2100 = "9865bd33-43a0-42b0-bc9b-74b27510002d"
 
 REQUIRED_DATA_COPIES = (
     ("data/demo/phoenix", "/hackathon/data/demo/phoenix"),
+    ("data/gate0", "/hackathon/data/gate0"),
     ("data/phoenix/reference", "/hackathon/data/phoenix/reference"),
     ("data/areas", "/hackathon/data/areas"),
     ("data/context/phoenix-demo", "/hackathon/data/context/phoenix-demo"),
     ("data/context/cross-city", "/hackathon/data/context/cross-city"),
     ("data/acquisitions/cross-city", "/hackathon/data/acquisitions/cross-city"),
     ("data/phoenix/snapshots", "/hackathon/data/phoenix/snapshots"),
+)
+
+GATE0_EVIDENCE_SCRIPTS = (
+    "gate0_between_aoi.py",
+    "gate0_static_field.py",
+    "gate0_static_field_audit.py",
 )
 
 
@@ -58,6 +65,16 @@ def test_dockerfile_copies_context_and_observed_instant_data() -> None:
         assert f"COPY {src} {dest}" in dockerfile
     assert "workforce" not in dockerfile
     assert "p14_phase1" not in dockerfile
+
+
+def test_dockerfile_copies_gate0_ledger_and_tracked_audit_scripts() -> None:
+    dockerfile = _dockerfile()
+    assert "COPY data/gate0 /hackathon/data/gate0" in dockerfile
+    for filename in GATE0_EVIDENCE_SCRIPTS:
+        assert (
+            f"COPY scripts/{filename} /hackathon/scripts/{filename}" in dockerfile
+        )
+    assert "workforce" not in dockerfile
 
 
 def test_tracked_runtime_files_exist_for_image_copy() -> None:
@@ -132,6 +149,36 @@ def test_image_layout_has_context_and_snapshot_files(tmp_path: Path) -> None:
     assert bundle.is_file(), "API image layout is missing phoenix-demo context_bundle.json"
     assert snap_1500.is_file(), "API image layout is missing 15:00 snapshot"
     assert snap_2100.is_file(), "API image layout is missing 21:00 snapshot"
+    assert not (image_root / "workforce").exists()
+
+
+def test_gate0_ledger_resolves_from_api_image_layout(
+    tmp_path: Path, monkeypatch
+) -> None:
+    from app.core.gate0_registry import load_phoenix_gate0_ledger
+
+    repo = hackathon_root()
+    image_root = _image_root_from_dockerfile(tmp_path)
+    shutil.copytree(
+        repo / "apps" / "api" / "app",
+        image_root / "apps" / "api" / "app",
+        dirs_exist_ok=True,
+    )
+    shutil.copytree(
+        repo / "apps" / "api" / "tests" / "fixtures",
+        image_root / "apps" / "api" / "tests" / "fixtures",
+        dirs_exist_ok=True,
+    )
+    scripts = image_root / "scripts"
+    scripts.mkdir(parents=True, exist_ok=True)
+    for filename in GATE0_EVIDENCE_SCRIPTS:
+        shutil.copy2(repo / "scripts" / filename, scripts / filename)
+
+    _point_loaders_at_image(monkeypatch, image_root)
+    monkeypatch.setattr("app.core.gate0_registry.hackathon_root", lambda: image_root)
+    resolved = load_phoenix_gate0_ledger(root=image_root)
+    assert resolved.ledger.overall_status.value == "OPEN"
+    assert resolved.path == image_root / "data" / "gate0" / "phoenix-v1" / "ledger.json"
     assert not (image_root / "workforce").exists()
 
 
