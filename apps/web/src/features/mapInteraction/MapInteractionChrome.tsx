@@ -29,6 +29,7 @@ export type MapInteractionChromeProps = {
   layerMeaning?: string | null;
   observedMinC?: number | null;
   observedMaxC?: number | null;
+  interactiveMapAvailable?: boolean;
   enhanceLocalContrast?: boolean;
   onEnhanceLocalContrastChange?: (next: boolean) => void;
 };
@@ -73,6 +74,7 @@ export function MapInteractionChrome({
   layerMeaning = null,
   observedMinC = null,
   observedMaxC = null,
+  interactiveMapAvailable = true,
   enhanceLocalContrast = false,
   onEnhanceLocalContrastChange,
 }: MapInteractionChromeProps) {
@@ -137,7 +139,7 @@ export function MapInteractionChrome({
             <button
               type="button"
               data-testid="map-fit-aoi"
-              disabled={!view.canFitAoi}
+              disabled={!view.canFitAoi || !interactiveMapAvailable}
               onClick={() => dispatch({ type: "fit_aoi" })}
             >
               {FIT_AOI_LABEL}
@@ -145,7 +147,7 @@ export function MapInteractionChrome({
             <button
               type="button"
               data-testid="map-reset-aoi"
-              disabled={!view.canFitAoi}
+              disabled={!view.canFitAoi || !interactiveMapAvailable}
               onClick={() => dispatch({ type: "reset_aoi" })}
             >
               {RESET_AOI_LABEL}

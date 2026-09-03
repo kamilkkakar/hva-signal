@@ -112,4 +112,26 @@ test.describe("core product shell never disappears", () => {
       "present",
     );
   });
+
+  test("no WebGL keeps the evidence and decision path usable", async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
+        configurable: true,
+        value: () => null,
+      });
+    });
+    await page.goto("/");
+
+    await expect(page.getByTestId("workspace")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("map-renderer-fallback")).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.getByTestId("map-interaction-stage")).toHaveAttribute(
+      "data-map-renderer",
+      "unavailable",
+    );
+    await expect(page.getByTestId("zone-panel")).toBeVisible();
+    await expect(page.getByTestId("map-interaction-chrome")).toBeVisible();
+    await expect(page.getByTestId("map-fit-aoi")).toBeDisabled();
+  });
 });
