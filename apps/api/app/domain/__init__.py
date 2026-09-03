@@ -18,6 +18,15 @@ from app.domain.enums import (
 )
 from app.domain.evidence import EvidenceEdge, EvidenceGraph, EvidenceNode
 from app.domain.features import ZoneFeatureVector
+from app.domain.gate0 import (
+    Gate0Capability,
+    Gate0CapabilityStatus,
+    Gate0Decision,
+    Gate0DecisionStatus,
+    Gate0HumanCloseApproval,
+    Gate0Ledger,
+    Gate0OverallStatus,
+)
 from app.domain.interventions import InterventionDefinition
 from app.domain.normalization import NormalizedFeature
 from app.domain.phoenix_v1 import (
@@ -96,6 +105,13 @@ __all__ = [
     "EvidenceGraph",
     "EvidenceNode",
     "GeoJSONGeometry",
+    "Gate0Capability",
+    "Gate0CapabilityStatus",
+    "Gate0Decision",
+    "Gate0DecisionStatus",
+    "Gate0HumanCloseApproval",
+    "Gate0Ledger",
+    "Gate0OverallStatus",
     "HazardSpreadPolicy",
     "HazardSpreadProvenance",
     "HeatmapTemporalMode",

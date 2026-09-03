@@ -14,6 +14,11 @@ from app.core.area_registry import (
     AreaRegistryError,
     resolve_ready_area_package,
 )
+from app.core.gate0_registry import (
+    ResolvedGate0Ledger,
+    load_phoenix_gate0_ledger,
+    require_open_phoenix_runtime_policy,
+)
 from app.core.jobs import job_store
 from app.core.phoenix_v1_area_config import (
     CANONICAL_REFERENCE_RELATIVE_PATH,
@@ -276,10 +281,21 @@ def _emit(callback: StatusCallback | None, status: JobStatus) -> None:
         callback(status)
 
 
+def _gate0_evidence_metadata(resolved: ResolvedGate0Ledger) -> dict[str, str]:
+    probability = resolved.ledger.capability("calibrated_event_probability")
+    return {
+        "gate0_ledger_version": resolved.ledger.ledger_version,
+        "gate0_ledger_sha256": resolved.sha256,
+        "gate0_overall_status": resolved.ledger.overall_status.value,
+        "probability_capability_status": probability.status.value,
+    }
+
+
 def _run_phoenix_v1_historical(
     request: AnalysisRequest,
     *,
     config: AreaConfig,
+    gate0: ResolvedGate0Ledger,
     analysis_id: str | None,
     quality_flags: list[str],
     status_callback: StatusCallback | None,
@@ -331,13 +347,14 @@ def _run_phoenix_v1_historical(
             "area_config_version": config.version,
             "target_date": target_date,
             "target_observations_supplied": target_observations is not None,
+            **_gate0_evidence_metadata(gate0),
         },
     )
     aggregation_ref = "zone_aggregation"
     zones_out: list[ZoneDecisionResult] = []
     if evaluation.zones:
         for zone in evaluation.zones:
-            evidence_refs = [aggregation_ref]
+            evidence_refs = [aggregation_ref, "gate0_ledger"]
             zones_out.append(
                 ZoneDecisionResult(
                     zone_id=zone.geoid,
@@ -413,18 +430,24 @@ def run_replay_analysis(
         quality_flags.append(ANALYSIS_TIME_NOT_AOI_LOCAL)
 
     _emit(status_callback, JobStatus.LOADING_CONTEXT)
+    gate0: ResolvedGate0Ledger | None = None
     if resolved.manifest.area_id == PHOENIX_DEMO_AREA_ID:
         config = load_frozen_phoenix_v1_area_config()
         if resolved.manifest.area_config_sha256 != FROZEN_AREA_CONFIG_SHA256:
             raise AreaRegistryError("Phoenix package AreaConfig SHA-256 mismatch")
+        gate0 = load_phoenix_gate0_ledger()
+        require_open_phoenix_runtime_policy(gate0)
     else:
         config = resolved.config
     package_reference_path = reference_source_path or resolved.reference_path
     target_date = _phoenix_v1_target_date(request)
     if target_date is not None:
+        if gate0 is None:
+            raise AreaRegistryError("Phoenix historical path requires its Gate 0 ledger")
         return _run_phoenix_v1_historical(
             request,
             config=config,
+            gate0=gate0,
             analysis_id=analysis_id,
             quality_flags=quality_flags,
             status_callback=status_callback,
@@ -495,13 +518,15 @@ def run_replay_analysis(
             "reference_quality": ReferenceEvidenceQuality.INSUFFICIENT_REFERENCE.value,
             "decision8_policy_version": config.hazard_spread_policy.version,
             "decision8_evaluated": False,
+            **(_gate0_evidence_metadata(gate0) if gate0 is not None else {}),
         },
     )
     aggregation_ref = "zone_aggregation"
+    gate0_refs = ["gate0_ledger"] if gate0 is not None else []
 
     zones_out: list[ZoneDecisionResult] = []
     for outcome in outcomes:
-        evidence_refs = [aggregation_ref, *outcome.series.evidence_refs]
+        evidence_refs = [aggregation_ref, *gate0_refs, *outcome.series.evidence_refs]
         ranked = bool(spread_ranked and outcome.ranked)
         zone_flags = [
             *quality_flags,

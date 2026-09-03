@@ -56,7 +56,14 @@ class AreaConfig(BaseModel):
 
     module_flags: ModuleFlags
 
-    gate0_status: Literal["not_frozen", "frozen"] = "not_frozen"
+    gate0_status: Literal["not_frozen", "frozen"] = Field(
+        default="not_frozen",
+        description=(
+            "Legacy AreaConfig freeze marker. A frozen configuration does not "
+            "close the system-wide analytical Gate 0 or authorize capabilities; "
+            "the versioned Gate 0 ledger is authoritative for those decisions."
+        ),
+    )
 
     @model_validator(mode="after")
     def _coverage_policy_is_canonical(self) -> Self:

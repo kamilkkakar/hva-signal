@@ -1,0 +1,268 @@
+{
+  "schema_version": "GATE0_LEDGER_V1",
+  "ledger_version": "PHX_GATE0_LEDGER_V1_OPEN",
+  "area_id": "phoenix-demo",
+  "overall_status": "OPEN",
+  "human_close_approval": null,
+  "decisions": [
+    {
+      "decision_id": "adverse_event_definition",
+      "label": "Adverse-event definition",
+      "status": "INCOMPLETE",
+      "required_for_closure": true,
+      "summary": "No tracked Phoenix v1 event contract currently freezes the spatial unit, threshold or reference condition, and required duration. Calibrated P(event) remains unauthorized.",
+      "evidence_refs": [
+        "apps/api/app/services/orchestrator.py"
+      ]
+    },
+    {
+      "decision_id": "demo_zone_type",
+      "label": "Demo zone type",
+      "status": "FROZEN",
+      "required_for_closure": true,
+      "summary": "Phoenix v1 uses a selected 25-tract analysis window; this is an analysis geography, not municipal coverage.",
+      "evidence_refs": [
+        "data/demo/phoenix/area_config.json",
+        "data/areas/phoenix-demo/geometry.geojson"
+      ]
+    },
+    {
+      "decision_id": "zone_geometry",
+      "label": "Zone geometry version",
+      "status": "FROZEN",
+      "required_for_closure": true,
+      "summary": "The 25-zone geometry and its SHA-256 are frozen in the supported-area package.",
+      "evidence_refs": [
+        "data/areas/phoenix-demo/manifest.json",
+        "data/areas/phoenix-demo/geometry.geojson"
+      ]
+    },
+    {
+      "decision_id": "expected_zone_count",
+      "label": "Expected zone count",
+      "status": "FROZEN",
+      "required_for_closure": true,
+      "summary": "Phoenix v1 requires exactly 25 unique census-tract GEOIDs.",
+      "evidence_refs": [
+        "data/demo/phoenix/area_config.json",
+        "apps/api/app/core/area_registry.py"
+      ]
+    },
+    {
+      "decision_id": "acquisition_granularity",
+      "label": "Acquisition granularity",
+      "status": "FROZEN",
+      "required_for_closure": true,
+      "summary": "Requests use 100 m granularity. This does not establish effective 100 m localization or block-level decision precision.",
+      "evidence_refs": [
+        "data/demo/phoenix/area_config.json",
+        "apps/api/app/core/area_config.py"
+      ]
+    },
+    {
+      "decision_id": "tile_zone_assignment",
+      "label": "Tile-to-zone assignment",
+      "status": "FROZEN",
+      "required_for_closure": true,
+      "summary": "Valid tile observations are assigned by centroid-within-zone; boundary behavior is explicit.",
+      "evidence_refs": [
+        "data/demo/phoenix/area_config.json",
+        "apps/api/app/services/zone_aggregator.py"
+      ]
+    },
+    {
+      "decision_id": "zone_aggregation",
+      "label": "Zone aggregation policy",
+      "status": "FROZEN",
+      "required_for_closure": true,
+      "summary": "Zone thermal observations use the arithmetic mean of present assigned TCM values; missing values are never coerced to zero.",
+      "evidence_refs": [
+        "data/demo/phoenix/area_config.json",
+        "apps/api/app/domain/aggregation.py"
+      ]
+    },
+    {
+      "decision_id": "aoi_partition_plan",
+      "label": "AOI partition plan",
+      "status": "FROZEN",
+      "required_for_closure": true,
+      "summary": "The Phoenix v1 analysis window uses the single-AOI partition policy.",
+      "evidence_refs": [
+        "data/demo/phoenix/area_config.json",
+        "apps/api/app/integrations/fortyguard/partitioning.py"
+      ]
+    },
+    {
+      "decision_id": "expected_tile_coverage_distribution",
+      "label": "Expected tile coverage distribution",
+      "status": "INCOMPLETE",
+      "required_for_closure": true,
+      "summary": "Zero-tile behavior is fail-closed, but no tracked Gate 0 evidence package freezes the expected per-zone tile coverage distribution.",
+      "evidence_refs": [
+        "data/demo/phoenix/area_config.json",
+        "apps/api/app/services/coverage.py"
+      ]
+    },
+    {
+      "decision_id": "between_aoi_variance_test",
+      "label": "Between-AOI thermal variance test",
+      "status": "INCOMPLETE",
+      "required_for_closure": true,
+      "summary": "The clean repository has no replay bundle satisfying the pre-specified same-date, same-local-time, same-granularity, three-separated-Phoenix-AOI protocol. No substitute comparison is accepted.",
+      "evidence_refs": [
+        "scripts/gate0_between_aoi.py"
+      ]
+    },
+    {
+      "decision_id": "temporal_static_field_test",
+      "label": "Temporal/static-field test",
+      "status": "INCOMPLETE",
+      "required_for_closure": true,
+      "summary": "A replay-only audit implementation exists, but the clean repository does not contain the protocol inputs or tracked result needed to reproduce and ratify the decision.",
+      "evidence_refs": [
+        "scripts/gate0_static_field.py",
+        "scripts/gate0_static_field_audit.py"
+      ]
+    },
+    {
+      "decision_id": "intervention_evidence_decision",
+      "label": "Modeled Intervention Evidence decision",
+      "status": "DISABLED",
+      "required_for_closure": true,
+      "summary": "Modeled Intervention Evidence is disabled for Phoenix v1. Inventory and context may be shown without an efficacy modifier.",
+      "evidence_refs": [
+        "data/demo/phoenix/area_config.json",
+        "apps/api/app/domain/policies.py"
+      ]
+    },
+    {
+      "decision_id": "hazard_spread_floor",
+      "label": "Normalized hazard-spread policy",
+      "status": "FROZEN",
+      "required_for_closure": true,
+      "summary": "Decision 8 uses the top-three minus bottom-three mean difference on q_A with a 0.10 floor. It governs descriptive thermal ordering, not probability or priority.",
+      "evidence_refs": [
+        "apps/api/app/domain/phoenix_v1.py",
+        "apps/api/tests/fixtures/decision8/decision8_policy_impact_by_timestamp.csv"
+      ]
+    },
+    {
+      "decision_id": "versioned_area_config",
+      "label": "Versioned AreaConfig",
+      "status": "FROZEN",
+      "required_for_closure": true,
+      "summary": "PHX_AREA_CONFIG_V1 is human-frozen and hash-checked. Its legacy gate0_status field describes the configuration freeze; it does not close the system-wide analytical gate.",
+      "evidence_refs": [
+        "data/demo/phoenix/area_config.json",
+        "apps/api/app/core/phoenix_v1_area_config.py"
+      ]
+    }
+  ],
+  "capabilities": [
+    {
+      "capability_id": "descriptive_thermal_ordering",
+      "status": "CONDITIONAL",
+      "requires_gate0_closed": false,
+      "reason": "Ordering is shown only for a full historical reference when the frozen Decision 8 spread test is sufficient; otherwise it is withheld.",
+      "activation_condition": "FULL_REFERENCE and Decision 8 differentiation_state=SUFFICIENT",
+      "evidence_refs": [
+        "apps/api/app/services/phoenix_v1_thermal.py",
+        "apps/api/app/services/hazard_spread.py"
+      ]
+    },
+    {
+      "capability_id": "context_inventory",
+      "status": "AUTHORIZED",
+      "requires_gate0_closed": false,
+      "reason": "Versioned vulnerability and preparedness context may be presented without converting it into a risk, efficacy or priority score.",
+      "activation_condition": "Source, vintage, coverage and missingness remain visible",
+      "evidence_refs": [
+        "data/context/phoenix-demo/SOURCE.json",
+        "apps/api/app/domain/vulnerability_preparedness/context.py"
+      ]
+    },
+    {
+      "capability_id": "calibrated_event_probability",
+      "status": "BLOCKED",
+      "requires_gate0_closed": true,
+      "reason": "The adverse-event definition and required Gate 0 evidence are incomplete.",
+      "activation_condition": null,
+      "evidence_refs": [
+        "apps/api/app/services/orchestrator.py"
+      ]
+    },
+    {
+      "capability_id": "consequence_scoring",
+      "status": "BLOCKED",
+      "requires_gate0_closed": true,
+      "reason": "A consequence model and its evidence/confidence policy are not frozen or implemented.",
+      "activation_condition": null,
+      "evidence_refs": [
+        "apps/api/app/domain/results.py"
+      ]
+    },
+    {
+      "capability_id": "protective_capacity_scoring",
+      "status": "BLOCKED",
+      "requires_gate0_closed": true,
+      "reason": "Inventory-only context is allowed, but no protection scoring policy is frozen.",
+      "activation_condition": null,
+      "evidence_refs": [
+        "data/demo/phoenix/area_config.json"
+      ]
+    },
+    {
+      "capability_id": "priority_ranking",
+      "status": "BLOCKED",
+      "requires_gate0_closed": true,
+      "reason": "Probability, consequence and protection are separate unresolved inputs; descriptive thermal ordering is not priority.",
+      "activation_condition": null,
+      "evidence_refs": [
+        "apps/api/app/domain/results.py",
+        "apps/api/app/services/orchestrator.py"
+      ]
+    },
+    {
+      "capability_id": "least_regret_scenario",
+      "status": "BLOCKED",
+      "requires_gate0_closed": true,
+      "reason": "The intervention catalog, cost, lead-time and resource-constraint policies are inactive.",
+      "activation_condition": null,
+      "evidence_refs": [
+        "data/demo/phoenix/area_config.json",
+        "apps/api/app/domain/interventions.py"
+      ]
+    },
+    {
+      "capability_id": "modeled_intervention_evidence",
+      "status": "DISABLED",
+      "requires_gate0_closed": true,
+      "reason": "Phoenix v1 explicitly disables modeled intervention-effect evidence.",
+      "activation_condition": null,
+      "evidence_refs": [
+        "data/demo/phoenix/area_config.json"
+      ]
+    },
+    {
+      "capability_id": "human_thermal_burden",
+      "status": "DISABLED",
+      "requires_gate0_closed": true,
+      "reason": "No validated thermal-burden method is active for Phoenix v1.",
+      "activation_condition": null,
+      "evidence_refs": [
+        "data/demo/phoenix/area_config.json"
+      ]
+    },
+    {
+      "capability_id": "overnight_recovery",
+      "status": "DISABLED",
+      "requires_gate0_closed": true,
+      "reason": "Matched 03:00 observations do not establish a continuous overnight recovery curve.",
+      "activation_condition": null,
+      "evidence_refs": [
+        "data/phoenix/reference/observations.jsonl",
+        "apps/api/app/domain/phoenix_v1.py"
+      ]
+    }
+  ]
+}

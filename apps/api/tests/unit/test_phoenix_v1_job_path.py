@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from app.core.gate0_registry import PHOENIX_GATE0_LEDGER_SHA256
 from app.domain.enums import JobStatus
 from app.domain.phoenix_v1 import (
     AREA_CONFIG_VERSION,
@@ -264,6 +265,15 @@ def test_job_status_emits_normalizing_before_hazard_spread() -> None:
     assert seen.index(JobStatus.AGGREGATING_ZONES) < seen.index(JobStatus.NORMALIZING)
     assert seen.index(JobStatus.NORMALIZING) < seen.index(JobStatus.VALIDATING_HAZARD_SPREAD)
     assert seen.index(JobStatus.VALIDATING_HAZARD_SPREAD) < seen.index(JobStatus.COMPUTING)
+
+
+def test_historical_job_records_gate0_authorization_provenance() -> None:
+    job = _run("2022-06-30")
+    gate = next(node for node in job.evidence_graph.nodes if node.id == "gate0_ledger")
+    assert gate.metadata["gate0_ledger_sha256"] == PHOENIX_GATE0_LEDGER_SHA256
+    assert gate.metadata["gate0_overall_status"] == "OPEN"
+    assert gate.metadata["probability_capability_status"] == "BLOCKED"
+    assert all("gate0_ledger" in zone.probability.evidence_refs for zone in job.zones)
 
 
 def test_missing_reference_fails_closed_as_insufficient_reference(
