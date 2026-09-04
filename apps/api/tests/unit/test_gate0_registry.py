@@ -41,10 +41,17 @@ def test_frozen_area_config_does_not_close_analytical_gate() -> None:
     assert resolved.ledger.overall_status == Gate0OverallStatus.OPEN
     assert resolved.ledger.incomplete_required_decisions == (
         "adverse_event_definition",
-        "expected_tile_coverage_distribution",
         "between_aoi_variance_test",
         "temporal_static_field_test",
     )
+
+
+def test_expected_tile_coverage_is_verified_without_authorizing_a_floor() -> None:
+    resolved = load_phoenix_gate0_ledger()
+    decision = resolved.ledger.decision("expected_tile_coverage_distribution")
+    assert decision.status.value == "VERIFIED"
+    assert "data/gate0/phoenix-v1/expected_tile_coverage.json" in decision.evidence_refs
+    assert resolved.ledger.overall_status == Gate0OverallStatus.OPEN
 
 
 def test_canonical_evidence_references_are_present_and_not_workforce() -> None:

@@ -25,14 +25,26 @@ that blocked it.
 | Consequence, protection, priority, least-regret | `BLOCKED` | These engines do not have frozen evidence and policies. |
 | Intervention evidence, human thermal burden, overnight recovery | `DISABLED` | Phoenix v1 module flags remain false. |
 
-Four required decisions remain incomplete:
+Three required decisions remain incomplete:
 
 | Decision | Missing evidence |
 |---|---|
 | Adverse-event definition | A frozen event contract covering spatial unit, threshold or reference condition, and required duration. |
-| Expected tile coverage distribution | A tracked evidence package defining expected per-zone coverage. |
 | Between-AOI variance test | A same-date, same-local-time, same-granularity replay bundle for at least three separated Phoenix AOIs. |
 | Temporal/static-field test | Tracked protocol inputs and a reproducible, ratified result. |
+
+The expected tile-coverage distribution is now `VERIFIED`. The deterministic
+evidence package at
+`data/gate0/phoenix-v1/expected_tile_coverage.json` rebuilds from 93 complete
+historical 03:00 fields plus the tracked 15:00 and 21:00 snapshots. Across all
+95 fields (2,375 zone observations), each zone has an invariant contributing-
+tile count and every field contains 3,749 mapped tiles.
+
+This verifies an empirical 100 m baseline for the frozen Phoenix geography. It
+does **not** authorize a minimum coverage ratio, change the existing zero-tile
+fail-closed behavior, or permit probability or priority ranking. Run
+`python scripts/build_gate0_expected_tile_coverage.py --check` to verify that
+the tracked artifact still reproduces byte-for-byte.
 
 ## Evidence audit on 2026-09-03
 
@@ -44,6 +56,9 @@ calls:
   qualifying multi-AOI replay bundle.
 - `scripts/gate0_static_field.py` returned incomplete because the clean
   repository has neither the required downtown cache nor a tracked probe JSON.
+- The tracked four-instant Phoenix comparison contains complete 25-zone means,
+  but not the aligned tile fields required by the pre-registered static-field
+  protocol. It is supporting context, not a substitute test.
 - `scripts/gate0_nighttime.py` was not run because it can initiate live
   FortyGuard calls.
 

@@ -13,6 +13,12 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
+from app.core.gate0_coverage_registry import (
+    PHOENIX_COVERAGE_EVIDENCE_RELATIVE_PATH,
+    PHOENIX_COVERAGE_GENERATOR_RELATIVE_PATH,
+    Gate0CoverageRegistryError,
+    load_phoenix_expected_tile_coverage_evidence,
+)
 from app.core.phoenix_v1_area_config import (
     hackathon_root,
     load_frozen_phoenix_v1_area_config,
@@ -29,7 +35,7 @@ PHOENIX_GATE0_LEDGER_RELATIVE_PATH = (
     Path("data") / "gate0" / "phoenix-v1" / "ledger.json"
 )
 PHOENIX_GATE0_LEDGER_SHA256 = (
-    "5d34ee3f1adeb4456340f988c9b87ba7ef169a43c10823d18b85771dc0690f20"
+    "e5b5b0b7b02293cebf16f7d40ad5535a4fc674d74c0ac7e4d7dc2f6bef6d5d6a"
 )
 
 REQUIRED_GATE0_DECISIONS = frozenset(
@@ -129,6 +135,33 @@ def _assert_area_config_separation(ledger: Gate0Ledger) -> None:
             )
 
 
+def _assert_expected_tile_coverage_evidence(
+    ledger: Gate0Ledger,
+    repo: Path,
+) -> None:
+    decision = ledger.decision("expected_tile_coverage_distribution")
+    if decision.status != Gate0DecisionStatus.VERIFIED:
+        raise Gate0RegistryError(
+            "canonical expected-tile-coverage decision must be VERIFIED"
+        )
+    required_refs = {
+        PHOENIX_COVERAGE_EVIDENCE_RELATIVE_PATH.as_posix(),
+        PHOENIX_COVERAGE_GENERATOR_RELATIVE_PATH.as_posix(),
+    }
+    if not required_refs.issubset(decision.evidence_refs):
+        raise Gate0RegistryError(
+            "expected-tile-coverage decision is missing its reproducible evidence refs"
+        )
+    try:
+        resolved = load_phoenix_expected_tile_coverage_evidence(repo)
+    except Gate0CoverageRegistryError as exc:
+        raise Gate0RegistryError(str(exc)) from exc
+    if resolved.evidence.area_id != ledger.area_id:
+        raise Gate0RegistryError(
+            "Gate 0 ledger and expected-tile-coverage evidence area_id disagree"
+        )
+
+
 def load_phoenix_gate0_ledger(
     *,
     root: Path | None = None,
@@ -168,6 +201,7 @@ def load_phoenix_gate0_ledger(
     if ledger.human_close_approval is not None:
         _evidence_path(repo, ledger.human_close_approval.approval_ref)
     _assert_area_config_separation(ledger)
+    _assert_expected_tile_coverage_evidence(ledger, repo)
     return ResolvedGate0Ledger(ledger=ledger, path=path, sha256=digest)
 
 

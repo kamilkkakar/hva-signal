@@ -1,0 +1,255 @@
+{
+  "schema_version": "GATE0_EXPECTED_TILE_COVERAGE_V1",
+  "evidence_version": "PHX_EXPECTED_TILE_COVERAGE_V1",
+  "status": "VERIFIED",
+  "area_id": "phoenix-demo",
+  "generated_by": "scripts/build_gate0_expected_tile_coverage.py",
+  "geometry_version": "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f",
+  "geometry_sha256": "3f16870fc801da5052b03e0f09c172feb4a1e0d6736452d22ffd6f09bb4e11f0",
+  "area_config_version": "PHX_AREA_CONFIG_V1",
+  "area_config_sha256": "df00333a4df900a9762b7be975ed0c36b6e1749c953e9fb4690d9f6e4e02a60a",
+  "granularity_m": 100,
+  "assignment_method": "centroid_within",
+  "aggregation_statistic": "mean",
+  "expected_zone_count": 25,
+  "reference_field_count": 93,
+  "snapshot_field_count": 2,
+  "observed_field_count": 95,
+  "observed_zone_row_count": 2375,
+  "all_fields_complete": true,
+  "counts_invariant_per_zone": true,
+  "total_count_invariant": true,
+  "sources": [
+    {
+      "role": "area_config",
+      "path": "data/demo/phoenix/area_config.json",
+      "sha256": "df00333a4df900a9762b7be975ed0c36b6e1749c953e9fb4690d9f6e4e02a60a",
+      "observed_field_count": 0,
+      "observed_zone_row_count": 0
+    },
+    {
+      "role": "area_manifest",
+      "path": "data/areas/phoenix-demo/manifest.json",
+      "sha256": "0af4541c41e5f28ab8facdeac2a318f1935a7f8061f20f02ea7b9766f7610422",
+      "observed_field_count": 0,
+      "observed_zone_row_count": 0
+    },
+    {
+      "role": "zone_geometry",
+      "path": "data/areas/phoenix-demo/geometry.geojson",
+      "sha256": "3f16870fc801da5052b03e0f09c172feb4a1e0d6736452d22ffd6f09bb4e11f0",
+      "observed_field_count": 0,
+      "observed_zone_row_count": 0
+    },
+    {
+      "role": "reference_panel",
+      "path": "data/phoenix/reference/observations.jsonl",
+      "sha256": "8de5db71fe24118cf5b66e3bee394398fd142516ad2590c46e617e0c0b83408c",
+      "observed_field_count": 93,
+      "observed_zone_row_count": 2325
+    },
+    {
+      "role": "selected_time_snapshot",
+      "path": "data/phoenix/snapshots/2024-07-08T15-00.snapshot.json",
+      "sha256": "233747aecee2201b7116bbafbe746c29d7baf41d3aa5af6a412a7f76eb51f38f",
+      "observed_field_count": 1,
+      "observed_zone_row_count": 25
+    },
+    {
+      "role": "selected_time_snapshot",
+      "path": "data/phoenix/snapshots/2024-07-08T21-00.snapshot.json",
+      "sha256": "74b519edadb9ef5531635de5da06fd64d270dd783f9c2859523d886f87217de3",
+      "observed_field_count": 1,
+      "observed_zone_row_count": 25
+    }
+  ],
+  "distribution": {
+    "expected_field_tile_count": 3749,
+    "minimum_zone_tile_count": 32,
+    "median_zone_tile_count": 128.0,
+    "maximum_zone_tile_count": 355,
+    "zones": [
+      {
+        "zone_id": "04013106400",
+        "expected_tile_count": 264,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 264,
+        "maximum_observed_tile_count": 264
+      },
+      {
+        "zone_id": "04013106501",
+        "expected_tile_count": 132,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 132,
+        "maximum_observed_tile_count": 132
+      },
+      {
+        "zone_id": "04013106502",
+        "expected_tile_count": 148,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 148,
+        "maximum_observed_tile_count": 148
+      },
+      {
+        "zone_id": "04013106600",
+        "expected_tile_count": 256,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 256,
+        "maximum_observed_tile_count": 256
+      },
+      {
+        "zone_id": "04013106701",
+        "expected_tile_count": 65,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 65,
+        "maximum_observed_tile_count": 65
+      },
+      {
+        "zone_id": "04013106702",
+        "expected_tile_count": 64,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 64,
+        "maximum_observed_tile_count": 64
+      },
+      {
+        "zone_id": "04013106703",
+        "expected_tile_count": 128,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 128,
+        "maximum_observed_tile_count": 128
+      },
+      {
+        "zone_id": "04013107401",
+        "expected_tile_count": 128,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 128,
+        "maximum_observed_tile_count": 128
+      },
+      {
+        "zone_id": "04013107402",
+        "expected_tile_count": 32,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 32,
+        "maximum_observed_tile_count": 32
+      },
+      {
+        "zone_id": "04013107403",
+        "expected_tile_count": 32,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 32,
+        "maximum_observed_tile_count": 32
+      },
+      {
+        "zone_id": "04013107404",
+        "expected_tile_count": 64,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 64,
+        "maximum_observed_tile_count": 64
+      },
+      {
+        "zone_id": "04013107500",
+        "expected_tile_count": 260,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 260,
+        "maximum_observed_tile_count": 260
+      },
+      {
+        "zone_id": "04013107601",
+        "expected_tile_count": 136,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 136,
+        "maximum_observed_tile_count": 136
+      },
+      {
+        "zone_id": "04013107602",
+        "expected_tile_count": 128,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 128,
+        "maximum_observed_tile_count": 128
+      },
+      {
+        "zone_id": "04013107700",
+        "expected_tile_count": 262,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 262,
+        "maximum_observed_tile_count": 262
+      },
+      {
+        "zone_id": "04013107800",
+        "expected_tile_count": 355,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 355,
+        "maximum_observed_tile_count": 355
+      },
+      {
+        "zone_id": "04013108400",
+        "expected_tile_count": 265,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 265,
+        "maximum_observed_tile_count": 265
+      },
+      {
+        "zone_id": "04013108501",
+        "expected_tile_count": 128,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 128,
+        "maximum_observed_tile_count": 128
+      },
+      {
+        "zone_id": "04013108502",
+        "expected_tile_count": 128,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 128,
+        "maximum_observed_tile_count": 128
+      },
+      {
+        "zone_id": "04013108601",
+        "expected_tile_count": 85,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 85,
+        "maximum_observed_tile_count": 85
+      },
+      {
+        "zone_id": "04013108602",
+        "expected_tile_count": 171,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 171,
+        "maximum_observed_tile_count": 171
+      },
+      {
+        "zone_id": "04013108802",
+        "expected_tile_count": 104,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 104,
+        "maximum_observed_tile_count": 104
+      },
+      {
+        "zone_id": "04013108901",
+        "expected_tile_count": 100,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 100,
+        "maximum_observed_tile_count": 100
+      },
+      {
+        "zone_id": "04013108902",
+        "expected_tile_count": 152,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 152,
+        "maximum_observed_tile_count": 152
+      },
+      {
+        "zone_id": "04013117100",
+        "expected_tile_count": 162,
+        "observed_field_count": 95,
+        "minimum_observed_tile_count": 162,
+        "maximum_observed_tile_count": 162
+      }
+    ]
+  },
+  "policy_boundary": {
+    "zero_tile_behavior": "insufficient_evidence",
+    "minimum_coverage_ratio": null,
+    "numeric_floor_authorized": false,
+    "runtime_effect": "evidence_baseline_only"
+  }
+}

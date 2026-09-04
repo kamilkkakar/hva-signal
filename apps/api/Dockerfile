@@ -27,6 +27,7 @@ COPY data/context/phoenix-demo /hackathon/data/context/phoenix-demo
 COPY data/context/cross-city /hackathon/data/context/cross-city
 COPY data/acquisitions/cross-city /hackathon/data/acquisitions/cross-city
 COPY data/phoenix/snapshots /hackathon/data/phoenix/snapshots
+COPY scripts/build_gate0_expected_tile_coverage.py /hackathon/scripts/build_gate0_expected_tile_coverage.py
 COPY scripts/gate0_between_aoi.py /hackathon/scripts/gate0_between_aoi.py
 COPY scripts/gate0_static_field.py /hackathon/scripts/gate0_static_field.py
 COPY scripts/gate0_static_field_audit.py /hackathon/scripts/gate0_static_field_audit.py
