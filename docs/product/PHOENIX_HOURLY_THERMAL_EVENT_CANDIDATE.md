@@ -52,9 +52,9 @@ forecast outcome.
 
 ## Evidence required before freezing
 
-1. Freeze a no-spend acquisition manifest for true single-hour fields while
-   keeping the current 03:00 reference unchanged.
-2. Run a bounded three-date pilot before wider acquisition. The pilot should
+1. Use the SHA-locked `PHX_HOURLY_TYPE1_PILOT_V1` acquisition manifest for true
+   single-hour fields while keeping the current 03:00 reference unchanged.
+2. Run its bounded three-date pilot before wider acquisition. The pilot should
    exercise 24 consecutive local hours on matched dates in 2022, 2023, and
    2024 and retain aligned tile fields for the separate static-field test.
 3. Measure source semantics, request deduplication, cache reuse, zone coverage,
