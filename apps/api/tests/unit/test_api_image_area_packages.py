@@ -39,6 +39,7 @@ REQUIRED_DATA_COPIES = (
 )
 
 GATE0_EVIDENCE_SCRIPTS = (
+    "build_gate0_expected_tile_coverage.py",
     "gate0_between_aoi.py",
     "gate0_static_field.py",
     "gate0_static_field_audit.py",
@@ -212,6 +213,12 @@ def test_observed_instants_assemble_from_image_filesystem_layout(
 def test_cross_city_metrics_read_image_filesystem_layout(
     tmp_path: Path, monkeypatch
 ) -> None:
+    # Import the application before temporarily redirecting repository roots.
+    # Otherwise a fresh test process can bind the temporary ``hackathon_root``
+    # function into modules imported by app.main and leak it after monkeypatch
+    # restores the source module.
+    from app.main import app
+
     image_root = _image_root_from_dockerfile(tmp_path)
     _point_loaders_at_image(monkeypatch, image_root)
     monkeypatch.setattr(
@@ -233,8 +240,6 @@ def test_cross_city_metrics_read_image_filesystem_layout(
     load_city_acs.cache_clear()
     load_city_canopy.cache_clear()
     load_city_thermal_zones.cache_clear()
-    from app.main import app
-
     client = TestClient(app)
     response = client.get("/api/v1/cross-city/metrics")
     assert response.status_code == 200, response.text

@@ -1,6 +1,6 @@
 {
   "schema_version": "GATE0_LEDGER_V1",
-  "ledger_version": "PHX_GATE0_LEDGER_V1_OPEN",
+  "ledger_version": "PHX_GATE0_LEDGER_V2_OPEN",
   "area_id": "phoenix-demo",
   "overall_status": "OPEN",
   "human_close_approval": null,
@@ -95,12 +95,14 @@
     {
       "decision_id": "expected_tile_coverage_distribution",
       "label": "Expected tile coverage distribution",
-      "status": "INCOMPLETE",
+      "status": "VERIFIED",
       "required_for_closure": true,
-      "summary": "Zero-tile behavior is fail-closed, but no tracked Gate 0 evidence package freezes the expected per-zone tile coverage distribution.",
+      "summary": "The tracked 100 m Phoenix evidence contains 95 complete fields and 2,375 zone observations. Per-zone contributing-tile counts and the 3,749-tile field total are invariant; this verifies the expected distribution without authorizing a numeric coverage floor.",
       "evidence_refs": [
         "data/demo/phoenix/area_config.json",
-        "apps/api/app/services/coverage.py"
+        "apps/api/app/services/coverage.py",
+        "data/gate0/phoenix-v1/expected_tile_coverage.json",
+        "scripts/build_gate0_expected_tile_coverage.py"
       ]
     },
     {
@@ -118,10 +120,11 @@
       "label": "Temporal/static-field test",
       "status": "INCOMPLETE",
       "required_for_closure": true,
-      "summary": "A replay-only audit implementation exists, but the clean repository does not contain the protocol inputs or tracked result needed to reproduce and ratify the decision.",
+      "summary": "A four-instant, 25-zone retrospective comparison is tracked, but it contains zone means rather than the pre-registered aligned tile fields. It cannot substitute for that protocol or authorize intervention, continuous-condition, or recovery claims.",
       "evidence_refs": [
         "scripts/gate0_static_field.py",
-        "scripts/gate0_static_field_audit.py"
+        "scripts/gate0_static_field_audit.py",
+        "data/phoenix/reference/four_instant_differences_2024-07-08.json"
       ]
     },
     {
