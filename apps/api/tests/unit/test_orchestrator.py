@@ -65,7 +65,7 @@ def test_replay_result_records_gate0_authorization_provenance() -> None:
     result = _run()
     gate = next(node for node in result.evidence_graph.nodes if node.id == "gate0_ledger")
     assert gate.metadata == {
-        "gate0_ledger_version": "PHX_GATE0_LEDGER_V2_OPEN",
+        "gate0_ledger_version": "PHX_GATE0_LEDGER_V3_OPEN",
         "gate0_ledger_sha256": PHOENIX_GATE0_LEDGER_SHA256,
         "gate0_overall_status": "OPEN",
         "probability_capability_status": "BLOCKED",

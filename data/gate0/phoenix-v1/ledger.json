@@ -1,6 +1,6 @@
 {
   "schema_version": "GATE0_LEDGER_V1",
-  "ledger_version": "PHX_GATE0_LEDGER_V2_OPEN",
+  "ledger_version": "PHX_GATE0_LEDGER_V3_OPEN",
   "area_id": "phoenix-demo",
   "overall_status": "OPEN",
   "human_close_approval": null,
@@ -10,9 +10,12 @@
       "label": "Adverse-event definition",
       "status": "INCOMPLETE",
       "required_for_closure": true,
-      "summary": "No tracked Phoenix v1 event contract currently freezes the spatial unit, threshold or reference condition, and required duration. Calibrated P(event) remains unauthorized.",
+      "summary": "A tracked candidate defines persistent relative thermal exceedance at the frozen tract scale, but its 97th-percentile threshold and three-hour duration are not human-frozen or empirically ratified. Calibrated P(event) remains unauthorized.",
       "evidence_refs": [
-        "apps/api/app/services/orchestrator.py"
+        "apps/api/app/services/orchestrator.py",
+        "apps/api/app/core/hourly_thermal_event_registry.py",
+        "apps/api/app/services/hourly_thermal_event.py",
+        "data/gate0/phoenix-v1/hourly_thermal_event_candidate.json"
       ]
     },
     {

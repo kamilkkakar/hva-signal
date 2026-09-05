@@ -19,6 +19,11 @@ from app.core.gate0_coverage_registry import (
     Gate0CoverageRegistryError,
     load_phoenix_expected_tile_coverage_evidence,
 )
+from app.core.hourly_thermal_event_registry import (
+    PHOENIX_HOURLY_EVENT_CONTRACT_RELATIVE_PATH,
+    HourlyThermalEventRegistryError,
+    load_phoenix_hourly_thermal_event_contract,
+)
 from app.core.phoenix_v1_area_config import (
     hackathon_root,
     load_frozen_phoenix_v1_area_config,
@@ -35,7 +40,7 @@ PHOENIX_GATE0_LEDGER_RELATIVE_PATH = (
     Path("data") / "gate0" / "phoenix-v1" / "ledger.json"
 )
 PHOENIX_GATE0_LEDGER_SHA256 = (
-    "e5b5b0b7b02293cebf16f7d40ad5535a4fc674d74c0ac7e4d7dc2f6bef6d5d6a"
+    "46bce20b28f407ada19b1f00809ecafd91fbe46e0048743f7fc3e1ddac2e2429"
 )
 
 REQUIRED_GATE0_DECISIONS = frozenset(
@@ -162,6 +167,33 @@ def _assert_expected_tile_coverage_evidence(
         )
 
 
+def _assert_hourly_event_candidate(ledger: Gate0Ledger, repo: Path) -> None:
+    decision = ledger.decision("adverse_event_definition")
+    if decision.status != Gate0DecisionStatus.INCOMPLETE:
+        raise Gate0RegistryError(
+            "hourly event candidate must not freeze the adverse-event decision"
+        )
+    if PHOENIX_HOURLY_EVENT_CONTRACT_RELATIVE_PATH.as_posix() not in decision.evidence_refs:
+        raise Gate0RegistryError(
+            "adverse-event decision is missing its tracked candidate contract"
+        )
+    try:
+        resolved = load_phoenix_hourly_thermal_event_contract(root=repo)
+    except HourlyThermalEventRegistryError as exc:
+        raise Gate0RegistryError(str(exc)) from exc
+    if resolved.contract.area_id != ledger.area_id:
+        raise Gate0RegistryError(
+            "Gate 0 ledger and hourly event candidate area_id disagree"
+        )
+    if (
+        ledger.capability("calibrated_event_probability").status
+        != Gate0CapabilityStatus.BLOCKED
+    ):
+        raise Gate0RegistryError(
+            "candidate event contract cannot authorize calibrated probability"
+        )
+
+
 def load_phoenix_gate0_ledger(
     *,
     root: Path | None = None,
@@ -202,6 +234,7 @@ def load_phoenix_gate0_ledger(
         _evidence_path(repo, ledger.human_close_approval.approval_ref)
     _assert_area_config_separation(ledger)
     _assert_expected_tile_coverage_evidence(ledger, repo)
+    _assert_hourly_event_candidate(ledger, repo)
     return ResolvedGate0Ledger(ledger=ledger, path=path, sha256=digest)
 
 

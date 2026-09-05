@@ -29,7 +29,7 @@ Three required decisions remain incomplete:
 
 | Decision | Missing evidence |
 |---|---|
-| Adverse-event definition | A frozen event contract covering spatial unit, threshold or reference condition, and required duration. |
+| Adverse-event definition | The tracked persistent-relative-exceedance candidate still needs hourly evidence, sensitivity analysis, and human approval before its threshold and duration can be frozen. |
 | Between-AOI variance test | A same-date, same-local-time, same-granularity replay bundle for at least three separated Phoenix AOIs. |
 | Temporal/static-field test | Tracked protocol inputs and a reproducible, ratified result. |
 
@@ -45,6 +45,16 @@ does **not** authorize a minimum coverage ratio, change the existing zero-tile
 fail-closed behavior, or permit probability or priority ranking. Run
 `python scripts/build_gate0_expected_tile_coverage.py --check` to verify that
 the tracked artifact still reproduces byte-for-byte.
+
+The adverse-event candidate is now explicit at
+`data/gate0/phoenix-v1/hourly_thermal_event_candidate.json`: a frozen Phoenix
+tract with a year-balanced, leave-one-timestamp-out same-local-hour historical
+quantile at or above 0.97 for three consecutive observed hours. It is a retrospective thermal
+state, not an operational-demand outcome, health outcome, forecast, or
+probability. The candidate is SHA-locked and executable against held data, but
+its ledger decision remains `INCOMPLETE` until an hourly pilot, pre-registered
+sensitivity analysis, and human freeze approval are complete. See
+`docs/product/PHOENIX_HOURLY_THERMAL_EVENT_CANDIDATE.md`.
 
 ## Evidence audit on 2026-09-03
 

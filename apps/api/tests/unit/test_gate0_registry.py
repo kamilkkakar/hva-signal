@@ -54,6 +54,19 @@ def test_expected_tile_coverage_is_verified_without_authorizing_a_floor() -> Non
     assert resolved.ledger.overall_status == Gate0OverallStatus.OPEN
 
 
+def test_hourly_event_candidate_keeps_adverse_event_and_probability_blocked() -> None:
+    resolved = load_phoenix_gate0_ledger()
+    decision = resolved.ledger.decision("adverse_event_definition")
+    assert decision.status.value == "INCOMPLETE"
+    assert "data/gate0/phoenix-v1/hourly_thermal_event_candidate.json" in (
+        decision.evidence_refs
+    )
+    assert (
+        resolved.ledger.capability("calibrated_event_probability").status
+        == Gate0CapabilityStatus.BLOCKED
+    )
+
+
 def test_canonical_evidence_references_are_present_and_not_workforce() -> None:
     resolved = load_phoenix_gate0_ledger()
     refs = [

@@ -1,0 +1,53 @@
+{
+  "schema_version": "HOURLY_THERMAL_EVENT_CONTRACT_V1",
+  "contract_version": "PHX_PERSISTENT_RELATIVE_THERMAL_EXCEEDANCE_V1_CANDIDATE",
+  "status": "CANDIDATE",
+  "event_id": "persistent_relative_thermal_exceedance",
+  "event_label": "Persistent relative thermal exceedance",
+  "event_sentence": "A frozen Phoenix v1 census tract is in a candidate persistent relative thermal-exceedance state when its year-balanced, leave-one-timestamp-out historical quantile for hourly zone-mean TCM is at or above 0.97 against the same local hour from June 30 through July 30 across 2022-2024 for at least three consecutive observed hours.",
+  "area_id": "phoenix-demo",
+  "iana_timezone": "America/Phoenix",
+  "spatial_unit": "frozen_phoenix_v1_census_tract",
+  "zone_geometry_version": "US_CENSUS_TIGERLINE.CENSUS_TRACT.2025.AZ.PHX_DEMO_AOI_POLICY_V1.3f16870f",
+  "temperature_quantity": "tcm_zone_mean",
+  "aggregation_spec_version": "PHX_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN",
+  "threshold": {
+    "reference_frame": "HISTORICAL_OWN_ZONE_SAME_LOCAL_HOUR",
+    "statistic": "YEAR_BALANCED_MIDRANK_ECDF",
+    "event_quantile_cutoff": 0.97,
+    "comparison_operator": ">=",
+    "reference_window_start_month_day": "06-30",
+    "reference_window_end_month_day": "07-30",
+    "reference_years": [
+      2022,
+      2023,
+      2024
+    ],
+    "target_self_inclusion": "EXCLUDE_TARGET_TIMESTAMP",
+    "expected_reference_observations_per_year_hour": 31,
+    "aoi_relative_normalization_allowed": false
+  },
+  "persistence": {
+    "minimum_consecutive_hours": 3,
+    "maximum_gap_hours": 0,
+    "missing_observation_breaks_run": true,
+    "interpolation_allowed": false,
+    "cross_midnight_runs_allowed": true
+  },
+  "coverage": {
+    "sampling_design": "HOURLY_24",
+    "observation_kind": "instant",
+    "temporal_mode": "single_hour",
+    "window_aggregates_allowed": false,
+    "negative_finding_requires_complete_evaluated_interval": true
+  },
+  "claim_boundaries": {
+    "calibrated_probability_authorized": false,
+    "forecast_authorized": false,
+    "health_outcome_claim_authorized": false,
+    "operational_demand_outcome_claim_authorized": false,
+    "priority_or_intervention_authorized": false,
+    "degree_hours_authorized": false
+  },
+  "human_freeze_approval": null
+}
