@@ -5,9 +5,21 @@
   --ws-ink: #1c2420;
   --ws-field: #243833;
   --ws-copper: #c45c26;
+  --ws-quiet: #d7ddd6;
   --ws-muted: #5c6b63;
   --ws-line: rgba(28, 36, 32, 0.12);
   --ws-brass: #8a6a2f;
+  /* Shared experience charts and comparison controls retain their hx tokens.
+     Bind them here: Workspace does not render the legacy .hx-app theme root. */
+  --hx-paper: var(--ws-bg);
+  --hx-card: var(--ws-card);
+  --hx-ink: var(--ws-ink);
+  --hx-field: var(--ws-field);
+  --hx-copper: var(--ws-copper);
+  --hx-quiet: var(--ws-quiet);
+  --hx-muted: var(--ws-muted);
+  --hx-brass: var(--ws-brass);
+  --hx-line: var(--ws-line);
   --font-display: "Literata", "Iowan Old Style", Georgia, serif;
   --font-body: "Source Sans 3", "Segoe UI", sans-serif;
   --font-data: "Source Code Pro", ui-monospace, monospace;

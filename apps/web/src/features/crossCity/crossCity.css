@@ -47,7 +47,7 @@
   transition: background 120ms ease, border-color 120ms ease, color 120ms ease, transform 120ms ease;
 }
 
-.hx-cc-lens-tab:hover:not(:disabled) {
+.hx-cc-lens-tab:hover:not(:disabled):not([aria-selected="true"]) {
   border-color: var(--hx-ink);
   background: #f0f3ee;
   transform: translateY(-1px);
@@ -220,7 +220,7 @@
   transition: background 120ms ease, border-color 120ms ease, color 120ms ease, transform 120ms ease;
 }
 
-.hx-cc-open-link:hover:not([disabled]),
+.hx-cc-open-link:hover:not([disabled]):not([aria-pressed="true"]),
 .hx-cc-legend-toggle:hover,
 .hx-cc-legend-only:hover,
 .hx-cc-legend-show-all:hover {

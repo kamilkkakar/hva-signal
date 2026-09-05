@@ -3,6 +3,7 @@ import { WorkspaceHeader } from "./WorkspaceHeader";
 import { ExploreCity } from "./ExploreCity";
 import { CompareCities } from "./CompareCities";
 import type { WorkspaceMode, CityId } from "./types";
+import "@/features/experience/experience.css";
 import "./workspace.css";
 import "./workspace-polish.css";
 
