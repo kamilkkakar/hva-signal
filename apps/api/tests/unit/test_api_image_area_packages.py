@@ -22,7 +22,6 @@ from app.services.vulnerability_preparedness.cache import (
     load_context_bundle,
     reset_context_bundle_cache,
 )
-
 SEED = "04013107401"
 ACTIVITY_1500 = "92086c4c-1550-4263-8ac8-9a6c9e030bc4"
 ACTIVITY_2100 = "9865bd33-43a0-42b0-bc9b-74b27510002d"
@@ -180,6 +179,19 @@ def test_gate0_ledger_resolves_from_api_image_layout(
     resolved = load_phoenix_gate0_ledger(root=image_root)
     assert resolved.ledger.overall_status.value == "OPEN"
     assert resolved.path == image_root / "data" / "gate0" / "phoenix-v1" / "ledger.json"
+    assert not (image_root / "workforce").exists()
+
+
+def test_hourly_pilot_manifest_resolves_from_api_image_layout(tmp_path: Path) -> None:
+    from app.core.hourly_thermal_pilot_registry import (
+        load_phoenix_hourly_thermal_pilot_manifest,
+    )
+
+    image_root = _image_root_from_dockerfile(tmp_path)
+    resolved = load_phoenix_hourly_thermal_pilot_manifest(root=image_root)
+    assert resolved.manifest.status == "PREREGISTERED"
+    assert resolved.manifest.request_count == 72
+    assert len(resolved.manifest.slots) == 72
     assert not (image_root / "workforce").exists()
 
 
