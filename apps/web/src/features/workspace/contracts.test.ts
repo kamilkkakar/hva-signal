@@ -170,6 +170,14 @@ describe("workspace contracts", () => {
     }
   });
 
+  it("workspace loads shared chart styles before its layout overrides", () => {
+    const workspace = readSrc("./Workspace.tsx");
+    const chartStyles = workspace.indexOf('import "@/features/experience/experience.css";');
+    const workspaceStyles = workspace.indexOf('import "./workspace.css";');
+    expect(chartStyles).toBeGreaterThanOrEqual(0);
+    expect(chartStyles).toBeLessThan(workspaceStyles);
+  });
+
   it("comparison hover styles preserve readable selected states", () => {
     const css = readSrc("../crossCity/crossCity.css");
     expect(css).toContain('.hx-cc-lens-tab:hover:not(:disabled):not([aria-selected="true"])');
