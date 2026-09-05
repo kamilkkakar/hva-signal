@@ -151,6 +151,31 @@ describe("workspace contracts", () => {
     expect(css).toContain("ws-map-column");
   });
 
+  it("workspace supplies every legacy theme token used by its shared charts and controls", () => {
+    const workspaceCss = readSrc("./workspace.css");
+    const workspaceRoot = workspaceCss.match(/\.ws\s*\{([^}]+)\}/)?.[1] ?? "";
+    const sharedCss = [
+      readSrc("../experience/experience.css"),
+      readSrc("../crossCity/crossCity.css"),
+    ].join("\n");
+    const usedTokens = new Set(
+      [...sharedCss.matchAll(/var\((--hx-[\w-]+)/g)].map((match) => match[1]),
+    );
+
+    expect(usedTokens.size).toBeGreaterThan(0);
+    for (const token of usedTokens) {
+      const alias = workspaceRoot.match(new RegExp(`${token}:\\s*var\\((--ws-[\\w-]+)\\)`));
+      expect(alias, `${token} must inherit the active workspace palette`).not.toBeNull();
+      expect(workspaceRoot).toMatch(new RegExp(`${alias![1]}:\\s*[^;]+;`));
+    }
+  });
+
+  it("comparison hover styles preserve readable selected states", () => {
+    const css = readSrc("../crossCity/crossCity.css");
+    expect(css).toContain('.hx-cc-lens-tab:hover:not(:disabled):not([aria-selected="true"])');
+    expect(css).toContain('.hx-cc-open-link:hover:not([disabled]):not([aria-pressed="true"])');
+  });
+
   it("spatial gate uses a stable unavailable label when not loading", () => {
     const explore = readSrc("./ExploreCity.tsx");
     expect(explore).toContain("Spatial comparison status unavailable");
