@@ -75,43 +75,16 @@ import {
   type PublishedMapContract,
 } from "./publishedCityMap";
 
+import {
+  acceptLiveObservation,
+  cityTimezone,
+  liveObservationLabel,
+  type LiveObservationResponse,
+  type StoredLiveObservation,
+} from "./liveObservation";
+
 const EMPTY_LIMITATIONS: readonly string[] = [];
 const DEFAULT_PHOENIX_AREA = ANALYSIS_AREA_GEOIDS[0];
-
-type LiveZoneRow = {
-  zone_id: string;
-  temperature_c: number | null;
-  tile_count?: number;
-  coverage_status?: string;
-};
-
-type LiveZoneAnalysis = {
-  city?: string;
-  local_datetime?: string;
-  timezone?: string;
-  aggregation_contract?: string;
-  geometry_zone_count?: number;
-  bindable_temperature_values?: number;
-  source_tile_count?: number;
-  zones?: LiveZoneRow[];
-};
-
-type LiveObservationResponse = {
-  status?: string;
-  message?: string;
-  provenance?: {
-    acquisition_language?: string;
-    vendor_attempted?: boolean;
-    cache_tier?: string | null;
-    contract?: string;
-  };
-  analysis?: LiveZoneAnalysis;
-};
-
-type StoredLiveObservation = LiveObservationResponse & {
-  cityId: CityId;
-  requestedLocal: string;
-};
 
 function spatialStatusFrom(
   status: ReturnType<typeof presentSpatialDifferentiation>["status"],
@@ -125,12 +98,6 @@ function reportCityTiming(label: string, startedAt: number): void {
   if (!import.meta.env.DEV) return;
   // eslint-disable-next-line no-console
   console.info(`[city-perf] ${label}: ${(performance.now() - startedAt).toFixed(0)}ms`);
-}
-
-function cityTimezone(cityId: CityId): string {
-  return cityId === "los-angeles-ca" || cityId === "las-vegas-nv"
-    ? "America/Los_Angeles"
-    : "America/Phoenix";
 }
 
 function liveErrorMessage(status: number, payload: unknown): string {
@@ -187,12 +154,27 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
   const [liveRunning, setLiveRunning] = useState(false);
   const [liveResult, setLiveResult] = useState<StoredLiveObservation | null>(null);
   const [liveError, setLiveError] = useState<string | null>(null);
+  const liveGeneration = useRef(0);
+  const liveOwner = useRef<number | null>(null);
+  // Invalidate callbacks on city/mode change and unmount. This does not cancel
+  // an already submitted vendor activity or authorize retrying it.
+  useEffect(() => {
+    setLiveRunning(false);
+    return () => {
+      liveGeneration.current += 1;
+      liveOwner.current = null;
+    };
+  }, [cityId, observationMode]);
+
   const [mapMode, setMapMode] = useState<MapMode>("THERMAL");
   const [storyStage, setStoryStage] = useState<HvaStage>("heat");
   const [contextZones, setContextZones] = useState<ZoneMapProperties[]>([]);
   const [crossCityData, setCrossCityData] = useState<CrossCityMetricsResponse | null>(null);
   const [cityGeometry, setCityGeometry] = useState<CityGeometry | null>(() =>
     cachedCityGeometry(cityId),
+  );
+  const [geometryCityId, setGeometryCityId] = useState<CityId | null>(
+    cachedCityGeometry(cityId) ? cityId : null,
   );
   const [cityGeoIds, setCityGeoIds] = useState<string[]>([]);
   const [geometryLoading, setGeometryLoading] = useState(false);
@@ -274,6 +256,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
     const cached = cachedCityGeometry(cityId);
     if (cached) {
       setCityGeometry(cached);
+      setGeometryCityId(cityId);
       setCityGeoIds(cached.features.map(featureGeoid).filter(Boolean));
       setGeometryLoading(false);
       reportCityTiming(`${cityId}-geometry-cache-hit`, cityLoadStarted.current);
@@ -290,6 +273,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
         if (cancelled) return;
         putCityGeometryCache(cityId, geojson);
         setCityGeometry(geojson);
+        setGeometryCityId(cityId);
         setCityGeoIds(geojson.features.map(featureGeoid).filter(Boolean));
         reportCityTiming(`${cityId}-geometry-fetch`, cityLoadStarted.current);
       } catch {
@@ -481,9 +465,8 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
     return buildPublishedCityCatalog(cityGeometry, liveCityRecords, {
       timezone: liveResult.analysis?.timezone ?? cityTimezone(cityId),
       targetTimestamp: liveResult.analysis?.local_datetime ?? liveResult.requestedLocal,
-      source:
-        liveResult.status === "live_acquired" ? "fortyguard_live" : "fortyguard_cached",
-      dataStatus: liveResult.status === "live_acquired" ? "live" : "cached",
+      source: liveResult.source,
+      dataStatus: liveResult.source === "fortyguard_live" ? "live" : "cached",
     });
   }, [cityGeometry, liveResult, cityId, liveCityRecords]);
 
@@ -501,9 +484,10 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
         cityGeometry,
         activeCityRecords,
         activeCrossCityCatalog,
+        { allowPartial: observationMode === "live" && Boolean(liveResult?.partial) },
       ),
     );
-  }, [activeCrossCityCatalog, cityGeometry, cityId, activeCityRecords]);
+  }, [activeCrossCityCatalog, cityGeometry, cityId, activeCityRecords, observationMode, liveResult?.partial]);
 
   const crossCityContextZones = useMemo(
     () => contextZonesFromRecords(activeCityRecords),
@@ -650,24 +634,27 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
     usePhoenixPublished,
   ]);
 
-  const provenanceLine = useMemo(() => {
-    if (observationMode === "published") {
-      return isPhoenix
-        ? "Published observation / 15 Jul 2025 · 03:00 local / FortyGuard TCM"
-        : "Published observation / 8 Jul 2024 · 15:00 local / FortyGuard TCM";
-    }
-    if (!liveResult) {
-      return "Bounded Live / supported city + selected local hour / FortyGuard Type-1 TCM";
-    }
-    const source = liveResult.status === "cache_hit" ? "Cached live result" : "Live acquisition";
-    return `${source} / ${liveDate} · ${liveTime} local / FortyGuard Type-1 TCM`;
-  }, [observationMode, isPhoenix, liveResult, liveDate, liveTime]);
+  const displayedLive = observationMode === "live" && liveResult?.cityId === cityId
+    ? liveResult : null;
+  const provenanceLine = displayedLive
+    ? liveObservationLabel(displayedLive)
+    : usePhoenixPublished
+      ? "Published observation / 15 Jul 2025 · 03:00 local / FortyGuard TCM"
+      : "Published observation / 8 Jul 2024 · 15:00 local / FortyGuard TCM";
 
+  const liveReady = !geometryLoading && geometryCityId === cityId && cityGeoIds.length > 0;
   const handleRunLive = async () => {
-    if (liveRunning) return;
+    if (liveOwner.current !== null) return;
+    if (!liveReady) {
+      setLiveError("Wait for the selected city's geography to load before running an observation.");
+      return;
+    }
+    const requestId = ++liveGeneration.current;
+    liveOwner.current = requestId;
     setLiveRunning(true);
     setLiveError(null);
     const requestedLocal = `${liveDate}T${liveTime}:00`;
+    const requestIdentity = { cityId, requestedLocal, zoneIds: [...cityGeoIds] };
     try {
       const resp = await fetch(apiUrl("/api/v1/live/selected-time"), {
         method: "POST",
@@ -675,42 +662,38 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
         body: JSON.stringify({ city_id: city.apiCityId, local_datetime: requestedLocal }),
       });
       const body = (await resp.json().catch(() => ({}))) as LiveObservationResponse;
+      if (requestId !== liveGeneration.current) return;
       if (!resp.ok) throw new Error(liveErrorMessage(resp.status, body));
-      if (body.status !== "cache_hit" && body.status !== "live_acquired") {
-        throw new Error(body.message ?? "Live acquisition is unavailable for this request.");
-      }
-      const bindable = Number(body.analysis?.bindable_temperature_values ?? 0);
-      const zones = body.analysis?.zones ?? [];
-      if (zones.length === 0 || bindable <= 0) {
-        throw new Error(
-          body.message ?? "Live observation returned without bindable zone temperatures.",
-        );
-      }
-      setLiveResult({ ...body, cityId, requestedLocal });
+      const accepted = acceptLiveObservation(body, requestIdentity);
+      setLiveResult(accepted);
       setMapMode("THERMAL");
-      const firstBindable = zones.find(
-        (row) => row.temperature_c != null && Number.isFinite(row.temperature_c),
-      );
+      const firstBindable = accepted.analysis.zones.find((row) => row.temperature_c != null);
       if (firstBindable && !cityGeoIds.includes(selectedAreaId ?? "")) {
         setSelectedAreaId(normalizeGeoid(firstBindable.zone_id));
       }
     } catch (err) {
-      setLiveError(err instanceof Error ? err.message : "Live observation failed.");
+      if (requestId === liveGeneration.current) {
+        setLiveError(err instanceof Error ? err.message : "Live observation failed.");
+      }
     } finally {
-      setLiveRunning(false);
+      if (requestId === liveGeneration.current) {
+        liveOwner.current = null;
+        setLiveRunning(false);
+      }
     }
   };
 
-  const liveStatusMessage =
-    observationMode !== "live"
-      ? null
-      : liveError
-        ? liveError
-        : liveRunning
-          ? "Running the bounded selected-time observation. The existing map stays visible until a result returns."
-          : liveResult
-            ? liveResult.message ?? "Selected-time observation loaded."
-            : "Choose a supported city, date and local hour. The map remains on the published observation until Live returns.";
+  const retainedEvidence = displayedLive
+    ? "The last successful observation remains displayed with its original time."
+    : "The published observation remains displayed with its original time.";
+  const liveStatusMessage = observationMode !== "live" ? null
+    : liveError ? `${liveError} ${retainedEvidence}`
+    : liveRunning ? `Running the requested observation. ${retainedEvidence}`
+    : displayedLive
+      ? displayedLive.partial
+        ? `Partial observation: temperatures available for ${displayedLive.analysis.bindable_temperature_values} of ${displayedLive.analysis.geometry_zone_count} zones. Missing zones remain unavailable.`
+        : "Selected-time observation loaded. Date and hour controls select the next request."
+      : "Choose a supported city, date and local hour. The published observation remains displayed until a usable result returns.";
 
   return (
     <div
@@ -733,6 +716,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
         onLiveTimeChange={setLiveTime}
         onRunLive={handleRunLive}
         liveRunning={liveRunning}
+        liveReady={liveReady}
         provenanceLine={provenanceLine}
         liveAvailable
       />
@@ -740,7 +724,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
         <p
           className="ws-live-status"
           data-testid="live-status"
-          data-state={liveError ? "error" : liveResult ? "success" : "pending"}
+          data-state={liveError ? "error" : liveRunning ? "pending" : displayedLive?.partial ? "partial" : displayedLive ? "success" : "pending"}
         >
           {liveStatusMessage}
         </p>
@@ -834,6 +818,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
           hasLocalAnalysis={usePhoenixPublished}
           forecastSupported={false}
           outlookPlan={outlookPlan}
+          observationLabel={provenanceLine}
         />
       </div>
     </div>
@@ -886,6 +871,8 @@ function CrossCityMapBand({
         contract.geometry_count === 25 &&
         contract.bindable_temperature_values === 25
           ? "pass"
+          : contract && contract.geometry_count === 25 && contract.joinable_zone_ids === 25 && contract.bindable_temperature_values > 0
+            ? "partial"
           : contract
             ? "fail"
             : "pending"

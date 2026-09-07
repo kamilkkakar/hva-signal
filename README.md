@@ -119,6 +119,22 @@ Live is limited to the four supported city geographies. The browser sends only a
 
 Published mode remains replay-backed. A paid/provider request can occur only when a user explicitly chooses **Live** and runs a supported selected-time observation; opening or navigating the product does not trigger one.
 
+### Live result integrity
+
+Updated 7 September 2026 for this source revision. Deployment availability depends on the deployed commit.
+
+A cache hit or completed acquisition is not by itself a usable observation. The API separately reports acquisition provenance and observation availability:
+
+- **Available:** all 25 zones have usable temperatures for the requested city and local hour.
+- **Partial:** some zone temperatures are missing. Coverage is labelled explicitly and missing zones stay unfilled.
+- **Unavailable:** no usable temperatures, or the response identity or counts do not match. The saved evidence is retained without automatically purchasing the request again.
+
+The workspace validates city, local timestamp, timezone, zone identities and aggregation contract before displaying a result. The map heading and selected-zone detail show the accepted observation's timestamp and source. Editing the date selects the next request; it does not relabel the displayed observation.
+
+If a subsequent request fails, the last accepted observation remains visible with its original timestamp and an error message. Responses from a previously selected city cannot replace the current city's result. Run is disabled while the selected city's geometry is loading.
+
+Zone-value availability does not establish a scientific minimum tile-coverage threshold or enable probability, forecasting or priority claims.
+
 ## Context data
 
 Context is kept separate from thermal evidence. The current product uses:
@@ -187,12 +203,12 @@ data/
   context/              contextual datasets and contracts
   phoenix/              Phoenix reference evidence
   cross-city/           cross-city comparison packages
-docs/                   analytical, release, provenance and internal notes
+docs/                   product contracts and technical documentation
 infra/                   Render deployment blueprint
 scripts/                 validation and operational utilities
 ```
 
-The deployed product UI lives under `apps/web/src/features/workspace/`. Internal implementation plans and operational notes live under `docs/`, not at the repository root.
+The deployed product UI lives under `apps/web/src/features/workspace/`. This repository contains product source, tests, reproducible evidence and technical documentation.
 
 ## Run locally
 
@@ -261,18 +277,6 @@ Render deployment is defined in `infra/render.yaml` (with the required root blue
 - API: https://urban-thermal-api.onrender.com
 
 Published mode is replay-backed and deterministic. Bounded selected-time Live is opt-in and limited to the four supported server-owned city geographies; general arbitrary vendor access remains disabled.
-
-## What we are shipping next
-
-The near-term product direction is to make the same evidence discipline useful over more observations, not to add a synthetic score.
-
-1. **Matched observed instants across cities** — compare the same local observation times across all four city geographies once the evidence package is acquired and validated.
-2. **Live hardening and monitoring** — continue validating cache reuse, spend controls and clear provenance for bounded selected-time observations without opening a general arbitrary-vendor path.
-3. **Stronger event-level thermal context** — make severe or persistent matched-time conditions clear without confusing event severity with spatial differentiation.
-4. **Method validation** — run sensitivity analysis on the current spatial-differentiation threshold and compare it with robust full-field alternatives before changing the frozen V1 policy.
-5. **More operational context** — add preparedness/resource evidence only where source coverage and provenance support it.
-
-The principle stays the same: **show what the evidence supports, and make the absence of defensible spatial differentiation explicit rather than inventing precision.**
 
 ## License
 
