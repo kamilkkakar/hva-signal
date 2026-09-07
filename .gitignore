@@ -67,3 +67,5 @@ Thumbs.db
 
 # Local visual gate compare dumps
 docs/release/visual-gate/
+/docs/product/PHOENIX_HOURLY_THERMAL_PILOT.md
+/docs/product/PHOENIX_HOURLY_THERMAL_EVENT_CANDIDATE.md

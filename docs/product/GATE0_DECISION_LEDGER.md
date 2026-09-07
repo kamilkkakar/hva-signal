@@ -53,8 +53,7 @@ quantile at or above 0.97 for three consecutive observed hours. It is a retrospe
 state, not an operational-demand outcome, health outcome, forecast, or
 probability. The candidate is SHA-locked and executable against held data, but
 its ledger decision remains `INCOMPLETE` until an hourly pilot, pre-registered
-sensitivity analysis, and human freeze approval are complete. See
-`docs/product/PHOENIX_HOURLY_THERMAL_EVENT_CANDIDATE.md`.
+sensitivity analysis, and human freeze approval are complete.
 
 ## Evidence audit on 2026-09-03
 
