@@ -89,7 +89,7 @@ def test_bounded_live_rejects_arbitrary_provider_fields(
         assert SECRET_VALUE not in response.text
 
 
-def test_bounded_live_cache_hit_zero_vendor(
+def test_bounded_live_metadata_only_cache_has_no_usable_observation(
     monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:
     monkeypatch.setenv("BOUNDED_SELECTED_TIME_LIVE_ENABLED", "true")
@@ -112,7 +112,9 @@ def test_bounded_live_cache_hit_zero_vendor(
     )
     assert response.status_code == 200
     body = response.json()
-    assert body["status"] == "cache_hit"
+    assert body["status"] == "observation_unavailable"
+    assert body["acquisition_status"] == "cache_hit"
+    assert body["observation_status"] == "unavailable"
     assert body["provenance"]["vendor_attempted"] is False
     assert body["provenance"]["acquisition_language"] == "cache_hit"
     blob = response.text

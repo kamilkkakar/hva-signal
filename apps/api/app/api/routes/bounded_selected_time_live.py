@@ -14,6 +14,7 @@ and only when BOUNDED_SELECTED_TIME_LIVE_ENABLED=true (cache-first; miss may pay
 
 from __future__ import annotations
 
+import math
 import threading
 from datetime import date, datetime
 from typing import Any, Final
@@ -176,21 +177,60 @@ def _attach_zone_analysis(
     """Attach the same 25-zone aggregation used by the map, from cached tiles only."""
     if public.get("status") not in {"cache_hit", "live_acquired"}:
         return public
+    # Acquisition provenance describes transport/cache use, not usable evidence.
+    public["acquisition_status"] = public["status"]
     try:
         analysis = aggregate_cached_live_zones(city_id, local_datetime, settings)
-    except Exception as exc:  # noqa: BLE001 — fail closed, never leak internals/secrets
-        public["analysis"] = {
+    except Exception:  # noqa: BLE001 — preserve the acquisition, never retry it here
+        analysis = {
             "aggregation_contract": "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN",
             "geometry_zone_count": 0,
             "bindable_temperature_values": 0,
+            "source_tile_count": 0,
             "zones": [],
         }
-        public["message"] = (
-            f"{public.get('message', '')} Zone aggregation could not be prepared "
-            f"({type(exc).__name__}); no values were invented."
-        ).strip()
-        return public
     public["analysis"] = analysis
+    config = resolve_city_aoi(city_id)
+    valid_identity = (
+        analysis.get("city") == config.city
+        and analysis.get("local_datetime") == local_datetime.isoformat(timespec="seconds")
+        and analysis.get("timezone") == config.timezone
+    )
+    rows = analysis.get("zones", [])
+    finite_rows = [
+        row
+        for row in rows
+        if isinstance(row.get("temperature_c"), (int, float))
+        and not isinstance(row.get("temperature_c"), bool)
+        and math.isfinite(row["temperature_c"])
+        and row.get("coverage_status") == "valid"
+        and isinstance(row.get("tile_count"), int)
+        and row["tile_count"] > 0
+    ]
+    count = len(finite_rows)
+    total = analysis.get("geometry_zone_count", 0)
+    valid_counts = (
+        total == len(rows)
+        and len({row.get("zone_id") for row in rows}) == total
+        and analysis.get("bindable_temperature_values") == count
+        and analysis.get("source_tile_count", 0) >= sum(row["tile_count"] for row in finite_rows)
+    )
+    if not valid_identity or not valid_counts or count == 0:
+        public["status"] = "observation_unavailable"
+        public["observation_status"] = "unavailable"
+        public["message"] = (
+            "No usable zone temperatures are available for this request. "
+            "The saved result needs review. No repeat acquisition was made."
+        )
+    elif count < total:
+        public["status"] = "partial_observation"
+        public["observation_status"] = "partial"
+        public["message"] = (
+            f"Temperatures are available for {count} of {total} zones. "
+            "Missing zones remain unavailable."
+        )
+    else:
+        public["observation_status"] = "available"
     return public
 
 

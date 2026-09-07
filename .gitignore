@@ -67,5 +67,27 @@ Thumbs.db
 
 # Local visual gate compare dumps
 docs/release/visual-gate/
+
+# Private planning and generated acquisition reports
+/docs/plans/
+/docs/roadmaps/
+/docs/agent-work/
+/data/temporal/reports/00-repo-fortyguard-contract.md
+/docs/judge-experience/DESIGN.md
+/docs/product/CROSS_CITY_EXECUTION_PLAN_V2.md
+/docs/product/CROSS_CITY_THERMAL_PROFILE_V1.md
+/docs/product/CROSS_CITY_VALIDATION_PACKAGE_V1.md
+/docs/product/CROSS_CITY_VALIDATION_PACKAGE_V2.md
+/docs/product/WBGT_ENVIRONMENTAL_HEAT_STRESS_FUTURE.md
+/docs/release/FORECAST_AUDIT.md
+/docs/release/HUMAN_ACTION_REQUIRED_LIVE.md
+/docs/release/LIVE_PREFLIGHT_AUDIT.md
+/docs/release/PRE_FINAL_HVA_PRODUCT_ROLLBACK.md
+/docs/release/PRE_LIVE_GUIDED_UI_ROLLBACK.md
+/docs/release/RENDER_ENV_AUDIT.md
+/docs/release/RESUME_PHASE3.md
+/docs/release/ROADMAP_PROGRESS.md
+/docs/release/TEMPORAL_PREFLIGHT_MATRIX.md
+/docs/release/VISUAL_COMPARISON_GATE.md
 /docs/product/PHOENIX_HOURLY_THERMAL_PILOT.md
 /docs/product/PHOENIX_HOURLY_THERMAL_EVENT_CANDIDATE.md

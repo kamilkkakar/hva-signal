@@ -134,4 +134,47 @@ test.describe("core product shell never disappears", () => {
     await expect(page.getByTestId("map-interaction-chrome")).toBeVisible();
     await expect(page.getByTestId("map-fit-aoi")).toBeDisabled();
   });
+
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    test(`shared chart and comparison colours resolve at ${viewport.width}px`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto("/");
+      await waitForWorkspaceMap(page);
+
+      // These charts live under .ws, not the legacy .hx-app theme root.
+      const nightAxis = page.getByTestId("matched-night-section").locator(".hx-axis-line").first();
+      await expect(nightAxis).toHaveCSS("stroke", "rgb(28, 36, 32)", { timeout: 60_000 });
+
+      await page.getByTestId("mode-compare").click();
+      const snapshotTab = page.getByTestId("compare-lens-snapshot");
+      await expect(snapshotTab).toHaveAttribute("aria-selected", "true");
+      await expect(snapshotTab).toHaveCSS("background-color", "rgb(36, 56, 51)");
+      await expect(snapshotTab).toHaveCSS("color", "rgb(247, 248, 245)");
+      await snapshotTab.hover();
+      await expect(snapshotTab).toHaveCSS("background-color", "rgb(36, 56, 51)");
+
+      const contextTab = page.getByTestId("compare-lens-context");
+      await contextTab.click();
+      await expect(contextTab).toHaveCSS("background-color", "rgb(36, 56, 51)");
+      await expect(contextTab).toHaveCSS("color", "rgb(247, 248, 245)");
+      await page.mouse.move(0, 0);
+      await expect(contextTab).toHaveCSS("background-color", "rgb(36, 56, 51)");
+
+      const fill = page.getByTestId("cross-city-fill-controls");
+      for (const label of ["Tree canopy", "Temperature"]) {
+        const button = fill.getByRole("button", { name: label, exact: true });
+        await button.click();
+        await expect(button).toHaveAttribute("aria-pressed", "true");
+        await expect(button).toHaveCSS("background-color", "rgb(36, 56, 51)");
+        await expect(button).toHaveCSS("color", "rgb(247, 248, 245)");
+        await page.mouse.move(0, 0);
+        await expect(button).toHaveCSS("background-color", "rgb(36, 56, 51)");
+      }
+
+      const chart = page.getByTestId("cross-city-bubble-explorer");
+      await expect(chart.locator(".hx-axis-line").first()).toHaveCSS("stroke", "rgb(28, 36, 32)");
+      await expect(chart.locator(".hx-axis-tick").first()).toHaveCSS("stroke", "rgb(28, 36, 32)");
+      await expect(chart.locator(".hx-axis-title").first()).toHaveCSS("fill", "rgb(92, 107, 99)");
+    });
+  }
 });

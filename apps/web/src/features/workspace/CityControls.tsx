@@ -12,6 +12,7 @@ type CityControlsProps = {
   onLiveTimeChange?: (time: string) => void;
   onRunLive?: () => void;
   liveRunning?: boolean;
+  liveReady?: boolean;
   provenanceLine?: string | null;
   /** Public Live is limited to the existing server-owned four-city geography. */
   liveAvailable?: boolean;
@@ -33,6 +34,7 @@ export function CityControls({
   onLiveTimeChange,
   onRunLive,
   liveRunning,
+  liveReady = true,
   provenanceLine,
   liveAvailable = false,
 }: CityControlsProps) {
@@ -151,9 +153,9 @@ export function CityControls({
               className="ws-run-btn"
               data-testid="run-live"
               onClick={onRunLive}
-              disabled={liveRunning}
+              disabled={liveRunning || !liveReady}
             >
-              {liveRunning ? "Running…" : "Run observation"}
+              {liveRunning ? "Running…" : !liveReady ? "Loading city…" : "Run observation"}
             </button>
             <p className="ws-live-scope" data-testid="live-scope-note">
               Live fetches selected-time TCM for the four supported city geographies. Context stays

@@ -88,6 +88,7 @@ export function assertPublishedMapContract(
   geometry: CityGeometry,
   records: readonly CrossCityAreaRecord[],
   catalog: InteractionCatalog,
+  options?: { allowPartial?: boolean },
 ): PublishedMapContract {
   const geometryIds = new Set(
     geometry.features.map(featureGeoid).filter(Boolean),
@@ -124,8 +125,9 @@ export function assertPublishedMapContract(
     report.geometry_count === expected &&
     report.data_count === expected &&
     report.joinable_zone_ids === expected &&
-    report.bindable_temperature_values === expected &&
-    report.fill_expression_finite === expected;
+    (report.bindable_temperature_values === expected ||
+      (options?.allowPartial === true && report.bindable_temperature_values > 0 && report.bindable_temperature_values < expected)) &&
+    report.fill_expression_finite === report.bindable_temperature_values;
 
   if (!ok && import.meta.env.DEV) {
     // Loud in development: geometry without bindable metric must never look like a product map.

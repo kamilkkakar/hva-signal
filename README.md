@@ -47,6 +47,7 @@ React, TypeScript and MapLibre power the web app; FastAPI serves the API.
 
 - API tests: `cd apps/api && pytest`
 - Web tests and build: `cd apps/web && npm test && npm run build`
+- Hourly acquisition CLI: `python scripts/acquire_phoenix_hourly_pilot.py --help`
 - Browser tests: [tests/e2e/README.md](tests/e2e/README.md)
 - Render deployment: [infra/DEPLOY.md](infra/DEPLOY.md)
 

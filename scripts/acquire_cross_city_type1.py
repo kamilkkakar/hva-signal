@@ -827,7 +827,7 @@ def main() -> int:
         "--local-datetime",
         default=DEFAULT_TARGET_LOCAL.isoformat(timespec="seconds"),
         help=(
-            "Approved AOI-local hour from TEMPORAL_PREFLIGHT_MATRIX "
+            "AOI-local observation hour (validated against the city timezone) "
             "(default: 2024-07-08T15:00:00 published observation)."
         ),
     )
