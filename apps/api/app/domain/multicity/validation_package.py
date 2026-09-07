@@ -231,7 +231,7 @@ def write_cross_city_validation_package_markdown(path: str | Path | None = None)
     target = (
         Path(path)
         if path is not None
-        else _repo_root() / "docs" / "product" / "CROSS_CITY_VALIDATION_PACKAGE_V2.md"
+        else _repo_root() / ".cache" / "reports" / "CROSS_CITY_VALIDATION_PACKAGE_V2.md"
     )
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(render_cross_city_validation_package_markdown(), encoding="utf-8")
