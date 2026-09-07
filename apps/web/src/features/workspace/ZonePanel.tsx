@@ -22,6 +22,7 @@ type ZonePanelProps = {
   hasLocalAnalysis?: boolean;
   forecastSupported?: boolean;
   outlookPlan: OutlookPlan;
+  observationLabel?: string;
 };
 
 export const CONTEXT_REFERENCE_COPY =
@@ -43,6 +44,7 @@ export function ZonePanel({
   hasLocalAnalysis,
   forecastSupported = false,
   outlookPlan,
+  observationLabel,
 }: ZonePanelProps) {
   if (!zone) {
     return (
@@ -71,6 +73,9 @@ export function ZonePanel({
 
       {(stage === "heat" || stage === "context") && (
         <>
+          {observationLabel ? (
+            <p className="ws-context-reference" data-testid="zone-observation">{observationLabel}</p>
+          ) : null}
           <dl className="ws-zone-metrics" data-testid="hva-heat-metrics">
             <div className="ws-metric-row ws-metric-primary">
               <dt>Temperature</dt>

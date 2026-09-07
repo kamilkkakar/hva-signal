@@ -14,3 +14,5 @@ npm run test:e2e
 ```
 
 CI installs Chromium with `npx playwright install chromium --with-deps` and starts servers explicitly.
+
+Live-observation regressions intercept selected-time requests to test unavailable results, partial coverage, timestamp labels and responses arriving after a city switch. They do not purchase vendor observations.
