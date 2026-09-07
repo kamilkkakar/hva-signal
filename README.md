@@ -187,12 +187,12 @@ data/
   context/              contextual datasets and contracts
   phoenix/              Phoenix reference evidence
   cross-city/           cross-city comparison packages
-docs/                   analytical, release, provenance and internal notes
+docs/                   product contracts and technical documentation
 infra/                   Render deployment blueprint
 scripts/                 validation and operational utilities
 ```
 
-The deployed product UI lives under `apps/web/src/features/workspace/`. Internal implementation plans and operational notes live under `docs/`, not at the repository root.
+The deployed product UI lives under `apps/web/src/features/workspace/`. This repository contains product source, tests, reproducible evidence and technical documentation.
 
 ## Run locally
 
@@ -261,18 +261,6 @@ Render deployment is defined in `infra/render.yaml` (with the required root blue
 - API: https://urban-thermal-api.onrender.com
 
 Published mode is replay-backed and deterministic. Bounded selected-time Live is opt-in and limited to the four supported server-owned city geographies; general arbitrary vendor access remains disabled.
-
-## What we are shipping next
-
-The near-term product direction is to make the same evidence discipline useful over more observations, not to add a synthetic score.
-
-1. **Matched observed instants across cities** — compare the same local observation times across all four city geographies once the evidence package is acquired and validated.
-2. **Live hardening and monitoring** — continue validating cache reuse, spend controls and clear provenance for bounded selected-time observations without opening a general arbitrary-vendor path.
-3. **Stronger event-level thermal context** — make severe or persistent matched-time conditions clear without confusing event severity with spatial differentiation.
-4. **Method validation** — run sensitivity analysis on the current spatial-differentiation threshold and compare it with robust full-field alternatives before changing the frozen V1 policy.
-5. **More operational context** — add preparedness/resource evidence only where source coverage and provenance support it.
-
-The principle stays the same: **show what the evidence supports, and make the absence of defensible spatial differentiation explicit rather than inventing precision.**
 
 ## License
 
