@@ -1,0 +1,714 @@
+{
+  "schema_version": "PHX_HOURLY_THERMAL_PILOT_MANIFEST_V1",
+  "manifest_version": "PHX_HOURLY_TYPE1_PILOT_V1",
+  "status": "PREREGISTERED",
+  "area_id": "phoenix-demo",
+  "iana_timezone": "America/Phoenix",
+  "purpose": [
+    "provider_request_semantics",
+    "cache_and_debit_observability",
+    "hourly_zone_coverage",
+    "aligned_tile_field_retention"
+  ],
+  "pilot_dates_local": [
+    "2022-07-15",
+    "2023-07-15",
+    "2024-07-15"
+  ],
+  "pilot_hours_local": [
+    "00:00",
+    "01:00",
+    "02:00",
+    "03:00",
+    "04:00",
+    "05:00",
+    "06:00",
+    "07:00",
+    "08:00",
+    "09:00",
+    "10:00",
+    "11:00",
+    "12:00",
+    "13:00",
+    "14:00",
+    "15:00",
+    "16:00",
+    "17:00",
+    "18:00",
+    "19:00",
+    "20:00",
+    "21:00",
+    "22:00",
+    "23:00"
+  ],
+  "request_count": 72,
+  "request_contract": {
+    "endpoint": "/v1/heatmap",
+    "analytic_type": "tcm",
+    "temporal_mode": "single_hour",
+    "filter_type": 1,
+    "observation_kind": "instant",
+    "upstream_time_semantics": "aoi_local_time",
+    "granularity_m": 100,
+    "partition_strategy": "single_aoi",
+    "expected_partition_count": 1,
+    "window_aggregates_allowed": false,
+    "interpolation_allowed": false
+  },
+  "quality_gates": {
+    "expected_field_tile_count": 3749,
+    "expected_zone_count": 25,
+    "exact_zone_tile_counts_required": true,
+    "every_tile_requires_temperature": true,
+    "every_zone_requires_temperature": true,
+    "complete_assembly_required": true,
+    "cache_recheck_required": true,
+    "exact_debit_metering_required_for_live_request": true,
+    "stop_on_first_failed_slot": true,
+    "automatic_retry_allowed": false,
+    "aligned_raw_tile_retention_required": true,
+    "canary": {
+      "slot_id": "2024-07-15T03:00",
+      "reference_path": "data/phoenix/reference/observations.jsonl",
+      "reference_local_time": "2024-07-15T03:00",
+      "required_reference_zone_count": 25,
+      "maximum_mean_absolute_delta_c": 0.02,
+      "maximum_zone_absolute_delta_c": 0.05,
+      "purpose": "same_instant_request_and_aggregation_consistency"
+    }
+  },
+  "execution_boundary": {
+    "canary_must_pass_before_batch": true,
+    "maximum_manifest_slots": 72,
+    "maximum_new_vendor_requests": 72,
+    "credit_cap": null,
+    "scope_is_request_count_not_budget": true,
+    "api_key_may_be_persisted": false,
+    "hosted_live_may_be_enabled": false,
+    "public_route_may_be_added": false
+  },
+  "claim_boundaries": {
+    "closes_gate0": false,
+    "freezes_hourly_event": false,
+    "authorizes_probability": false,
+    "authorizes_forecast": false,
+    "authorizes_operational_outcome": false,
+    "authorizes_health_outcome": false,
+    "authorizes_priority_or_intervention": false
+  },
+  "sources": [
+    {
+      "role": "hourly_event_candidate",
+      "path": "data/gate0/phoenix-v1/hourly_thermal_event_candidate.json",
+      "sha256": "9bc43aca20d88b8654def288ed59e85f2af3241a18eb54c43736167ad53b5e46"
+    },
+    {
+      "role": "area_config",
+      "path": "data/demo/phoenix/area_config.json",
+      "sha256": "df00333a4df900a9762b7be975ed0c36b6e1749c953e9fb4690d9f6e4e02a60a"
+    },
+    {
+      "role": "area_manifest",
+      "path": "data/areas/phoenix-demo/manifest.json",
+      "sha256": "0af4541c41e5f28ab8facdeac2a318f1935a7f8061f20f02ea7b9766f7610422"
+    },
+    {
+      "role": "zone_geometry",
+      "path": "data/areas/phoenix-demo/geometry.geojson",
+      "sha256": "3f16870fc801da5052b03e0f09c172feb4a1e0d6736452d22ffd6f09bb4e11f0"
+    },
+    {
+      "role": "provider_aoi",
+      "path": "data/gate0/phoenix-v1/hourly_pilot_provider_aoi.geojson",
+      "sha256": "c6dc1c6399b6315f3cb9eadde1bc66e4a5f26457e5522db452c404c641e24b1a"
+    },
+    {
+      "role": "expected_tile_coverage",
+      "path": "data/gate0/phoenix-v1/expected_tile_coverage.json",
+      "sha256": "23004b6ed1b52d5e6f6309c1b9c1f2a8b6e3a27ee00e386f655bde50ac8e2d4f"
+    },
+    {
+      "role": "canary_reference_panel",
+      "path": "data/phoenix/reference/observations.jsonl",
+      "sha256": "8de5db71fe24118cf5b66e3bee394398fd142516ad2590c46e617e0c0b83408c"
+    }
+  ],
+  "slots": [
+    {
+      "ordinal": 1,
+      "slot_id": "2022-07-15T00:00",
+      "date_local": "2022-07-15",
+      "time_local": "00:00",
+      "phase": "batch",
+      "request_fingerprint": "c62d2063fddb28da82d42a2b0cbfb44c8ef37f55653788cab06e164f0fc57f2b"
+    },
+    {
+      "ordinal": 2,
+      "slot_id": "2022-07-15T01:00",
+      "date_local": "2022-07-15",
+      "time_local": "01:00",
+      "phase": "batch",
+      "request_fingerprint": "2617c5934ecfa568639ac5f7e27ced04690879c9d23c9aebc0cea1c796d8fb23"
+    },
+    {
+      "ordinal": 3,
+      "slot_id": "2022-07-15T02:00",
+      "date_local": "2022-07-15",
+      "time_local": "02:00",
+      "phase": "batch",
+      "request_fingerprint": "6d88ab2c56f4e1e80d4a911db4acc9c655e1933ac0fe2a9e5cdfa04642fee3f7"
+    },
+    {
+      "ordinal": 4,
+      "slot_id": "2022-07-15T03:00",
+      "date_local": "2022-07-15",
+      "time_local": "03:00",
+      "phase": "batch",
+      "request_fingerprint": "ba3a21cf9f9f3137bec81a9b07040f4959a9bad1d47b2ed72933713806bd4991"
+    },
+    {
+      "ordinal": 5,
+      "slot_id": "2022-07-15T04:00",
+      "date_local": "2022-07-15",
+      "time_local": "04:00",
+      "phase": "batch",
+      "request_fingerprint": "fbc48b1ea38606de6eaf400c4cf40e3f557b7bb7920a1bb52476bdb9767aeb54"
+    },
+    {
+      "ordinal": 6,
+      "slot_id": "2022-07-15T05:00",
+      "date_local": "2022-07-15",
+      "time_local": "05:00",
+      "phase": "batch",
+      "request_fingerprint": "c728c9d1a00451f26e21fe021213784ae0cd43ff597f48d637a5aafc14e2f87a"
+    },
+    {
+      "ordinal": 7,
+      "slot_id": "2022-07-15T06:00",
+      "date_local": "2022-07-15",
+      "time_local": "06:00",
+      "phase": "batch",
+      "request_fingerprint": "4b217595ef5ac7c698d34dc110ce82c286ac8eb16c184a2ba9c382ae29825346"
+    },
+    {
+      "ordinal": 8,
+      "slot_id": "2022-07-15T07:00",
+      "date_local": "2022-07-15",
+      "time_local": "07:00",
+      "phase": "batch",
+      "request_fingerprint": "01cfd2b3806b64c3a5abcc0be1d8b0ce070e57eb7cf0b11075d7c876ff411179"
+    },
+    {
+      "ordinal": 9,
+      "slot_id": "2022-07-15T08:00",
+      "date_local": "2022-07-15",
+      "time_local": "08:00",
+      "phase": "batch",
+      "request_fingerprint": "5c443d178a0dc5698b1b591ca72722c1ab6798fd1017e1477f427efc3ad7afab"
+    },
+    {
+      "ordinal": 10,
+      "slot_id": "2022-07-15T09:00",
+      "date_local": "2022-07-15",
+      "time_local": "09:00",
+      "phase": "batch",
+      "request_fingerprint": "76eb7a46007c7cee48d84f93c98f043c063492802ae27a2ecc0207b7272f57ac"
+    },
+    {
+      "ordinal": 11,
+      "slot_id": "2022-07-15T10:00",
+      "date_local": "2022-07-15",
+      "time_local": "10:00",
+      "phase": "batch",
+      "request_fingerprint": "e949f867796f14f06681394206b1a15408973c0e340b5d18100b9fa0abbebff7"
+    },
+    {
+      "ordinal": 12,
+      "slot_id": "2022-07-15T11:00",
+      "date_local": "2022-07-15",
+      "time_local": "11:00",
+      "phase": "batch",
+      "request_fingerprint": "8f2ad35618aaa47fb359394b390d81b51446813942c89d92f93e6ea4363d06fe"
+    },
+    {
+      "ordinal": 13,
+      "slot_id": "2022-07-15T12:00",
+      "date_local": "2022-07-15",
+      "time_local": "12:00",
+      "phase": "batch",
+      "request_fingerprint": "c0fea8d00c7e1b8bd6721c36829bf8c009b13e5e8806bc2eff982925b816d95d"
+    },
+    {
+      "ordinal": 14,
+      "slot_id": "2022-07-15T13:00",
+      "date_local": "2022-07-15",
+      "time_local": "13:00",
+      "phase": "batch",
+      "request_fingerprint": "2d41fb96e0aef5493625afb1e39149aa4f7e1b8199df1bfac020e89cf96f78c7"
+    },
+    {
+      "ordinal": 15,
+      "slot_id": "2022-07-15T14:00",
+      "date_local": "2022-07-15",
+      "time_local": "14:00",
+      "phase": "batch",
+      "request_fingerprint": "703c54daf85141e3297f01bd7ee0402cee1a06ac3eca3b7bcdfa58b9cbdd6914"
+    },
+    {
+      "ordinal": 16,
+      "slot_id": "2022-07-15T15:00",
+      "date_local": "2022-07-15",
+      "time_local": "15:00",
+      "phase": "batch",
+      "request_fingerprint": "09d09769bd68b1da31ba16a5641ac6da94e30ede247231e87898bd96e58689cf"
+    },
+    {
+      "ordinal": 17,
+      "slot_id": "2022-07-15T16:00",
+      "date_local": "2022-07-15",
+      "time_local": "16:00",
+      "phase": "batch",
+      "request_fingerprint": "b388d2bf5ae3f533b0c8304d9780e06b5fb0f36b9a86343154cfa2f155bc3de1"
+    },
+    {
+      "ordinal": 18,
+      "slot_id": "2022-07-15T17:00",
+      "date_local": "2022-07-15",
+      "time_local": "17:00",
+      "phase": "batch",
+      "request_fingerprint": "a1911387454f0760e7e1bc837224a0b994f4ea138ff1a02a5cbaa94b21cc2f28"
+    },
+    {
+      "ordinal": 19,
+      "slot_id": "2022-07-15T18:00",
+      "date_local": "2022-07-15",
+      "time_local": "18:00",
+      "phase": "batch",
+      "request_fingerprint": "6bd5fa5e0f54559abb61f98dbf0ad1e18585ad0a082d25cd0b226b065032cfad"
+    },
+    {
+      "ordinal": 20,
+      "slot_id": "2022-07-15T19:00",
+      "date_local": "2022-07-15",
+      "time_local": "19:00",
+      "phase": "batch",
+      "request_fingerprint": "30c7849edc51d461670c07aff95ecc31506e269a01bfd299a55118a8777e95da"
+    },
+    {
+      "ordinal": 21,
+      "slot_id": "2022-07-15T20:00",
+      "date_local": "2022-07-15",
+      "time_local": "20:00",
+      "phase": "batch",
+      "request_fingerprint": "fea945faa678ba7f978941cca7ec73ba79e5b3ec69c16975a0551d52ccb4bb38"
+    },
+    {
+      "ordinal": 22,
+      "slot_id": "2022-07-15T21:00",
+      "date_local": "2022-07-15",
+      "time_local": "21:00",
+      "phase": "batch",
+      "request_fingerprint": "bcdb65460218536bd8a4d2b5285f0d06ead9fd0fbd6a3ba57f78b0ac43f2ab91"
+    },
+    {
+      "ordinal": 23,
+      "slot_id": "2022-07-15T22:00",
+      "date_local": "2022-07-15",
+      "time_local": "22:00",
+      "phase": "batch",
+      "request_fingerprint": "aa27843bad599e659a29ea80580e72805ce776b7f57fda2694c0420e7985168a"
+    },
+    {
+      "ordinal": 24,
+      "slot_id": "2022-07-15T23:00",
+      "date_local": "2022-07-15",
+      "time_local": "23:00",
+      "phase": "batch",
+      "request_fingerprint": "7cbdfb2fd5ed50e410417b7cdca138d9be64708f4956d2cb4e5b2f7f168a2028"
+    },
+    {
+      "ordinal": 25,
+      "slot_id": "2023-07-15T00:00",
+      "date_local": "2023-07-15",
+      "time_local": "00:00",
+      "phase": "batch",
+      "request_fingerprint": "ce03e8d6b3f45e59e09b3588ab217b83b1c4483c7bbb834a182c4f475b214a7c"
+    },
+    {
+      "ordinal": 26,
+      "slot_id": "2023-07-15T01:00",
+      "date_local": "2023-07-15",
+      "time_local": "01:00",
+      "phase": "batch",
+      "request_fingerprint": "4136c72bcdb6e19dce610a3b0adc9e4ff09f828fbca25fe75b9c68226885104c"
+    },
+    {
+      "ordinal": 27,
+      "slot_id": "2023-07-15T02:00",
+      "date_local": "2023-07-15",
+      "time_local": "02:00",
+      "phase": "batch",
+      "request_fingerprint": "c73eddf442eb246e65958d9af941eea8d57bc76a3effa055526afd8169c646e3"
+    },
+    {
+      "ordinal": 28,
+      "slot_id": "2023-07-15T03:00",
+      "date_local": "2023-07-15",
+      "time_local": "03:00",
+      "phase": "batch",
+      "request_fingerprint": "5b21f327658883fcd1d807507298cca656deb5f1d301ae4bc1bc3273d775a501"
+    },
+    {
+      "ordinal": 29,
+      "slot_id": "2023-07-15T04:00",
+      "date_local": "2023-07-15",
+      "time_local": "04:00",
+      "phase": "batch",
+      "request_fingerprint": "520bd814552b817f57f8b7537e53fd7c21478cab89ef8be1bb9b7684273a68bf"
+    },
+    {
+      "ordinal": 30,
+      "slot_id": "2023-07-15T05:00",
+      "date_local": "2023-07-15",
+      "time_local": "05:00",
+      "phase": "batch",
+      "request_fingerprint": "961d9899c7a0b9a0e5b5a657e7e73d3a7c40ff8e7e9f1803a36d25b0617880eb"
+    },
+    {
+      "ordinal": 31,
+      "slot_id": "2023-07-15T06:00",
+      "date_local": "2023-07-15",
+      "time_local": "06:00",
+      "phase": "batch",
+      "request_fingerprint": "18b5c92f65dc903f07d316619dd6e90fa9264b8a1d5dcf608c74f4acde6e7d34"
+    },
+    {
+      "ordinal": 32,
+      "slot_id": "2023-07-15T07:00",
+      "date_local": "2023-07-15",
+      "time_local": "07:00",
+      "phase": "batch",
+      "request_fingerprint": "7ab9e636758a3772398a8d36fc006d29ca08ef504cdcf65438c73bf1a7d088a1"
+    },
+    {
+      "ordinal": 33,
+      "slot_id": "2023-07-15T08:00",
+      "date_local": "2023-07-15",
+      "time_local": "08:00",
+      "phase": "batch",
+      "request_fingerprint": "3ce1598e540539563e38e33009c8531bf679c92af9bc8f7edf63e5559b774cf6"
+    },
+    {
+      "ordinal": 34,
+      "slot_id": "2023-07-15T09:00",
+      "date_local": "2023-07-15",
+      "time_local": "09:00",
+      "phase": "batch",
+      "request_fingerprint": "bd7c5a8a1fcde360145f4534f4e7c31b95a84f0b90419554f249e5db67e0271c"
+    },
+    {
+      "ordinal": 35,
+      "slot_id": "2023-07-15T10:00",
+      "date_local": "2023-07-15",
+      "time_local": "10:00",
+      "phase": "batch",
+      "request_fingerprint": "922443a4e5cccc91623e620f394dbe7b3606de857c3236dc67b54ad14023a0fa"
+    },
+    {
+      "ordinal": 36,
+      "slot_id": "2023-07-15T11:00",
+      "date_local": "2023-07-15",
+      "time_local": "11:00",
+      "phase": "batch",
+      "request_fingerprint": "daf06ca2345d123d219391141da18e2bef6a9fb1d7efa53955d2fdb183ee060e"
+    },
+    {
+      "ordinal": 37,
+      "slot_id": "2023-07-15T12:00",
+      "date_local": "2023-07-15",
+      "time_local": "12:00",
+      "phase": "batch",
+      "request_fingerprint": "d5795614c23ba6d217cf6c42502af388763585868295ff9ad153f4ab5ec2181f"
+    },
+    {
+      "ordinal": 38,
+      "slot_id": "2023-07-15T13:00",
+      "date_local": "2023-07-15",
+      "time_local": "13:00",
+      "phase": "batch",
+      "request_fingerprint": "f6b92a5ea7fe53e47682eaad434ea648b5aede83797bf5b2810267ea3e2ce9a9"
+    },
+    {
+      "ordinal": 39,
+      "slot_id": "2023-07-15T14:00",
+      "date_local": "2023-07-15",
+      "time_local": "14:00",
+      "phase": "batch",
+      "request_fingerprint": "dbb98afde03953e5c8e815202dbf1ce8862bcfa4db12a5e0da3d240ab12b3de7"
+    },
+    {
+      "ordinal": 40,
+      "slot_id": "2023-07-15T15:00",
+      "date_local": "2023-07-15",
+      "time_local": "15:00",
+      "phase": "batch",
+      "request_fingerprint": "63df2f497fab6ee8b099284cec360287fbc5eeb19d5e075511e6afa95c179778"
+    },
+    {
+      "ordinal": 41,
+      "slot_id": "2023-07-15T16:00",
+      "date_local": "2023-07-15",
+      "time_local": "16:00",
+      "phase": "batch",
+      "request_fingerprint": "9018b95103007568e2d37a02ff82a39367da12f11681ba470bb82949ee8de3e7"
+    },
+    {
+      "ordinal": 42,
+      "slot_id": "2023-07-15T17:00",
+      "date_local": "2023-07-15",
+      "time_local": "17:00",
+      "phase": "batch",
+      "request_fingerprint": "a716fdd989187c27b4d3c5be068dbc89299a8c395484b9747bb46239166350db"
+    },
+    {
+      "ordinal": 43,
+      "slot_id": "2023-07-15T18:00",
+      "date_local": "2023-07-15",
+      "time_local": "18:00",
+      "phase": "batch",
+      "request_fingerprint": "e9bff0f4dd3bc1d44c8c6964ac2aad1b4e173a15c350805eed57103c5e50a927"
+    },
+    {
+      "ordinal": 44,
+      "slot_id": "2023-07-15T19:00",
+      "date_local": "2023-07-15",
+      "time_local": "19:00",
+      "phase": "batch",
+      "request_fingerprint": "91f9fafc7fd9456d619f94e52a78fd7eb8a8ef18b5fde146d53a45621214c714"
+    },
+    {
+      "ordinal": 45,
+      "slot_id": "2023-07-15T20:00",
+      "date_local": "2023-07-15",
+      "time_local": "20:00",
+      "phase": "batch",
+      "request_fingerprint": "39f70fbdc6045451296d9530ea251ee0ce8bdd2f7adc7d9cab6a7279ffe9733b"
+    },
+    {
+      "ordinal": 46,
+      "slot_id": "2023-07-15T21:00",
+      "date_local": "2023-07-15",
+      "time_local": "21:00",
+      "phase": "batch",
+      "request_fingerprint": "f24dc9d8c878962422a4ff864daf9e26bc79115983e00c762b79e29bb774de1d"
+    },
+    {
+      "ordinal": 47,
+      "slot_id": "2023-07-15T22:00",
+      "date_local": "2023-07-15",
+      "time_local": "22:00",
+      "phase": "batch",
+      "request_fingerprint": "88717379fe9a3a3baa89eb4d1211f1dc0f76b83e9f24cb6169cabcee2a79ac36"
+    },
+    {
+      "ordinal": 48,
+      "slot_id": "2023-07-15T23:00",
+      "date_local": "2023-07-15",
+      "time_local": "23:00",
+      "phase": "batch",
+      "request_fingerprint": "183ee93a926ddfa7af3e62477233f5606467c2d2d063dbbbc2ee148a210ed591"
+    },
+    {
+      "ordinal": 49,
+      "slot_id": "2024-07-15T00:00",
+      "date_local": "2024-07-15",
+      "time_local": "00:00",
+      "phase": "batch",
+      "request_fingerprint": "cecd77ff09cd152478f5281a8ead9da8b2846abd303b5d336bff9c863750db41"
+    },
+    {
+      "ordinal": 50,
+      "slot_id": "2024-07-15T01:00",
+      "date_local": "2024-07-15",
+      "time_local": "01:00",
+      "phase": "batch",
+      "request_fingerprint": "897692f8438b9f06d56af05e7e982f14b6caffda803cb5d2f48acccd18ae6a2e"
+    },
+    {
+      "ordinal": 51,
+      "slot_id": "2024-07-15T02:00",
+      "date_local": "2024-07-15",
+      "time_local": "02:00",
+      "phase": "batch",
+      "request_fingerprint": "9c230c64840d13731f7ea15afe57d2f58707eb8a2a93b4bcd84470b3091cf2ba"
+    },
+    {
+      "ordinal": 52,
+      "slot_id": "2024-07-15T03:00",
+      "date_local": "2024-07-15",
+      "time_local": "03:00",
+      "phase": "canary",
+      "request_fingerprint": "ce2a08a2693ef692de06865226e76c39eaad145fc46ebecfbefa3592b84b8d5c"
+    },
+    {
+      "ordinal": 53,
+      "slot_id": "2024-07-15T04:00",
+      "date_local": "2024-07-15",
+      "time_local": "04:00",
+      "phase": "batch",
+      "request_fingerprint": "669d5541874babaa8b839190a947d4eff53eb3f12e0cc19063198024af493cc0"
+    },
+    {
+      "ordinal": 54,
+      "slot_id": "2024-07-15T05:00",
+      "date_local": "2024-07-15",
+      "time_local": "05:00",
+      "phase": "batch",
+      "request_fingerprint": "6f5e7888f613aa81318ca6aca768b2b276a03c1447f82bd314cf12a6081bf23c"
+    },
+    {
+      "ordinal": 55,
+      "slot_id": "2024-07-15T06:00",
+      "date_local": "2024-07-15",
+      "time_local": "06:00",
+      "phase": "batch",
+      "request_fingerprint": "7c0029f4cba89aec455b8fa0c4ccbe849f29d33906d42d485382765cd87d79cf"
+    },
+    {
+      "ordinal": 56,
+      "slot_id": "2024-07-15T07:00",
+      "date_local": "2024-07-15",
+      "time_local": "07:00",
+      "phase": "batch",
+      "request_fingerprint": "07ca40c6a3c0f34e440ed375dda1ff9366f3b279a17cfe33a82b5bc0bc469e3e"
+    },
+    {
+      "ordinal": 57,
+      "slot_id": "2024-07-15T08:00",
+      "date_local": "2024-07-15",
+      "time_local": "08:00",
+      "phase": "batch",
+      "request_fingerprint": "12d2c58177f25fd3cb1d939ceb0c92a4cabbd9bda3a3d5768e79a9a4778ac131"
+    },
+    {
+      "ordinal": 58,
+      "slot_id": "2024-07-15T09:00",
+      "date_local": "2024-07-15",
+      "time_local": "09:00",
+      "phase": "batch",
+      "request_fingerprint": "9920d2ed4eb7effb03cb531eab08b4143cf8cc2102e79b6227bd6fa697769a12"
+    },
+    {
+      "ordinal": 59,
+      "slot_id": "2024-07-15T10:00",
+      "date_local": "2024-07-15",
+      "time_local": "10:00",
+      "phase": "batch",
+      "request_fingerprint": "5fafe95257ad8583b6db98631a673942ca24ac5be7a2b60b135c7432397f9729"
+    },
+    {
+      "ordinal": 60,
+      "slot_id": "2024-07-15T11:00",
+      "date_local": "2024-07-15",
+      "time_local": "11:00",
+      "phase": "batch",
+      "request_fingerprint": "cab9a846f088a898cac7e238be72968faf79b5dad6e0ad10157f55248a1c777c"
+    },
+    {
+      "ordinal": 61,
+      "slot_id": "2024-07-15T12:00",
+      "date_local": "2024-07-15",
+      "time_local": "12:00",
+      "phase": "batch",
+      "request_fingerprint": "94e822c5391a29d2c970623229b52c3587cc73b62665a5d0c2b734870829ea15"
+    },
+    {
+      "ordinal": 62,
+      "slot_id": "2024-07-15T13:00",
+      "date_local": "2024-07-15",
+      "time_local": "13:00",
+      "phase": "batch",
+      "request_fingerprint": "00b60edbf2eee3c5e6b4f3fa658a27e7557f7321b068c78ead3e3624c47fc051"
+    },
+    {
+      "ordinal": 63,
+      "slot_id": "2024-07-15T14:00",
+      "date_local": "2024-07-15",
+      "time_local": "14:00",
+      "phase": "batch",
+      "request_fingerprint": "ecd174c5b5206883099a284b93f93ba3c1dac1dd5fca1b6c06032800df8f1219"
+    },
+    {
+      "ordinal": 64,
+      "slot_id": "2024-07-15T15:00",
+      "date_local": "2024-07-15",
+      "time_local": "15:00",
+      "phase": "batch",
+      "request_fingerprint": "08aec742b52ffb99a7da060047626f31bf2a51205e058b3ac3b7148830948912"
+    },
+    {
+      "ordinal": 65,
+      "slot_id": "2024-07-15T16:00",
+      "date_local": "2024-07-15",
+      "time_local": "16:00",
+      "phase": "batch",
+      "request_fingerprint": "d42374d8a17365640747243401090f8b44e70c15c0b3b40628bce1b875fdb59f"
+    },
+    {
+      "ordinal": 66,
+      "slot_id": "2024-07-15T17:00",
+      "date_local": "2024-07-15",
+      "time_local": "17:00",
+      "phase": "batch",
+      "request_fingerprint": "53a727510be7826add1e40f2fe3a036be580fd298ec06533109246cce7d6db4d"
+    },
+    {
+      "ordinal": 67,
+      "slot_id": "2024-07-15T18:00",
+      "date_local": "2024-07-15",
+      "time_local": "18:00",
+      "phase": "batch",
+      "request_fingerprint": "1e4fb007e734acdda32e819d746f6443f55664cc384ea6171130653d09dd9d68"
+    },
+    {
+      "ordinal": 68,
+      "slot_id": "2024-07-15T19:00",
+      "date_local": "2024-07-15",
+      "time_local": "19:00",
+      "phase": "batch",
+      "request_fingerprint": "b36dec4d1be9088107b217131ca7687dc74e71b9b0217bbb3b10114bc4a9e576"
+    },
+    {
+      "ordinal": 69,
+      "slot_id": "2024-07-15T20:00",
+      "date_local": "2024-07-15",
+      "time_local": "20:00",
+      "phase": "batch",
+      "request_fingerprint": "1cbfd8549acdfbe999953fcbf502a5531a9daedee98e609dd0bd4d2ac270ff8f"
+    },
+    {
+      "ordinal": 70,
+      "slot_id": "2024-07-15T21:00",
+      "date_local": "2024-07-15",
+      "time_local": "21:00",
+      "phase": "batch",
+      "request_fingerprint": "8af1763a3116134c57df48191d59686041e92f38b8a4d53f457613273678afdc"
+    },
+    {
+      "ordinal": 71,
+      "slot_id": "2024-07-15T22:00",
+      "date_local": "2024-07-15",
+      "time_local": "22:00",
+      "phase": "batch",
+      "request_fingerprint": "41d83a2f1c94be52196c4478924e59475d2d548840b0e30f44fbe3adfdcdab93"
+    },
+    {
+      "ordinal": 72,
+      "slot_id": "2024-07-15T23:00",
+      "date_local": "2024-07-15",
+      "time_local": "23:00",
+      "phase": "batch",
+      "request_fingerprint": "834375ad1e3d981b558ab9d360188b46f36ac271c19a9a9fe031541ca8a951ba"
+    }
+  ]
+}
