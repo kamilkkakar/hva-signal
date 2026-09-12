@@ -13,7 +13,7 @@ import math
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Final, Mapping
+from typing import Any, Callable, Final, Mapping
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
@@ -33,7 +33,10 @@ from app.domain.signals import ThermalSignalKind
 from app.integrations.fortyguard.adapter import FortyGuardAdapter
 from app.integrations.fortyguard.cache import FortyGuardCache
 from app.integrations.fortyguard.client import DEFAULT_BASE_URL, FortyGuardHttpClient
-from app.integrations.fortyguard.exceptions import MissingApiKeyError
+from app.integrations.fortyguard.exceptions import (
+    AcquisitionAllowanceExceeded,
+    MissingApiKeyError,
+)
 from app.integrations.fortyguard.fingerprints import fingerprint_request
 from app.integrations.fortyguard.partitioning import plan_partitions, polygon_area_km2
 from app.integrations.fortyguard.transport_models import (
@@ -396,6 +399,7 @@ def construct_bounded_selected_time_http_client(
     *,
     settings: Settings,
     transport: Any | None = None,
+    before_submit: Callable[[], None] | None = None,
 ) -> FortyGuardHttpClient:
     """Narrow construction for POST /api/v1/live/selected-time only.
 
@@ -424,6 +428,8 @@ def construct_bounded_selected_time_http_client(
     kwargs: dict[str, Any] = {"api_key": key, "base_url": base}
     if transport is not None:
         kwargs["transport"] = transport
+    if before_submit is not None:
+        kwargs["before_submit"] = before_submit
     return FortyGuardHttpClient(**kwargs)
 
 
@@ -434,13 +440,14 @@ def _bounded_selected_time_acquire(
     cache: FortyGuardCache,
     preflight: dict[str, Any],
     transport: Any | None = None,
+    before_submit: Callable[[], None] | None = None,
     poll_interval: float = 3.0,
     poll_timeout: float = 600.0,
 ) -> dict[str, Any]:
     """Cache-miss acquisition owned by the bounded selected-time surface."""
     try:
         client = construct_bounded_selected_time_http_client(
-            settings=settings, transport=transport
+            settings=settings, transport=transport, before_submit=before_submit
         )
     except MissingApiKeyError:
         return {
@@ -488,6 +495,8 @@ def _bounded_selected_time_acquire(
     assembly = None
     try:
         assembly = adapter.fetch_heatmap(heatmap_req)
+    except AcquisitionAllowanceExceeded:
+        raise
     except Exception as exc:  # noqa: BLE001 — sanitize; never leak secrets
         return {
             "status": "acquisition_unavailable",
@@ -551,6 +560,7 @@ def run_type1_live(
     settings: Settings | None = None,
     bounded_selected_time_authorized: bool = False,
     vendor_transport: Any | None = None,
+    before_submit: Callable[[], None] | None = None,
     poll_interval: float = 3.0,
     poll_timeout: float = 600.0,
 ) -> dict[str, Any]:
@@ -592,6 +602,7 @@ def run_type1_live(
             cache=active_cache,
             preflight=preflight,
             transport=vendor_transport,
+            before_submit=before_submit,
             poll_interval=poll_interval,
             poll_timeout=poll_timeout,
         )
