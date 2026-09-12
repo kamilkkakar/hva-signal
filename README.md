@@ -13,7 +13,7 @@ A map-based tool for exploring urban heat evidence and local context.
 - View tree canopy, income and housing context alongside thermal observations.
 - Request selected-time FortyGuard observations through the opt-in Live mode.
 
-Thermal data comes from FortyGuard; geography and context use Census, ACS and canopy datasets. Published mode uses retained evidence. Live requests use server-held credentials and check the cache before acquisition.
+Thermal data comes from FortyGuard; geography and context use Census, ACS and canopy datasets. Published mode uses retained evidence. Live requests use server-held credentials and check the cache before acquisition. Within one API process, overlapping identical requests share an acquisition; cached results remain available after the daily allowance is spent.
 
 Results describe thermal conditions. They do not establish health-risk probabilities, forecasts or intervention effectiveness. Zone rankings are withheld when the evidence does not support them.
 

@@ -11,6 +11,15 @@ class MissingApiKeyError(FortyGuardAdapterError):
     """LIVE access was requested but no API key is configured."""
 
 
+class AcquisitionAllowanceExceeded(FortyGuardAdapterError):
+    """Submission was rejected before any vendor HTTP request."""
+
+    def __init__(self, used: int, limit: int) -> None:
+        self.used = used
+        self.limit = limit
+        super().__init__(f"Daily bounded live budget reached ({limit}).")
+
+
 class FortyGuardHttpError(FortyGuardAdapterError):
     def __init__(self, message: str, status_code: int | None = None) -> None:
         self.status_code = status_code
