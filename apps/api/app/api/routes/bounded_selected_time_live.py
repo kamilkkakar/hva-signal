@@ -16,8 +16,11 @@ from __future__ import annotations
 
 import math
 import threading
-from datetime import date, datetime
-from typing import Any, Final
+from concurrent.futures import Future, TimeoutError as FutureTimeoutError
+from copy import deepcopy
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Callable, Final
 
 from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -28,9 +31,11 @@ from app.domain.multicity.city_catalog import resolve_city_aoi
 from app.domain.multicity.live_zone_aggregation import aggregate_cached_live_zones
 from app.domain.multicity.type1_live import (
     Type1LiveClientRequest,
+    dry_run_type1_preflight,
     run_type1_live,
 )
 from app.integrations.fortyguard.cache import FortyGuardCache
+from app.integrations.fortyguard.exceptions import AcquisitionAllowanceExceeded
 
 router = APIRouter(tags=["bounded-selected-time-live"])
 
@@ -62,7 +67,8 @@ FORBIDDEN_CLIENT_FIELDS: Final[frozenset[str]] = frozenset(
 )
 
 _flight_lock = threading.Lock()
-_inflight: dict[str, threading.Event] = {}
+_inflight: dict[tuple[str, ...], Future[dict[str, Any]]] = {}
+_flight_wait_seconds = 60.0
 _daily_lock = threading.Lock()
 _daily_counts: dict[str, int] = {}
 
@@ -110,11 +116,11 @@ def _city_slug_for_type1(city_id: str) -> str:
 
 
 def _day_key(settings: Settings) -> str:
-    return f"{date.today().isoformat()}:{settings.app_env}"
+    return f"{datetime.now(timezone.utc).date().isoformat()}:{settings.app_env}"
 
 
 def _daily_limit(settings: Settings) -> int:
-    return int(getattr(settings, "bounded_selected_time_daily_limit", 20) or 20)
+    return max(0, int(settings.bounded_selected_time_daily_limit))
 
 
 def _gate_open(settings: Settings) -> bool:
@@ -234,26 +240,51 @@ def _attach_zone_analysis(
     return public
 
 
-def _with_single_flight(fingerprint: str, runner: Any) -> dict[str, Any]:
+def _reserve_submission(settings: Settings) -> None:
+    """Reserve each vendor POST atomically within this API process."""
+    day = _day_key(settings)
+    limit = _daily_limit(settings)
+    with _daily_lock:
+        used = _daily_counts.get(day, 0)
+        if used >= limit:
+            raise AcquisitionAllowanceExceeded(used, limit)
+        # A failed submission may still have reached the provider; do not refund it.
+        _daily_counts[day] = used + 1
+
+
+def _with_single_flight(
+    fingerprint: tuple[str, ...], runner: Callable[[], dict[str, Any]],
+) -> dict[str, Any]:
     with _flight_lock:
-        existing = _inflight.get(fingerprint)
-        if existing is not None:
-            waiter = existing
-            created = False
-        else:
-            waiter = threading.Event()
-            _inflight[fingerprint] = waiter
-            created = True
-    if not created:
-        waiter.wait(timeout=60)
-        # Re-run after join — typically a cache hit.
-        return runner()
+        flight = _inflight.get(fingerprint)
+        owner = flight is None
+        if owner:
+            flight = Future()
+            _inflight[fingerprint] = flight
+    assert flight is not None
+    if not owner:
+        try:
+            return deepcopy(flight.result(timeout=_flight_wait_seconds))
+        except FutureTimeoutError:
+            if flight.done():
+                return deepcopy(flight.result())
+            raise HTTPException(
+                status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+                detail={
+                    "code": "bounded_selected_time_in_progress",
+                    "message": "Acquisition is still running. No duplicate request was submitted.",
+                },
+            ) from None
     try:
-        return runner()
+        result = runner()
+        flight.set_result(deepcopy(result))
+        return result
+    except BaseException as exc:
+        flight.set_exception(exc)
+        raise
     finally:
         with _flight_lock:
             _inflight.pop(fingerprint, None)
-            waiter.set()
 
 
 @router.post(BOUNDED_ROUTE)
@@ -277,21 +308,6 @@ def post_selected_time_live(
             },
         )
 
-    day = _day_key(settings)
-    limit = _daily_limit(settings)
-    with _daily_lock:
-        used = _daily_counts.get(day, 0)
-        if used >= limit:
-            raise HTTPException(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail={
-                    "code": "bounded_selected_time_daily_limit",
-                    "message": f"Daily bounded live budget reached ({limit}).",
-                    "used": used,
-                    "limit": limit,
-                },
-            )
-
     type1 = Type1LiveClientRequest(
         city=_city_slug_for_type1(body.city_id),
         target_local=body.local_datetime,
@@ -305,7 +321,18 @@ def post_selected_time_live(
                 cache=cache,
                 settings=settings,
                 bounded_selected_time_authorized=True,
+                before_submit=lambda: _reserve_submission(settings),
             )
+        except AcquisitionAllowanceExceeded as exc:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail={
+                    "code": "bounded_selected_time_daily_limit",
+                    "message": str(exc),
+                    "used": exc.used,
+                    "limit": exc.limit,
+                },
+            ) from None
         except HostedLiveDisabledError:
             # Defense: GENERAL refuse path must never become a paid call.
             return {
@@ -317,14 +344,14 @@ def post_selected_time_live(
                 ),
             }
 
-    # Fingerprint key for single-flight: city + local hour.
-    flight_key = f"{type1.city}|{type1.target_local.isoformat()}"
+    preflight = dry_run_type1_preflight(type1, settings=settings)
+    flight_key = (
+        settings.app_env,
+        str(Path(settings.cache_dir).resolve()),
+        str(settings.fortyguard_base_url),
+        preflight["cache_fingerprint"],
+    )
     raw = _with_single_flight(flight_key, _run)
-
-    # Count only vendor attempts toward the daily budget (cache hits free).
-    if raw.get("vendor_attempted"):
-        with _daily_lock:
-            _daily_counts[day] = _daily_counts.get(day, 0) + 1
 
     if raw.get("status") == "acquisition_unavailable":
         return {

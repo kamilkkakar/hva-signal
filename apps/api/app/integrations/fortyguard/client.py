@@ -31,6 +31,7 @@ class FortyGuardHttpClient:
         base_url: str = DEFAULT_BASE_URL,
         timeout: float = 60.0,
         transport: httpx.BaseTransport | None = None,
+        before_submit: Callable[[], None] | None = None,
     ) -> None:
         if not api_key or not str(api_key).strip():
             raise MissingApiKeyError(
@@ -48,6 +49,7 @@ class FortyGuardHttpClient:
         if transport is not None:
             kwargs["transport"] = transport
         self._client = httpx.Client(**kwargs)
+        self._before_submit = before_submit
 
     def close(self) -> None:
         self._client.close()
@@ -67,6 +69,8 @@ class FortyGuardHttpClient:
         )
 
     def submit(self, path: str, payload: dict[str, Any]) -> str:
+        if self._before_submit is not None:
+            self._before_submit()
         resp = self._client.post(path, json=payload)
         self._raise_for_status("POST", path, resp)
         try:
