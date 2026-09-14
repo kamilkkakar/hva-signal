@@ -1,46 +1,57 @@
-# Production deploy (Render Free validation, then optional Starter)
+# Deployment
 
-HVA-Signal (3K Labs) public hosting is applied from a HUMAN-controlled Render workspace.
+The Render Blueprint is `infra/render.yaml`; root `render.yaml` must match it.
+The API uses Free compute and can sleep. The web service uses `0.5c-512mb`.
+The web proxy connects to the API's public HTTPS URL. Published analysis uses
+`DATA_MODE=replay`; the bounded selected-time endpoint reads its FortyGuard
+credential from the server environment.
 
-## Encoded topology
+## Shared acquisition storage
 
-- `infra/render.yaml` and root `render.yaml`: two **Free** Docker web services
-  (`urban-thermal-web`, `urban-thermal-api`) for $0 public validation.
-- Free services sleep when idle. That is expected. Do not add keepalive jobs.
-- Free cannot receive private-network `hostport` traffic. Web nginx proxies
-  same-origin `/api`, `/health`, and `/ready` to the API **public HTTPS** URL
-  (`RENDER_EXTERNAL_URL`), not to a private hostport.
-- `DATA_MODE=replay` on the API. `FORTYGUARD_API_KEY` is dashboard-only
-  (`sync: false`) and must stay empty for replay validation.
-- No deploy hook, cron, or health check POSTs `/v1/heatmap`.
-- No persistent disk.
+This capability is off by default and does not provision infrastructure.
+Use PostgreSQL 16+ with a direct or session-pooled connection. Transaction
+pooling is unsupported because acquisition ownership uses session locks.
 
-Free is validation infrastructure. It is not assumed suitable as the final
-judged-demo plan. After validation, HUMAN may upgrade services to Starter.
+Set these server-only values on every participating API instance:
 
-## Human steps (Free validation)
+- `ACQUISITION_DATABASE_URL`: database connection string; keep it secret.
+- `ACQUISITION_ACCOUNT_SCOPE`: stable account label, default `primary`.
+- `SHARED_ACQUISITION_ENABLED=true`.
+- The same `APP_ENV`, `FORTYGUARD_BASE_URL` and `BOUNDED_SELECTED_TIME_DAILY_LIMIT`.
 
-1. In workspace **3K-Labs**, apply the Blueprint from private `main`.
-2. When prompted, leave `FORTYGUARD_API_KEY` empty.
-3. Confirm both services are Free. Confirm `DATA_MODE=replay`.
-4. Copy the assigned public URLs (`*.onrender.com`). Do not invent hostnames.
-5. First request may wait for both services to wake.
-6. Verify with GET only (never POST `/v1/heatmap`):
+Before enabling shared acquisition, initialize the database from `apps/api`:
 
-   ```bash
-   WEB_PUBLIC_URL='https://<web>' API_PUBLIC_URL='https://<api>' bash scripts/verify-public-deploy.sh
-   ```
+```bash
+python -m app.core.postgres_acquisition --migrate
+```
 
-Then exercise default `2022-07-01 03:00` AOI-local replay from the UI.
+Pause new live submissions during rollout; drain existing calls and update all
+instances together. Preserve existing vendor caches. The database cannot recover
+legacy purchases that were never recorded in it; reconcile these before batch
+acquisition or replacing the old runtime.
 
-If a Free build fails on memory/CPU, report a Free-tier resource finding. Do
-not strip frozen runtime evidence to fit Free.
+New acquisitions commit reservations before submission and activity IDs before
+polling. Completed raw responses remain in PostgreSQL and rebuild local caches.
+Transient polling failures resume the saved activity on the next matching request.
+An uncertain submission without an activity ID requires reconciliation; it is
+never automatically repurchased. The daily limit counts reserved POST attempts,
+not vendor credits. Operational refreshes retain each completed generation.
 
-## Local production images
+Enable database backups and test restoration before unattended production use.
+If storage fails, new acquisition fails closed. Rollback should disable the live
+endpoint while preserving the database; do not switch to process-local purchasing.
+This release does not add a background worker or automated unknown-ID resolution.
+
+## Checks
+
+```bash
+WEB_PUBLIC_URL='https://<web>' API_PUBLIC_URL='https://<api>' bash scripts/verify-public-deploy.sh
+```
+
+For database integration tests, set `HVA_TEST_POSTGRES_DSN` to a disposable test
+database and run `cd apps/api && pytest tests/integration/test_postgres_acquisition.py`.
+CI provisions PostgreSQL automatically. Local Docker setup:
 
 ```bash
 docker compose -f infra/docker-compose.yml up --build
 ```
-
-Local compose uses `API_UPSTREAM=api:8000` (HTTP). Render Free injects
-`https://<api-host>`. The web entrypoint accepts both forms.

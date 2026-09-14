@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     # arbitrary vendor (may_construct_real_vendor stays False). Default OFF.
     bounded_selected_time_live_enabled: bool = False
     bounded_selected_time_daily_limit: int = 20
+    shared_acquisition_enabled: bool = False
+    acquisition_database_url: str = ""
+    acquisition_account_scope: str = "primary"
     # Operator approval is server-side only. Default denied.
     operator_approval_enabled: bool = False
     # Local file durability only. Default off. Enabling SQLite does not

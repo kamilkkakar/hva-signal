@@ -1,6 +1,6 @@
 """L2 operational/forecast TTL. Historical entries remain immutable."""
 
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from app.integrations.fortyguard.cache import (
@@ -48,3 +48,13 @@ def test_heatmap_payload_uses_nested_start_date() -> None:
     today = date(2026, 8, 27)
     assert ttl_for_heatmap_payload(historical, today=today) is None
     assert ttl_for_heatmap_payload(operational, today=today) == OPERATIONAL_TTL_SECONDS
+
+
+def test_restoring_durable_result_preserves_original_expiry(tmp_path):
+    expiry = datetime(2026, 9, 14, 15, 15, tzinfo=timezone.utc)
+    clock = [expiry - timedelta(seconds=1)]
+    cache = FortyGuardCache(tmp_path, now=lambda: clock[0])
+    cache.put("restored", {"result": {}}, ttl_seconds=900, expires_at=expiry.isoformat())
+    assert cache.get("restored") is not None
+    clock[0] = expiry
+    assert cache.get("restored") is None

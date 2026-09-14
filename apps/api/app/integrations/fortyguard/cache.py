@@ -7,6 +7,8 @@ Historical results are immutable (no TTL). Operational/forecast results expire.
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 from collections.abc import Callable
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -73,6 +75,8 @@ class FortyGuardCache:
         self._now = now or (lambda: datetime.now(timezone.utc))
 
     def _expired(self, record: dict[str, Any]) -> bool:
+        if record.get("expires_at"):
+            return self._now() >= datetime.fromisoformat(record["expires_at"])
         ttl = record.get("ttl_seconds")
         if ttl is None:
             return False
@@ -115,15 +119,26 @@ class FortyGuardCache:
         payload: Any,
         *,
         ttl_seconds: int | None = None,
+        expires_at: str | None = None,
     ) -> None:
         redacted = redact_secrets(payload)
         record = {
             "_cache": _ENVELOPE,
             "cached_at": self._now().isoformat(),
             "ttl_seconds": ttl_seconds,
+            "expires_at": expires_at,
             "payload": redacted,
         }
         self._l1[fingerprint] = record
         self.disk_dir.mkdir(parents=True, exist_ok=True)
         path = self.disk_dir / f"{fingerprint}.json"
-        path.write_text(json.dumps(record, default=str), encoding="utf-8")
+        # Readers in another process must never observe a partially written JSON file.
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=self.disk_dir, delete=False) as stream:
+                temporary = Path(stream.name)
+                json.dump(record, stream, default=str)
+            os.replace(temporary, path)
+        finally:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
