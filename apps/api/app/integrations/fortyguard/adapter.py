@@ -118,8 +118,14 @@ class FortyGuardAdapter:
                 fingerprint,
                 bundled,
                 ttl_seconds=ttl_for_heatmap_payload(payload),
+                expires_at=bundled.get("_hva_expires_at"),
             )
-            return bundled, ThermalDataSource.FORTYGUARD_LIVE
+            source = (
+                ThermalDataSource.FORTYGUARD_CACHED
+                if getattr(self._http_client, "last_acquisition_source", "live") != "live"
+                else ThermalDataSource.FORTYGUARD_LIVE
+            )
+            return bundled, source
 
         if mode_value == DataMode.REPLAY.value:
             doc = self.replay.require(fingerprint)

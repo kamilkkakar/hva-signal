@@ -27,6 +27,11 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from app.core.config import Settings, get_settings
 from app.core.hosted_live_policy import HostedLiveDisabledError
+from app.core.postgres_acquisition import (
+    AcquisitionInProgress,
+    AcquisitionNeedsRecovery,
+    AcquisitionStorageUnavailable,
+)
 from app.domain.multicity.city_catalog import resolve_city_aoi
 from app.domain.multicity.live_zone_aggregation import aggregate_cached_live_zones
 from app.domain.multicity.type1_live import (
@@ -333,6 +338,21 @@ def post_selected_time_live(
                     "limit": exc.limit,
                 },
             ) from None
+        except AcquisitionInProgress:
+            raise HTTPException(status_code=409, detail={
+                "code": "bounded_selected_time_in_progress",
+                "message": "Acquisition is still running. No duplicate request was submitted.",
+            }) from None
+        except AcquisitionNeedsRecovery:
+            raise HTTPException(status_code=409, detail={
+                "code": "bounded_selected_time_recovery_required",
+                "message": "A previous acquisition needs reconciliation. No repeat purchase was made.",
+            }) from None
+        except AcquisitionStorageUnavailable:
+            raise HTTPException(status_code=503, detail={
+                "code": "bounded_selected_time_storage_unavailable",
+                "message": "Shared acquisition storage is unavailable. No fallback purchase was made.",
+            }) from None
         except HostedLiveDisabledError:
             # Defense: GENERAL refuse path must never become a paid call.
             return {

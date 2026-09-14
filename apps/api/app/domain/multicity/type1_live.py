@@ -18,6 +18,12 @@ from typing import Any, Callable, Final, Mapping
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 from app.core.config import Settings
+from app.core.postgres_acquisition import (
+    AcquisitionInProgress,
+    AcquisitionNeedsRecovery,
+    AcquisitionStorageUnavailable,
+    store_from_settings,
+)
 from app.core.hosted_live_policy import (
     HostedLiveDisabledError,
     hosted_live_defaults_are_off,
@@ -31,7 +37,7 @@ from app.domain.multicity.city_catalog import (
 )
 from app.domain.signals import ThermalSignalKind
 from app.integrations.fortyguard.adapter import FortyGuardAdapter
-from app.integrations.fortyguard.cache import FortyGuardCache
+from app.integrations.fortyguard.cache import FortyGuardCache, operational_ttl_seconds
 from app.integrations.fortyguard.client import DEFAULT_BASE_URL, FortyGuardHttpClient
 from app.integrations.fortyguard.exceptions import (
     AcquisitionAllowanceExceeded,
@@ -369,6 +375,7 @@ def seed_type1_live_cache(
     *,
     payload: Mapping[str, Any],
     cache: FortyGuardCache | None = None,
+    expires_at: str | None = None,
 ) -> dict[str, Any]:
     parsed = (
         request
@@ -386,7 +393,11 @@ def seed_type1_live_cache(
         "payload": safe_payload,
     }
     active_cache = _default_cache(cache)
-    active_cache.put(preflight["cache_fingerprint"], record)
+    active_cache.put(
+        preflight["cache_fingerprint"], record,
+        ttl_seconds=operational_ttl_seconds(parsed.target_local.date().isoformat()),
+        expires_at=expires_at,
+    )
     return record
 
 
@@ -428,7 +439,10 @@ def construct_bounded_selected_time_http_client(
     kwargs: dict[str, Any] = {"api_key": key, "base_url": base}
     if transport is not None:
         kwargs["transport"] = transport
-    if before_submit is not None:
+    acquisition_store = store_from_settings(settings)
+    if acquisition_store is not None:
+        kwargs["acquisition_store"] = acquisition_store
+    elif before_submit is not None:
         kwargs["before_submit"] = before_submit
     return FortyGuardHttpClient(**kwargs)
 
@@ -495,7 +509,8 @@ def _bounded_selected_time_acquire(
     assembly = None
     try:
         assembly = adapter.fetch_heatmap(heatmap_req)
-    except AcquisitionAllowanceExceeded:
+    except (AcquisitionAllowanceExceeded, AcquisitionInProgress,
+            AcquisitionNeedsRecovery, AcquisitionStorageUnavailable):
         raise
     except Exception as exc:  # noqa: BLE001 — sanitize; never leak secrets
         return {
@@ -519,7 +534,11 @@ def _bounded_selected_time_acquire(
         if hasattr(assembly.source, "value")
         else str(assembly.source)
     )
-    from_vendor_cache = source_value == ThermalDataSource.FORTYGUARD_CACHED.value
+    submissions = getattr(client, "submission_count", None)
+    from_vendor_cache = (
+        submissions == 0 if isinstance(submissions, int)
+        else source_value == ThermalDataSource.FORTYGUARD_CACHED.value
+    )
     vendor_cache_hit = adapter.cache.get(assembly.fingerprint)
     raw_payload = vendor_cache_hit[0] if vendor_cache_hit else {}
     if not isinstance(raw_payload, dict):
@@ -534,12 +553,18 @@ def _bounded_selected_time_acquire(
         "adapter_fingerprint": assembly.fingerprint,
         "contract": "BOUNDED_SELECTED_TIME_LIVE_V1",
     }
-    seeded = seed_type1_live_cache(parsed, payload=record_payload, cache=cache)
+    seeded = seed_type1_live_cache(
+        parsed, payload=record_payload, cache=cache,
+        expires_at=raw_payload.get("_hva_expires_at"),
+    )
     if from_vendor_cache:
         return {
             "status": "cache_hit",
             "vendor_attempted": False,
-            "cache_tier": "vendor_disk",
+            "cache_tier": (
+                "durable" if getattr(client, "last_acquisition_source", "live") != "live"
+                else "vendor_disk"
+            ),
             "preflight": preflight,
             "result": _sanitize_public_payload(seeded),
         }
