@@ -17,6 +17,8 @@ Thermal data comes from FortyGuard; geography and context use Census, ACS and ca
 
 Results describe thermal conditions. They do not establish health-risk probabilities, forecasts or intervention effectiveness. Zone rankings are withheld when the evidence does not support them.
 
+The hosted demo uses Free compute and may take about a minute to wake.
+
 ## Run locally
 
 Requires Python 3.12+ and Node.js 22.
