@@ -1,7 +1,7 @@
 # Deployment
 
 The Render Blueprint is `infra/render.yaml`; root `render.yaml` must match it.
-The API uses Free compute and can sleep. The web service uses `0.5c-512mb`.
+Both services use Free compute and may take about a minute to wake after inactivity.
 The web proxy connects to the API's public HTTPS URL. Published analysis uses
 `DATA_MODE=replay`; the bounded selected-time endpoint reads its FortyGuard
 credential from the server environment.
