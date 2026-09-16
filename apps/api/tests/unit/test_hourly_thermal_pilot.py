@@ -179,6 +179,51 @@ def test_ambiguous_prior_attempt_cannot_be_retried(tmp_path: Path) -> None:
         )
 
 
+@pytest.mark.parametrize("operation", ["fsync", "replace"])
+def test_failed_attempt_update_preserves_retry_guard(
+    tmp_path: Path, monkeypatch, operation: str,
+) -> None:
+    runner = _runner()
+    resolved = load_phoenix_hourly_thermal_pilot_manifest(root=ROOT)
+    slot = next(slot for slot in resolved.manifest.slots if slot.phase == "canary")
+    attempt = runner._slot_dir(tmp_path, slot) / "attempt.json"
+    runner._write_json(attempt, {"vendor_attempted": True, "status": "in_progress"})
+    original = attempt.read_bytes()
+
+    def interrupted(*args):
+        raise OSError("interrupted state write")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(runner.os, operation, interrupted)
+        with pytest.raises(OSError, match="interrupted state write"):
+            runner._write_json(attempt, {"vendor_attempted": True, "status": "failed"})
+
+    assert attempt.read_bytes() == original
+    assert list(attempt.parent.iterdir()) == [attempt]
+    with pytest.raises(runner.PilotExecutionError, match="prior vendor attempt"):
+        runner._execute_slot(
+            resolved=resolved, slot=slot, state_dir=tmp_path,
+            credential=("TEST", "not-a-real-key", "https://invalid.example"),
+        )
+
+
+def test_attempt_replacement_exposes_only_complete_records(tmp_path: Path, monkeypatch) -> None:
+    runner = _runner()
+    path = tmp_path / "attempt.json"
+    runner._write_json(path, {"status": "prepared"})
+    replace = runner.os.replace
+
+    def inspect_then_replace(source, destination):
+        assert json.loads(path.read_text()) == {"status": "prepared"}
+        assert json.loads(Path(source).read_text()) == {"vendor_attempted": True}
+        replace(source, destination)
+
+    monkeypatch.setattr(runner.os, "replace", inspect_then_replace)
+    runner._write_json(path, {"vendor_attempted": True})
+    assert json.loads(path.read_text()) == {"vendor_attempted": True}
+    assert list(tmp_path.iterdir()) == [path]
+
+
 def _fake_assembly(*, temperature_offset: float = 0.0, filter_type: int = 1):
     coverage = load_phoenix_expected_tile_coverage_evidence(ROOT).evidence
     resolved = load_phoenix_hourly_thermal_pilot_manifest(root=ROOT)
