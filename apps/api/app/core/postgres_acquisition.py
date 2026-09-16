@@ -29,6 +29,10 @@ class AcquisitionStorageUnavailable(RuntimeError):
     """Durability was configured but cannot be established."""
 
 
+class AcquisitionIdentityMismatch(RuntimeError):
+    """A caller-supplied durable identity does not match its saved request."""
+
+
 def _lock_key(value: str) -> int:
     return int.from_bytes(hashlib.sha256(value.encode()).digest()[:8], "big", signed=True)
 
@@ -61,8 +65,17 @@ class PostgresAcquisitionStore:
     def run(
         self, path: str, payload: dict[str, Any], *,
         submit: Callable[[], str], poll: Callable[[str], dict[str, Any]],
+        request_fingerprint: str | None = None,
     ) -> tuple[dict[str, Any], str]:
-        fingerprint = acquisition_fingerprint(path, payload)
+        fingerprint = request_fingerprint or acquisition_fingerprint(path, payload)
+        if (
+            len(fingerprint) != 64
+            or any(character not in "0123456789abcdef" for character in fingerprint)
+        ):
+            raise AcquisitionIdentityMismatch(
+                "Durable acquisition fingerprint must be a lowercase SHA-256 digest."
+            )
+        request_document = redact_secrets({"path": path, "payload": payload})
         try:
             with self._connect() as conn:
                 locked = conn.execute(
@@ -72,19 +85,33 @@ class PostgresAcquisitionStore:
                 if not locked:
                     raise AcquisitionInProgress("Acquisition is running. No duplicate was submitted.")
                 # Closing this dedicated connection releases its session lock even on failure.
-                return self._run_locked(conn, fingerprint, path, payload, submit, poll)
+                return self._run_locked(
+                    conn,
+                    fingerprint,
+                    path,
+                    payload,
+                    request_document,
+                    submit,
+                    poll,
+                )
         except psycopg.Error:
             raise AcquisitionStorageUnavailable(
                 "Shared acquisition storage is unavailable. No fallback purchase is allowed."
             ) from None
 
-    def _run_locked(self, conn, fingerprint, path, payload, submit, poll):
+    def _run_locked(
+        self, conn, fingerprint, path, payload, request_document, submit, poll,
+    ):
         row = conn.execute(
             """SELECT *, expires_at IS NOT NULL AND expires_at <= clock_timestamp() AS expired
                FROM hva_acquisitions WHERE scope = %s AND fingerprint = %s
                ORDER BY generation DESC LIMIT 1""",
             (self.scope, fingerprint),
         ).fetchone()
+        if row and row["request_payload"] != request_document:
+            raise AcquisitionIdentityMismatch(
+                "Saved acquisition fingerprint belongs to a different request."
+            )
         if row and row["state"] == Phase.RESULT_RECEIVED.value and not row["expired"]:
             return self._with_expiry(row["result_payload"], row["expires_at"]), "durable_replay"
         if row and row["state"] in {Phase.SUBMITTING.value, Phase.UNKNOWN_VENDOR_STATE.value}:
@@ -113,7 +140,7 @@ class PostgresAcquisitionStore:
                        (scope, fingerprint, generation, reservation_id, reserved_day, request_payload, state)
                        VALUES (%s, %s, %s, %s, %s, %s, %s)""",
                     (self.scope, fingerprint, generation, uuid4(), day,
-                     Jsonb(redact_secrets({"path": path, "payload": payload})), Phase.SUBMITTING.value),
+                     Jsonb(request_document), Phase.SUBMITTING.value),
                 )
             # Commit SUBMITTING and its reservation BEFORE the network can accept the POST.
             try:

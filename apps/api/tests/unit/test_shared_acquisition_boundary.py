@@ -10,8 +10,8 @@ from fastapi import HTTPException
 from app.api.routes import bounded_selected_time_live as route
 from app.core.config import Settings
 from app.core.postgres_acquisition import (
-    AcquisitionInProgress, AcquisitionNeedsRecovery, AcquisitionStorageUnavailable,
-    PostgresAcquisitionStore, store_from_settings,
+    AcquisitionIdentityMismatch, AcquisitionInProgress, AcquisitionNeedsRecovery,
+    AcquisitionStorageUnavailable, PostgresAcquisitionStore, store_from_settings,
 )
 from app.domain.multicity.type1_live import construct_bounded_selected_time_http_client
 from app.integrations.fortyguard.client import FortyGuardHttpClient
@@ -55,6 +55,19 @@ def test_database_outage_never_invokes_submit():
     submit = Mock()
     with pytest.raises(AcquisitionStorageUnavailable):
         store.run("/v1/heatmap", {}, submit=submit, poll=Mock())
+    submit.assert_not_called()
+
+
+def test_invalid_caller_supplied_fingerprint_never_opens_database_or_submits():
+    store = PostgresAcquisitionStore(
+        "postgresql://localhost:1/unavailable", scope="test", daily_limit=1,
+    )
+    submit = Mock()
+    with pytest.raises(AcquisitionIdentityMismatch):
+        store.run(
+            "/v1/heatmap", {}, request_fingerprint="not-a-sha", submit=submit,
+            poll=Mock(),
+        )
     submit.assert_not_called()
 
 

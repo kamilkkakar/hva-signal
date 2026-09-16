@@ -11,10 +11,18 @@ import httpx
 import pytest
 
 from app.core.postgres_acquisition import (
-    AcquisitionInProgress, AcquisitionNeedsRecovery, AcquisitionStorageUnavailable,
-    PostgresAcquisitionStore,
+    AcquisitionIdentityMismatch, AcquisitionInProgress, AcquisitionNeedsRecovery,
+    AcquisitionStorageUnavailable, PostgresAcquisitionStore,
+)
+from app.core.hourly_thermal_pilot_registry import (
+    CANARY_SLOT_ID,
+    load_phoenix_hourly_thermal_pilot_manifest,
 )
 from app.integrations.fortyguard.exceptions import AcquisitionAllowanceExceeded, TaskFailedError
+from app.services.hourly_pilot_acquisition import (
+    prepare_hourly_pilot_canary,
+    run_hourly_pilot_canary,
+)
 
 
 PAYLOAD = {"date_time": {"start_date": "2024-07-08", "start_time": "03:00"}}
@@ -42,6 +50,120 @@ def run(store, payload=None, submit=None, poll=None):
 
 def forbidden(*_):
     pytest.fail("An existing acquisition must not purchase again")
+
+
+def _resolved_canary():
+    resolved = load_phoenix_hourly_thermal_pilot_manifest()
+    return resolved, prepare_hourly_pilot_canary(resolved, CANARY_SLOT_ID)
+
+
+def test_hourly_canary_replays_by_manifest_fingerprint_after_restart(store):
+    resolved, prepared = _resolved_canary()
+    first, source = run_hourly_pilot_canary(
+        resolved,
+        slot_id=CANARY_SLOT_ID,
+        store=store,
+        submit=lambda: "pilot-activity",
+        poll=lambda _: RESULT,
+    )
+    assert source == "live"
+    with store._connect() as conn:
+        saved = conn.execute(
+            "SELECT fingerprint, request_payload FROM hva_acquisitions WHERE scope = %s",
+            (store.scope,),
+        ).fetchone()
+    assert saved["fingerprint"] == prepared.request_fingerprint
+    assert saved["request_payload"]["payload"] == prepared.payload
+
+    fresh = PostgresAcquisitionStore(store._dsn, scope=store.scope, daily_limit=0)
+    assert run_hourly_pilot_canary(
+        resolved,
+        slot_id=CANARY_SLOT_ID,
+        store=fresh,
+        submit=forbidden,
+        poll=forbidden,
+    ) == (first, "durable_replay")
+
+
+def test_hourly_canary_concurrent_session_cannot_duplicate(store):
+    resolved, _prepared = _resolved_canary()
+    entered, release = Event(), Event()
+
+    def submit():
+        entered.set()
+        assert release.wait(10)
+        return "pilot-activity"
+
+    with ThreadPoolExecutor(1) as pool:
+        owner = pool.submit(
+            run_hourly_pilot_canary,
+            resolved,
+            slot_id=CANARY_SLOT_ID,
+            store=store,
+            submit=submit,
+            poll=lambda _: RESULT,
+        )
+        try:
+            assert entered.wait(10)
+            other = PostgresAcquisitionStore(
+                store._dsn, scope=store.scope, daily_limit=1,
+            )
+            with pytest.raises(AcquisitionInProgress):
+                run_hourly_pilot_canary(
+                    resolved,
+                    slot_id=CANARY_SLOT_ID,
+                    store=other,
+                    submit=forbidden,
+                    poll=forbidden,
+                )
+        finally:
+            release.set()
+        assert owner.result(timeout=10)[1] == "live"
+
+
+def test_hourly_canary_ambiguous_submission_is_held_across_restart(store):
+    resolved, _prepared = _resolved_canary()
+
+    def lost_response():
+        raise httpx.ReadTimeout("The vendor may have accepted the pilot POST")
+
+    with pytest.raises(httpx.ReadTimeout):
+        run_hourly_pilot_canary(
+            resolved,
+            slot_id=CANARY_SLOT_ID,
+            store=store,
+            submit=lost_response,
+            poll=forbidden,
+        )
+    fresh = PostgresAcquisitionStore(store._dsn, scope=store.scope, daily_limit=100)
+    with pytest.raises(AcquisitionNeedsRecovery):
+        run_hourly_pilot_canary(
+            resolved,
+            slot_id=CANARY_SLOT_ID,
+            store=fresh,
+            submit=forbidden,
+            poll=forbidden,
+        )
+
+
+def test_manifest_fingerprint_cannot_be_reused_for_altered_pilot_payload(store):
+    resolved, prepared = _resolved_canary()
+    run_hourly_pilot_canary(
+        resolved,
+        slot_id=CANARY_SLOT_ID,
+        store=store,
+        submit=lambda: "pilot-activity",
+        poll=lambda _: RESULT,
+    )
+    altered = {**prepared.payload, "granularity": 80}
+    with pytest.raises(AcquisitionIdentityMismatch):
+        store.run(
+            prepared.path,
+            altered,
+            request_fingerprint=prepared.request_fingerprint,
+            submit=forbidden,
+            poll=forbidden,
+        )
 
 
 def test_replay_survives_new_store_with_zero_allowance(store):
