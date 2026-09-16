@@ -114,3 +114,13 @@ def test_unknown_slot_is_rejected() -> None:
     )
     assert response.status_code == 404
     assert response.json()["detail"]["code"] == "hourly_pilot_slot_not_found"
+
+
+def test_batch_slot_is_blocked_until_canary_completion() -> None:
+    response = _client().post(
+        URL,
+        json={**BODY, "slot_id": "2024-07-15T04:00"},
+        headers=_headers(),
+    )
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "hourly_pilot_canary_required"

@@ -18,7 +18,10 @@ from app.core.hourly_thermal_pilot_registry import (
     CANARY_SLOT_ID,
     HourlyThermalPilotRegistryError,
     load_phoenix_hourly_thermal_pilot_manifest,
-    request_for_hourly_pilot_slot,
+)
+from app.services.hourly_pilot_acquisition import (
+    HourlyPilotAcquisitionError,
+    prepare_hourly_pilot_canary,
 )
 
 router = APIRouter(prefix="/internal/v1", tags=["hourly-pilot-internal"])
@@ -109,7 +112,13 @@ async def post_hourly_pilot_slot_contract(request: Request) -> dict[str, Any]:
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"code": "hourly_pilot_slot_not_found"},
         )
-    request_for_hourly_pilot_slot(resolved, slot)
+    try:
+        prepared = prepare_hourly_pilot_canary(resolved, slot.slot_id)
+    except HourlyPilotAcquisitionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"code": "hourly_pilot_canary_required"},
+        ) from exc
     return {
         "status": "slot_contract_verified",
         "manifest_sha256": resolved.sha256,
@@ -117,7 +126,7 @@ async def post_hourly_pilot_slot_contract(request: Request) -> dict[str, Any]:
         "slot_id": slot.slot_id,
         "phase": slot.phase,
         "ordinal": slot.ordinal,
-        "request_fingerprint": slot.request_fingerprint,
+        "request_fingerprint": prepared.request_fingerprint,
         "canary_slot_id": CANARY_SLOT_ID,
         "vendor_attempted": False,
         "reservation_created": False,
