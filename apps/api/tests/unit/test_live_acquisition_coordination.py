@@ -163,6 +163,9 @@ def test_unknown_submission_outcome_keeps_reservation(acquisition):
     assert response.status_code == 200
     assert response.json()["status"] == "acquisition_unavailable"
     assert response.json()["provenance"]["vendor_attempted"] is True
+    assert response.json()["provenance"]["vendor_submission_attempted"] is True
+    assert response.json()["provenance"]["vendor_poll_attempted"] is False
+    assert response.json()["provenance"]["failure_phase"] == "submission"
     assert post(4).status_code == 429
     assert calls == ["POST"]
     assert route._daily_counts[route._day_key(settings)] == 1

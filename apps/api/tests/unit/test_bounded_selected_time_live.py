@@ -8,6 +8,7 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
+from app.api.routes import bounded_selected_time_live as bounded_route
 from app.core.config import Settings, get_settings
 from app.core.hosted_live_policy import (
     HostedLiveDisabledError,
@@ -21,6 +22,7 @@ from app.domain.multicity.type1_live import (
     run_type1_live,
     seed_type1_live_cache,
 )
+from app.domain.multicity import type1_live as type1_live_module
 from app.integrations.fortyguard.cache import FortyGuardCache
 from app.integrations.fortyguard.client import FortyGuardHttpClient
 from app.integrations.fortyguard.exceptions import MissingApiKeyError
@@ -282,6 +284,93 @@ def test_run_type1_live_bounded_auth_acquires_with_mock_transport(
     assert second["status"] == "cache_hit"
     assert second["vendor_attempted"] is False
     assert calls["post"] == 1
+
+
+def test_saved_activity_poll_failure_is_not_reported_as_submission(
+    monkeypatch: pytest.MonkeyPatch, tmp_path,
+) -> None:
+    class SavedActivityStore:
+        def run(self, _path, _payload, *, submit, poll):
+            del submit
+            return poll("saved-activity-id"), "durable_resume"
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.method == "GET"
+        assert request.url.path == "/v1/status/saved-activity-id"
+        raise httpx.ReadTimeout("sanitized recovery failure", request=request)
+
+    monkeypatch.setattr(
+        type1_live_module, "store_from_settings", lambda _settings: SavedActivityStore()
+    )
+    settings = Settings.model_construct(
+        bounded_selected_time_live_enabled=True,
+        fortyguard_api_key=SECRET_VALUE,
+        fortyguard_base_url="https://api.fortyguard.com",
+        cache_dir=str(tmp_path / "cache"),
+    )
+    result = run_type1_live(
+        Type1LiveClientRequest(
+            city="Los Angeles",
+            target_local=datetime(2024, 7, 8, 3, 0, 0),
+        ),
+        cache=FortyGuardCache(tmp_path / "type1"),
+        settings=settings,
+        bounded_selected_time_authorized=True,
+        vendor_transport=httpx.MockTransport(handler),
+        poll_interval=0.0,
+        poll_timeout=1.0,
+    )
+
+    assert result["status"] == "acquisition_unavailable"
+    assert result["vendor_attempted"] is True
+    assert result["vendor_submission_attempted"] is False
+    assert result["vendor_poll_attempted"] is True
+    assert result["failure_phase"] == "saved_activity_poll"
+    assert "error_type=ReadTimeout" in result["message"]
+    assert SECRET_VALUE not in str(result)
+
+
+def test_route_exposes_sanitized_saved_activity_recovery_failure(
+    monkeypatch: pytest.MonkeyPatch, tmp_path,
+) -> None:
+    settings = Settings.model_construct(
+        app_env="diagnostic-test",
+        bounded_selected_time_live_enabled=True,
+        bounded_selected_time_daily_limit=1,
+        fortyguard_api_key=SECRET_VALUE,
+        fortyguard_base_url="https://api.fortyguard.com",
+        cache_dir=str(tmp_path / "cache"),
+    )
+    monkeypatch.setattr(bounded_route, "get_settings", lambda: settings)
+    monkeypatch.setattr(
+        bounded_route,
+        "run_type1_live",
+        lambda *_args, **_kwargs: {
+            "status": "acquisition_unavailable",
+            "vendor_attempted": True,
+            "vendor_submission_attempted": False,
+            "vendor_poll_attempted": True,
+            "failure_phase": "saved_activity_poll",
+            "message": "Bounded live acquisition failed. error_type=ReadTimeout",
+        },
+    )
+    monkeypatch.setattr(bounded_route, "_inflight", {})
+
+    response = TestClient(app).post(
+        "/api/v1/live/selected-time",
+        json={"city_id": "los-angeles", "local_datetime": "2024-07-08T03:00:00"},
+    )
+    assert response.status_code == 200
+    provenance = response.json()["provenance"]
+    assert provenance == {
+        "acquisition_language": "saved_activity_recovery",
+        "vendor_attempted": True,
+        "vendor_submission_attempted": False,
+        "vendor_poll_attempted": True,
+        "failure_phase": "saved_activity_poll",
+        "contract": "BOUNDED_SELECTED_TIME_LIVE_V1",
+    }
+    assert SECRET_VALUE not in response.text
 
 
 def test_run_type1_live_vendor_disk_cache_hit_zero_http(

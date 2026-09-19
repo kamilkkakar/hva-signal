@@ -57,6 +57,7 @@ class FortyGuardHttpClient:
         self._acquisition_store = acquisition_store
         self.last_acquisition_source = "live"
         self.submission_count = 0
+        self.status_lookup_count = 0
 
     def close(self) -> None:
         self._client.close()
@@ -101,6 +102,7 @@ class FortyGuardHttpClient:
         return activity_id
 
     def get_status(self, activity_id: str) -> dict[str, Any]:
+        self.status_lookup_count += 1
         path = f"/v1/status/{activity_id}"
         resp = self._client.get(path)
         if resp.status_code == 404:

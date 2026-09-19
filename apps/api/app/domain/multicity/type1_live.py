@@ -513,9 +513,22 @@ def _bounded_selected_time_acquire(
             AcquisitionNeedsRecovery, AcquisitionStorageUnavailable):
         raise
     except Exception as exc:  # noqa: BLE001 — sanitize; never leak secrets
+        submission_attempted = bool(getattr(client, "submission_count", 0))
+        poll_attempted = bool(getattr(client, "status_lookup_count", 0))
+        if poll_attempted and not submission_attempted:
+            failure_phase = "saved_activity_poll"
+        elif poll_attempted:
+            failure_phase = "post_submission_poll"
+        elif submission_attempted:
+            failure_phase = "submission"
+        else:
+            failure_phase = "pre_vendor"
         return {
             "status": "acquisition_unavailable",
-            "vendor_attempted": True,
+            "vendor_attempted": submission_attempted or poll_attempted,
+            "vendor_submission_attempted": submission_attempted,
+            "vendor_poll_attempted": poll_attempted,
+            "failure_phase": failure_phase,
             "message": (
                 "Bounded live acquisition failed. No secret material is returned. "
                 f"error_type={type(exc).__name__}"
@@ -535,6 +548,9 @@ def _bounded_selected_time_acquire(
         else str(assembly.source)
     )
     submissions = getattr(client, "submission_count", None)
+    status_lookups = getattr(client, "status_lookup_count", None)
+    submission_attempted = bool(submissions) if isinstance(submissions, int) else False
+    poll_attempted = bool(status_lookups) if isinstance(status_lookups, int) else False
     from_vendor_cache = (
         submissions == 0 if isinstance(submissions, int)
         else source_value == ThermalDataSource.FORTYGUARD_CACHED.value
@@ -560,7 +576,9 @@ def _bounded_selected_time_acquire(
     if from_vendor_cache:
         return {
             "status": "cache_hit",
-            "vendor_attempted": False,
+            "vendor_attempted": submission_attempted or poll_attempted,
+            "vendor_submission_attempted": submission_attempted,
+            "vendor_poll_attempted": poll_attempted,
             "cache_tier": (
                 "durable" if getattr(client, "last_acquisition_source", "live") != "live"
                 else "vendor_disk"
@@ -571,6 +589,8 @@ def _bounded_selected_time_acquire(
     return {
         "status": "live_acquired",
         "vendor_attempted": True,
+        "vendor_submission_attempted": submission_attempted,
+        "vendor_poll_attempted": poll_attempted,
         "cache_tier": None,
         "preflight": preflight,
         "result": _sanitize_public_payload(seeded),

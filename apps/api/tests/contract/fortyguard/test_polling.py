@@ -56,6 +56,7 @@ def test_client_get_status_404_is_not_ready() -> None:
         client.get_status("act-1")
     body = client.get_status("act-1")
     assert body["status"] == "succeeded"
+    assert client.status_lookup_count == 2
 
 
 def test_submit_and_wait_retries_404_via_httpx() -> None:
