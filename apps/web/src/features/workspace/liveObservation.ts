@@ -17,6 +17,9 @@ export type LiveObservationResponse = {
   provenance?: {
     acquisition_language?: string;
     vendor_attempted?: boolean;
+    vendor_submission_attempted?: boolean;
+    vendor_poll_attempted?: boolean;
+    failure_phase?: string;
     cache_tier?: string | null;
     contract?: string;
   };
@@ -107,7 +110,8 @@ export function acceptLiveObservation(
     throw new Error("The response contains inconsistent temperature coverage.");
   }
   const acquisition = body.provenance?.acquisition_language;
-  if (acquisition !== "cache_hit" && acquisition !== "live_acquisition") {
+  if (acquisition !== "cache_hit" && acquisition !== "live_acquisition" &&
+      acquisition !== "saved_activity_recovery") {
     throw new Error("The response is missing its acquisition provenance.");
   }
   return {
