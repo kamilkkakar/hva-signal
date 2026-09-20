@@ -136,17 +136,21 @@ def _gate_open(settings: Settings) -> bool:
 def _public_result(raw: dict[str, Any]) -> dict[str, Any]:
     status_value = str(raw.get("status", "unknown"))
     vendor_attempted = bool(raw.get("vendor_attempted", False))
+    submission_attempted = bool(raw.get("vendor_submission_attempted", False))
+    poll_attempted = bool(raw.get("vendor_poll_attempted", False))
+    if poll_attempted and not submission_attempted:
+        acquisition_language = "saved_activity_recovery"
+    elif submission_attempted:
+        acquisition_language = "live_acquisition"
+    elif status_value == "cache_hit":
+        acquisition_language = "cache_hit"
+    else:
+        acquisition_language = "no_vendor_call"
     provenance = {
-        "acquisition_language": (
-            "live_acquisition"
-            if vendor_attempted and status_value == "live_acquired"
-            else (
-                "cache_hit"
-                if status_value == "cache_hit"
-                else "no_vendor_call"
-            )
-        ),
+        "acquisition_language": acquisition_language,
         "vendor_attempted": vendor_attempted,
+        "vendor_submission_attempted": submission_attempted,
+        "vendor_poll_attempted": poll_attempted,
         "cache_tier": raw.get("cache_tier"),
         "contract": "BOUNDED_SELECTED_TIME_LIVE_V1",
     }
@@ -157,7 +161,11 @@ def _public_result(raw: dict[str, Any]) -> dict[str, Any]:
     }
     if status_value == "cache_hit":
         body["result"] = raw.get("result")
-        body["message"] = "Served from server cache. No live FortyGuard acquisition."
+        body["message"] = (
+            "Recovered a saved FortyGuard activity without a new submission."
+            if acquisition_language == "saved_activity_recovery"
+            else "Served from server cache. No live FortyGuard acquisition."
+        )
     elif status_value == "live_acquired":
         body["result"] = raw.get("result")
         body["message"] = (
@@ -374,14 +382,23 @@ def post_selected_time_live(
     raw = _with_single_flight(flight_key, _run)
 
     if raw.get("status") == "acquisition_unavailable":
+        submission_attempted = bool(raw.get("vendor_submission_attempted", False))
+        poll_attempted = bool(raw.get("vendor_poll_attempted", False))
+        if poll_attempted and not submission_attempted:
+            acquisition_language = "saved_activity_recovery"
+        elif submission_attempted:
+            acquisition_language = "live_acquisition"
+        else:
+            acquisition_language = "no_vendor_call"
         return {
             "status": "acquisition_unavailable",
             "capability": "selected_time_thermal",
             "provenance": {
-                "acquisition_language": "no_vendor_call"
-                if not raw.get("vendor_attempted")
-                else "live_acquisition",
+                "acquisition_language": acquisition_language,
                 "vendor_attempted": bool(raw.get("vendor_attempted")),
+                "vendor_submission_attempted": submission_attempted,
+                "vendor_poll_attempted": poll_attempted,
+                "failure_phase": raw.get("failure_phase", "pre_vendor"),
                 "contract": "BOUNDED_SELECTED_TIME_LIVE_V1",
             },
             "message": raw.get("message"),

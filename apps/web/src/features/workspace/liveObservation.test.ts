@@ -33,6 +33,17 @@ describe("live observation identity", () => {
     expect(accepted.partial).toBe(false);
   });
 
+  it("accepts a recovered saved activity as a cached result", () => {
+    const body = populated();
+    body.provenance!.acquisition_language = "saved_activity_recovery";
+    body.provenance!.vendor_attempted = true;
+    body.provenance!.vendor_submission_attempted = false;
+    body.provenance!.vendor_poll_attempted = true;
+    const accepted = acceptLiveObservation(body, request);
+    expect(accepted.source).toBe("fortyguard_cached");
+    expect(liveObservationLabel(accepted)).toContain("Cached live result");
+  });
+
   it.each([
     ["city", "Tucson"], ["local_datetime", "2024-07-08T15:00:00"],
     ["timezone", "UTC"], ["aggregation_contract", "daily_aggregate"],
