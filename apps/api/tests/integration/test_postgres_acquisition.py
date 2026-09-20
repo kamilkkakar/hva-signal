@@ -9,6 +9,7 @@ from uuid import uuid4
 
 import httpx
 import pytest
+from psycopg.types.json import Jsonb
 
 from app.core.postgres_acquisition import (
     AcquisitionIdentityMismatch, AcquisitionInProgress, AcquisitionNeedsRecovery,
@@ -164,6 +165,45 @@ def test_manifest_fingerprint_cannot_be_reused_for_altered_pilot_payload(store):
             submit=forbidden,
             poll=forbidden,
         )
+
+
+def test_manifest_fingerprint_cannot_be_reused_for_altered_pilot_path(store):
+    resolved, prepared = _resolved_canary()
+    run_hourly_pilot_canary(
+        resolved,
+        slot_id=CANARY_SLOT_ID,
+        store=store,
+        submit=lambda: "pilot-activity",
+        poll=lambda _: RESULT,
+    )
+    with pytest.raises(AcquisitionIdentityMismatch):
+        store.run(
+            "/v1/other-heatmap",
+            prepared.payload,
+            request_fingerprint=prepared.request_fingerprint,
+            submit=forbidden,
+            poll=forbidden,
+        )
+
+
+def test_import_provenance_metadata_does_not_change_saved_identity(store):
+    first, source = run(store)
+    assert source == "live"
+    provenance = {
+        "imported_from": "retained acquisition provenance",
+        "original_acquired_at": "2026-08-31T18:17:42.223899+00:00",
+        "reserved_day_estimated": False,
+    }
+    with store._connect() as conn:
+        conn.execute(
+            """UPDATE hva_acquisitions
+               SET request_payload = request_payload || %s
+               WHERE scope = %s""",
+            (Jsonb(provenance), store.scope),
+        )
+
+    fresh = PostgresAcquisitionStore(store._dsn, scope=store.scope, daily_limit=0)
+    assert run(fresh, submit=forbidden, poll=forbidden) == (first, "durable_replay")
 
 
 def test_replay_survives_new_store_with_zero_allowance(store):
