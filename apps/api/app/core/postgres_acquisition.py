@@ -42,6 +42,13 @@ def acquisition_fingerprint(path: str, payload: dict[str, Any]) -> str:
     return hashlib.sha256(encoded.encode()).hexdigest()
 
 
+def _saved_request_identity(document: Any) -> dict[str, Any] | None:
+    """Extract only the fields that define a durable acquisition request."""
+    if not isinstance(document, dict) or "path" not in document or "payload" not in document:
+        return None
+    return {"path": document["path"], "payload": document["payload"]}
+
+
 class PostgresAcquisitionStore:
     def __init__(self, dsn: str, *, scope: str, daily_limit: int) -> None:
         if not dsn.strip() or not scope.strip():
@@ -108,7 +115,7 @@ class PostgresAcquisitionStore:
                ORDER BY generation DESC LIMIT 1""",
             (self.scope, fingerprint),
         ).fetchone()
-        if row and row["request_payload"] != request_document:
+        if row and _saved_request_identity(row["request_payload"]) != request_document:
             raise AcquisitionIdentityMismatch(
                 "Saved acquisition fingerprint belongs to a different request."
             )

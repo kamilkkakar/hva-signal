@@ -8,6 +8,7 @@ import pytest
 from fastapi import HTTPException
 
 from app.api.routes import bounded_selected_time_live as route
+from app.core import postgres_acquisition
 from app.core.config import Settings
 from app.core.postgres_acquisition import (
     AcquisitionIdentityMismatch, AcquisitionInProgress, AcquisitionNeedsRecovery,
@@ -69,6 +70,26 @@ def test_invalid_caller_supplied_fingerprint_never_opens_database_or_submits():
             poll=Mock(),
         )
     submit.assert_not_called()
+
+
+def test_saved_request_identity_ignores_only_top_level_import_metadata():
+    payload = {"date_time": {"start_date": "2024-07-08", "start_time": "03:00"}}
+    saved = {
+        "path": "/v1/heatmap",
+        "payload": payload,
+        "imported_from": "retained acquisition provenance",
+        "original_acquired_at": "2026-08-31T18:17:42.223899+00:00",
+        "reserved_day_estimated": False,
+    }
+
+    assert postgres_acquisition._saved_request_identity(saved) == {
+        "path": "/v1/heatmap", "payload": payload,
+    }
+
+
+@pytest.mark.parametrize("saved", [None, {}, {"path": "/v1/heatmap"}, {"payload": {}}])
+def test_saved_request_identity_rejects_malformed_documents(saved):
+    assert postgres_acquisition._saved_request_identity(saved) is None
 
 
 @pytest.mark.parametrize("activity_id", [None, "", " ", False, 0])
