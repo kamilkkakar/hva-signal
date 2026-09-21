@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { CITIES, cityConfig, type CityId, type ObservationMode } from "./types";
+import { cityConfig, type CityConfig, type CityId, type ObservationMode } from "./types";
 
 type CityControlsProps = {
   cityId: CityId;
+  cities: readonly CityConfig[];
   onCityChange: (id: CityId) => void;
   observationMode: ObservationMode;
   onObservationModeChange: (mode: ObservationMode) => void;
@@ -18,13 +19,14 @@ type CityControlsProps = {
   liveAvailable?: boolean;
 };
 
-function cityDisplay(id: CityId): string {
-  const city = cityConfig(id);
+function cityDisplay(id: CityId, cities: readonly CityConfig[]): string {
+  const city = cityConfig(id, cities);
   return `${city.label}, ${city.state}`;
 }
 
 export function CityControls({
   cityId,
+  cities,
   onCityChange,
   observationMode,
   onObservationModeChange,
@@ -38,16 +40,16 @@ export function CityControls({
   provenanceLine,
   liveAvailable = false,
 }: CityControlsProps) {
-  const [liveCityQuery, setLiveCityQuery] = useState(cityDisplay(cityId));
+  const [liveCityQuery, setLiveCityQuery] = useState(cityDisplay(cityId, cities));
 
   useEffect(() => {
-    setLiveCityQuery(cityDisplay(cityId));
-  }, [cityId]);
+    setLiveCityQuery(cityDisplay(cityId, cities));
+  }, [cityId, cities]);
 
   const updateLiveCity = (value: string) => {
     setLiveCityQuery(value);
     const normalized = value.trim().toLowerCase();
-    const match = CITIES.find(
+    const match = cities.find(
       (item) =>
         `${item.label}, ${item.state}`.toLowerCase() === normalized ||
         item.label.toLowerCase() === normalized,
@@ -65,7 +67,7 @@ export function CityControls({
             aria-label="Select city"
             onChange={(e) => onCityChange(e.target.value as CityId)}
           >
-            {CITIES.map((city) => (
+            {cities.map((city) => (
               <option key={city.id} value={city.id}>
                 {city.label}, {city.state}
               </option>
@@ -124,7 +126,7 @@ export function CityControls({
                 data-testid="live-city-search"
               />
               <datalist id="hva-live-supported-cities">
-                {CITIES.map((item) => (
+                {cities.map((item) => (
                   <option key={item.id} value={`${item.label}, ${item.state}`} />
                 ))}
               </datalist>
@@ -158,7 +160,7 @@ export function CityControls({
               {liveRunning ? "Running…" : !liveReady ? "Loading city…" : "Run observation"}
             </button>
             <p className="ws-live-scope" data-testid="live-scope-note">
-              Live fetches selected-time TCM for the four supported city geographies. Context stays
+              Live fetches selected-time TCM only where the server catalog marks the city ready. Context stays
               joined to the same tract from published reference layers (tree canopy 2021; ACS
               2020–2024) and is not timestamp-matched.
             </p>

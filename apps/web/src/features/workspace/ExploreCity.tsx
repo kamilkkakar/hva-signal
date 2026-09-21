@@ -53,12 +53,13 @@ import {
 } from "./outlookEngine";
 import { type HvaStage } from "./HvaStoryRail";
 import {
-  CITIES,
   cityConfig,
+  type CityConfig,
   type CityId,
   type ObservationMode,
   type ZoneInfo,
 } from "./types";
+import { supportsSelectedTimeLive } from "./cityCatalog";
 import {
   CityEvidenceSections,
   cityEvidenceCapabilities,
@@ -140,11 +141,12 @@ function zoneInfoFromCrossCity(
 
 type ExploreCityProps = {
   cityId: CityId;
+  cities: readonly CityConfig[];
   onCityChange: (id: CityId) => void;
 };
 
-export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
-  const city = cityConfig(cityId);
+export function ExploreCity({ cityId, cities, onCityChange }: ExploreCityProps) {
+  const city = cityConfig(cityId, cities);
   const isPhoenix = city.hasLocalAnalysis;
   const [observationMode, setObservationMode] = useState<ObservationMode>("published");
   const usePhoenixPublished = isPhoenix && observationMode === "published";
@@ -295,7 +297,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
     if (!crossCityData) return;
     let cancelled = false;
     const idle = window.setTimeout(() => {
-      const others = CITIES.filter((c) => c.id !== cityId);
+      const others = cities.filter((c) => c.id !== cityId);
       void Promise.all(
         others.map(async (c) => {
           if (cachedCityGeometry(c.id) || cancelled) return;
@@ -314,7 +316,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
       cancelled = true;
       window.clearTimeout(idle);
     };
-  }, [crossCityData, cityId]);
+  }, [crossCityData, cityId, cities]);
 
   const prevCity = useRef(cityId);
   useEffect(() => {
@@ -654,7 +656,13 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
     setLiveRunning(true);
     setLiveError(null);
     const requestedLocal = `${liveDate}T${liveTime}:00`;
-    const requestIdentity = { cityId, requestedLocal, zoneIds: [...cityGeoIds] };
+    const requestIdentity = {
+      cityId,
+      requestedLocal,
+      zoneIds: [...cityGeoIds],
+      expectedCity: city.label,
+      expectedTimezone: city.timezone,
+    };
     try {
       const resp = await fetch(apiUrl("/api/v1/live/selected-time"), {
         method: "POST",
@@ -704,6 +712,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
     >
       <CityControls
         cityId={cityId}
+        cities={cities}
         onCityChange={onCityChange}
         observationMode={observationMode}
         onObservationModeChange={(mode) => {
@@ -718,7 +727,7 @@ export function ExploreCity({ cityId, onCityChange }: ExploreCityProps) {
         liveRunning={liveRunning}
         liveReady={liveReady}
         provenanceLine={provenanceLine}
-        liveAvailable
+        liveAvailable={supportsSelectedTimeLive(city)}
       />
       {liveStatusMessage ? (
         <p
