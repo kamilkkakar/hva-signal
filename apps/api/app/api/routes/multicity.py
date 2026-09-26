@@ -11,6 +11,11 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.domain.multicity.capabilities import negotiate_capabilities
+from app.domain.multicity.capability_evidence import (
+    CapabilityEvidence,
+    VALIDATION_JURISDICTIONS,
+    operational_capability_evidence,
+)
 from app.domain.multicity.catalog import get_city, list_cities
 from app.domain.multicity.city_config import CityConfig, CityId
 from app.domain.multicity.cross_city_acs import acs_metric, acs_share_pct
@@ -43,6 +48,7 @@ class CapabilityView(BaseModel):
 
     city_id: CityId
     capabilities: dict[str, str]
+    evidence: dict[str, CapabilityEvidence]
 
 
 class ComparisonClock(BaseModel):
@@ -233,7 +239,20 @@ def _build_metrics_response(*, axes: CrossCityAxes) -> CrossCityMetricsResponse:
 
 @router.get("/cities")
 def get_cities() -> dict[str, list[dict[str, Any]]]:
-    return {"cities": [city.model_dump(mode="json") for city in list_cities()]}
+    cities = []
+    for city in list_cities():
+        payload = city.model_dump(mode="json")
+        payload["capability_evidence"] = {
+            key: item.model_dump(mode="json")
+            for key, item in operational_capability_evidence(city).items()
+        }
+        cities.append(payload)
+    return {
+        "cities": cities,
+        "validation_jurisdictions": [
+            item.model_dump(mode="json") for item in VALIDATION_JURISDICTIONS
+        ],
+    }
 
 
 @router.get("/cities/{city_id}")
@@ -250,7 +269,11 @@ def get_city_capabilities(city_id: str) -> CapabilityView:
         else str(value)
         for key, value in negotiate_capabilities(city.city_id).items()
     }
-    return CapabilityView(city_id=city.city_id, capabilities=capabilities)
+    return CapabilityView(
+        city_id=city.city_id,
+        capabilities=capabilities,
+        evidence=operational_capability_evidence(city),
+    )
 
 
 @router.get("/cross-city/cities/{city_id}/geometry")
