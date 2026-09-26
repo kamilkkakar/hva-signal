@@ -57,6 +57,7 @@ import {
   type CityConfig,
   type CityId,
   type ObservationMode,
+  type ValidationJurisdiction,
   type ZoneInfo,
 } from "./types";
 import { supportedObservationMode, supportsSelectedTimeLive } from "./cityCatalog";
@@ -142,10 +143,11 @@ function zoneInfoFromCrossCity(
 type ExploreCityProps = {
   cityId: CityId;
   cities: readonly CityConfig[];
+  validationJurisdictions: readonly ValidationJurisdiction[];
   onCityChange: (id: CityId) => void;
 };
 
-export function ExploreCity({ cityId, cities, onCityChange }: ExploreCityProps) {
+export function ExploreCity({ cityId, cities, validationJurisdictions, onCityChange }: ExploreCityProps) {
   const city = cityConfig(cityId, cities);
   const isPhoenix = city.hasLocalAnalysis;
   const [observationMode, setObservationMode] = useState<ObservationMode>("published");
@@ -717,6 +719,7 @@ export function ExploreCity({ cityId, cities, onCityChange }: ExploreCityProps) 
       <CityControls
         cityId={cityId}
         cities={cities}
+        validationJurisdictions={validationJurisdictions}
         onCityChange={onCityChange}
         observationMode={observationMode}
         onObservationModeChange={(mode) => {

@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
-import { cityConfig, type CityConfig, type CityId, type ObservationMode } from "./types";
+import {
+  cityConfig,
+  type CityConfig,
+  type CityId,
+  type ObservationMode,
+  type ValidationJurisdiction,
+} from "./types";
+import { CapabilityEvidenceDisclosure } from "./CapabilityEvidenceDisclosure";
 
 type CityControlsProps = {
   cityId: CityId;
   cities: readonly CityConfig[];
+  validationJurisdictions: readonly ValidationJurisdiction[];
   onCityChange: (id: CityId) => void;
   observationMode: ObservationMode;
   onObservationModeChange: (mode: ObservationMode) => void;
@@ -27,6 +35,7 @@ function cityDisplay(id: CityId, cities: readonly CityConfig[]): string {
 export function CityControls({
   cityId,
   cities,
+  validationJurisdictions,
   onCityChange,
   observationMode,
   onObservationModeChange,
@@ -172,6 +181,10 @@ export function CityControls({
           {provenanceLine}
         </p>
       ) : null}
+      <CapabilityEvidenceDisclosure
+        city={cityConfig(cityId, cities)}
+        validationJurisdictions={validationJurisdictions}
+      />
     </div>
   );
 }

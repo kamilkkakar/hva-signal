@@ -133,6 +133,17 @@ describe("workspace contracts", () => {
     expect(panel).not.toContain("roadmap");
   });
 
+  it("capability evidence is progressive and validation profiles stay outside selection", () => {
+    const disclosure = readSrc("./CapabilityEvidenceDisclosure.tsx");
+    const catalog = readSrc("./cityCatalog.ts");
+    expect(disclosure).toContain("<details");
+    expect(disclosure).toContain("not heat severity or city rank");
+    expect(disclosure).toContain("data-selectable=\"false\"");
+    expect(disclosure).not.toContain("<option");
+    expect(catalog).toContain("row.selectable !== false");
+    expect(catalog).toContain("overlap the operational catalog");
+  });
+
   it("general vendor stays OFF in workspace source", () => {
     const explore = readSrc("./ExploreCity.tsx");
     expect(explore).not.toContain("GENERAL_VENDOR");
