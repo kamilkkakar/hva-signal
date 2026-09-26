@@ -3,7 +3,7 @@ import type { CityConfig, ValidationJurisdiction } from "./types";
 const CAPABILITY_LABELS: Readonly<Record<string, string>> = {
   local_story: "Local HVA story",
   type1_live: "Live selected-time acquisition",
-  selected_time_thermal: "Published selected-time thermal",
+  selected_time_thermal: "Selected-time thermal evidence",
   timeline: "Timeline",
   place_geometry: "Place geometry",
   catalog_entry: "Catalog entry",

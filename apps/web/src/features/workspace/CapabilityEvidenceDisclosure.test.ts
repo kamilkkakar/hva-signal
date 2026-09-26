@@ -67,7 +67,7 @@ describe("capability evidence disclosure", () => {
       },
       validationJurisdictions: [],
     }));
-    expect(html).toContain("Published selected-time thermal");
+    expect(html).toContain("Selected-time thermal evidence");
     expect(html).toContain("Live selected-time acquisition");
   });
 });
