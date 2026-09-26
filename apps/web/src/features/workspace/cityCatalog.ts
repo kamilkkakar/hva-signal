@@ -169,6 +169,9 @@ export function parseCityCatalog(payload: unknown): CityConfig[] {
 export function parseWorkspaceCatalog(payload: unknown): WorkspaceCatalog {
   const record = payload && typeof payload === "object" ? payload as Record<string, unknown> : {};
   const cities = parseCityCatalog(payload);
+  if (cities.some((city) => city.capabilityEvidence === undefined)) {
+    throw new Error("Workspace catalog is missing operational capability evidence.");
+  }
   const validationJurisdictions = parseValidationJurisdictions(record.validation_jurisdictions);
   const cityIds = new Set(cities.map((city) => city.apiCityId));
   if (validationJurisdictions.some((item) => cityIds.has(item.jurisdictionId))) {

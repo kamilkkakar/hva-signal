@@ -109,6 +109,13 @@ describe("server-driven city catalog", () => {
     })).toThrow("does not match");
   });
 
+  it("rejects a workspace catalog without operational capability evidence", () => {
+    expect(() => parseWorkspaceCatalog({
+      cities: [serverCity()],
+      validation_jurisdictions: [validationJurisdiction()],
+    })).toThrow("missing operational capability evidence");
+  });
+
   it.each([
     { cities: [] },
     { cities: [serverCity({ timezone: "UTC" })] },
