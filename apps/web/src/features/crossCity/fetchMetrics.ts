@@ -42,39 +42,47 @@ type CrossCityMetricsDto = {
   cities?: NestedCityDto[];
 };
 
+export type CrossCityCatalogIdentity = {
+  id: string;
+  apiCityId: string;
+  label: string;
+  state: string;
+};
+
+const DEFAULT_CITY_IDENTITIES: readonly CrossCityCatalogIdentity[] =
+  CROSS_CITY_CITY_ALLOWLIST.map((city) => ({
+    id: city.id,
+    apiCityId: city.id.replace(/-[a-z]{2}$/, "").replaceAll("-", "_"),
+    label: city.shortLabel,
+    state: city.stateAbbreviation,
+  }));
+
 function toNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
-function normalizeCityId(value: string | null | undefined): CrossCityId | null {
-  const raw = (value ?? "").trim().toLowerCase().replace(/_/g, " ");
+function normalizedIdentity(value: string | null | undefined): string {
+  return (value ?? "").trim().toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ");
+}
+
+function normalizeCityId(
+  value: string | null | undefined,
+  catalog: readonly CrossCityCatalogIdentity[],
+): CrossCityId | null {
+  const raw = normalizedIdentity(value);
   if (!raw) {
     return null;
   }
-  if (raw.includes("phoenix")) {
-    return "phoenix-az";
-  }
-  if (raw.includes("vegas")) {
-    return "las-vegas-nv";
-  }
-  if (raw.includes("tucson")) {
-    return "tucson-az";
-  }
-  if (
-    raw.includes("los angeles") ||
-    raw.includes("los-angeles") ||
-    raw.replace(/\s+/g, "") === "losangeles" ||
-    raw === "la"
-  ) {
-    return "los-angeles-ca";
-  }
-  if (raw.includes("yuma")) {
-    return null;
-  }
-  if (raw.includes("palm springs") || raw.includes("palm-springs")) {
-    return null;
-  }
-  return null;
+  const match = catalog.find((city) => {
+    const aliases = [
+      city.id,
+      city.apiCityId,
+      city.label,
+      `${city.label}, ${city.state}`,
+    ];
+    return aliases.some((alias) => normalizedIdentity(alias) === raw);
+  });
+  return match?.id ?? null;
 }
 
 function cityLabel(cityId: CrossCityId, fallback: string | null | undefined): string {
@@ -91,10 +99,11 @@ function looksLikeGeoid(value: string): boolean {
 
 function normalizeAreaRecord(
   area: FlatAreaDto,
+  catalog: readonly CrossCityCatalogIdentity[],
   inheritedCityId?: string,
   inheritedCityLabel?: string,
 ): CrossCityAreaRecord | null {
-  const cityId = normalizeCityId(area.city_id ?? area.city ?? inheritedCityId);
+  const cityId = normalizeCityId(area.city_id ?? area.city ?? inheritedCityId, catalog);
   if (!cityId) {
     return null;
   }
@@ -141,7 +150,10 @@ function normalizeAreaRecord(
   };
 }
 
-export function normalizeCrossCityMetrics(body: unknown): CrossCityMetricsResponse {
+export function normalizeCrossCityMetrics(
+  body: unknown,
+  catalog: readonly CrossCityCatalogIdentity[] = DEFAULT_CITY_IDENTITIES,
+): CrossCityMetricsResponse {
   if (!body || typeof body !== "object") {
     throw new Error("Cross-city metrics response is not an object.");
   }
@@ -149,7 +161,7 @@ export function normalizeCrossCityMetrics(body: unknown): CrossCityMetricsRespon
   const areas: CrossCityAreaRecord[] = [];
 
   for (const area of [...(dto.areas ?? []), ...(dto.rows ?? [])]) {
-    const normalized = normalizeAreaRecord(area);
+    const normalized = normalizeAreaRecord(area, catalog);
     if (normalized) {
       areas.push(normalized);
     }
@@ -157,7 +169,12 @@ export function normalizeCrossCityMetrics(body: unknown): CrossCityMetricsRespon
 
   for (const city of dto.cities ?? []) {
     for (const area of city.areas ?? []) {
-      const normalized = normalizeAreaRecord(area, city.city_id ?? city.city, city.city_label);
+      const normalized = normalizeAreaRecord(
+        area,
+        catalog,
+        city.city_id ?? city.city,
+        city.city_label,
+      );
       if (normalized) {
         areas.push(normalized);
       }
@@ -175,6 +192,7 @@ export function normalizeCrossCityMetrics(body: unknown): CrossCityMetricsRespon
 
 export async function fetchCrossCityMetrics(
   fetchImpl: typeof fetch = fetch,
+  catalog: readonly CrossCityCatalogIdentity[] = DEFAULT_CITY_IDENTITIES,
 ): Promise<CrossCityMetricsResponse> {
   const response = await fetchImpl(apiUrl("/api/v1/cross-city/metrics"), {
     method: "GET",
@@ -183,5 +201,5 @@ export async function fetchCrossCityMetrics(
   if (!response.ok) {
     throw new Error(`Cross-city metrics could not be loaded (${response.status}).`);
   }
-  return normalizeCrossCityMetrics(await response.json());
+  return normalizeCrossCityMetrics(await response.json(), catalog);
 }

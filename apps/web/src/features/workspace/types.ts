@@ -1,7 +1,14 @@
 export type WorkspaceMode = "explore" | "compare";
 export type ObservationMode = "published" | "live";
 
-export type CityId = "phoenix-az" | "las-vegas-nv" | "tucson-az" | "los-angeles-ca";
+export type CityId = string;
+
+export type CapabilityStatus =
+  | "AVAILABLE"
+  | "PARTIAL"
+  | "UNAVAILABLE"
+  | "INSUFFICIENT_EVIDENCE"
+  | "READY_FOR_ACQUISITION";
 
 export type CityConfig = {
   id: CityId;
@@ -9,19 +16,21 @@ export type CityConfig = {
   state: string;
   hasLocalAnalysis: boolean;
   apiCityId: string;
+  timezone: string;
+  capabilities: Readonly<Record<string, CapabilityStatus>>;
 };
 
 export const CITIES: readonly CityConfig[] = [
-  { id: "phoenix-az", label: "Phoenix", state: "AZ", hasLocalAnalysis: true, apiCityId: "phoenix" },
-  { id: "las-vegas-nv", label: "Las Vegas", state: "NV", hasLocalAnalysis: false, apiCityId: "las_vegas" },
-  { id: "tucson-az", label: "Tucson", state: "AZ", hasLocalAnalysis: false, apiCityId: "tucson" },
-  { id: "los-angeles-ca", label: "Los Angeles", state: "CA", hasLocalAnalysis: false, apiCityId: "los_angeles" },
+  { id: "phoenix-az", label: "Phoenix", state: "AZ", hasLocalAnalysis: true, apiCityId: "phoenix", timezone: "America/Phoenix", capabilities: { type1_live: "READY_FOR_ACQUISITION" } },
+  { id: "las-vegas-nv", label: "Las Vegas", state: "NV", hasLocalAnalysis: false, apiCityId: "las_vegas", timezone: "America/Los_Angeles", capabilities: { type1_live: "READY_FOR_ACQUISITION" } },
+  { id: "tucson-az", label: "Tucson", state: "AZ", hasLocalAnalysis: false, apiCityId: "tucson", timezone: "America/Phoenix", capabilities: { type1_live: "READY_FOR_ACQUISITION" } },
+  { id: "los-angeles-ca", label: "Los Angeles", state: "CA", hasLocalAnalysis: false, apiCityId: "los_angeles", timezone: "America/Los_Angeles", capabilities: { type1_live: "READY_FOR_ACQUISITION" } },
 ] as const;
 
-export function cityConfig(id: CityId): CityConfig {
-  const found = CITIES.find((c) => c.id === id);
+export function cityConfig(id: CityId, cities: readonly CityConfig[] = CITIES): CityConfig {
+  const found = cities.find((c) => c.id === id);
   if (found) return found;
-  return CITIES[0] as CityConfig;
+  return cities[0] ?? CITIES[0] as CityConfig;
 }
 
 export type ZoneInfo = {

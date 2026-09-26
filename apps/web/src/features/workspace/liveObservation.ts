@@ -40,6 +40,8 @@ export type LiveRequestIdentity = {
   cityId: CityId;
   requestedLocal: string;
   zoneIds: readonly string[];
+  expectedCity?: string;
+  expectedTimezone?: string;
 };
 
 export type StoredLiveObservation = LiveObservationResponse & {
@@ -71,9 +73,9 @@ export function acceptLiveObservation(
     // Never forward the legacy cache-success message for an empty field.
     throw new Error("No usable zone temperatures were returned for the requested observation.");
   }
-  if (analysis?.city !== cityConfig(request.cityId).label ||
+  if (analysis?.city !== (request.expectedCity ?? cityConfig(request.cityId).label) ||
       analysis.local_datetime !== request.requestedLocal ||
-      analysis.timezone !== cityTimezone(request.cityId) ||
+      analysis.timezone !== (request.expectedTimezone ?? cityTimezone(request.cityId)) ||
       analysis.aggregation_contract !== "HVA_NATIONAL_THERMAL_AGGREGATION_V1_CENTROID_WITHIN_MEAN") {
     throw new Error("The response does not match the requested city, time or observation contract.");
   }

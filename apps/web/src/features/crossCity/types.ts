@@ -31,7 +31,9 @@ export const CROSS_CITY_CITY_ALLOWLIST = [
   },
 ] as const;
 
-export type CrossCityId = (typeof CROSS_CITY_CITY_ALLOWLIST)[number]["id"];
+// Runtime city identities come from the server catalog. The frozen allowlist
+// still drives the bounded comparison view, but must not constrain Explore.
+export type CrossCityId = string;
 
 export type CrossCityMetricKey =
   | "selectedTimeTemperatureC"

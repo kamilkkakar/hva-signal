@@ -40,4 +40,9 @@ describe("cross-city city-spectrum colors", () => {
     expect(phoenix).not.toEqual(vegas);
     expect(phoenix).not.toMatch(/rgb\(32, 94, 65\)/);
   });
+
+  it("gives server-catalog cities a stable non-ranking color", () => {
+    expect(outlineColorForCity("anchorage-ak")).toBe(outlineColorForCity("anchorage-ak"));
+    expect(outlineColorForCity("anchorage-ak")).toMatch(/^oklch\(/);
+  });
 });
