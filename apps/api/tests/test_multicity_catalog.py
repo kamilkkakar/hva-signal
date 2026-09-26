@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 
 from app.core.config import Settings
 from app.domain.multicity.capabilities import negotiate_capabilities
+from app.domain.multicity.capability_evidence import EvidenceState
 from app.domain.multicity.catalog import get_city, list_cities, public_city_selector_allowlist
 from app.domain.multicity.city_config import CapabilityStatus, CityId
 from app.domain.multicity.geography import (
@@ -73,6 +74,22 @@ def test_cities_routes_publish_allowlist_and_capabilities() -> None:
         "tucson",
         "los_angeles",
     ]
+    phoenix_evidence = body["cities"][0]["capability_evidence"]
+    assert phoenix_evidence["local_story"]["state"] == EvidenceState.VERIFIED
+    assert phoenix_evidence["local_story"]["reason"]
+    assert phoenix_evidence["local_story"]["affected_scope"] == "local_story"
+    assert phoenix_evidence["local_story"]["next_check"]
+
+    validation = {
+        item["validation_class"]: item for item in body["validation_jurisdictions"]
+    }
+    assert set(validation) == {"SMALL_PLACE", "ALASKA", "HAWAII", "UNSUPPORTED"}
+    assert all(item["selectable"] is False for item in validation.values())
+    assert validation["SMALL_PLACE"]["state"] == EvidenceState.NOT_YET_TESTED
+    assert "25" in validation["SMALL_PLACE"]["reason"]
+    assert "CONUS" in validation["ALASKA"]["next_check"]
+    assert "CONUS" in validation["HAWAII"]["next_check"]
+    assert validation["UNSUPPORTED"]["state"] == EvidenceState.UNAVAILABLE
 
     detail = client.get("/api/v1/cities/phoenix")
     assert detail.status_code == 200
@@ -83,6 +100,27 @@ def test_cities_routes_publish_allowlist_and_capabilities() -> None:
     caps = client.get("/api/v1/cities/phoenix/capabilities")
     assert caps.status_code == 200
     assert caps.json()["capabilities"]["selected_time_thermal"] == "AVAILABLE"
+    assert caps.json()["evidence"]["selected_time_thermal"]["state"] == "VERIFIED"
+
+
+def test_every_operational_capability_has_structured_evidence() -> None:
+    body = TestClient(app).get("/api/v1/cities").json()
+    for city in body["cities"]:
+        assert set(city["capabilities"]) == set(city["capability_evidence"])
+        for capability, evidence in city["capability_evidence"].items():
+            assert evidence["affected_scope"] == capability
+            assert evidence["reason"]
+            assert evidence["next_check"]
+
+
+def test_validation_only_jurisdictions_never_enter_operational_selector() -> None:
+    body = TestClient(app).get("/api/v1/cities").json()
+    operational_ids = {city["city_id"] for city in body["cities"]}
+    validation_ids = {
+        item["jurisdiction_id"] for item in body["validation_jurisdictions"]
+    }
+    assert operational_ids.isdisjoint(validation_ids)
+    assert {"yuma_az", "anchorage_ak", "honolulu_hi"} <= validation_ids
 
 
 def test_cross_city_metrics_returns_real_phoenix_rows_and_disclosed_gaps() -> None:
@@ -147,4 +185,3 @@ def test_live_defaults_still_off() -> None:
     assert Settings.model_fields["hosted_live_enabled"].default is False
     assert Settings.model_fields["hosted_live_real_vendor_enabled"].default is False
     assert Settings.model_fields["hva_public_two_signal"].default is False
-
