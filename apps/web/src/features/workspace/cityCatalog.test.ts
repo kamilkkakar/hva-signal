@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   parseCityCatalog,
+  parseWorkspaceCatalog,
   supportedObservationMode,
   supportsSelectedTimeLive,
 } from "./cityCatalog";
@@ -16,6 +17,31 @@ function serverCity(overrides: Record<string, unknown> = {}) {
       local_story: "AVAILABLE",
       type1_live: "READY_FOR_ACQUISITION",
     },
+    ...overrides,
+  };
+}
+
+function evidence(state = "VERIFIED") {
+  return {
+    state,
+    reason: "A reviewed server artifact exists.",
+    affected_scope: "local_story",
+    next_check: "Repeat integrity checks after a source change.",
+  };
+}
+
+function validationJurisdiction(overrides: Record<string, unknown> = {}) {
+  return {
+    jurisdiction_id: "yuma_az",
+    display_name: "Yuma",
+    region_code: "AZ",
+    validation_class: "SMALL_PLACE",
+    selectable: false,
+    state: "NOT_YET_TESTED",
+    reason: "Native small-place evidence has not been validated.",
+    affected_scope: ["place_geometry"],
+    next_check: "Test every native tract without a minimum count.",
+    capabilities: { place_geometry: { ...evidence("NOT_YET_TESTED"), affected_scope: "place_geometry" } },
     ...overrides,
   };
 }
@@ -47,6 +73,40 @@ describe("server-driven city catalog", () => {
     const [phoenix] = parseCityCatalog({ cities: [serverCity()] });
     expect(phoenix.capabilities.local_story).toBe("AVAILABLE");
     expect(supportsSelectedTimeLive(phoenix)).toBe(true);
+  });
+
+  it("keeps structured validation evidence outside the operational selector", () => {
+    const catalog = parseWorkspaceCatalog({
+      cities: [serverCity({
+        capability_evidence: {
+          local_story: evidence(),
+          type1_live: { ...evidence("NOT_YET_TESTED"), affected_scope: "type1_live" },
+        },
+      })],
+      validation_jurisdictions: [validationJurisdiction()],
+    });
+
+    expect(catalog.cities.map((city) => city.apiCityId)).toEqual(["phoenix"]);
+    expect(catalog.cities[0].capabilityEvidence?.type1_live.state).toBe("NOT_YET_TESTED");
+    expect(catalog.validationJurisdictions[0].jurisdictionId).toBe("yuma_az");
+    expect(catalog.validationJurisdictions[0].selectable).toBe(false);
+  });
+
+  it.each([
+    validationJurisdiction({ selectable: true }),
+    validationJurisdiction({ state: "READY" }),
+    validationJurisdiction({ jurisdiction_id: "phoenix" }),
+  ])("rejects selectable, invalid, or overlapping validation profiles", (profile) => {
+    expect(() => parseWorkspaceCatalog({
+      cities: [serverCity()],
+      validation_jurisdictions: [profile],
+    })).toThrow();
+  });
+
+  it("rejects capability evidence that diverges from the city contract", () => {
+    expect(() => parseCityCatalog({
+      cities: [serverCity({ capability_evidence: { local_story: evidence() } })],
+    })).toThrow("does not match");
   });
 
   it.each([

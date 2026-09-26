@@ -10,6 +10,38 @@ export type CapabilityStatus =
   | "INSUFFICIENT_EVIDENCE"
   | "READY_FOR_ACQUISITION";
 
+export type CapabilityEvidenceState =
+  | "VERIFIED"
+  | "PARTIAL"
+  | "UNAVAILABLE"
+  | "VALIDATION_FAILED"
+  | "NOT_YET_TESTED";
+
+export type CapabilityEvidence = {
+  state: CapabilityEvidenceState;
+  reason: string;
+  affectedScope: string;
+  nextCheck: string;
+};
+
+export type ValidationJurisdiction = {
+  jurisdictionId: string;
+  displayName: string;
+  regionCode: string | null;
+  validationClass: "SMALL_PLACE" | "ALASKA" | "HAWAII" | "UNSUPPORTED";
+  selectable: false;
+  state: CapabilityEvidenceState;
+  reason: string;
+  affectedScope: readonly string[];
+  nextCheck: string;
+  capabilities: Readonly<Record<string, CapabilityEvidence>>;
+};
+
+export type WorkspaceCatalog = {
+  cities: readonly CityConfig[];
+  validationJurisdictions: readonly ValidationJurisdiction[];
+};
+
 export type CityConfig = {
   id: CityId;
   label: string;
@@ -18,6 +50,7 @@ export type CityConfig = {
   apiCityId: string;
   timezone: string;
   capabilities: Readonly<Record<string, CapabilityStatus>>;
+  capabilityEvidence?: Readonly<Record<string, CapabilityEvidence>>;
 };
 
 export const CITIES: readonly CityConfig[] = [

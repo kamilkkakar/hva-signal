@@ -206,6 +206,63 @@
   color: var(--ws-muted);
 }
 
+.ws-capability-disclosure {
+  margin-top: 0.45rem;
+  border-top: 1px solid var(--ws-line);
+  padding-top: 0.45rem;
+  font-size: 0.78rem;
+}
+
+.ws-capability-disclosure summary {
+  color: var(--ws-field);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.ws-capability-disclosure h3 {
+  margin: 0.8rem 0 0.35rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ws-capability-intro,
+.ws-capability-disclosure p {
+  margin: 0.35rem 0;
+  color: var(--ws-muted);
+}
+
+.ws-capability-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.ws-capability-item,
+.ws-validation-list li {
+  border-left: 2px solid var(--ws-line);
+  padding: 0.35rem 0.55rem;
+}
+
+.ws-capability-item dt { font-weight: 650; text-transform: capitalize; }
+.ws-capability-item dd { margin: 0.2rem 0 0; color: var(--ws-muted); }
+
+.ws-validation-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ws-validation-list li > span {
+  display: block;
+  color: var(--ws-muted);
+  text-transform: capitalize;
+}
+
 /* === EXPLORE LAYOUT: MAP-FIRST === */
 .ws-explore {
   display: flex;
