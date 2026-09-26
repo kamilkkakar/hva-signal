@@ -55,4 +55,19 @@ describe("capability evidence disclosure", () => {
     }));
     expect(html).toContain("Structured server evidence is unavailable");
   });
+
+  it("distinguishes published thermal evidence from the live acquisition path", () => {
+    const html = renderToStaticMarkup(createElement(CapabilityEvidenceDisclosure, {
+      city: {
+        ...city,
+        capabilityEvidence: {
+          selected_time_thermal: { ...city.capabilityEvidence!.local_story },
+          type1_live: { ...city.capabilityEvidence!.local_story, state: "NOT_YET_TESTED" },
+        },
+      },
+      validationJurisdictions: [],
+    }));
+    expect(html).toContain("Published selected-time thermal");
+    expect(html).toContain("Live selected-time acquisition");
+  });
 });
