@@ -191,7 +191,7 @@ test.describe("workspace experience", () => {
     await expect(page.getByTestId("live-city-search")).toBeVisible();
     await expect(page.getByTestId("run-live")).toBeVisible();
     await expect(page.getByTestId("live-scope-note")).toContainText(
-      "four supported city geographies",
+      "server catalog marks the city ready",
     );
     await expect(page.getByTestId("live-scope-note")).toContainText("tree canopy 2021");
     await expect(page.getByTestId("live-scope-note")).toContainText("ACS 2020–2024");

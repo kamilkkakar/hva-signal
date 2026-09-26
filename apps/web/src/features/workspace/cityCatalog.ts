@@ -83,3 +83,10 @@ export function supportsSelectedTimeLive(city: CityConfig): boolean {
     city.capabilities.type1_live ?? "UNAVAILABLE",
   );
 }
+
+export function supportedObservationMode(
+  city: CityConfig,
+  requested: "published" | "live",
+): "published" | "live" {
+  return requested === "live" && !supportsSelectedTimeLive(city) ? "published" : requested;
+}

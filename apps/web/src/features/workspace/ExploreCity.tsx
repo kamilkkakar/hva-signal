@@ -59,7 +59,7 @@ import {
   type ObservationMode,
   type ZoneInfo,
 } from "./types";
-import { supportsSelectedTimeLive } from "./cityCatalog";
+import { supportedObservationMode, supportsSelectedTimeLive } from "./cityCatalog";
 import {
   CityEvidenceSections,
   cityEvidenceCapabilities,
@@ -151,6 +151,10 @@ export function ExploreCity({ cityId, cities, onCityChange }: ExploreCityProps) 
   const [observationMode, setObservationMode] = useState<ObservationMode>("published");
   const usePhoenixPublished = isPhoenix && observationMode === "published";
 
+  useEffect(() => {
+    setObservationMode((current) => supportedObservationMode(city, current));
+  }, [city]);
+
   const [liveDate, setLiveDate] = useState("2024-07-08");
   const [liveTime, setLiveTime] = useState("15:00");
   const [liveRunning, setLiveRunning] = useState(false);
@@ -236,7 +240,7 @@ export function ExploreCity({ cityId, cities, onCityChange }: ExploreCityProps) 
     const started = performance.now();
     void (async () => {
       try {
-        const data = await fetchCrossCityMetrics();
+        const data = await fetchCrossCityMetrics(fetch, cities);
         if (!cancelled) {
           setCrossCityData(data);
           reportCityTiming("cross-city-metrics", started);
@@ -248,7 +252,7 @@ export function ExploreCity({ cityId, cities, onCityChange }: ExploreCityProps) 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [cities]);
 
   // Cross-city geometry is static and safe to cache for every supported city,
   // including Phoenix. Published Phoenix still uses its separate local analysis

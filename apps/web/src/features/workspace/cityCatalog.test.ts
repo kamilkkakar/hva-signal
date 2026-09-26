@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { parseCityCatalog, supportsSelectedTimeLive } from "./cityCatalog";
+import {
+  parseCityCatalog,
+  supportedObservationMode,
+  supportsSelectedTimeLive,
+} from "./cityCatalog";
 
 function serverCity(overrides: Record<string, unknown> = {}) {
   return {
@@ -36,6 +40,7 @@ describe("server-driven city catalog", () => {
     expect(anchorage.apiCityId).toBe("anchorage");
     expect(anchorage.hasLocalAnalysis).toBe(false);
     expect(supportsSelectedTimeLive(anchorage)).toBe(false);
+    expect(supportedObservationMode(anchorage, "live")).toBe("published");
   });
 
   it("preserves explicit server capability states", () => {

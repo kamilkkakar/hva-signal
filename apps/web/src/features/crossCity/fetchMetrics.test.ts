@@ -92,4 +92,26 @@ describe("cross-city metrics client", () => {
     expect(payload.areas[0]?.secondaryLabel).toMatch(/Comparison area/);
     expect(payload.areas[0]?.metrics.selectedTimeTemperatureC).toBe(23.4);
   });
+
+  it("normalizes a server-catalog jurisdiction without a frontend allowlist edit", () => {
+    const payload = normalizeCrossCityMetrics(
+      {
+        rows: [{
+          city_id: "anchorage",
+          zone_id: "02020000101",
+          temperature_c: 18.4,
+        }],
+      },
+      [{
+        id: "anchorage-ak",
+        apiCityId: "anchorage",
+        label: "Anchorage",
+        state: "AK",
+      }],
+    );
+
+    expect(payload.areas).toHaveLength(1);
+    expect(payload.areas[0]?.cityId).toBe("anchorage-ak");
+    expect(payload.areas[0]?.metrics.selectedTimeTemperatureC).toBe(18.4);
+  });
 });

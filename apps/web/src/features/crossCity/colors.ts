@@ -29,7 +29,7 @@ export const CROSS_CITY_HUE_FAMILIES: readonly CityHueFamily[] = [
   { id: "palm-springs-ca", label: "Palm Springs gold/magenta", hue: 340, chroma: 0.12 },
 ] as const;
 
-const HUE_BY_CITY: Record<CrossCityId, CityHueFamily> = {
+const HUE_BY_CITY: Partial<Record<CrossCityId, CityHueFamily>> = {
   "phoenix-az": CROSS_CITY_HUE_FAMILIES[0]!,
   "las-vegas-nv": CROSS_CITY_HUE_FAMILIES[1]!,
   "tucson-az": CROSS_CITY_HUE_FAMILIES[2]!,
@@ -37,7 +37,7 @@ const HUE_BY_CITY: Record<CrossCityId, CityHueFamily> = {
 };
 
 /** Representative (mid) city color for legend swatches / outline keys. */
-export const CROSS_CITY_OUTLINE_COLORS: Record<CrossCityId, string> = {
+export const CROSS_CITY_OUTLINE_COLORS = {
   "phoenix-az": cityOklch("phoenix-az", 0.55),
   "las-vegas-nv": cityOklch("las-vegas-nv", 0.55),
   "tucson-az": cityOklch("tucson-az", 0.55),
@@ -51,7 +51,18 @@ const L_NONE = 0.78;
 const L_OUTLINE = 0.32;
 
 function cityFamily(cityId: CrossCityId): CityHueFamily {
-  return HUE_BY_CITY[cityId];
+  const known = HUE_BY_CITY[cityId];
+  if (known) return known;
+  // Server-catalog jurisdictions receive a stable, non-semantic hue. This is
+  // presentation only and must never be interpreted as a rank or status.
+  let hash = 0;
+  for (const char of cityId) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return {
+    id: cityId,
+    label: `${cityId} catalog color`,
+    hue: hash % 360,
+    chroma: 0.11,
+  };
 }
 
 export function cityOklch(cityId: CrossCityId, lightness: number, chromaScale = 1): string {
