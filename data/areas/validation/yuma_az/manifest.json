@@ -1,0 +1,57 @@
+{
+  "census_vintage": "2025",
+  "display_name": "Yuma",
+  "exact_tract_geoids": [
+    "04027000200",
+    "04027000301",
+    "04027000302",
+    "04027000402",
+    "04027000502",
+    "04027000600",
+    "04027000700",
+    "04027000800",
+    "04027000901",
+    "04027000902",
+    "04027000903",
+    "04027000907",
+    "04027000909",
+    "04027000910",
+    "04027001001",
+    "04027001003",
+    "04027001004",
+    "04027001100",
+    "04027001200",
+    "04027010911",
+    "04027011116",
+    "04027011117",
+    "04027011120",
+    "04027011121",
+    "04027011700",
+    "04027980006"
+  ],
+  "jurisdiction_id": "yuma_az",
+  "native_eligible_tract_count": 26,
+  "operationally_selectable": false,
+  "padding_tract_count": 0,
+  "place_geoid": "0485540",
+  "place_geometry_sha256": "2c7b798bbd5abb13cc07421052e8e0dd68407398cf1096e9e6e8eac6ac3f2f63",
+  "retained_tract_count": 26,
+  "schema_version": "YUMA_NATIVE_SMALL_PLACE_VALIDATION_V1",
+  "selection_explanation": "Retain every positive-land-area tract whose official TIGER INTPT is covered by the official Yuma place geometry. Do not prune disconnected components, pad, or impose a 25-tract target.",
+  "selection_policy": "ELIGIBILITY_TIGER_INTPT_IN_PLACE_ALAND_GT_0_V1.RETAIN_ALL",
+  "source_release_date": "2025-09-23",
+  "sources": {
+    "place": {
+      "url": "https://www2.census.gov/geo/tiger/TIGER2025/PLACE/tl_2025_04_place.zip",
+      "zip_sha256": "7c52a87725285cd6e6655daf6cf733c37942256bc7e190ac01ddb174a0acd330"
+    },
+    "tract": {
+      "url": "https://www2.census.gov/geo/tiger/TIGER2025/TRACT/tl_2025_04_tract.zip",
+      "zip_sha256": "5fb6d80990b05811f5b8c6fca80b386611899add7c0178ac06366033f910fd19"
+    }
+  },
+  "target_count_applied": false,
+  "thermal_acquisition_authorized": false,
+  "thermal_evidence_state": "NOT_YET_TESTED",
+  "tract_geometry_sha256": "f0ae50feb900943b096b4727bed7b7513272dfaaa1ab77dbe0e36a7676544322"
+}
