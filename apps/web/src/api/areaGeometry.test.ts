@@ -105,6 +105,37 @@ describe("fetchAreaGeometry", () => {
 });
 
 describe("createGeometryLoader", () => {
+  it("retries bounded transient cold-start failures before returning geometry", async () => {
+    const sleep = vi.fn(async () => undefined);
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(new Response("waking", { status: 503 }))
+      .mockResolvedValueOnce(new Response("waking", { status: 502 }))
+      .mockResolvedValueOnce(geometryResponse()) as unknown as typeof fetch;
+
+    const loader = createGeometryLoader(fetchImpl, {
+      attempts: 3,
+      retryDelayMs: 10,
+      sleep,
+    });
+    const outcome = await loader.load("phoenix-demo");
+
+    expect(outcome.stale).toBe(false);
+    expect(fetchImpl).toHaveBeenCalledTimes(3);
+    expect(sleep).toHaveBeenNthCalledWith(1, 10);
+    expect(sleep).toHaveBeenNthCalledWith(2, 20);
+  });
+
+  it("does not retry a permanent unsupported-area response", async () => {
+    const sleep = vi.fn(async () => undefined);
+    const fetchImpl = vi.fn(async () => new Response("missing", { status: 404 })) as unknown as typeof fetch;
+    const loader = createGeometryLoader(fetchImpl, { attempts: 3, sleep });
+
+    await expect(loader.load("missing-area")).rejects.toThrow(/404/);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(sleep).not.toHaveBeenCalled();
+  });
+
   it("does not let a stale geometry response overwrite a newer area", async () => {
     let releaseSlow: (() => void) | undefined;
     const slow = new Promise<void>((resolve) => {

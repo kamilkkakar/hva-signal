@@ -54,6 +54,7 @@ export function MapBand(props: MapBandProps) {
       });
     return () => {
       cancelled = true;
+      loader.invalidate();
     };
   }, [areaId]);
 
