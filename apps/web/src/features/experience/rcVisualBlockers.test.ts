@@ -12,14 +12,15 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 describe("RC visual blockers", () => {
-  it("has no external basemap tile provider that can watermark API KEY REQUIRED", () => {
+  it("uses a no-key vector basemap and avoids providers that can watermark the map", () => {
     const stagePath = resolve(
       process.cwd(),
       "src/features/mapInteraction/MapInteractionStage.tsx",
     );
     const source = readFileSync(stagePath, "utf8");
     expect(source).not.toMatch(/basemaps\.carto|API KEY REQUIRED|maptiler\.com|tile\.openstreetmap\.org/i);
-    expect(source).toMatch(/No external basemap|neutral paper/i);
+    expect(source).toContain("https://tiles.openfreemap.org/styles/positron");
+    expect(source).toContain("attributionControl: { compact: true }");
   });
 
   it("keeps THERMAL_DISPLAY_SCALE_V1 as the active fixed scale", () => {

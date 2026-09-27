@@ -11,7 +11,6 @@ import {
 import { mapInteractionIsEnabled } from "./flags";
 import { highlightFillPaint, highlightHatchPaint, highlightLinePaint } from "./highlight";
 import { MapInteractionChrome } from "./MapInteractionChrome";
-import { INTERACTION_PAPER } from "./policy";
 import { observedThermalSpan } from "./thermalSpan";
 import { presentMapInteraction } from "./present";
 import { startMapRuntime } from "./mapRuntime";
@@ -22,6 +21,7 @@ const SOURCE_ID = "hva-map-interaction-zones";
 const FILL_LAYER_ID = "hva-map-interaction-fill";
 const HATCH_LAYER_ID = "hva-map-interaction-hatch";
 const LINE_LAYER_ID = "hva-map-interaction-line";
+export const GEOGRAPHIC_BASEMAP_STYLE = "https://tiles.openfreemap.org/styles/positron";
 const EMPTY_COLLECTION = {
   type: "FeatureCollection" as const,
   features: [],
@@ -61,6 +61,9 @@ function ensureLayers(map: maplibregl.Map): GeoJSONSource | null {
     });
   }
   ensureHatchImages(map);
+  const firstLabelLayerId = map
+    .getStyle()
+    .layers?.find((layer) => layer.type === "symbol")?.id;
   const idleFill = signalAFillPaint({ authorized: false, maxOrder: 1 });
   const idleHatch = signalAHatchPaint({ authorized: false, maxOrder: 1 });
   if (!map.getLayer(FILL_LAYER_ID)) {
@@ -72,7 +75,7 @@ function ensureLayers(map: maplibregl.Map): GeoJSONSource | null {
         "fill-color": idleFill["fill-color"] as string,
         "fill-opacity": idleFill["fill-opacity"],
       },
-    });
+    }, firstLabelLayerId);
   }
   if (!map.getLayer(HATCH_LAYER_ID)) {
     map.addLayer({
@@ -83,7 +86,7 @@ function ensureLayers(map: maplibregl.Map): GeoJSONSource | null {
         "fill-pattern": idleHatch["fill-pattern"] as string,
         "fill-opacity": idleHatch["fill-opacity"],
       },
-    });
+    }, firstLabelLayerId);
   }
   if (!map.getLayer(LINE_LAYER_ID)) {
     map.addLayer({
@@ -94,31 +97,9 @@ function ensureLayers(map: maplibregl.Map): GeoJSONSource | null {
         "line-color": "#4e5748",
         "line-width": 0.7,
       },
-    });
+    }, firstLabelLayerId);
   }
   return (map.getSource(SOURCE_ID) as GeoJSONSource | undefined) ?? null;
-}
-
-/**
- * Production-safe geographic context: neutral paper + real polygons only.
- * No external basemap tiles — avoids API-key watermarks / broken providers.
- * Prefer no basemap over a credentialed or broken one.
- */
-function ensureBasemap(map: maplibregl.Map): void {
-  if (!map.isStyleLoaded()) {
-    return;
-  }
-  for (const layerId of ["hva-basemap-carto-raster", "hva-basemap-osm-raster", "hva-basemap-raster"]) {
-    if (map.getLayer(layerId)) {
-      map.removeLayer(layerId);
-    }
-  }
-  for (const sourceId of ["hva-basemap-carto", "hva-basemap-osm", "hva-basemap"]) {
-    if (map.getSource(sourceId)) {
-      map.removeSource(sourceId);
-    }
-  }
-  void map;
 }
 
 function applyCatalog(
@@ -131,7 +112,6 @@ function applyCatalog(
   if (!source) {
     return false;
   }
-  ensureBasemap(map);
   const payload = canvasAllowed && catalog ? catalog.collection : EMPTY_COLLECTION;
   source.setData(payload as GeoJSON.FeatureCollection);
   const fill = highlightFillPaint(catalog, state);
@@ -246,18 +226,8 @@ export function MapInteractionStage({
       () =>
         new maplibregl.Map({
           container: node,
-          style: {
-            version: 8,
-            sources: {},
-            layers: [
-              {
-                id: "hva-map-interaction-paper",
-                type: "background",
-                paint: { "background-color": INTERACTION_PAPER },
-              },
-            ],
-          },
-          attributionControl: false,
+          style: GEOGRAPHIC_BASEMAP_STYLE,
+          attributionControl: { compact: true },
           fadeDuration: 0,
           renderWorldCopies: false,
         }),
@@ -274,6 +244,15 @@ export function MapInteractionStage({
     map.dragRotate.disable();
     map.touchZoomRotate.disableRotation();
     map.keyboard.disableRotation();
+    map.addControl(
+      new maplibregl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: false,
+        showUserLocation: true,
+        showAccuracyCircle: true,
+      }),
+      "top-right",
+    );
 
     const geoidFromEvent = (event: maplibregl.MapLayerMouseEvent): string | null => {
       const props = event.features?.[0]?.properties;
@@ -429,6 +408,10 @@ export function MapInteractionStage({
                   {view.layerTitle}
                 </p>
                 <p className="mapi-copy">{view.meaningCopy}</p>
+                <p className="mapi-geography-note" data-testid="map-geography-disclosure">
+                  Streets and place labels provide geographic context only. Thermal color appears
+                  only inside validated HVA-Signal analysis zones.
+                </p>
                 {view.hover && (
                   <p className="mapi-hover" data-testid="map-interaction-hover">
                     {view.hover.line}
