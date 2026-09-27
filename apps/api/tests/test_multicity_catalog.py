@@ -86,7 +86,10 @@ def test_cities_routes_publish_allowlist_and_capabilities() -> None:
     assert set(validation) == {"SMALL_PLACE", "ALASKA", "HAWAII", "UNSUPPORTED"}
     assert all(item["selectable"] is False for item in validation.values())
     assert validation["SMALL_PLACE"]["state"] == EvidenceState.NOT_YET_TESTED
-    assert "25" in validation["SMALL_PLACE"]["reason"]
+    small_place = validation["SMALL_PLACE"]["capabilities"]
+    assert small_place["place_geometry"]["state"] == "VERIFIED"
+    assert small_place["selected_time_thermal"]["state"] == "NOT_YET_TESTED"
+    assert "26" in small_place["place_geometry"]["reason"]
     assert "CONUS" in validation["ALASKA"]["next_check"]
     assert "CONUS" in validation["HAWAII"]["next_check"]
     assert validation["UNSUPPORTED"]["state"] == EvidenceState.UNAVAILABLE
