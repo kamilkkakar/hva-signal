@@ -7,21 +7,18 @@ GET / assemble never acquires. No spend fields.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Literal
-from zoneinfo import ZoneInfo
 
 from app.domain.temporal import (
+    ClockStamp,
     SOURCE_MODE_FROM_THERMAL_DATA_SOURCE,
     TemperatureQuantity,
     TemporalSourceFamily,
     TemporalSourceMode,
-)
-from app.services.aoi_timezone import (
-    AoiLocalTimeError,
-    classify_aoi_local_datetime,
-    require_unique_aoi_local_hour,
+    clock_stamp_from_local,
+    clock_stamp_from_utc,
 )
 
 TP_WIRE_MODES = (
@@ -189,22 +186,31 @@ def import_valid_time(
     Never strip Z/offset and keep clock digits. A UTC instant is converted
     through IANA. Naive UTC-as-local is rejected when assume_naive_is forbids it.
     """
+    stamp = import_clock_stamp(
+        value, iana=iana, assume_naive_is=assume_naive_is
+    )
+    return stamp.valid_time_local, stamp.valid_time_utc
+
+
+def import_clock_stamp(
+    value: datetime | str,
+    *,
+    iana: str,
+    assume_naive_is: Literal["aoi_local", "forbidden_utc_naive"] = "aoi_local",
+) -> ClockStamp:
+    """Import a timestamp with explicit UTC, IANA, offset, and fold evidence."""
     parsed = _parse_datetime(value)
     if parsed.tzinfo is not None:
-        utc = parsed.astimezone(timezone.utc)
-        local_aware = utc.astimezone(ZoneInfo(iana))
-        local_naive = local_aware.replace(tzinfo=None)
-        if local_naive.minute or local_naive.second or local_naive.microsecond:
+        stamp = clock_stamp_from_utc(parsed, iana)
+        local = stamp.valid_time_local
+        if local.minute or local.second or local.microsecond:
             raise UtcImportError("converted local time is not on the hour; do not silently round")
-        classify_aoi_local_datetime(local_naive, iana)
-        return local_naive, utc
+        return stamp
     if assume_naive_is == "forbidden_utc_naive":
         raise UtcImportError(
             "naive datetime cannot be treated as UTC; do not strip Z and keep the hour"
         )
-    require_unique_aoi_local_hour(parsed, iana)
-    localized = parsed.replace(tzinfo=ZoneInfo(iana))
-    return parsed, localized.astimezone(timezone.utc)
+    return clock_stamp_from_local(parsed, iana)
 
 
 def refuse_z_strip_import(raw: str, *, iana: str) -> tuple[datetime, datetime]:

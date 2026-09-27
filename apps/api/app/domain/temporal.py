@@ -18,6 +18,7 @@ from zoneinfo import ZoneInfo
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 TEMPORAL_DOMAIN_CONTRACT_VERSION = "hva-signal-temporal-domain-v1"
+CLOCK_STAMP_CONTRACT_VERSION = "hva-signal-clock-stamp-v1"
 EXPECTED_ZONE_COUNT = 25
 PHOENIX_IANA = "America/Phoenix"
 CENTROID_WITHIN_MEAN = "centroid_within_mean"
@@ -111,12 +112,101 @@ EXPECTED_HOURS: dict[SamplingDesign, int] = {
 }
 
 
+class ClockStamp(BaseModel):
+    """Versioned civil-time evidence for one resolved UTC instant."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_type: Literal["ClockStamp"] = "ClockStamp"
+    contract_version: Literal["hva-signal-clock-stamp-v1"] = (
+        CLOCK_STAMP_CONTRACT_VERSION
+    )
+    valid_time_local: datetime
+    valid_time_utc: datetime
+    iana_timezone: str = Field(min_length=1)
+    utc_offset_minutes: int = Field(ge=-14 * 60, le=14 * 60)
+    local_time_status: Literal["unique", "ambiguous"]
+    fold: Literal[0, 1]
+
+    @model_validator(mode="after")
+    def _consistent_instant(self) -> ClockStamp:
+        from app.services.aoi_timezone import (
+            LocalTimeStatus,
+            classify_aoi_local_datetime,
+            require_iana_timezone,
+        )
+
+        if self.valid_time_local.tzinfo is not None:
+            raise ValueError("valid_time_local must be AOI-local naive")
+        if self.valid_time_utc.tzinfo is None or self.valid_time_utc.utcoffset() is None:
+            raise ValueError("valid_time_utc must be timezone-aware")
+        if self.valid_time_utc.utcoffset().total_seconds() != 0:
+            raise ValueError("valid_time_utc must be UTC")
+
+        iana = require_iana_timezone(self.iana_timezone)
+        local_aware = self.valid_time_utc.astimezone(ZoneInfo(iana))
+        if local_aware.replace(tzinfo=None) != self.valid_time_local:
+            raise ValueError("valid_time_local must represent valid_time_utc in iana_timezone")
+        offset = local_aware.utcoffset()
+        if offset is None or offset.total_seconds() % 60:
+            raise ValueError("resolved UTC offset must be a whole number of minutes")
+        if int(offset.total_seconds() // 60) != self.utc_offset_minutes:
+            raise ValueError("utc_offset_minutes must match the resolved UTC offset")
+        if local_aware.fold != self.fold:
+            raise ValueError("fold must match the resolved UTC instant")
+
+        classified = classify_aoi_local_datetime(self.valid_time_local, iana)
+        expected = (
+            "ambiguous" if classified is LocalTimeStatus.AMBIGUOUS else "unique"
+        )
+        if classified is LocalTimeStatus.NONEXISTENT:
+            raise ValueError("a UTC instant cannot resolve to a nonexistent local time")
+        if self.local_time_status != expected:
+            raise ValueError("local_time_status must match IANA timezone rules")
+        if expected == "unique" and self.fold != 0:
+            raise ValueError("unique local times must use fold=0")
+        return self
+
+
+def clock_stamp_from_utc(valid_time_utc: datetime, iana: str) -> ClockStamp:
+    """Build explicit local/UTC/offset/fold evidence from an aware instant."""
+    from app.services.aoi_timezone import LocalTimeStatus, classify_aoi_local_datetime
+
+    if valid_time_utc.tzinfo is None or valid_time_utc.utcoffset() is None:
+        raise ValueError("valid_time_utc must be timezone-aware")
+    utc = valid_time_utc.astimezone(timezone.utc)
+    local_aware = utc.astimezone(ZoneInfo(iana))
+    local = local_aware.replace(tzinfo=None)
+    classified = classify_aoi_local_datetime(local, iana)
+    if classified is LocalTimeStatus.NONEXISTENT:
+        raise ValueError("a UTC instant cannot resolve to a nonexistent local time")
+    offset = local_aware.utcoffset()
+    if offset is None or offset.total_seconds() % 60:
+        raise ValueError("resolved UTC offset must be a whole number of minutes")
+    return ClockStamp(
+        valid_time_local=local,
+        valid_time_utc=utc,
+        iana_timezone=iana,
+        utc_offset_minutes=int(offset.total_seconds() // 60),
+        local_time_status=(
+            "ambiguous" if classified is LocalTimeStatus.AMBIGUOUS else "unique"
+        ),
+        fold=local_aware.fold,
+    )
+
+
+def clock_stamp_from_local(valid_time_local: datetime, iana: str) -> ClockStamp:
+    """Resolve one unique naive wall-clock hour; reject gaps and overlaps."""
+    from app.services.aoi_timezone import require_unique_aoi_local_hour
+
+    local = require_unique_aoi_local_hour(valid_time_local, iana)
+    utc = local.replace(tzinfo=ZoneInfo(iana), fold=0).astimezone(timezone.utc)
+    return clock_stamp_from_utc(utc, iana)
+
+
 def local_to_utc(valid_time_local: datetime, iana: str) -> datetime:
-    """Naive AOI-local → aware UTC. Does not silently round minutes."""
-    if valid_time_local.tzinfo is not None:
-        raise ValueError("valid_time_local must be AOI-local naive")
-    localized = valid_time_local.replace(tzinfo=ZoneInfo(iana))
-    return localized.astimezone(timezone.utc)
+    """Naive AOI-local → aware UTC; reject minutes, DST gaps, and overlaps."""
+    return clock_stamp_from_local(valid_time_local, iana).valid_time_utc
 
 
 class AnalysisGeography(BaseModel):
@@ -290,6 +380,7 @@ class ZoneThermalObservation(BaseModel):
     valid_time_local: datetime
     valid_time_utc: datetime
     timezone: str = Field(min_length=1)
+    clock_stamp: ClockStamp | None = None
     local_date: date
     local_hour: int | None = Field(default=None, ge=0, le=23)
     upstream_time_semantics: Literal["aoi_local_time"] = UPSTREAM_AOI_LOCAL
@@ -338,9 +429,13 @@ class ZoneThermalObservation(BaseModel):
             and self.local_hour != self.valid_time_local.hour
         ):
             raise ValueError("local_hour must match valid_time_local for instants")
-        derived = local_to_utc(self.valid_time_local, self.timezone)
-        if derived.replace(microsecond=0) != self.valid_time_utc.replace(microsecond=0):
+        derived = clock_stamp_from_utc(self.valid_time_utc, self.timezone)
+        if derived.valid_time_local != self.valid_time_local:
             raise ValueError("valid_time_utc must be the UTC conversion of local+timezone")
+        if self.clock_stamp is None:
+            object.__setattr__(self, "clock_stamp", derived)
+        elif self.clock_stamp != derived:
+            raise ValueError("clock_stamp must match valid_time_local/UTC/timezone")
         present = self.temperature_c is not None and self.temperature_c == self.temperature_c
         if present and self.coverage_status != CoverageStatus.OK:
             raise ValueError("finite temperature_c requires coverage_status=ok")

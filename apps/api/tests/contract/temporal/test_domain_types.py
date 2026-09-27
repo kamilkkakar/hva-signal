@@ -5,6 +5,7 @@ from datetime import date, datetime, timezone
 import pytest
 
 from app.domain.temporal import (
+    CLOCK_STAMP_CONTRACT_VERSION,
     TEMPORAL_DOMAIN_CONTRACT_VERSION,
     AnalysisGeography,
     Comparability,
@@ -93,6 +94,12 @@ def test_present_observation_round_trip() -> None:
     )
     assert obs.contract_version == TEMPORAL_DOMAIN_CONTRACT_VERSION
     assert obs.valid_time_utc == datetime(2024, 7, 15, 10, 0, tzinfo=timezone.utc)
+    assert obs.clock_stamp is not None
+    assert obs.clock_stamp.contract_version == CLOCK_STAMP_CONTRACT_VERSION
+    assert obs.clock_stamp.iana_timezone == "America/Phoenix"
+    assert obs.clock_stamp.utc_offset_minutes == -420
+    assert obs.clock_stamp.local_time_status == "unique"
+    assert obs.clock_stamp.fold == 0
     assert obs.quality.interpolated is False
 
 
