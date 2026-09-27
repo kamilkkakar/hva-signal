@@ -123,19 +123,27 @@ VALIDATION_JURISDICTIONS: tuple[ValidationJurisdiction, ...] = (
         validation_class="SMALL_PLACE",
         state=EvidenceState.NOT_YET_TESTED,
         reason=(
-            "No Yuma evidence package has been validated. A place is not incapable merely "
-            "because it contains fewer than 25 Census tracts."
+            "Yuma's native Census place geometry is validated, but provider coverage and "
+            "selected-time thermal evidence remain untested."
         ),
-        affected_scope=["place_geometry", "tract_aggregation", "reference_layers", "thermal_source"],
+        affected_scope=["tract_aggregation", "reference_layers", "thermal_source"],
         next_check=(
-            "Materialize the native place geometry and test every available tract without "
-            "padding or imposing a 25-tract minimum."
+            "Run a no-purchase provider-coverage check against the validated native AOI "
+            "before authorizing acquisition."
         ),
         capabilities={
-            "place_geometry": _untested(
-                reason="Native small-place geometry has not been materialized.",
-                scope="place_geometry",
-                next_check="Resolve the Census place and retain every intersecting native tract.",
+            "place_geometry": CapabilityEvidence(
+                state=EvidenceState.VERIFIED,
+                reason=(
+                    "The 2025 Census Yuma place (GEOID 0485540) resolves to all 26 "
+                    "native eligible tracts without component pruning, padding, or a "
+                    "25-tract target."
+                ),
+                affected_scope="place_geometry",
+                next_check=(
+                    "Revalidate the versioned package after a Census vintage or native "
+                    "eligibility-policy change."
+                ),
             ),
             "selected_time_thermal": _untested(
                 reason="Provider coverage has not been tested against the native small-place AOI.",
