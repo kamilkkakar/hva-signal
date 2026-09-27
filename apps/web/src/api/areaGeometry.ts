@@ -20,6 +20,18 @@ export type GeometryLoadResult =
   | { stale: true }
   | { stale: false; payload: AreaGeometryPayload };
 
+type GeometryLoaderOptions = {
+  attempts?: number;
+  retryDelayMs?: number;
+  sleep?: (delayMs: number) => Promise<void>;
+};
+
+class AreaGeometryHttpError extends Error {
+  constructor(readonly status: number) {
+    super(`Area geometry could not be loaded (${status}).`);
+  }
+}
+
 type AreaSummary = {
   area_id?: string;
   zone_geometry_version?: string;
@@ -69,7 +81,7 @@ export async function fetchAreaGeometry(
     },
   );
   if (!response.ok) {
-    throw new Error(`Area geometry could not be loaded (${response.status}).`);
+    throw new AreaGeometryHttpError(response.status);
   }
   const body: unknown = await response.json();
   if (!isFeatureCollection(body)) {
@@ -94,19 +106,44 @@ export async function fetchAreaGeometry(
   };
 }
 
-export function createGeometryLoader(fetchImpl: typeof fetch = fetch) {
+export function createGeometryLoader(
+  fetchImpl: typeof fetch = fetch,
+  options: GeometryLoaderOptions = {},
+) {
   let generation = 0;
+  const attempts = Math.max(1, options.attempts ?? 10);
+  const retryDelayMs = Math.max(0, options.retryDelayMs ?? 500);
+  const sleep = options.sleep ?? ((delayMs: number) => new Promise<void>((resolve) => {
+    window.setTimeout(resolve, delayMs);
+  }));
   return {
     invalidate() {
       generation += 1;
     },
     async load(areaId: string): Promise<GeometryLoadResult> {
       const current = ++generation;
-      const payload = await fetchAreaGeometry(areaId, fetchImpl);
-      if (current !== generation) {
-        return { stale: true };
+      for (let attempt = 1; attempt <= attempts; attempt += 1) {
+        try {
+          const payload = await fetchAreaGeometry(areaId, fetchImpl);
+          if (current !== generation) {
+            return { stale: true };
+          }
+          return { stale: false, payload };
+        } catch (error) {
+          if (current !== generation) {
+            return { stale: true };
+          }
+          const retryable =
+            !(error instanceof AreaGeometryHttpError) ||
+            error.status === 429 ||
+            error.status >= 500;
+          if (!retryable || attempt === attempts) {
+            throw error;
+          }
+          await sleep(retryDelayMs * attempt);
+        }
       }
-      return { stale: false, payload };
+      throw new Error("Area geometry retry loop ended unexpectedly.");
     },
   };
 }
