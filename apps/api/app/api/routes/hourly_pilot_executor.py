@@ -1,14 +1,15 @@
 """Authenticated control plane for the frozen Phoenix hourly pilot.
 
 The contract route resolves server-owned identity without side effects. The
-canary route is default-closed and, when explicitly enabled, can execute only
-through shared durable storage. Both remain absent from public OpenAPI.
+execution routes are default-closed and use shared durable storage. Batch
+activation is separate; all control routes remain absent from public OpenAPI.
 """
 
 from __future__ import annotations
 
 import secrets
 from contextlib import suppress
+from datetime import datetime, timezone
 from typing import Any, Final
 
 import httpx
@@ -41,6 +42,8 @@ from app.integrations.fortyguard.exceptions import (
 from app.services.hourly_pilot_acquisition import (
     HourlyPilotAcquisitionError,
     execute_hourly_pilot_canary,
+    execute_hourly_pilot_slot,
+    prepare_hourly_pilot_slot,
     prepare_hourly_pilot_canary,
 )
 
@@ -100,7 +103,7 @@ async def _validated_body(request: Request) -> HourlyPilotSlotContractBody:
         ) from None
 
 
-def _resolved_canary(body: HourlyPilotSlotContractBody):
+def _resolved_canary(body: HourlyPilotSlotContractBody, *, batch: bool = False):
     try:
         resolved = load_phoenix_hourly_thermal_pilot_manifest()
     except HourlyThermalPilotRegistryError as exc:
@@ -126,7 +129,7 @@ def _resolved_canary(body: HourlyPilotSlotContractBody):
             detail={"code": "hourly_pilot_slot_not_found"},
         )
     try:
-        prepared = prepare_hourly_pilot_canary(resolved, slot.slot_id)
+        prepared = (prepare_hourly_pilot_slot if batch else prepare_hourly_pilot_canary)(resolved, slot.slot_id)
     except HourlyPilotAcquisitionError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -227,16 +230,28 @@ async def post_hourly_pilot_slot_contract(request: Request) -> dict[str, Any]:
 async def post_hourly_pilot_canary(request: Request) -> dict[str, Any]:
     """Execute or recover only the frozen canary through shared durability."""
 
+    return await _execute_slot(request, batch=False)
+
+
+@router.post("/hourly-pilot/slot", include_in_schema=False)
+async def post_hourly_pilot_slot(request: Request) -> dict[str, Any]:
+    """Execute a single manifest slot after explicit batch activation."""
+    return await _execute_slot(request, batch=True)
+
+
+async def _execute_slot(request: Request, *, batch: bool) -> dict[str, Any]:
     settings = get_settings()
     _authenticate(request, settings)
+    if batch and not settings.hourly_pilot_batch_enabled:
+        raise HTTPException(status_code=503, detail={"code": "hourly_pilot_batch_disabled"})
     body = await _validated_body(request)
-    resolved, slot, prepared = _resolved_canary(body)
+    resolved, slot, prepared = _resolved_canary(body, batch=batch)
 
     client: FortyGuardHttpClient | None = None
     try:
         store, client = _execution_dependencies(settings)
         bundled, source = await run_in_threadpool(
-            execute_hourly_pilot_canary,
+            execute_hourly_pilot_slot if batch else execute_hourly_pilot_canary,
             resolved,
             slot_id=slot.slot_id,
             store=store,
@@ -258,7 +273,7 @@ async def post_hourly_pilot_canary(request: Request) -> dict[str, Any]:
             detail={"code": "hourly_pilot_result_invalid"},
         )
     return {
-        "status": "canary_execution_completed",
+        "status": "slot_execution_completed" if batch else "canary_execution_completed",
         "manifest_sha256": resolved.sha256,
         "slot_id": slot.slot_id,
         "request_fingerprint": prepared.request_fingerprint,
@@ -269,3 +284,22 @@ async def post_hourly_pilot_canary(request: Request) -> dict[str, Any]:
         "durable_replay": source == "durable_replay",
         "result_stored": True,
     }
+
+
+@router.get("/hourly-pilot/usage", include_in_schema=False)
+async def get_hourly_pilot_usage(request: Request) -> dict[str, Any]:
+    """Read sanitized account credits without exposing the service credential."""
+    settings = get_settings()
+    _authenticate(request, settings)
+    client = None
+    try:
+        client = FortyGuardHttpClient(settings.fortyguard_api_key, base_url=settings.fortyguard_base_url)
+        remaining = await run_in_threadpool(client.remaining_credits)
+        return {"remaining_credits": remaining, "measured_at": datetime.now(timezone.utc).isoformat(),
+                "scope": "account", "vendor_submission_attempted": False}
+    except Exception as exc:
+        raise _execution_error(exc) from None
+    finally:
+        if client is not None:
+            with suppress(Exception):
+                client.close()

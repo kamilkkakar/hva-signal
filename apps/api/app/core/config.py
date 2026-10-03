@@ -50,6 +50,7 @@ class Settings(BaseSettings):
     acquisition_account_scope: str = "primary"
     # Internal hourly-pilot control plane. Default closed and excluded from
     # public OpenAPI. This gate alone never submits a vendor request.
+    hourly_pilot_batch_enabled: bool = False
     hourly_pilot_executor_enabled: bool = False
     hourly_pilot_executor_credential: str = ""
     # Operator approval is server-side only. Default denied.

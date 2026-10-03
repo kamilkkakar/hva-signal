@@ -5,6 +5,7 @@ Analytical engines must not import this module to call FortyGuard.
 
 from __future__ import annotations
 
+import math
 import time
 from collections.abc import Callable
 from typing import Any, TYPE_CHECKING
@@ -53,6 +54,7 @@ class FortyGuardHttpClient:
         if transport is not None:
             kwargs["transport"] = transport
         self._client = httpx.Client(**kwargs)
+        self._api_key = str(api_key).strip()
         self._before_submit = before_submit
         self._acquisition_store = acquisition_store
         self.last_acquisition_source = "live"
@@ -100,6 +102,27 @@ class FortyGuardHttpClient:
         if not isinstance(activity_id, str) or not activity_id.strip():
             raise FortyGuardHttpError("Submission returned no usable activity ID")
         return activity_id
+
+    def remaining_credits(self) -> float:
+        """Return only the numeric balance from the provider's usage response."""
+        path = "/v1/system/fetch-api-key-usage"
+        response = self._client.post(path, json={"api_key": self._api_key})
+        # Do not include the response body: providers may echo submitted credentials.
+        if not response.is_success:
+            raise FortyGuardHttpError("Credit usage lookup failed", status_code=response.status_code)
+        try:
+            body = response.json()
+            summary = body.get("credit_summary")
+            if not isinstance(summary, dict):
+                summary = body.get("data", {}).get("credit_summary")
+            remaining = summary.get("cycle_remaining_credits")
+            if remaining is None:
+                remaining = summary.get("total_remaining_credits")
+            if isinstance(remaining, bool) or not isinstance(remaining, (int, float)) or not math.isfinite(remaining) or remaining < 0:
+                raise ValueError("Invalid balance")
+            return float(remaining)
+        except (ValueError, TypeError, AttributeError):
+            raise FortyGuardHttpError("Credit usage response has no valid numeric balance") from None
 
     def get_status(self, activity_id: str) -> dict[str, Any]:
         self.status_lookup_count += 1

@@ -55,3 +55,7 @@ CI provisions PostgreSQL automatically. Local Docker setup:
 ```bash
 docker compose -f infra/docker-compose.yml up --build
 ```
+
+## Hourly acquisition
+
+The private `/internal/v1/hourly-pilot/slot` route accepts only `manifest_sha256` and `slot_id`. Set `HOURLY_PILOT_EXECUTOR_ENABLED=true`, a strong `HOURLY_PILOT_EXECUTOR_CREDENTIAL`, and `HOURLY_PILOT_BATCH_ENABLED=true` after validating the retained canary. Authenticate with `X-HVA-Pilot-Executor`. Execute slots sequentially; reconcile interrupted activities before continuing. The shared daily allowance still applies. `/internal/v1/hourly-pilot/usage` returns a timestamped account credit balance; concurrent account usage prevents attributing a balance difference to one request. A stored response is not a validated thermal field. Disable the executor after acquisition.

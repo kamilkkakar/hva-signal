@@ -3,6 +3,7 @@ name: HVA-Signal CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   api:
@@ -54,6 +55,7 @@ jobs:
       - run: npm run build
 
   playwright:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
       DATA_MODE: replay
