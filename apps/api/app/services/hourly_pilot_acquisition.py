@@ -54,6 +54,16 @@ def prepare_hourly_pilot_canary(
     )
     if slot is None or slot.phase != "canary":
         raise HourlyPilotAcquisitionError("The frozen canary slot is unavailable.")
+    return prepare_hourly_pilot_slot(resolved, slot_id)
+
+
+def prepare_hourly_pilot_slot(
+    resolved: ResolvedHourlyThermalPilotManifest, slot_id: str,
+) -> PreparedHourlyPilotAcquisition:
+    """Prepare one slot from the verified server manifest; callers cannot supply an AOI."""
+    slot = next((item for item in resolved.manifest.slots if item.slot_id == slot_id), None)
+    if slot is None:
+        raise HourlyPilotAcquisitionError("The requested slot is outside the frozen manifest.")
     request = request_for_hourly_pilot_slot(resolved, slot)
     return PreparedHourlyPilotAcquisition(
         manifest_sha256=resolved.sha256,
@@ -98,6 +108,36 @@ def execute_hourly_pilot_canary(
     """Execute through shared durability; never submit outside the frozen canary."""
 
     prepared = prepare_hourly_pilot_canary(resolved, slot_id)
+    return store.run(
+        prepared.path,
+        prepared.payload,
+        request_fingerprint=prepared.request_fingerprint,
+        submit=lambda: client.submit(prepared.path, prepared.payload),
+        poll=lambda activity_id: wait_for(
+            client.get_status,
+            activity_id,
+            poll_interval=poll_interval,
+            timeout=poll_timeout,
+            sleep=sleep,
+            monotonic=monotonic,
+        ),
+    )
+
+
+def execute_hourly_pilot_slot(
+    resolved: ResolvedHourlyThermalPilotManifest,
+    *,
+    slot_id: str,
+    store: PostgresAcquisitionStore,
+    client: HourlyPilotVendorClient,
+    poll_interval: float = 3.0,
+    poll_timeout: float = 900.0,
+    sleep: Callable[[float], None] = time.sleep,
+    monotonic: Callable[[], float] = time.monotonic,
+) -> tuple[dict[str, Any], str]:
+    """Execute one exact manifest slot with durable reservation and recovery."""
+
+    prepared = prepare_hourly_pilot_slot(resolved, slot_id)
     return store.run(
         prepared.path,
         prepared.payload,

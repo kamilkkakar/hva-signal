@@ -255,3 +255,54 @@ def test_execution_errors_are_sanitized(
     assert response.json()["detail"]["code"] == code
     assert "private" not in response.text
     client.close.assert_called_once()
+
+
+def test_batch_disabled_before_dependencies(monkeypatch):
+    dependencies = Mock()
+    monkeypatch.setattr(route, '_execution_dependencies', dependencies)
+    response = _client().post('/internal/v1/hourly-pilot/slot', json=BODY, headers=_headers())
+    assert response.status_code == 503
+    dependencies.assert_not_called()
+
+
+def test_batch_executes_exact_slot(monkeypatch):
+    monkeypatch.setenv('HOURLY_PILOT_BATCH_ENABLED', 'true')
+    get_settings.cache_clear()
+    client = Mock()
+    monkeypatch.setattr(route, '_execution_dependencies', lambda settings: (Mock(), client))
+    execute = Mock(return_value=({'activity_id': 'saved'}, 'durable_replay'))
+    monkeypatch.setattr(route, 'execute_hourly_pilot_slot', execute)
+    body = {**BODY, 'slot_id': '2024-07-15T04:00'}
+    response = _client().post('/internal/v1/hourly-pilot/slot', json=body, headers=_headers())
+    assert response.status_code == 200
+    assert response.json()['durable_replay'] is True
+    assert response.json()['vendor_submission_attempted'] is False
+    assert execute.call_args.kwargs['slot_id'] == body['slot_id']
+    client.close.assert_called_once()
+
+
+@pytest.mark.parametrize('payload', [{**BODY, 'slot_id': '2025-07-15T04:00'}, {**BODY, 'polygon_aoi': []}, {**BODY, 'manifest_sha256': '0' * 64}])
+def test_batch_rejects_modified_contract(monkeypatch, payload):
+    monkeypatch.setenv('HOURLY_PILOT_BATCH_ENABLED', 'true')
+    get_settings.cache_clear()
+    dependencies = Mock()
+    monkeypatch.setattr(route, '_execution_dependencies', dependencies)
+    response = _client().post('/internal/v1/hourly-pilot/slot', json=payload, headers=_headers())
+    assert response.status_code in (404, 409, 422)
+    dependencies.assert_not_called()
+
+
+def test_usage_auth_and_sanitized_balance(monkeypatch):
+    client = Mock()
+    client.remaining_credits.return_value = 1995780.0
+    factory = Mock(return_value=client)
+    monkeypatch.setattr(route, 'FortyGuardHttpClient', factory)
+    assert _client().get('/internal/v1/hourly-pilot/usage').status_code == 401
+    factory.assert_not_called()
+    response = _client().get('/internal/v1/hourly-pilot/usage', headers=_headers())
+    assert response.status_code == 200
+    assert response.json()['remaining_credits'] == 1995780.0
+    assert response.json()['vendor_submission_attempted'] is False
+    assert '/internal/v1/hourly-pilot/usage' not in app.openapi()['paths']
+    assert '/internal/v1/hourly-pilot/slot' not in app.openapi()['paths']
+    client.close.assert_called_once()

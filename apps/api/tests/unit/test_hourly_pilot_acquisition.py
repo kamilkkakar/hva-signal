@@ -128,3 +128,23 @@ def test_executor_rejects_batch_before_store_or_vendor() -> None:
         )
     store.run.assert_not_called()
     client.submit.assert_not_called()
+
+
+def test_all_slots_keep_exact_identity():
+    from app.services.hourly_pilot_acquisition import prepare_hourly_pilot_slot
+    resolved = load_phoenix_hourly_thermal_pilot_manifest()
+    assert len(resolved.manifest.slots) == 72
+    for slot in resolved.manifest.slots:
+        prepared = prepare_hourly_pilot_slot(resolved, slot.slot_id)
+        assert prepared.request_fingerprint == slot.request_fingerprint
+        assert prepared.payload['polygon_aoi'] == resolved.provider_aoi
+        assert prepared.payload['date_time']['filter_type'] == 1
+
+
+def test_batch_replay_does_not_submit_or_poll():
+    from app.services.hourly_pilot_acquisition import execute_hourly_pilot_slot
+    store, client = Mock(), Mock()
+    store.run.return_value = ({'activity_id': 'saved', 'result': {}}, 'durable_replay')
+    assert execute_hourly_pilot_slot(load_phoenix_hourly_thermal_pilot_manifest(), slot_id='2024-07-15T04:00', store=store, client=client)[1] == 'durable_replay'
+    client.submit.assert_not_called()
+    client.get_status.assert_not_called()
