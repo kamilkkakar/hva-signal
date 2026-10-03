@@ -1,3 +1,4 @@
+import { publishedPhoenixGeometry } from "./publishedGeometry";
 import { useEffect, useMemo, useState } from "react";
 import type { AnalysisResultStub } from "@/api/analysisJobs";
 import { createGeometryLoader, type AreaGeometryPayload } from "@/api/areaGeometry";
@@ -33,10 +34,18 @@ type MapBandProps = {
 
 export function MapBand(props: MapBandProps) {
   const [geometry, setGeometry] = useState<AreaGeometryPayload | null>(null);
+  const [geometryError, setGeometryError] = useState(false);
+  const [retry, setRetry] = useState(0);
   const mapMode = props.mapMode ?? "THERMAL";
   const areaId = props.areaId ?? "phoenix-demo";
 
+  const publishedGeometry = useMemo(() => publishedPhoenixGeometry(areaId), [areaId]);
+  const activeGeometry = publishedGeometry ?? (geometry?.areaId === areaId ? geometry : null);
+
   useEffect(() => {
+    setGeometryError(false);
+    setGeometry(null);
+    if (publishedGeometry) return;
     const loader = createGeometryLoader();
     let cancelled = false;
     void loader
@@ -50,24 +59,25 @@ export function MapBand(props: MapBandProps) {
       .catch(() => {
         if (!cancelled) {
           setGeometry(null);
+          setGeometryError(true);
         }
       });
     return () => {
       cancelled = true;
       loader.invalidate();
     };
-  }, [areaId]);
+  }, [areaId, publishedGeometry, retry]);
 
   const catalog = useMemo(
     () =>
       buildJudgeMapCatalog({
-        geometry,
+        geometry: activeGeometry,
         areaId,
         result: props.result,
         jobStatus: props.jobStatus,
         analysisTime: props.analysisTime,
       }),
-    [areaId, geometry, props.analysisTime, props.jobStatus, props.result],
+    [areaId, activeGeometry, props.analysisTime, props.jobStatus, props.result],
   );
 
   const modeCatalog = useMemo(
@@ -107,13 +117,20 @@ export function MapBand(props: MapBandProps) {
       {props.onMapModeChange ? (
         <MapModeTabs mode={mapMode} onModeChange={props.onMapModeChange} />
       ) : null}
-      <JudgeMap
+      {!activeGeometry ? (
+        <div role={geometryError ? "alert" : "status"} data-testid="map-geometry-status">
+          <p>{geometryError
+            ? "Map boundaries could not be loaded. Please retry."
+            : "Loading map boundaries…"}</p>
+          {geometryError ? <button type="button" onClick={() => setRetry((value) => value + 1)}>Retry map</button> : null}
+        </div>
+      ) : <JudgeMap
         lane="A"
         historical={modeCatalog}
         enabled
         selectedId={props.selectedZoneId ?? null}
         onSelectedIdChange={props.onSelectedIdChange}
-      />
+      />}
       <details className="hx-method hx-map-about" data-testid="map-about-layer">
         <summary>{MAP_ABOUT_LAYER}</summary>
         <p>{MAP_ABOUT_BODY}</p>
