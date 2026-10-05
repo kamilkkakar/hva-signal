@@ -86,8 +86,8 @@ class PostgresAcquisitionStore:
             rows = conn.execute(
                 """SELECT fingerprint, generation, activity_id, state, updated_at,
                 expires_at, result_payload IS NOT NULL AS has_result,
-                CASE WHEN jsonb_typeof(result_payload->'map_data'->'features') = 'array'
-                THEN jsonb_array_length(result_payload->'map_data'->'features') ELSE NULL END AS feature_count
+                CASE WHEN jsonb_typeof(result_payload->'result'->'map_data'->'features') = 'array'
+                THEN jsonb_array_length(result_payload->'result'->'map_data'->'features') ELSE NULL END AS feature_count
                 FROM hva_acquisitions WHERE scope = %s
                 ORDER BY fingerprint, generation LIMIT 2001""", (self.scope,),
             ).fetchall()
