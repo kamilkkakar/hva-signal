@@ -49,6 +49,19 @@ def run(store, payload=None, submit=None, poll=None):
     )
 
 
+def test_audit_reports_existing_results_without_writes(store):
+    run(store)
+    before = store.audit()
+    after = store.audit()
+    assert before == after
+    assert before["total"] == before["completed"] == 1
+    assert before["incomplete"] == 0
+    assert before["distinct_activities"] == 1
+    assert before["records"][0]["activity_id"] == "activity-1"
+    assert before["records"][0]["feature_count"] == 0
+    assert before["database_bytes"] > 0
+
+
 def forbidden(*_):
     pytest.fail("An existing acquisition must not purchase again")
 

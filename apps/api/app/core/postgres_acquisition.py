@@ -69,6 +69,32 @@ class PostgresAcquisitionStore:
             conn.execute("SELECT pg_advisory_xact_lock(%s)", (_lock_key("hva-acquisition-schema-v1"),))
             conn.execute(Path(__file__).with_name("sql").joinpath("shared_acquisition.sql").read_text())
 
+    def audit(self) -> dict[str, Any]:
+        """Bounded metadata snapshot; never migrates, reserves, or calls the vendor."""
+        with self._connect() as conn, conn.transaction():
+            conn.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
+            summary = conn.execute(
+                """SELECT count(*) AS total, count(DISTINCT activity_id) AS distinct_activities,
+                count(DISTINCT fingerprint) AS distinct_fingerprints,
+                count(*) FILTER (WHERE state = 'RESULT_RECEIVED') AS completed,
+                count(*) FILTER (WHERE state <> 'RESULT_RECEIVED') AS incomplete,
+                count(*) FILTER (WHERE reserved_day = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')::date) AS today_reserved,
+                max(updated_at) AS latest_write
+                FROM hva_acquisitions WHERE scope = %s""", (self.scope,),
+            ).fetchone()
+            size = conn.execute("SELECT pg_database_size(current_database()) AS database_bytes").fetchone()
+            rows = conn.execute(
+                """SELECT fingerprint, generation, activity_id, state, updated_at,
+                expires_at, result_payload IS NOT NULL AS has_result,
+                CASE WHEN jsonb_typeof(result_payload->'result'->'map_data'->'features') = 'array'
+                THEN jsonb_array_length(result_payload->'result'->'map_data'->'features') ELSE NULL END AS feature_count
+                FROM hva_acquisitions WHERE scope = %s
+                ORDER BY fingerprint, generation LIMIT 2001""", (self.scope,),
+            ).fetchall()
+            if len(rows) > 2000:
+                raise AcquisitionStorageUnavailable("Audit exceeds bounded record limit.")
+            return {**summary, **size, "daily_limit": self.daily_limit, "records": rows}
+
     def run(
         self, path: str, payload: dict[str, Any], *,
         submit: Callable[[], str], poll: Callable[[str], dict[str, Any]],

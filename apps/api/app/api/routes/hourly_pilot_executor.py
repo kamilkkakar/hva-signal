@@ -303,3 +303,24 @@ async def get_hourly_pilot_usage(request: Request) -> dict[str, Any]:
         if client is not None:
             with suppress(Exception):
                 client.close()
+
+
+@router.get("/hourly-pilot/audit", include_in_schema=False)
+async def get_hourly_pilot_audit(request: Request) -> dict[str, Any]:
+    """Authenticated, read-only durable metadata for safe acquisition reconciliation."""
+    settings = get_settings()
+    _authenticate(request, settings)
+    try:
+        store = store_from_settings(settings)
+        if store is None:
+            raise AcquisitionStorageUnavailable("Shared acquisition storage unavailable.")
+        snapshot = await run_in_threadpool(store.audit)
+        resolved = load_phoenix_hourly_thermal_pilot_manifest()
+        return {"measured_at": datetime.now(timezone.utc).isoformat(),
+                "manifest_sha256": resolved.sha256,
+                "slots": [{"slot_id": slot.slot_id, "fingerprint": slot.request_fingerprint}
+                          for slot in resolved.manifest.slots],
+                "batch_enabled": settings.hourly_pilot_batch_enabled,
+                "vendor_submission_attempted": False, **snapshot}
+    except Exception:
+        raise HTTPException(status_code=503, detail={"code": "acquisition_audit_unavailable"}) from None

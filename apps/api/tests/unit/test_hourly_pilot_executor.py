@@ -57,6 +57,41 @@ def _headers(value: str = CREDENTIAL) -> dict[str, str]:
     return {HOURLY_PILOT_CREDENTIAL_HEADER: value}
 
 
+def test_audit_authenticates_before_connecting(monkeypatch):
+    factory = Mock()
+    monkeypatch.setattr(route, "store_from_settings", factory)
+    response = _client().get("/internal/v1/hourly-pilot/audit")
+    assert response.status_code == 401
+    factory.assert_not_called()
+
+
+def test_audit_is_private_read_only_metadata(monkeypatch):
+    store = Mock()
+    store.audit.return_value = {"total": 53, "records": [], "database_bytes": 25141248}
+    monkeypatch.setattr(route, "store_from_settings", lambda _: store)
+    vendor = Mock()
+    monkeypatch.setattr(route, "FortyGuardHttpClient", vendor)
+    response = _client().get("/internal/v1/hourly-pilot/audit", headers=_headers())
+    assert response.status_code == 200
+    assert response.json()["total"] == 53
+    assert len(response.json()["slots"]) == 72
+    assert response.json()["vendor_submission_attempted"] is False
+    store.audit.assert_called_once_with()
+    store.run.assert_not_called()
+    store.migrate.assert_not_called()
+    vendor.assert_not_called()
+    assert "/internal/v1/hourly-pilot/audit" not in app.openapi()["paths"]
+
+
+def test_audit_storage_failure_is_sanitized(monkeypatch):
+    store = Mock()
+    store.audit.side_effect = RuntimeError("private database connection detail")
+    monkeypatch.setattr(route, "store_from_settings", lambda _: store)
+    response = _client().get("/internal/v1/hourly-pilot/audit", headers=_headers())
+    assert response.status_code == 503
+    assert "private database" not in response.text
+
+
 def test_executor_defaults_closed_and_route_stays_out_of_public_openapi() -> None:
     fields = Settings.model_fields
     assert fields["hourly_pilot_executor_enabled"].default is False
